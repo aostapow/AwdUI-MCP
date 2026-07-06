@@ -1,10 +1,27 @@
-# Object Repository (UFT-style / Swf* WinForms)
+# Object Repository (UFT-style / Swf*)
 
-Logical object names are stored per application under `~/.awdui-mcp/repositories/`.
+Logical object names are stored in **SQLite** at `~/.awdui-mcp/repository.db`.  
+Image assets live in `~/.awdui-mcp/repository-assets/{app_id}/`.
+
+Legacy JSON repos under `~/.awdui-mcp/repositories/` are migrated automatically on first access.
+
+## Repo Studio (web UI)
+
+```powershell
+# Production: API serves built SPA on http://127.0.0.1:8765
+& C:\mcps\AwdUI-MCP\scripts\start-repo-studio.ps1
+
+# Development: API :8765 + Vite :5173
+& C:\mcps\AwdUI-MCP\scripts\start-repo-studio.ps1 -Dev
+```
+
+Features:
+- Tree explorer: App → Window → Object
+- Inspector: full properties, QTP identification tiers (mandatory/assistive/smart)
+- Agent hints editor (operational notes for the AI agent)
+- Search by name, automation_id, repo_path
 
 ## Naming
-
-Use hierarchical paths mirroring QTP/UFT:
 
 | QTP / UFT | AwdUI repo_path |
 |-----------|-------------------|
@@ -13,53 +30,45 @@ Use hierarchical paths mirroring QTP/UFT:
 
 ## Swf* classes
 
-WinForms controls are stored with QTP-style classes (`SwfButton`, `SwfEdit`, `SwfComboBox`, …) and per-class identification profiles (mandatory → assistive → smart → ordinal → template → OCR).
+WinForms and UIA controls use QTP-style classes (`SwfButton`, `SwfEdit`, …) with per-class identification profiles in `winforms_map.py`.
 
-## Tools
+## MCP tools
 
 | Tool | Purpose |
 |------|---------|
-| `repo_capture` | Object Spy → add control to repository with Swf* class |
+| `repo_capture` | Object Spy → add control to repository |
 | `repo_find` | Resolve logical name (Smart Identification) |
-| `repo_action` | Execute Swf* method: `Click`, `Set`, `Select`, `FireEvent`, … |
-| `repo_list` | List stored objects with class and parent |
+| `repo_action` | Execute Swf* method: `Click`, `Set`, `Select`, … |
+| `repo_list` | List stored objects |
+| `repo_hints` | Read agent hints for object or app |
 | `smart_find` | Cascade including repo layer |
-| `highlight_element` | Mark object on screen |
-
-### repo_action examples
-
-```
-repo_action(repo_path="frmMain/btnGuardar", method="Click")
-repo_action(repo_path="frmMain/txtUsuario", method="Set", value="admin")
-repo_action(repo_path="frmMain/cboTipo", method="Select", value="Premium")
-repo_action(repo_path="frmMain/txtPass", method="SetSecure", value="secret")
-```
 
 ## Auto-capture
 
-After successful `smart_find`, `click_element`, `repo_action`, or `repo_find` with `remember=true` (default):
+Every successful `find_element`, `click_element`, or `smart_find` (with `remember=true`, default) saves:
+- Full detectable properties
+- Identification tiers (mandatory / assistive / smart / ordinal)
+- Last resolution (backend, bbox)
+- Optional snapshots when `AWDUI_SNAPSHOT=1`
 
-- Swf* class and parent chain
-- Identification props (mandatory + assistive + smart)
-- Full snapshot via `capture_object_snapshot` (images + phash)
-- Strategy memory update
-
-## Image assets
-
-| File | Use |
-|------|-----|
-| `*_crop.png` | Exact element bbox |
-| `*_context.png` | Bbox + 20% padding |
-| `*_template.png` | OpenCV template matching fallback (Smart ID) |
-| `*_annotated.png` | Window with red highlight |
+Objects are keyed by stable `repo_path` (e.g. `Calculadora/num6Button`).
 
 ## Smart Identification order
 
 1. Mandatory properties only
 2. Mandatory + assistive
-3. Smart properties one-by-one (`name`, `text`, `class_name`, …)
+3. Smart properties one-by-one
 4. Ordinal index
 5. Template image from last snapshot
 6. OCR on stored visible text
 
-Parent-scoped search: nested paths resolve each parent in the chain before locating the leaf control inside the parent bounding box.
+## REST API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/apps` | GET | List applications |
+| `/api/apps/{app_id}/tree` | GET | Window/object tree |
+| `/api/objects?repo_path=` | GET | Object detail + hints |
+| `/api/objects/{repo_path}` | PUT | Update identification / hints |
+| `/api/search?q=` | GET | Search objects |
+| `/api/migrate` | POST | Force JSON → SQLite migration |

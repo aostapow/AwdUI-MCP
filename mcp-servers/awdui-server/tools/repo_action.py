@@ -19,6 +19,7 @@ def _app_repo(window_title: Optional[str]) -> tuple[str, dict]:
     fw = do_detect_framework(window_title)
     app_name = fw.get("process_name") or fw.get("exe_name") or "foreground"
     repo = load_repo(app_name, fw.get("exe_path", ""))
+    repo["exe_path"] = fw.get("exe_path", "")
     repo["framework"] = fw.get("framework", repo.get("framework", "unknown"))
     return app_name, repo
 
@@ -60,12 +61,10 @@ def do_repo_resolve(
     )
 
 
-def _click_coords(elem: dict) -> tuple[int, int]:
-    cx = elem.get("clickable_x")
-    cy = elem.get("clickable_y")
-    if cx is not None and cy is not None:
-        return int(cx), int(cy)
-    return elem["x"] + elem["width"] // 2, elem["y"] + elem["height"] // 2
+def _click_coords(elem: dict, window_title: Optional[str] = None) -> tuple[int, int]:
+    from detection.element_coords import click_coords
+
+    return click_coords(elem, window_title)
 
 
 def _select_uia(elem: dict, value: str, window_title: Optional[str]) -> dict:
@@ -208,13 +207,13 @@ def do_repo_action(
             result.update({"success": True, "action": inv.get("method", "InvokePattern")})
         else:
             from tools.input_tools import do_click
-            cx, cy = _click_coords(elem)
+            cx, cy = _click_coords(elem, window_title)
             do_click(cx, cy)
             result.update({"success": True, "action": "click", "clicked_at": {"x": cx, "y": cy}})
 
     elif method == "DblClick":
         from tools.input_tools import do_click
-        cx, cy = _click_coords(elem)
+        cx, cy = _click_coords(elem, window_title)
         do_click(cx, cy, clicks=2)
         result.update({"success": True, "action": "dblclick", "clicked_at": {"x": cx, "y": cy}})
 
@@ -257,7 +256,7 @@ def do_repo_action(
         )
         if not set_result.get("success"):
             from tools.input_tools import do_click
-            cx, cy = _click_coords(elem)
+            cx, cy = _click_coords(elem, window_title)
             do_click(cx, cy)
         do_type_text(value)
         result.update({"success": True, "action": "type", "typed": value})
@@ -285,7 +284,7 @@ def do_repo_action(
         start_s, end_s = value.split(",", 1)
         start, end = int(start_s.strip()), int(end_s.strip())
         from tools.input_tools import do_click, do_send_keys
-        cx, cy = _click_coords(elem)
+        cx, cy = _click_coords(elem, window_title)
         do_click(cx, cy)
         do_send_keys("{HOME}")
         for _ in range(start):

@@ -143,11 +143,11 @@ _FRAMEWORK_INFO: dict[str, tuple[str, list[str]]] = {
         ],
     ),
     "uwp": (
-        "full",
+        "partial",
         [
-            "UWP/WinUI app detected. XAML controls have full UIA support.",
-            "Use AutomationId for the most reliable element selection.",
-            "Flyout menus and popups may appear as separate top-level windows.",
+            "UWP/WinUI app detected. Standard UIA may expose only the shell window.",
+            "Use smart_find or find_text/click_text (OCR) for XAML button labels.",
+            "Prefer ApplicationFrameHost window; flyouts may be separate top-level windows.",
         ],
     ),
     "unknown": (
@@ -301,7 +301,7 @@ def register(server) -> int:
     """Register the detect_framework MCP tool."""
 
     @server.tool()
-    def detect_framework(window_title: str = "") -> str:
+    def detect_framework(window_title: str = "", title: str = "") -> str:
         """Detect the UI framework of a window and get automation hints.
 
         Identifies the GUI toolkit (Qt, WPF, WinForms, Electron, Java Swing,
@@ -309,8 +309,10 @@ def register(server) -> int:
 
         Parameters:
             window_title: Partial title of the target window (default: foreground).
+            title: Alias for window_title — either parameter is accepted.
         """
-        result = do_detect_framework(window_title or None)
+        from tools.params import resolve_window_title
+        result = do_detect_framework(resolve_window_title(window_title, title))
         lines = [
             f"Framework: {result['framework']}",
             f"UIA support: {result['uia_support']}",

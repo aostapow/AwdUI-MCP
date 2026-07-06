@@ -19,6 +19,7 @@ PROBE_IDS = (
     "expand_tree",
     "scroll_panel",
     "access_key",
+    "press_key",
     "dismiss_overlay",
     "find_by_template",
 )

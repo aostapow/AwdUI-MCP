@@ -88,6 +88,7 @@ class LayeredDetector:
     except Exception:
       pass
     repo = load_repo(app_name, exe_path)
+    repo["exe_path"] = exe_path
     repo["framework"] = framework
     return app_name, repo
 
@@ -140,9 +141,14 @@ class LayeredDetector:
       from tools.screenshot import capture_screenshot
       from tools.image_utils import load_image_from_screenshot
 
-      template_path = Path.home() / ".awdui-mcp" / "repositories" / template_rel
+      template_path = Path.home() / ".awdui-mcp" / "repository-assets" / template_rel
       if not template_path.exists():
-        for p in (Path.home() / ".awdui-mcp" / "repositories").rglob(Path(template_rel).name):
+        legacy = Path.home() / ".awdui-mcp" / "repositories" / template_rel
+        if legacy.exists():
+          template_path = legacy
+      if not template_path.exists():
+        assets_root = Path.home() / ".awdui-mcp" / "repository-assets"
+        for p in assets_root.rglob(Path(template_rel).name):
           template_path = p
           break
       if not template_path.exists():
@@ -452,33 +458,47 @@ class LayeredDetector:
         layer=result.layer,
         backend=result.backend,
       )
-      if options.remember and query.repo_path:
-        elem = result.elements[0] if result.elements else {}
-        swf_class = infer_swf_class(elem.get("role", ""), elem.get("class_name", ""))
-        try:
-          _, chain = parse_repo_path(query.repo_path)
-          parent = chain[-2] if len(chain) > 1 else ""
-        except ValueError:
-          parent = ""
-        upsert_object(
-          repo,
-          query.repo_path,
-          obj_class=swf_class,
-          parent=parent,
-          element=elem,
-          identification=build_identification(elem, swf_class),
-          last_resolution={
-            "layer": result.layer,
-            "backend": result.backend,
-            "bbox": {
-              "x": elem.get("x", 0),
-              "y": elem.get("y", 0),
-              "w": elem.get("width", 0),
-              "h": elem.get("height", 0),
+      if options.remember and result.elements:
+        elem = result.elements[0]
+        if query.repo_path:
+          swf_class = infer_swf_class(elem.get("role", ""), elem.get("class_name", ""))
+          try:
+            _, chain = parse_repo_path(query.repo_path)
+            parent = chain[-2] if len(chain) > 1 else ""
+          except ValueError:
+            parent = ""
+          upsert_object(
+            repo,
+            query.repo_path,
+            obj_class=swf_class,
+            parent=parent,
+            element=elem,
+            identification=build_identification(elem, swf_class),
+            last_resolution={
+              "layer": result.layer,
+              "backend": result.backend,
+              "bbox": {
+                "x": elem.get("x", 0),
+                "y": elem.get("y", 0),
+                "w": elem.get("width", 0),
+                "h": elem.get("height", 0),
+              },
             },
-          },
-        )
-        result.repo_updated = True
+          )
+          result.repo_updated = True
+        elif query.name or query.automation_id:
+          try:
+            from detection.auto_repo import maybe_remember_element, auto_repo_path
+            path = maybe_remember_element(
+              elem,
+              window_title=query.window_title,
+              repo_path=auto_repo_path(query.window_title, elem),
+              backend=result.backend,
+            )
+            if path:
+              result.repo_updated = True
+          except Exception:
+            pass
 
       if options.highlight and result.elements:
         try:

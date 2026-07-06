@@ -40,12 +40,26 @@ class TestDualOcr:
 class TestObjectRepository:
     def test_upsert_and_get(self, tmp_path, monkeypatch):
         from detection import object_repository as repo_mod
-        monkeypatch.setattr(repo_mod, "_REPO_DIR", tmp_path)
+        from detection import repo_store
+
+        db = tmp_path / "test.db"
+        monkeypatch.setattr(repo_store, "_DB_PATH", db)
+        monkeypatch.setattr(repo_store, "_ASSETS_DIR", tmp_path / "assets")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_DIR", tmp_path / "legacy")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_BAK", tmp_path / "bak")
+        repo_store.reset_migration_flag()
+        repo_store.init_db(db)
+
         repo = repo_mod.load_repo("TestApp.exe")
         repo_mod.upsert_object(
             repo,
             "frmMain/btnSave",
-            identification={"mandatory": {"automation_id": "btnSave"}},
+            identification={
+                "mandatory": {"automation_id": "btnSave"},
+                "assistive": {},
+                "smart": {},
+                "ordinal": {},
+            },
             last_resolution={"backend": "uia", "layer": "native"},
         )
         obj = repo_mod.get_object(repo, "frmMain/btnSave")

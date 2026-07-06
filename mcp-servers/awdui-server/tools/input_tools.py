@@ -43,6 +43,8 @@ _VK_MAP = {
 STD_INPUT_HANDLE = -10
 KEY_EVENT = 0x0001
 WM_CHAR = 0x0102
+WM_KEYDOWN = 0x0100
+WM_KEYUP = 0x0101
 
 
 if _HAS_WIN32:
@@ -153,7 +155,17 @@ def _send_keys_to_console(pid: int, keys: str, hwnd: int = 0) -> dict:
         finally:
             ctypes.windll.kernel32.FreeConsole()
     else:
-        return {"success": False, "error": "AttachConsole failed"}
+        # Fallback: SendMessage (works cross-elevation when console is focused)
+        if not hwnd:
+            return {"success": False, "error": "AttachConsole failed and no hwnd for SendMessage"}
+        for key in parts:
+            vk = _VK_MAP.get(key)
+            if vk:
+                ctypes.windll.user32.SendMessageW(hwnd, WM_KEYDOWN, vk, 0)
+                ctypes.windll.user32.SendMessageW(hwnd, WM_KEYUP, vk, 0)
+            elif len(key) == 1:
+                ctypes.windll.user32.SendMessageW(hwnd, WM_CHAR, ord(key), 0)
+        return {"success": True, "method": "SendMessage"}
 
 
 # ------------------------------------------------------------------
@@ -531,6 +543,7 @@ def register(server) -> int:
         button: str = "left",
         clicks: int = 1,
         capture: bool = False,
+        capture_full: bool = False,
     ) -> list:
         """Click at a screen position.
 
@@ -540,6 +553,7 @@ def register(server) -> int:
             button: Mouse button — "left", "right", or "middle".
             clicks: Number of clicks (1 = single, 2 = double).
             capture: When True, attach a post-click screenshot (default False).
+            capture_full: When True with capture, full screen; else target window if set.
         """
         try:
             result = with_timeout(
@@ -561,7 +575,7 @@ def register(server) -> int:
                 msg += "\nNo visual change detected"
 
         from tools.screenshot import action_tool_response
-        return action_tool_response(msg, capture=capture)
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
 
     @server.tool()
     def type_text(
@@ -607,6 +621,7 @@ def register(server) -> int:
         amount: Optional[int] = None,
         pages: Optional[float] = None,
         capture: bool = False,
+        capture_full: bool = False,
     ) -> list:
         """Scroll the mouse wheel at a screen position.
 
@@ -617,6 +632,7 @@ def register(server) -> int:
             amount: Number of scroll clicks (default 50). Overrides amount.
             pages: Scroll by pages instead (1 = full page, 0.5 = half). Overrides amount.
             capture: When True, attach a post-scroll screenshot (default False).
+            capture_full: When True with capture, full screen; else target window if set.
         """
         try:
             result = with_timeout(
@@ -637,7 +653,7 @@ def register(server) -> int:
             msg += f"\n\u26a0\ufe0f {result['scroll_warning']}"
 
         from tools.screenshot import action_tool_response
-        return action_tool_response(msg, capture=capture)
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
 
     @server.tool()
     def drag(
@@ -647,6 +663,7 @@ def register(server) -> int:
         to_y: int,
         duration: float = 0.5,
         capture: bool = False,
+        capture_full: bool = False,
     ) -> list:
         """Drag from one position to another.
 
@@ -657,6 +674,7 @@ def register(server) -> int:
             to_y: End Y coordinate.
             duration: How long the drag takes in seconds (default 0.5).
             capture: When True, attach a post-drag screenshot (default False).
+            capture_full: When True with capture, full screen; else target window if set.
         """
         try:
             result = with_timeout(
@@ -668,7 +686,7 @@ def register(server) -> int:
 
         msg = f"Dragged ({result['from_x']}, {result['from_y']}) -> ({result['to_x']}, {result['to_y']})."
         from tools.screenshot import action_tool_response
-        return action_tool_response(msg, capture=capture)
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
 
     @server.tool()
     def hover(x: int, y: int) -> str:

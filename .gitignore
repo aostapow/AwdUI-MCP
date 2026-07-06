@@ -1,6 +1,8 @@
 __pycache__/
 *.pyc
 .venv/
+node_modules/
+repo-web/dist/
 mcp-servers/awdui-server/.venv/
 screenshots/
 *.egg-info/
@@ -14,4 +16,6 @@ pip-install.log
 mcp-servers/*/bin/
 mcp-servers/*/obj/
 .env
+prueba_screenshot_calculadora.png
+smoke_test_results.json
 

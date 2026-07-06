@@ -10,6 +10,19 @@ import time
 from typing import List
 
 from tools.input_tools import do_click, do_type_text, do_send_keys, do_scroll
+from tools.ui_automation import do_click_element
+
+
+def _batch_click_element(action: dict) -> None:
+    result = do_click_element(
+        name=action.get("name") or None,
+        role=action.get("role") or None,
+        window_title=action.get("window_title") or action.get("title") or None,
+        index=action.get("index", 0),
+        automation_id=action.get("automation_id") or None,
+    )
+    if not result.get("success"):
+        raise RuntimeError(result.get("error", "click_element failed"))
 
 
 _ACTION_HANDLERS = {
@@ -18,6 +31,7 @@ _ACTION_HANDLERS = {
         button=a.get("button", "left"),
         clicks=a.get("clicks", 1),
     ),
+    "click_element": lambda a: _batch_click_element(a),
     "type": lambda a: do_type_text(
         a["text"],
         interval=a.get("interval", 0.02),
@@ -38,6 +52,7 @@ _REQUIRED_FIELDS = {
     "keys": ["keys"],
     "scroll": ["x", "y", "direction"],
     "wait": ["ms"],
+    "click_element": [],
 }
 
 
@@ -94,7 +109,12 @@ def register(server) -> int:
     from tools.safety import with_timeout, ActionTimeoutError
 
     @server.tool()
-    def batch_actions(actions: list[dict], capture: bool = False) -> list:
+    def batch_actions(
+        actions: list[dict],
+        capture: bool = False,
+        capture_full: bool = False,
+        capture_scope: str = "auto",
+    ) -> list:
         """Execute a sequence of input actions and optionally return one screenshot.
 
         Reduces round-trips for common sequences like click-type-enter.
@@ -106,16 +126,19 @@ def register(server) -> int:
             {"action": "keys", "keys": str}  (e.g. "enter", "ctrl+s")
             {"action": "scroll", "x": int, "y": int, "direction": str, "amount": 50, "pages": 1}  (pages uses PageDown/PageUp keys)
             {"action": "wait", "ms": int}
+            {"action": "click_element", "automation_id": str, "name": str, "role": str, "window_title": str, "title": str, "index": 0}
 
         Parameters:
             actions: List of action dicts to execute in order.
             capture: When True, attach one screenshot after the batch (default False).
+            capture_full: When True with capture, use full screen instead of target window.
+            capture_scope: auto | window | full — same as screenshot tool (default auto).
         """
         if not actions:
             return "No actions to execute."
 
         # Calculate timeout: sum of per-action defaults
-        timeout_map = {"click": 5, "type": 10, "keys": 5, "scroll": 3, "wait": 0}
+        timeout_map = {"click": 5, "click_element": 10, "type": 10, "keys": 5, "scroll": 3, "wait": 0}
         total_timeout = 5.0  # base grace
         for a in actions:
             atype = a.get("action", "")
@@ -138,7 +161,12 @@ def register(server) -> int:
 
         msg = f"Executed {result['executed']} action(s): {result['summary']}."
         from tools.screenshot import action_tool_response
-        return action_tool_response(msg, capture=capture)
+        return action_tool_response(
+            msg,
+            capture=capture,
+            scope=capture_scope,
+            capture_full=capture_full,
+        )
 
     return 1
 

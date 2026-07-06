@@ -66,6 +66,13 @@ site.addsitedir(_VENV_SITE)
 sys.path.insert(0, _VENV_SITE)
 sys.path.insert(0, _SERVER_DIR)
 
+if sys.platform == "win32":
+    try:
+        from awdui_platform.win32_backend import set_process_dpi_aware
+        set_process_dpi_aware()
+    except Exception:
+        pass
+
 
 # ---------------------------------------------------------------------------
 # macOS permissions preflight -- request Accessibility + Screen Recording

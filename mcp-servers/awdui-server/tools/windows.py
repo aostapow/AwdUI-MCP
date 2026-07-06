@@ -79,20 +79,50 @@ def find_matching_window(title: str, windows: list[dict]) -> dict:
     title_lower = title.lower()
     available = [w["title"] for w in windows]
 
-    # Substring match (case-insensitive)
-    for win in windows:
-        if title_lower in win["title"].lower():
-            return {"window": win, "match_quality": "exact"}
+    candidates = [w for w in windows if title_lower in w["title"].lower()]
+    if not candidates:
+        candidates = []
+        for win in windows:
+            proc = win.get("process_name", "")
+            if proc:
+                stem = proc.rsplit(".", 1)[0].lower()
+                if title_lower == stem or title_lower in stem:
+                    candidates.append(win)
+        if candidates:
+            best = _best_window_candidate(candidates, title_lower)
+            return {"window": best, "match_quality": "process_name"}
 
-    # Fallback: match against process executable name stem
-    for win in windows:
-        proc = win.get("process_name", "")
-        if proc:
-            stem = proc.rsplit(".", 1)[0].lower()  # "steam.exe" → "steam"
-            if title_lower == stem or title_lower in stem:
-                return {"window": win, "match_quality": "process_name"}
+        return {"window": None, "available": available}
 
-    return {"window": None, "available": available}
+    best = _best_window_candidate(candidates, title_lower)
+    return {"window": best, "match_quality": "exact"}
+
+
+def _best_window_candidate(windows: list[dict], title_hint: str = "") -> dict:
+    """Pick the best window when several share the same title (common for UWP)."""
+    hint = title_hint.lower()
+
+    def score(win: dict) -> int:
+        s = 0
+        win_title = (win.get("title") or "").lower()
+        if hint and win_title == hint:
+            s += 10000
+        elif hint and (win_title.startswith(hint) or win_title.endswith(hint)):
+            s += 2000
+        proc = (win.get("process_name") or "").lower()
+        if hint in ("calculadora", "calculator"):
+            if "calculatorapp" in proc:
+                s += 8000
+        if "applicationframehost" in proc:
+            s += 1000
+        x, y = win.get("x", 0), win.get("y", 0)
+        if x > -1000 and y > -1000:
+            s += 500
+        area = max(0, win.get("width", 0)) * max(0, win.get("height", 0))
+        s += area // 1000
+        return s
+
+    return max(windows, key=score)
 
 
 # ------------------------------------------------------------------
@@ -326,42 +356,9 @@ def _focus_window_win32(title: str, action: str) -> dict:
         return {"success": False, "error": f"No window matching '{title}' found"}
 
     if action == "focus":
-        # Plain SetForegroundWindow often fails if we don't own the
-        # foreground lock.  The reliable pattern:
-        #   1. Attach to the foreground thread's input queue
-        #   2. Bring the window to top
-        #   3. SetForegroundWindow
-        #   4. Detach
-        # This avoids the Alt-key hack that can pop the Start menu.
-        GetForegroundWindow = user32.GetForegroundWindow
-        GetWindowThreadProcessId = user32.GetWindowThreadProcessId
-        GetCurrentThreadId = ctypes.windll.kernel32.GetCurrentThreadId
-        AttachThreadInput = user32.AttachThreadInput
-        BringWindowToTop = user32.BringWindowToTop
+        from awdui_platform.win32_backend import force_window_foreground
 
-        fg_hwnd = GetForegroundWindow()
-        fg_tid = GetWindowThreadProcessId(fg_hwnd, None)
-        our_tid = GetCurrentThreadId()
-
-        if fg_tid != our_tid:
-            AttachThreadInput(our_tid, fg_tid, True)
-
-        # If the window is minimized, restore it first
-        SW_SHOW = 5
-        ShowWindow(target_hwnd, SW_RESTORE)
-        BringWindowToTop(target_hwnd)
-        SetForegroundWindow(target_hwnd)
-
-        if fg_tid != our_tid:
-            AttachThreadInput(our_tid, fg_tid, False)
-
-        # Poll until the target is actually foreground, or bail after 500ms.
-        # Without this, the terminal can steal focus back before input lands.
-        import time
-        for _ in range(50):
-            time.sleep(0.01)
-            if GetForegroundWindow() == target_hwnd:
-                break
+        force_window_foreground(int(target_hwnd))
     elif action == "minimize":
         ShowWindow(target_hwnd, SW_MINIMIZE)
     elif action == "maximize":
@@ -489,7 +486,9 @@ def do_list_windows() -> List[dict]:
     """Enumerate visible windows with geometry.
 
     Returns a list of dicts, each with keys:
-    ``title``, ``x``, ``y``, ``width``, ``height``.
+    ``title``, ``x``, ``y``, ``width``, ``height``, ``hwnd``, ``pid``,
+    ``process_name``, ``class_name``, ``client_x``, ``client_y``,
+    ``client_width``, ``client_height``, ``dpi_scale`` (Windows).
     """
     plat = get_platform()
     if plat == "windows":
@@ -579,24 +578,44 @@ def register(server) -> int:
             return "No visible windows found."
         lines = []
         for w in windows:
-            lines.append(f"  {w['title']}  ({w['x']},{w['y']} {w['width']}x{w['height']})")
+            proc = w.get("process_name", "")
+            cls = w.get("class_name", "")
+            tag = f" [{cls}/{proc}]" if cls or proc else ""
+            outer = f"outer:{w['x']},{w['y']} {w['width']}x{w['height']}"
+            if w.get("client_width") is not None:
+                outer += (
+                    f" client:{w.get('client_x', w['x'])},{w.get('client_y', w['y'])}"
+                    f" {w['client_width']}x{w['client_height']}"
+                )
+            if w.get("dpi_scale"):
+                outer += f" dpi:{w['dpi_scale']}"
+            lines.append(f"  {w['title']}{tag} {outer}")
         return f"Found {len(windows)} windows:\n" + "\n".join(lines)
 
     @server.tool()
-    def focus_window(title: str, action: str = "focus") -> str:
+    def focus_window(
+        title: str = "",
+        window_title: str = "",
+        action: str = "focus",
+    ) -> str:
         """Find a window by partial title and focus, minimize, maximize, or restore it.
 
         Parameters:
-            title: Partial window title to search for.
+            title: Partial window title to search for (alias: window_title).
+            window_title: Same as title — either parameter is accepted.
             action: One of "focus", "minimize", "maximize", "restore" (default "focus").
         """
+        from tools.params import resolve_window_title
+        resolved = resolve_window_title(window_title, title) or ""
+        if not resolved:
+            return "Failed: window title is required (use title or window_title)."
         try:
             result = with_timeout(
-                lambda: do_focus_window(title, action=action),
+                lambda: do_focus_window(resolved, action=action),
                 timeout=5.0,
             )
         except ActionTimeoutError:
-            return f"Timed out after 5s trying to {action} window '{title}'. The window may be frozen."
+            return f"Timed out after 5s trying to {action} window '{resolved}'. The window may be frozen."
         if result["success"]:
             return f"{result['action'].capitalize()}ed window: {result['window']}"
         return f"Failed: {result['error']}"

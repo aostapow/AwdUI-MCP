@@ -16,12 +16,13 @@ def register(server) -> int:
     from tools.spy_walk import spy_walk_visible
 
     @server.tool()
-    def observe_ui_tool(window_title: str = "", hints: str = "") -> str:
+    def observe_ui_tool(window_title: str = "", title: str = "", hints: str = "") -> str:
         """Structured UI observation snapshot (framework, tree, modals, fingerprint)."""
+        from tools.params import resolve_window_title
         hint_list = [h.strip() for h in hints.split(",") if h.strip()] if hints else []
         try:
             obs = with_timeout(
-                lambda: observe_ui(window_title or None, hint_list or None),
+                lambda: observe_ui(resolve_window_title(window_title, title), hint_list or None),
                 timeout=15.0,
             )
         except ActionTimeoutError:
@@ -46,14 +47,17 @@ def register(server) -> int:
     def plan_probes_tool(
         goal: str,
         window_title: str = "",
+        title: str = "",
         hints: str = "",
         expected_window: str = "",
         image_path: str = "",
         safe_mode: bool = True,
     ) -> str:
         """Ranked list of revelation probes with reasons (methodical, not random)."""
+        from tools.params import resolve_window_title
         hint_list = [h.strip() for h in hints.split(",") if h.strip()] if hints else ([goal] if goal else [])
-        obs = observe_ui(window_title or None, hint_list)
+        wt = resolve_window_title(window_title, title)
+        obs = observe_ui(wt, hint_list)
         step_context = {"expected_window": expected_window} if expected_window else {}
         planned = plan_probes(
             goal=goal,
@@ -75,17 +79,19 @@ def register(server) -> int:
         probe_id: str,
         target: str = "",
         window_title: str = "",
+        title: str = "",
         hints: str = "",
         safe_mode: bool = True,
     ) -> str:
         """Apply one revelation probe (expand menu, scroll, access key, etc.)."""
+        from tools.params import resolve_window_title
         hint_list = [h.strip() for h in hints.split(",") if h.strip()] if hints else []
         try:
             result = with_timeout(
                 lambda: apply_probe(
                     probe_id=probe_id,
                     target=target,
-                    window_title=window_title or None,
+                    window_title=resolve_window_title(window_title, title),
                     hints=hint_list,
                     safe_mode=safe_mode,
                 ),
@@ -105,6 +111,7 @@ def register(server) -> int:
     def discover_target_tool(
         goal: str,
         window_title: str = "",
+        title: str = "",
         hints: str = "",
         role: str = "",
         automation_id: str = "",
@@ -115,8 +122,10 @@ def register(server) -> int:
         highlight_on_find: bool = True,
     ) -> str:
         """Methodical discovery loop: observe → resolve → plan → apply probes until found."""
+        from tools.params import resolve_window_title
         hint_list = [h.strip() for h in hints.split(",") if h.strip()] if hints else ([goal] if goal else [])
         step_context = {"expected_window": expected_window} if expected_window else {}
+        wt = resolve_window_title(window_title, title)
         try:
             result = with_timeout(
                 lambda: discover_target(
@@ -124,7 +133,7 @@ def register(server) -> int:
                     goal=goal,
                     role=role or None,
                     automation_id=automation_id or None,
-                    window_title=window_title or None,
+                    window_title=wt,
                     image_path=image_path or None,
                     repo_path=repo_path or None,
                     step_context=step_context,
@@ -154,13 +163,15 @@ def register(server) -> int:
     def find_by_template_tool(
         image_path: str,
         window_title: str = "",
+        title: str = "",
         threshold: float = 0.75,
         highlight: bool = False,
     ) -> str:
         """Find UI element by template image (icon/button screenshot)."""
+        from tools.params import resolve_window_title
         try:
             result = with_timeout(
-                lambda: find_by_template(image_path, window_title or None, threshold),
+                lambda: find_by_template(image_path, resolve_window_title(window_title, title), threshold),
                 timeout=20.0,
             )
         except ActionTimeoutError:
@@ -179,16 +190,18 @@ def register(server) -> int:
     @server.tool()
     def spy_walk_visible_tool(
         window_title: str = "",
+        title: str = "",
         filter_role: str = "",
         start_index: int = 0,
         batch_size: int = 10,
         pause_ms: int = 800,
     ) -> str:
         """Walk visible elements highlighting each (Spy-style), paginated."""
+        from tools.params import resolve_window_title
         try:
             result = with_timeout(
                 lambda: spy_walk_visible(
-                    window_title=window_title or None,
+                    window_title=resolve_window_title(window_title, title),
                     filter_role=filter_role,
                     start_index=start_index,
                     batch_size=batch_size,

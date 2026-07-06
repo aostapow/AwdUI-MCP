@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>awdui-spy-sidecar</AssemblyName>
+    <RootNamespace>AwdUiSpySidecar</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <PublishDir>publish\</PublishDir>
   </PropertyGroup>

@@ -254,21 +254,68 @@ class UIABackend(DetectionBackend):
     def _collect_descendants(
         self, window, tree_mode: str, max_depth: int, role: Optional[str]
     ):
-        if tree_mode != "control":
-            try:
-                raw = window.element_info.element
-                depth = 100 if role else max_depth
-                return _walk_tree_comtypes(raw, tree_mode, depth)
-            except Exception:
-                pass
+        # Deep UIA walk (comtypes) — pywinauto descendants() misses nested XAML controls.
+        try:
+            raw = window.element_info.element
+            depth = max(max_depth, 100 if role else max_depth)
+            walked = _walk_tree_comtypes(raw, tree_mode, depth)
+            if walked:
+                return walked
+        except Exception:
+            pass
         if role:
             return window.descendants()
         return window.descendants(depth=max_depth)
 
+    def _legacy_dict_to_detected(self, d: dict) -> DetectedElement:
+        return DetectedElement(
+            name=d.get("name", ""),
+            role=d.get("role", ""),
+            x=d.get("x", 0),
+            y=d.get("y", 0),
+            width=d.get("width", 0),
+            height=d.get("height", 0),
+            value=d.get("value", ""),
+            backend=d.get("backend", "spy"),
+            automation_id=d.get("automation_id", ""),
+            class_name=d.get("class_name", ""),
+            framework_id=d.get("framework_id", ""),
+            visible=d.get("visible", True),
+            enabled=d.get("enabled", True),
+            clickable_x=d.get("clickable_x"),
+            clickable_y=d.get("clickable_y"),
+            patterns=d.get("patterns", []),
+        )
+
+    def _try_spy_find(
+        self,
+        name: Optional[str],
+        automation_id: Optional[str],
+        window_title: Optional[str],
+        role: Optional[str],
+    ) -> list[DetectedElement]:
+        if not (name or automation_id):
+            return []
+        try:
+            from tools.spy_bridge import spy_available, spy_find_element
+            if not spy_available():
+                return []
+            elem = spy_find_element(
+                name=name,
+                automation_id=automation_id,
+                window_title=window_title,
+                role=role,
+            )
+            if elem:
+                return [self._legacy_dict_to_detected(elem)]
+        except Exception:
+            pass
+        return []
+
     def list_elements(
         self,
         window_title: Optional[str] = None,
-        max_depth: int = 5,
+        max_depth: int = 12,
         role: Optional[str] = None,
         tree_mode: str = "control",
         include_offscreen: bool = False,
@@ -295,6 +342,26 @@ class UIABackend(DetectionBackend):
             if not _element_useful(d, include_offscreen):
                 continue
             elements.append(d)
+
+        # Spy fallback when UIA tree is shallow (common in XAML / UWP).
+        if len(elements) < 3:
+            try:
+                from tools.spy_bridge import spy_available, spy_list_elements
+                if spy_available():
+                    spy_elems = spy_list_elements(
+                        window_title=window_title or "",
+                        max_depth=max_depth,
+                        role_filter=role or "",
+                    )
+                    for raw in spy_elems:
+                        d = self._legacy_dict_to_detected(raw)
+                        if role_lower and (d.role or "").lower() != role_lower:
+                            continue
+                        if not _element_useful(d, include_offscreen):
+                            continue
+                        elements.append(d)
+            except Exception:
+                pass
         return elements
 
     def find_elements(
@@ -308,9 +375,19 @@ class UIABackend(DetectionBackend):
         include_offscreen: bool = False,
         index: int = 0,
     ) -> list[DetectedElement]:
+        spy_hits = self._try_spy_find(name, automation_id, window_title, role)
+        if spy_hits:
+            matches = [d for d in spy_hits if _matches(d, name, role, automation_id, class_name)]
+            if matches:
+                if index > 0:
+                    idx = min(index, len(matches) - 1)
+                    return [matches[idx]]
+                return matches
+
+        depth = 100 if (name or role or automation_id or class_name) else 12
         all_elems = self.list_elements(
             window_title=window_title,
-            max_depth=100 if (role or automation_id or class_name) else 5,
+            max_depth=depth,
             role=role,
             tree_mode=tree_mode,
             include_offscreen=include_offscreen,

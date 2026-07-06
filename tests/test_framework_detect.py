@@ -177,7 +177,7 @@ class TestDetectFramework:
         result = do_detect_framework()
 
         assert result["framework"] == "uwp"
-        assert result["uia_support"] == "full"
+        assert result["uia_support"] == "partial"
 
     @mock.patch("tools.framework_detect._get_loaded_dlls")
     @mock.patch("tools.framework_detect._get_class_name")

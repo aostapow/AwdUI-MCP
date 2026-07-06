@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>awdui-uia-sidecar</AssemblyName>
+    <RootNamespace>AwdUiUiaSidecar</RootNamespace>
     <PublishDir>publish\</PublishDir>
   </PropertyGroup>
   <ItemGroup>

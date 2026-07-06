@@ -4,7 +4,7 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
 
-namespace HandsonUiaSidecar;
+namespace AwdUiUiaSidecar;
 
 static class Program
 {
@@ -65,8 +65,29 @@ static class Program
             if (fg != null) return fg;
             return desktop.FindFirstDescendant(cf => cf.ByControlType(ControlType.Window));
         }
-        return desktop.FindFirstDescendant(cf =>
-            cf.ByControlType(ControlType.Window).And(cf.ByName(title, FlaUI.Core.Definitions.PropertyConditionFlags.IgnoreCase)));
+
+        var windows = desktop.FindAllDescendants(cf => cf.ByControlType(ControlType.Window));
+        AutomationElement? best = null;
+        var bestScore = int.MinValue;
+        foreach (var w in windows)
+        {
+            var name = w.Name ?? "";
+            if (!name.Contains(title, StringComparison.OrdinalIgnoreCase))
+                continue;
+            var r = w.BoundingRectangle;
+            var score = 0;
+            if (r.X > -1000 && r.Y > -1000) score += 500;
+            score += (int)(r.Width * r.Height) / 1000;
+            var cls = w.ClassName ?? "";
+            if (cls.Contains("ApplicationFrame", StringComparison.OrdinalIgnoreCase))
+                score += 1000;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = w;
+            }
+        }
+        return best;
     }
 
     static Dictionary<string, object?> ElemToDict(AutomationElement e)

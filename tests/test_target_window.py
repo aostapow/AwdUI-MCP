@@ -98,8 +98,8 @@ class TestInputToolsCallEnsureFocus:
         buf = io.BytesIO(); Image.fromarray(arr).save(buf, format="JPEG", quality=80)
         mock_cap.return_value = {"image": base64.b64encode(buf.getvalue()).decode(), "width": 100, "height": 100, "path": "/f.png", "dpi_scale": 1.0}
         from tools.input_tools import do_click
-        do_click(100, 200)
-        # Called twice: before click and after sleep (to re-focus before title check)
+        do_click(100, 200, verify_visual=True)
+        # Called twice when verifying: before click and after sleep (to re-focus before title check)
         assert mock_ef.call_count == 2
 
     @mock.patch("tools.target_window.ensure_focus")

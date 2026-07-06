@@ -184,7 +184,7 @@ class TestNavigationWarning:
             "Reddit - News",           # post-click
         ]
         from tools.input_tools import do_click
-        result = do_click(100, 200)
+        result = do_click(100, 200, verify_visual=True)
         assert "navigation_warning" in result
         assert "Submit to r/ClaudeCode" in result["navigation_warning"]
         assert "Reddit - News" in result["navigation_warning"]
@@ -216,14 +216,12 @@ class TestNavigationWarning:
         assert result["success"] is True
         assert "navigation_warning" in result
 
-    @mock.patch("tools.screenshot.capture_screenshot", return_value=_FAKE_SHOT)
-    @mock.patch("tools.input_tools.pyautogui")
-    @mock.patch("tools.windows.get_foreground_title")
-    def test_warning_propagates_through_click_element(self, mock_title, mock_pag, mock_cap):
-        mock_title.side_effect = [
-            "My App - Settings",
-            "My App - Home",
-        ]
+    @mock.patch("tools.ui_automation.do_click")
+    def test_warning_propagates_through_click_element(self, mock_click):
+        mock_click.return_value = {
+            "action": "click",
+            "navigation_warning": "Window title changed: 'My App - Settings' -> 'My App - Home'.",
+        }
         from tools.ui_automation import do_click_element
         with mock.patch("tools.ui_automation.do_find_element") as mock_find:
             mock_find.return_value = {
@@ -243,8 +241,8 @@ class TestNavigationWarning:
         """ensure_focus re-focuses before post_title read, preventing false positives."""
         mock_title.return_value = "My Target App"
         from tools.input_tools import do_click
-        result = do_click(100, 200)
-        # ensure_focus called twice: before click, and after sleep before reading post_title
+        result = do_click(100, 200, verify_visual=True)
+        # ensure_focus called twice when verifying: before click, and after sleep before title check
         assert mock_focus.call_count == 2
         assert "navigation_warning" not in result
 

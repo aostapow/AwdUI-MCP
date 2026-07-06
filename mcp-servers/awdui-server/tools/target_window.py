@@ -265,7 +265,8 @@ def ensure_focus() -> None:
         try:
             from tools.windows import get_foreground_title
             fg = get_foreground_title().lower()
-            if _target_window.lower() in fg:
+            target = _target_window.lower()
+            if target in fg or fg in target:
                 return
         except Exception:
             pass
@@ -283,7 +284,7 @@ def register(server) -> int:
     """Register the target-window tools on *server*. Returns 2."""
 
     @server.tool()
-    def set_target_window(title: str = "") -> str:
+    def set_target_window(title: str = "", window_title: str = "") -> str:
         """Set or clear the target window for automatic focus.
 
         When set, every input action (click, type_text, send_keys, scroll,
@@ -301,8 +302,11 @@ def register(server) -> int:
         Parameters:
             title: Partial window title to match (case-insensitive).
                    Pass empty string to clear the target.
+            window_title: Alias for title — either parameter is accepted.
         """
-        set_target(title if title else None)
+        from tools.params import resolve_window_title
+        resolved = resolve_window_title(window_title, title)
+        set_target(resolved)
         current = get_target()
         if current:
             ensure_focus()

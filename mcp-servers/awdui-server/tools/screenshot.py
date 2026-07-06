@@ -9,6 +9,7 @@ Provides:
 
 import base64
 import io
+import sys
 import time
 from typing import Optional
 
@@ -117,19 +118,196 @@ def crop_region(img: Image.Image, region: dict) -> Image.Image:
     return img.crop((x, y, x + w, y + h))
 
 
-def _region_for_window(window_title: str) -> Optional[dict]:
-    """Resolve a window title to a screenshot crop region."""
+def _focus_window_for_capture(window_title: str, hwnd: int = 0) -> bool:
+    """Bring the target window to the foreground before capturing."""
+    import time
+    try:
+        from awdui_platform.win32_backend import force_window_foreground, is_window_in_foreground
+
+        if hwnd:
+            force_window_foreground(int(hwnd))
+            time.sleep(0.2)
+            if is_window_in_foreground(int(hwnd), window_title):
+                return True
+        from tools.windows import do_focus_window
+
+        for attempt in range(3):
+            do_focus_window(window_title, "focus")
+            time.sleep(0.25 + attempt * 0.1)
+            if hwnd and is_window_in_foreground(int(hwnd), window_title):
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def _is_uwp_shell_window(win: dict) -> bool:
+    proc = (win.get("process_name") or "").lower()
+    cls = (win.get("class_name") or "").lower()
+    return "applicationframehost" in proc or "applicationframewindow" in cls
+
+
+def _image_brightness(img: Image.Image) -> float:
+    """Mean pixel value — dark captures usually mean the wrong window is on top."""
+    return float(np.array(img).mean())
+
+
+def _is_uwp_splash_image(img: Image.Image) -> bool:
+    """Detect flat UWP splash (e.g. Calculator blue loading screen)."""
+    arr = np.array(img, dtype=np.float32)
+    if arr.size == 0:
+        return False
+    r = float(arr[..., 0].mean())
+    g = float(arr[..., 1].mean())
+    b = float(arr[..., 2].mean())
+    lum = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+    spatial_std = float(lum.std())
+    if b > 90 and b > r * 1.35 and b > g * 1.05 and spatial_std < 15:
+        return True
+    return False
+
+
+def _capture_quality(img: Image.Image) -> float:
+    """Higher is better; negative means unusable (splash)."""
+    if _is_uwp_splash_image(img):
+        return -1.0
+    bright = _image_brightness(img)
+    if bright < 80:
+        return bright * 0.5
+    return bright
+
+
+def _wake_uwp_window(region: dict) -> None:
+    """Click the window client area to resume a suspended UWP app."""
+    import time
+    try:
+        import pyautogui
+
+        cx = region["x"] + region["w"] // 2
+        cy = region["y"] + region["h"] // 2
+        pyautogui.click(cx, cy)
+        time.sleep(0.3)
+    except Exception:
+        pass
+
+
+def _mss_grab_region(region: dict) -> Image.Image:
+    """Grab virtual-screen pixels for a physical rect."""
+    global _sct
+    if _sct is None:
+        _sct = mss.mss()
+    try:
+        monitor = _sct.monitors[0]
+        shot = _sct.grab(monitor)
+    except Exception:
+        _sct = mss.mss()
+        monitor = _sct.monitors[0]
+        shot = _sct.grab(monitor)
+    img = Image.frombytes("RGB", shot.size, shot.rgb)
+    return crop_region(img, region)
+
+
+def _capture_window_by_title(window_title: str) -> Optional[Image.Image]:
+    """Capture a window as it appears on screen (required for UWP apps)."""
     from tools.windows import find_matching_window, do_list_windows
 
     match = find_matching_window(window_title, do_list_windows())
     win = match.get("window")
     if not win:
         return None
+    hwnd = int(win.get("hwnd") or 0)
+    is_uwp = _is_uwp_shell_window(win)
+    region = _region_for_window(window_title)
+    if not region:
+        return None
+
+    best_img: Optional[Image.Image] = None
+    best_quality = -1.0
+    for attempt in range(4):
+        _focus_window_for_capture(window_title, hwnd)
+        if is_uwp and attempt > 0:
+            _wake_uwp_window(region)
+        img = _mss_grab_region(region)
+        quality = _capture_quality(img)
+        if quality > best_quality:
+            best_quality = quality
+            best_img = img
+        if quality >= 80:
+            return img
+
+    if not is_uwp and hwnd:
+        try:
+            from awdui_platform.win32_backend import capture_window_image
+            pw = capture_window_image(hwnd)
+            if pw is not None:
+                quality = _capture_quality(pw)
+                if quality > best_quality:
+                    return pw
+        except Exception:
+            pass
+    return best_img if best_quality >= 40 else None
+
+
+def _region_for_window(window_title: str) -> Optional[dict]:
+    """Resolve a window title to a screenshot crop region (physical pixels)."""
+    from tools.windows import find_matching_window, do_list_windows
+
+    match = find_matching_window(window_title, do_list_windows())
+    win = match.get("window")
+    if not win:
+        return None
+    hwnd = win.get("hwnd")
+    if hwnd and sys.platform == "win32":
+        try:
+            from awdui_platform.win32_backend import get_window_rect
+            rect = get_window_rect(hwnd)
+            if rect:
+                return rect
+        except Exception:
+            pass
+    scale = get_dpi_scale()
+    x, y = logical_to_physical(win["x"], win["y"], scale)
+    w, h = logical_to_physical(win["width"], win["height"], scale)
+    return {"x": max(0, x), "y": max(0, y), "w": w, "h": h}
+
+
+def _capture_window_image(window_title: str) -> Optional["Image.Image"]:
+    """Capture full window via PrintWindow (Windows). Returns PIL Image or None."""
+    if sys.platform != "win32":
+        return None
+    from tools.windows import find_matching_window, do_list_windows
+
+    match = find_matching_window(window_title, do_list_windows())
+    win = match.get("window")
+    if not win or not win.get("hwnd"):
+        return None
+    try:
+        from awdui_platform.win32_backend import capture_window_image
+        return capture_window_image(win["hwnd"])
+    except Exception:
+        return None
+
+
+def _finalize_screenshot(img: Image.Image) -> dict:
+    """Encode PIL image to MCP screenshot result dict."""
+    original_width, original_height = img.size
+    if img.width > MAX_SCREENSHOT_WIDTH:
+        scale = MAX_SCREENSHOT_WIDTH / img.width
+        new_h = int(img.height * scale)
+        img = img.resize((MAX_SCREENSHOT_WIDTH, new_h), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=80)
+    png_bytes = buf.getvalue()
+    path = screenshot_manager.save(png_bytes)
+    b64 = base64.b64encode(png_bytes).decode("ascii")
     return {
-        "x": max(0, win["x"]),
-        "y": max(0, win["y"]),
-        "w": win["width"],
-        "h": win["height"],
+        "image": b64,
+        "width": img.width,
+        "height": img.height,
+        "original_width": original_width,
+        "original_height": original_height,
+        "path": path,
+        "dpi_scale": get_dpi_scale(),
     }
 
 
@@ -158,59 +336,35 @@ def capture_screenshot(
     global _sct
 
     if region is None and window_title:
+        win_img = _capture_window_by_title(window_title)
+        if win_img is not None:
+            return _finalize_screenshot(win_img)
         region = _region_for_window(window_title)
 
     if _sct is None:
         _sct = mss.mss()
 
-    if monitor_index is None:
+    # Window crops use virtual-screen coords — grab all monitors
+    if region is not None and monitor_index is None:
+        monitor_index = 0
+    elif monitor_index is None:
         monitor_index = 1
 
     try:
         monitor = _sct.monitors[monitor_index]
         shot = _sct.grab(monitor)
     except Exception:
-        # Stale DC handle (e.g. after MCP reconnect) — recreate
         _sct = mss.mss()
         monitor = _sct.monitors[monitor_index]
         shot = _sct.grab(monitor)
 
-    # Convert mss screenshot to PIL Image
     img = Image.frombytes("RGB", shot.size, shot.rgb)
 
-    # Optionally crop
     if region is not None:
         img = crop_region(img, region)
+        return _finalize_screenshot(img)
 
-    # Record original dimensions before any downscaling
-    original_width, original_height = img.size
-
-    # Downscale if wider than MAX_SCREENSHOT_WIDTH
-    if img.width > MAX_SCREENSHOT_WIDTH:
-        scale = MAX_SCREENSHOT_WIDTH / img.width
-        new_h = int(img.height * scale)
-        img = img.resize((MAX_SCREENSHOT_WIDTH, new_h), Image.LANCZOS)
-
-    # Encode as JPEG (much smaller than PNG for screenshots)
-    buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=80)
-    png_bytes = buf.getvalue()  # name kept for compat
-
-    # Save to disk via the screenshot manager
-    path = screenshot_manager.save(png_bytes)
-
-    # Base64 encode for MCP transport
-    b64 = base64.b64encode(png_bytes).decode("ascii")
-
-    return {
-        "image": b64,
-        "width": img.width,
-        "height": img.height,
-        "original_width": original_width,
-        "original_height": original_height,
-        "path": path,
-        "dpi_scale": get_dpi_scale(),
-    }
+    return _finalize_screenshot(img)
 
 
 def wait_for_change(
@@ -405,15 +559,56 @@ def compare_screenshots(before_b64: str, after_b64: str) -> float:
     return float(np.mean(np.abs(before_arr.astype(float) - after_arr.astype(float))) / 255.0)
 
 
-def action_tool_response(msg: str, capture: bool = False):
+def resolve_capture_window(
+    window_title: Optional[str] = None,
+    title: str = "",
+    scope: str = "auto",
+    capture_full: bool = False,
+) -> Optional[str]:
+    """Choose window crop for screenshots.
+
+    scope:
+        auto — target window if set, else full screen
+        window — explicit window_title/title, or target if omitted
+        full — never crop to a window
+    """
+    if capture_full or scope == "full":
+        return None
+    from tools.params import resolve_window_title
+
+    wt = resolve_window_title(window_title or "", title)
+    if wt:
+        return wt
+    if scope in ("auto", "window"):
+        try:
+            from tools.target_window import get_target
+            return get_target()
+        except Exception:
+            return None
+    return None
+
+
+def action_tool_response(
+    msg: str,
+    capture: bool = False,
+    window_title: Optional[str] = None,
+    title: str = "",
+    scope: str = "auto",
+    capture_full: bool = False,
+):
     """Build MCP return value for action tools — text-only or text + screenshot."""
     if not capture:
         return msg
     import base64 as _b64
     from mcp.server.fastmcp import Image as McpImage
 
-    shot = capture_screenshot()
-    full_msg = f"{msg} Screenshot: {shot['width']}x{shot['height']}"
+    wt = resolve_capture_window(window_title, title, scope, capture_full)
+    shot = capture_screenshot(window_title=wt)
+    if wt:
+        scope_label = f"window '{wt}'"
+    else:
+        scope_label = "full screen"
+    full_msg = f"{msg} Screenshot ({scope_label}): {shot['width']}x{shot['height']}"
     return [
         McpImage(data=_b64.b64decode(shot["image"]), format="png"),
         full_msg,
@@ -440,6 +635,9 @@ def register(server) -> int:
         region_y: int | None = None,
         region_w: int | None = None,
         region_h: int | None = None,
+        window_title: str = "",
+        title: str = "",
+        scope: str = "auto",
         annotate: bool = False,
     ) -> list:
         """Capture a screenshot of the screen or a region.
@@ -447,27 +645,46 @@ def register(server) -> int:
         Returns the image so you can see what's on screen.
         Use monitor=0 for all monitors, monitor=1 for primary, etc.
         Optionally crop to a region with region_x/y/w/h.
+
+        scope controls cropping:
+            auto — target window if set via set_target_window, else full screen
+            window — crop to window_title/title (or target if omitted)
+            full — entire monitor (ignore target window)
+
         Set annotate=True to overlay grid lines, mouse position, and UI element outlines.
         """
         # Focus target window before capture so it's in the foreground
         try:
+            import time
             from tools.target_window import ensure_focus, get_target
-            if get_target():
+            from tools.windows import do_focus_window
+            wt = resolve_capture_window(window_title, title, scope, capture_full=(scope == "full"))
+            if wt and scope != "full":
+                do_focus_window(wt, "focus")
+                time.sleep(0.35)
+            elif get_target() and scope != "full":
                 ensure_focus()
-                import time; time.sleep(0.3)
+                time.sleep(0.3)
         except Exception:
             pass
         region = _build_region(region_x, region_y, region_w, region_h)
+        wt = resolve_capture_window(window_title, title, scope, capture_full=(scope == "full"))
         try:
             result = with_timeout(
                 lambda: capture_screenshot(
                     monitor_index=monitor if monitor != 0 else None,
                     region=region,
+                    window_title=wt if region is None else None,
                 ),
                 timeout=5.0,
             )
         except ActionTimeoutError:
             return "Timed out after 5s capturing screenshot. Display may be unresponsive."
+
+        if wt and region is None:
+            scope_hint = f" [window: {wt}]"
+        else:
+            scope_hint = " [full screen]" if scope == "full" or not wt else ""
 
         if annotate:
             raw_img = Image.open(io.BytesIO(base64.b64decode(result["image"])))
@@ -551,7 +768,7 @@ def register(server) -> int:
 
             return [
                 McpImage(data=buf.getvalue(), format="png"),
-                f"Annotated screenshot: {result['width']}x{result['height']} pixels{scale_hint}. File: {result['path']}{focus_info}{visual_detect_text}",
+                f"Annotated screenshot: {result['width']}x{result['height']} pixels{scale_hint}.{scope_hint} File: {result['path']}{focus_info}{visual_detect_text}",
             ]
 
         scale = result["original_width"] / result["width"]
@@ -562,7 +779,7 @@ def register(server) -> int:
 
         return [
             McpImage(data=base64.b64decode(result["image"]), format="png"),
-            f"Screenshot captured: {result['width']}x{result['height']} pixels{scale_hint}. File: {result['path']}",
+            f"Screenshot captured: {result['width']}x{result['height']} pixels{scale_hint}.{scope_hint} File: {result['path']}",
         ]
 
     @server.tool()

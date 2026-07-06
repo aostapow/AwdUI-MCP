@@ -35,9 +35,13 @@ REQUIRED_NAMES = [
 ]
 
 
+_DARWIN_ONLY = pytest.mark.skipif(sys.platform != "darwin", reason="macOS-only test")
+
+
 class TestPlatformAutoSelect:
     """Verify the __init__.py auto-selection logic."""
 
+    @_DARWIN_ONLY
     def test_darwin_backend_selected_on_macos(self):
         """On macOS (this machine), the darwin backend should be loaded."""
         assert sys.platform == "darwin", "This test must run on macOS"
@@ -87,6 +91,7 @@ class TestExportedNames:
 class TestDarwinImplementedFunctions:
     """Verify the functions that should actually work on macOS."""
 
+    @_DARWIN_ONLY
     def test_get_dpi_scale_returns_float(self):
         from awdui_platform import get_dpi_scale
 
@@ -94,6 +99,7 @@ class TestDarwinImplementedFunctions:
         assert isinstance(scale, float)
         assert scale >= 1.0
 
+    @_DARWIN_ONLY
     def test_is_elevated_returns_bool(self):
         from awdui_platform import is_elevated
 
@@ -102,23 +108,27 @@ class TestDarwinImplementedFunctions:
         # Normally tests don't run as root
         assert result is False
 
+    @_DARWIN_ONLY
     def test_send_text_to_console_noop(self):
         from awdui_platform import send_text_to_console
 
         result = send_text_to_console(pid=1, text="hello")
         assert result == {"success": True, "method": "pyautogui_passthrough"}
 
+    @_DARWIN_ONLY
     def test_send_keys_to_console_noop(self):
         from awdui_platform import send_keys_to_console
 
         result = send_keys_to_console(pid=1, keys="{ENTER}")
         assert result == {"success": True, "method": "pyautogui_passthrough"}
 
+    @_DARWIN_ONLY
     def test_get_foreground_hwnd_returns_zero(self):
         from awdui_platform import get_foreground_hwnd
 
         assert get_foreground_hwnd() == 0
 
+    @_DARWIN_ONLY
     def test_get_class_name_returns_empty(self):
         from awdui_platform import get_class_name
 
@@ -132,6 +142,7 @@ class TestDarwinStubFunctions:
         "get_loaded_modules",
     ]
 
+    @_DARWIN_ONLY
     @pytest.mark.parametrize("name", STUB_NAMES)
     def test_stub_raises_not_implemented(self, name):
         import awdui_platform

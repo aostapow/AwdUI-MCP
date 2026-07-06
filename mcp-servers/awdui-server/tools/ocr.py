@@ -695,6 +695,7 @@ def register(server) -> int:
         query: str,
         case_sensitive: bool = False,
         window_title: str = "",
+        title: str = "",
         near_y: int = 0,
     ) -> str:
         """Find text on screen using OCR. Use when accessibility targeting can't find an element.
@@ -706,12 +707,15 @@ def register(server) -> int:
             query: Text to search for (substring match).
             case_sensitive: Whether to match case (default False).
             window_title: Partial title of window to scope OCR to (default: full screen).
+            title: Alias for window_title — either parameter is accepted.
             near_y: When set (> 0), sort matches by proximity to this Y coordinate. Useful for disambiguating short text like "Add" that appears in multiple places.
         """
+        from tools.params import resolve_window_title
+        wt = resolve_window_title(window_title, title)
         try:
             result = with_timeout(
                 lambda: do_find_text(query, case_sensitive=case_sensitive,
-                                     window_title=window_title or None,
+                                     window_title=wt,
                                      near_y=near_y if near_y > 0 else None),
                 timeout=20.0,
             )
@@ -741,8 +745,10 @@ def register(server) -> int:
         occurrence: int = 1,
         case_sensitive: bool = False,
         window_title: str = "",
+        title: str = "",
         near_y: int = 0,
         capture: bool = False,
+        capture_full: bool = False,
     ) -> list:
         """Find text on screen using OCR and click it. Fallback when accessibility can't find the element.
 
@@ -751,14 +757,17 @@ def register(server) -> int:
             occurrence: Which match to click if multiple (1 = first, default).
             case_sensitive: Whether to match case (default False).
             window_title: Partial title of window to scope OCR to (default: full screen).
+            title: Alias for window_title — either parameter is accepted.
             near_y: When set (> 0), prefer the match closest to this Y coordinate.
             capture: When True, attach a post-click screenshot (default False).
         """
+        from tools.params import resolve_window_title
+        wt = resolve_window_title(window_title, title)
         try:
             result = with_timeout(
                 lambda: do_click_text(query, occurrence=occurrence,
                                       case_sensitive=case_sensitive,
-                                      window_title=window_title or None,
+                                      window_title=wt,
                                       near_y=near_y if near_y > 0 else None),
                 timeout=20.0,
             )
@@ -778,7 +787,7 @@ def register(server) -> int:
                 msg += f"\n↳ Center click had no effect — retried {result['retry']} and got a response."
         if result.get("navigation_warning"):
             msg += f"\n⚠️ {result['navigation_warning']}"
-        return action_tool_response(msg, capture=capture)
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
 
     return 2
 

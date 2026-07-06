@@ -77,7 +77,7 @@ def apply_probe(
             applied = True
             detail = {"keys": "{PGDN}"}
 
-        elif probe_id == "access_key":
+        elif probe_id in ("access_key", "press_key"):
             from tools.input_tools import do_send_keys
             keys = params.get("keys") or target
             do_send_keys(keys)

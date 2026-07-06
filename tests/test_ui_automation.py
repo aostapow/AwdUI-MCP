@@ -160,9 +160,11 @@ class TestGetFocusedElement:
         assert result["element"]["name"] == "Username"
         assert result["element"]["role"] == "Edit"
 
+    @mock.patch("pywinauto.uia_defines.IUIA")
     @mock.patch("pywinauto.Desktop")
-    def test_returns_not_found_on_exception(self, mock_desktop_cls):
+    def test_returns_not_found_on_exception(self, mock_desktop_cls, mock_iuia_cls):
         mock_desktop_cls.return_value.get_focus.side_effect = Exception("UIA unavailable")
+        mock_iuia_cls.return_value.iuia.GetFocusedElement.side_effect = Exception("UIA unavailable")
 
         from tools.ui_automation import do_get_focused_element
         result = do_get_focused_element()
@@ -236,7 +238,7 @@ class TestSmartFindOcrScoping:
         do_smart_find("Hello", window_title="Browser")
         mock_orch.smart_find.assert_called_once_with(
             name="Hello", role=None, window_title="Browser", index=0,
-            repo_path=None, agentic=False, remember=True, highlight=False,
+            repo_path=None, agentic=False, remember=True, remember_snapshot=False, highlight=False,
         )
 
     @_mock_orch()
@@ -248,7 +250,7 @@ class TestSmartFindOcrScoping:
         do_smart_find("Ghost")
         mock_orch.smart_find.assert_called_once_with(
             name="Ghost", role=None, window_title=None, index=0,
-            repo_path=None, agentic=False, remember=True, highlight=False,
+            repo_path=None, agentic=False, remember=True, remember_snapshot=False, highlight=False,
         )
 
 
@@ -274,7 +276,7 @@ class TestRegister:
         server = mock.MagicMock()
         from tools.ui_automation import register
         count = register(server)
-        assert count == 20
+        assert count == 22
 
     def test_registers_discovery_tools(self):
         server = mock.MagicMock()
@@ -300,4 +302,4 @@ class TestRegister:
                 discovery.register,
             )
         )
-        assert total == 55
+        assert total == 58

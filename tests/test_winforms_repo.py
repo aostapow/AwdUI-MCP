@@ -30,33 +30,49 @@ class TestWinformsMap:
 
 
 class TestObjectRepositoryNested:
-    def test_parse_nested_path(self, tmp_path, monkeypatch):
+    @pytest.fixture
+    def repo_db(self, tmp_path, monkeypatch):
+        from detection import repo_store
+
+        db = tmp_path / "test.db"
+        monkeypatch.setattr(repo_store, "_DB_PATH", db)
+        monkeypatch.setattr(repo_store, "_ASSETS_DIR", tmp_path / "assets")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_DIR", tmp_path / "legacy")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_BAK", tmp_path / "bak")
+        repo_store.reset_migration_flag()
+        repo_store.init_db(db)
+        return repo_store
+
+    def test_parse_nested_path(self):
         from detection import object_repository as repo_mod
-        monkeypatch.setattr(repo_mod, "_REPO_DIR", tmp_path)
         window, chain = repo_mod.parse_repo_path("frmMain/tabDatos/txtNombre")
         assert window == "frmMain"
         assert chain == ["tabDatos", "txtNombre"]
 
-    def test_upsert_nested_with_parent(self, tmp_path, monkeypatch):
+    def test_upsert_nested_with_parent(self, repo_db):
         from detection import object_repository as repo_mod
-        monkeypatch.setattr(repo_mod, "_REPO_DIR", tmp_path)
         repo = repo_mod.load_repo("TestApp.exe")
         repo_mod.upsert_object(
             repo,
             "frmMain/tabDatos/txtNombre",
             obj_class="SwfEdit",
-            identification={"mandatory": {"automation_id": "txtNombre"}},
+            identification={"mandatory": {"automation_id": "txtNombre"}, "assistive": {}, "smart": {}, "ordinal": {}},
         )
         obj = repo_mod.get_object(repo, "frmMain/tabDatos/txtNombre")
         assert obj["class"] == "SwfEdit"
         assert obj["parent"] == "tabDatos"
 
-    def test_list_full_paths(self, tmp_path, monkeypatch):
+    def test_list_full_paths(self, repo_db):
         from detection import object_repository as repo_mod
-        monkeypatch.setattr(repo_mod, "_REPO_DIR", tmp_path)
         repo = repo_mod.load_repo("TestApp.exe")
-        repo_mod.upsert_object(repo, "frmMain/tabDatos", obj_class="SwfPage")
-        repo_mod.upsert_object(repo, "frmMain/tabDatos/txtNombre", obj_class="SwfEdit")
+        repo_mod.upsert_object(
+            repo, "frmMain/tabDatos", obj_class="SwfPage",
+            identification={"mandatory": {"name": "tabDatos"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
+        repo_mod.upsert_object(
+            repo, "frmMain/tabDatos/txtNombre", obj_class="SwfEdit",
+            identification={"mandatory": {"automation_id": "txtNombre"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
         items = repo_mod.list_objects(repo)
         paths = {i["repo_path"] for i in items}
         assert "frmMain/tabDatos/txtNombre" in paths
@@ -73,8 +89,17 @@ class TestRepoResolver:
 
     def test_resolve_with_mock_orch(self, tmp_path, monkeypatch):
         from detection import object_repository as repo_mod
+        from detection import repo_store
         from detection.repo_resolver import resolve_repo_object
-        monkeypatch.setattr(repo_mod, "_REPO_DIR", tmp_path)
+
+        db = tmp_path / "test.db"
+        monkeypatch.setattr(repo_store, "_DB_PATH", db)
+        monkeypatch.setattr(repo_store, "_ASSETS_DIR", tmp_path / "assets")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_DIR", tmp_path / "legacy")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_BAK", tmp_path / "bak")
+        repo_store.reset_migration_flag()
+        repo_store.init_db(db)
+
         repo = repo_mod.load_repo("TestApp.exe")
         repo_mod.upsert_object(
             repo,
@@ -83,6 +108,8 @@ class TestRepoResolver:
             identification={
                 "mandatory": {"automation_id": "btnSave", "role": "Button"},
                 "assistive": {"name": "Guardar"},
+                "smart": {},
+                "ordinal": {},
             },
         )
         mock_orch = mock.MagicMock()

@@ -83,7 +83,7 @@ class TestActionValidation:
 
 class TestDoListWindows:
     @mock.patch("tools.windows.get_platform", return_value="windows")
-    @mock.patch("tools.windows._list_windows_win32")
+    @mock.patch("awdui_platform.list_windows_native")
     def test_dispatches_to_win32(self, mock_win32, mock_plat):
         from tools.windows import do_list_windows
         mock_win32.return_value = [
@@ -117,7 +117,7 @@ class TestDoListWindows:
         assert result[0]["title"] == "Terminal"
 
     @mock.patch("tools.windows.get_platform", return_value="windows")
-    @mock.patch("tools.windows._list_windows_win32")
+    @mock.patch("awdui_platform.list_windows_native")
     def test_returns_list_of_dicts(self, mock_win32, mock_plat):
         from tools.windows import do_list_windows
         mock_win32.return_value = [
@@ -140,7 +140,7 @@ class TestDoListWindows:
 
 class TestDoFocusWindow:
     @mock.patch("tools.windows.get_platform", return_value="windows")
-    @mock.patch("tools.windows._focus_window_win32")
+    @mock.patch("awdui_platform.focus_window_native")
     def test_focus_success(self, mock_focus, mock_plat):
         from tools.windows import do_focus_window
         mock_focus.return_value = {
@@ -151,7 +151,7 @@ class TestDoFocusWindow:
         assert result["success"] is True
 
     @mock.patch("tools.windows.get_platform", return_value="windows")
-    @mock.patch("tools.windows._focus_window_win32")
+    @mock.patch("awdui_platform.focus_window_native")
     def test_focus_with_action(self, mock_focus, mock_plat):
         from tools.windows import do_focus_window
         mock_focus.return_value = {

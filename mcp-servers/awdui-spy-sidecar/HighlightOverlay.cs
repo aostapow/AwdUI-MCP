@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace HandsonSpySidecar;
+namespace AwdUiSpySidecar;
 
 /// <summary>Automation Spy-style red border overlay (4 topmost bars).</summary>
 static class HighlightOverlay

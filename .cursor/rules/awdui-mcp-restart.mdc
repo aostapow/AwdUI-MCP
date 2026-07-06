@@ -1,0 +1,39 @@
+---
+description: Reiniciar AwdUI MCP sin pedir permiso cuando haga falta
+alwaysApply: true
+---
+
+# Reinicio de AwdUI MCP
+
+El usuario autoriza **reiniciar el MCP `awdui` sin preguntar** cuando sea necesario.
+
+## Cuándo reiniciar
+
+Después de cambios en `mcp-servers/awdui-server/**`, sidecars, `scripts/launcher.py`, o si `awdui` muestra Error en Settings.
+
+## Cómo reiniciar (seguro)
+
+```powershell
+& scripts/restart-awdui-mcp.ps1
+```
+
+Eso solo actualiza `AWDUI_RESTART` en `~/.cursor/mcp.json`. Cursor recarga `awdui` automáticamente (`config_changed`).
+
+## Qué NO hacer
+
+- **No** matar procesos por defecto — compite con la reconexión de Cursor y causa `Connection closed`.
+- **No** usar `-ReloadWindow` salvo último recurso — recarga toda la ventana y puede dejar MCP en Error.
+- **No** reescribir todo `mcp.json` con `ConvertTo-Json` — puede agregar BOM o romper el formato.
+
+## Flags opcionales
+
+- `-KillOrphans` — solo si quedaron procesos huérfanos tras un crash
+- `-ReloadWindow` — último recurso si el toggle en Settings no alcanza
+
+## Si sigue en Error
+
+Pedir al usuario que en **Settings → MCP** desactive y reactive `awdui`, o use el botón de retry junto al servidor.
+
+## Verificación
+
+Invocar `get_target_window` o `check_version` tras unos segundos.

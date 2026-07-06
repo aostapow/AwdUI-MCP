@@ -20,7 +20,7 @@ def _orch():
 
 def _legacy_element(elem: dict) -> dict:
     """Ensure legacy keys exist for callers expecting old format."""
-    return {
+    out = {
         "name": elem.get("name", ""),
         "role": elem.get("role", ""),
         "x": elem.get("x", 0),
@@ -36,6 +36,10 @@ def _legacy_element(elem: dict) -> dict:
         "backend": elem.get("backend", "uia"),
         "patterns": elem.get("patterns", []),
     }
+    for key in ("clickable_x", "clickable_y", "center_x", "center_y"):
+        if elem.get(key) is not None:
+            out[key] = elem[key]
+    return out
 
 
 def _do_find_element_darwin(
@@ -106,6 +110,7 @@ def do_find_element(
     class_name: Optional[str] = None,
     tree_mode: str = "control",
     include_offscreen: bool = False,
+    remember: bool = True,
 ) -> dict:
     if sys.platform == "darwin":
         return _do_find_element_darwin(
@@ -124,16 +129,34 @@ def do_find_element(
     )
     if not result.get("found"):
         return {"found": False, "elements": [], "error": result.get("error", "")}
+    from detection.element_coords import to_screen_coords
+
+    elements = [to_screen_coords(_legacy_element(e), window_title) for e in result["elements"]]
+    backend = result.get("backend_used", "uia")
+    if remember and elements:
+        try:
+            from detection.auto_repo import maybe_remember_element
+            path = maybe_remember_element(
+                elements[min(index, len(elements) - 1)] if index else elements[0],
+                window_title=window_title,
+                backend=backend,
+                remember=remember,
+            )
+            if path:
+                result["repo_path"] = path
+        except Exception:
+            pass
     return {
         "found": True,
-        "elements": [_legacy_element(e) for e in result["elements"]],
-        "backend_used": result.get("backend_used", "uia"),
+        "elements": elements,
+        "backend_used": backend,
+        **({"repo_path": result["repo_path"]} if result.get("repo_path") else {}),
     }
 
 
 def do_list_elements(
     window_title: Optional[str] = None,
-    max_depth: int = 5,
+    max_depth: int = 12,
     role: Optional[str] = None,
     tree_mode: str = "control",
     include_offscreen: bool = False,
@@ -260,12 +283,24 @@ def _fuzzy_find_nearest(
     }
 
 
-def _click_coords(elem: dict) -> tuple[int, int]:
-    cx = elem.get("clickable_x")
-    cy = elem.get("clickable_y")
-    if cx is not None and cy is not None:
-        return int(cx), int(cy)
-    return elem["x"] + elem["width"] // 2, elem["y"] + elem["height"] // 2
+def _click_coords(elem: dict, window_title: Optional[str] = None) -> tuple[int, int]:
+    from detection.element_coords import click_coords
+
+    return click_coords(elem, window_title)
+
+
+def _try_invoke_click(elem: dict, window_title: Optional[str] = None) -> Optional[dict]:
+    """Use UIA Invoke when available — reliable for UWP/XAML buttons."""
+    patterns = [str(p).lower() for p in (elem.get("patterns") or [])]
+    role = (elem.get("role") or "").lower()
+    if "invoke" not in patterns and role not in ("button", "hyperlink", "menuitem", "splitbutton"):
+        return None
+    inv = do_invoke_element(
+        name=elem.get("name") or None,
+        automation_id=elem.get("automation_id") or None,
+        window_title=window_title,
+    )
+    return inv if inv.get("success") else None
 
 
 def do_click_element(
@@ -274,15 +309,30 @@ def do_click_element(
     window_title: Optional[str] = None,
     index: int = 0,
     automation_id: Optional[str] = None,
+    remember: bool = True,
 ) -> dict:
+    from tools.target_window import ensure_focus
+    ensure_focus()
     result = do_find_element(
         name=name, role=role, window_title=window_title,
         index=index, automation_id=automation_id,
+        remember=remember,
     )
     if result["found"]:
         idx = min(index, len(result["elements"]) - 1)
         elem = result["elements"][idx]
-        center_x, center_y = _click_coords(elem)
+        inv = _try_invoke_click(elem, window_title)
+        if inv:
+            out = {
+                "success": True,
+                "element": elem,
+                "method": inv.get("method", "InvokePattern"),
+                "backend_used": result.get("backend_used", "uia"),
+            }
+            if result.get("repo_path"):
+                out["repo_path"] = result["repo_path"]
+            return out
+        center_x, center_y = _click_coords(elem, window_title)
         click_result = do_click(center_x, center_y)
         out = {
             "success": True,
@@ -290,6 +340,8 @@ def do_click_element(
             "clicked_at": {"x": center_x, "y": center_y},
             "backend_used": result.get("backend_used", "uia"),
         }
+        if result.get("repo_path"):
+            out["repo_path"] = result["repo_path"]
         if "navigation_warning" in click_result:
             out["navigation_warning"] = click_result["navigation_warning"]
         return out
@@ -300,7 +352,7 @@ def do_click_element(
 
     if nearest["confidence"] >= 0.7:
         elem = nearest["element"]
-        center_x, center_y = _click_coords(elem)
+        center_x, center_y = _click_coords(elem, window_title)
         click_result = do_click(center_x, center_y)
         out = {
             "success": True,
@@ -319,7 +371,7 @@ def do_click_element(
         return out
 
     elem = nearest["element"]
-    cx, cy = _click_coords(elem)
+    cx, cy = _click_coords(elem, window_title)
     return {
         "success": False,
         "nearest": {
@@ -495,12 +547,14 @@ def do_detection_health(window_title: Optional[str] = None) -> dict:
 def register(server) -> int:
     """Register UI automation and inspector tools."""
     from tools.safety import with_timeout, ActionTimeoutError
+    from tools.params import resolve_window_title as _wt
 
     @server.tool()
     def find_element(
         name: str = "",
         role: str = "",
         window_title: str = "",
+        title: str = "",
         index: int = 0,
         automation_id: str = "",
         class_name: str = "",
@@ -524,7 +578,7 @@ def register(server) -> int:
                 lambda: do_find_element(
                     name=name or None,
                     role=role or None,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                     index=index,
                     automation_id=automation_id or None,
                     class_name=class_name or None,
@@ -553,21 +607,24 @@ def register(server) -> int:
         name: str = "",
         role: str = "",
         window_title: str = "",
+        title: str = "",
         index: int = 0,
         automation_id: str = "",
         capture: bool = False,
+        capture_full: bool = False,
     ) -> list:
         """Find a UI element and click its center (or clickable point).
 
         Parameters:
             capture: When True, attach a post-click screenshot (default False).
+            capture_full: When True with capture, full screen; else target window if set.
         """
         try:
             result = with_timeout(
                 lambda: do_click_element(
                     name=name or None,
                     role=role or None,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                     index=index,
                     automation_id=automation_id or None,
                 ),
@@ -596,11 +653,12 @@ def register(server) -> int:
             msg += f"\nFALLBACK: {result['note']}"
         if result.get("navigation_warning"):
             msg += f"\n⚠️ {result['navigation_warning']}"
-        return action_tool_response(msg, capture=capture)
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
 
     @server.tool()
     def list_elements(
         window_title: str = "",
+        title: str = "",
         max_depth: int = 5,
         role: str = "",
         tree_mode: str = "control",
@@ -610,7 +668,7 @@ def register(server) -> int:
         try:
             result = with_timeout(
                 lambda: do_list_elements(
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                     max_depth=max_depth,
                     role=role or None,
                     tree_mode=tree_mode or "control",
@@ -621,7 +679,11 @@ def register(server) -> int:
         except ActionTimeoutError:
             return "Timed out after 10s listing UI elements."
         if not result["elements"]:
-            return f"No elements found. {result.get('error', '')}"
+            msg = f"No elements found. {result.get('error', '')}".strip()
+            fw = do_detection_health(_wt(window_title, title)).get("framework")
+            if fw in ("uwp", "winui"):
+                msg += " UWP/WinUI: try smart_find or find_text/click_text (OCR) for button labels."
+            return msg
 
         backend = result.get("backend_used", "uia")
         header = f"Found {result['count']} elements via {backend}"
@@ -665,6 +727,7 @@ def register(server) -> int:
         name: str,
         role: str = "",
         window_title: str = "",
+        title: str = "",
         index: int = 0,
         repo_path: str = "",
         agentic: bool = False,
@@ -676,7 +739,7 @@ def register(server) -> int:
                 lambda: do_smart_find(
                     name=name,
                     role=role or None,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                     index=index,
                     repo_path=repo_path or None,
                     agentic=agentic,
@@ -709,11 +772,11 @@ def register(server) -> int:
         return "\n".join(lines)
 
     @server.tool()
-    def ui_fingerprint(window_title: str = "") -> str:
+    def ui_fingerprint(window_title: str = "", title: str = "") -> str:
         """Quick hash of the current UI layout for change detection."""
         try:
             result = with_timeout(
-                lambda: do_ui_fingerprint(window_title=window_title or None),
+                lambda: do_ui_fingerprint(window_title=_wt(window_title, title)),
                 timeout=5.0,
             )
         except ActionTimeoutError:
@@ -743,6 +806,7 @@ def register(server) -> int:
         x: int = -1,
         y: int = -1,
         window_title: str = "",
+        title: str = "",
     ) -> str:
         """Get full UIA properties for an element (Automation Spy style inspector)."""
         try:
@@ -752,7 +816,7 @@ def register(server) -> int:
                     automation_id=automation_id or None,
                     x=x if x >= 0 else None,
                     y=y if y >= 0 else None,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                 ),
                 timeout=10.0,
             )
@@ -772,6 +836,7 @@ def register(server) -> int:
         name: str = "",
         automation_id: str = "",
         window_title: str = "",
+        title: str = "",
     ) -> str:
         """Invoke a button/menu via UIA InvokePattern (no coordinate click)."""
         try:
@@ -779,7 +844,7 @@ def register(server) -> int:
                 lambda: do_invoke_element(
                     name=name or None,
                     automation_id=automation_id or None,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                 ),
                 timeout=10.0,
             )
@@ -795,6 +860,7 @@ def register(server) -> int:
         name: str = "",
         automation_id: str = "",
         window_title: str = "",
+        title: str = "",
     ) -> str:
         """Set text field value via UIA ValuePattern."""
         try:
@@ -803,7 +869,7 @@ def register(server) -> int:
                     value=value,
                     name=name or None,
                     automation_id=automation_id or None,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                 ),
                 timeout=10.0,
             )
@@ -814,11 +880,11 @@ def register(server) -> int:
         return f"Failed: {result.get('error', 'unknown')}"
 
     @server.tool()
-    def detection_health(window_title: str = "") -> str:
+    def detection_health(window_title: str = "", title: str = "") -> str:
         """Report which detection backends are available and element counts."""
         try:
             result = with_timeout(
-                lambda: do_detection_health(window_title or None),
+                lambda: do_detection_health(window_title=_wt(window_title, title)),
                 timeout=15.0,
             )
         except ActionTimeoutError:
@@ -849,12 +915,12 @@ def register(server) -> int:
         return "\n".join(lines)
 
     @server.tool()
-    def detect_visual_regions(window_title: str = "") -> str:
+    def detect_visual_regions(window_title: str = "", title: str = "") -> str:
         """Detect clickable UI regions via OpenCV + OCR (for opaque apps)."""
         from tools.screenshot import capture_screenshot
         from tools.visual_detect import detect_ui_regions, format_regions_text
         from tools.image_utils import load_image_from_screenshot
-        wt = window_title or None
+        wt = _wt(window_title, title)
         if not wt:
             from tools.target_window import get_target
             wt = get_target()
@@ -864,11 +930,11 @@ def register(server) -> int:
         return format_regions_text(regions)
 
     @server.tool()
-    def repo_find(repo_path: str, window_title: str = "", highlight: bool = False) -> str:
+    def repo_find(repo_path: str, window_title: str = "", title: str = "", highlight: bool = False) -> str:
         """Resolve a logical object from the UFT-style repository (e.g. frmMain/btnSave)."""
         try:
             result = with_timeout(
-                lambda: do_repo_find(repo_path, window_title or None, highlight=highlight),
+                lambda: do_repo_find(repo_path, window_title=_wt(window_title, title), highlight=highlight),
                 timeout=20.0,
             )
         except ActionTimeoutError:
@@ -884,9 +950,9 @@ def register(server) -> int:
         )
 
     @server.tool()
-    def repo_list(window_title: str = "") -> str:
+    def repo_list(window_title: str = "", title: str = "") -> str:
         """List objects stored in the repository for the active application."""
-        result = do_repo_list(window_title or None)
+        result = do_repo_list(window_title=_wt(window_title, title))
         objs = result.get("objects", [])
         if not objs:
             return "Repository empty for this application."
@@ -899,12 +965,38 @@ def register(server) -> int:
         return "\n".join(lines)
 
     @server.tool()
+    def repo_hints(repo_path: str = "", window_title: str = "", title: str = "") -> str:
+        """Get agent hints for a repository object or list hints for the active app.
+
+        Parameters:
+            repo_path: Full path (e.g. Calculadora/num6Button). If empty, lists objects with hints for the app.
+            window_title: Application window context when repo_path is empty.
+        """
+        from detection import repo_store
+        if repo_path:
+            hints = repo_store.get_agent_hints(repo_path)
+            if not hints:
+                return f"No agent hints for '{repo_path}'."
+            return f"Hints for {repo_path}:\n{hints}"
+        result = do_repo_list(window_title=_wt(window_title, title))
+        objs = result.get("objects", [])
+        lines = []
+        for o in objs:
+            h = o.get("agent_hints") or repo_store.get_agent_hints(o["repo_path"])
+            if h:
+                lines.append(f"## {o['repo_path']}\n{h}")
+        if not lines:
+            return "No agent hints stored for this application."
+        return "\n\n".join(lines)
+
+    @server.tool()
     def repo_action(
         repo_path: str,
         method: str,
         value: str = "",
         property_name: str = "",
         window_title: str = "",
+        title: str = "",
         highlight: bool = False,
     ) -> str:
         """Execute a QTP/UFT-style Swf* method on a repository object (e.g. Click, Set, Select)."""
@@ -916,7 +1008,7 @@ def register(server) -> int:
                     method=method,
                     value=value,
                     property_name=property_name,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                     highlight=highlight,
                 ),
                 timeout=25.0,
@@ -950,6 +1042,7 @@ def register(server) -> int:
     def repo_capture(
         repo_path: str,
         window_title: str = "",
+        title: str = "",
         x: int = -1,
         y: int = -1,
         name: str = "",
@@ -962,7 +1055,7 @@ def register(server) -> int:
             result = with_timeout(
                 lambda: do_repo_capture(
                     repo_path=repo_path,
-                    window_title=window_title or None,
+                    window_title=_wt(window_title, title),
                     x=x,
                     y=y,
                     name=name or "",
@@ -989,18 +1082,19 @@ def register(server) -> int:
         x: int = -1,
         y: int = -1,
         window_title: str = "",
+        title: str = "",
         duration_ms: int = 3000,
     ) -> str:
         """Highlight an element on screen with a red border (Automation Spy style)."""
         from tools.highlight import highlight_element_dict, highlight_rect
         elem = None
         if repo_path:
-            r = do_repo_find(repo_path, window_title or None)
+            r = do_repo_find(repo_path, window_title=_wt(window_title, title))
             if r.get("found"):
                 elem = r["elements"][0]
         elif name or automation_id:
             r = do_find_element(name=name or None, automation_id=automation_id or None,
-                                window_title=window_title or None)
+                                window_title=_wt(window_title, title))
             if r.get("found"):
                 elem = r["elements"][0]
         if elem:
@@ -1024,6 +1118,7 @@ def register(server) -> int:
         x: int = -1,
         y: int = -1,
         window_title: str = "",
+        title: str = "",
     ) -> str:
         """Spy-grade full UIA property inspection (40+ fields)."""
         from tools.spy_bridge import spy_inspect_at, spy_inspect_element, spy_available
@@ -1033,7 +1128,7 @@ def register(server) -> int:
             result = spy_inspect_at(x, y)
         else:
             result = spy_inspect_element(name=name or None, automation_id=automation_id or None,
-                                         window_title=window_title or None)
+                                         window_title=_wt(window_title, title))
         if not result.get("found") and "properties" not in result:
             return f"Not found: {result.get('error', '')}"
         props = result.get("properties", result)
@@ -1044,7 +1139,7 @@ def register(server) -> int:
         return "\n".join(lines)
 
     @server.tool()
-    def spy_tree(window_title: str = "", mode: str = "control", max_depth: int = 5) -> str:
+    def spy_tree(window_title: str = "", title: str = "", mode: str = "control", max_depth: int = 5) -> str:
         """Walk UIA tree with Spy-grade detail."""
         from tools.spy_bridge import spy_tree, spy_available
         if not spy_available():
@@ -1059,11 +1154,11 @@ def register(server) -> int:
         return "\n".join(lines)
 
     @server.tool()
-    def build_detection_context(name: str = "", window_title: str = "") -> str:
+    def build_detection_context(name: str = "", window_title: str = "", title: str = "") -> str:
         """Rich agentic context: screenshot, tree, OCR dual, visual regions, suggestions."""
         try:
             ctx = with_timeout(
-                lambda: do_build_detection_context(name, window_title or None),
+                lambda: do_build_detection_context(name, window_title=_wt(window_title, title)),
                 timeout=25.0,
             )
         except ActionTimeoutError:

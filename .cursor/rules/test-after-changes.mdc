@@ -1,0 +1,38 @@
+---
+description: Ejecutar pruebas después de cada cambio o arreglo
+alwaysApply: true
+---
+
+# Pruebas obligatorias tras cambios
+
+Cuando el usuario pida un **cambio**, **arreglo**, **fix** o **feature**, siempre al terminar:
+
+## 1. Tests automatizados
+
+Ejecutar los tests relevantes del repo antes de dar por cerrado el trabajo:
+
+```powershell
+& "$env:USERPROFILE\.awdui-mcp\.venv\Scripts\python.exe" -m pytest tests/ -q --tb=short
+```
+
+Si el cambio es acotado, al menos los tests del módulo tocado (ej. `tests/test_screenshot_tool.py`).
+
+## 2. Prueba de funcionamiento (MCP vivo)
+
+Si el cambio afecta `mcp-servers/awdui-server/**`:
+
+1. Reiniciar MCP de forma segura: `& scripts/restart-awdui-mcp.ps1`
+2. Verificar conexión con una tool liviana (`get_target_window`, `check_version`)
+3. Si aplica, probar el flujo real del cambio (ej. screenshot con `scope=window` vs `full`)
+
+## 3. Reportar resultados
+
+Incluir en la respuesta final:
+
+- Qué tests corrieron y si pasaron
+- Qué prueba manual/MCP se hizo y el resultado
+- Si algo falló, arreglarlo antes de cerrar (no dejar "debería funcionar")
+
+## No pedir permiso
+
+No preguntar "¿corro los tests?". Hacerlo siempre como parte del entregable.

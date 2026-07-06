@@ -188,19 +188,11 @@ def resolve_repo_object(
     except ValueError as e:
         return {"found": False, "error": str(e)}
 
-    win = repo.get("windows", {}).get(window_key)
-    if not win:
-        return {"found": False, "error": f"Window '{window_key}' not in repository"}
-
-    leaf_name = chain[-1]
-    obj = win.get("objects", {}).get(leaf_name)
+    obj = get_object(repo, repo_path)
     if not obj:
-        return {"found": False, "error": f"Object '{leaf_name}' not in repository"}
+        return {"found": False, "error": f"Object '{repo_path}' not in repository"}
 
     obj = dict(obj)
-    obj["_object_name"] = leaf_name
-    obj["_window_key"] = window_key
-    obj["repo_path"] = repo_path
 
     parent_elem: Optional[dict] = None
     if len(chain) > 1:

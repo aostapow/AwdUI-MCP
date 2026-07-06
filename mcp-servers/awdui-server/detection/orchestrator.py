@@ -64,6 +64,8 @@ class DetectionOrchestrator:
                 order = []  # OCR/visual handled by layered detector
             elif fw in ("electron", "chromium_browser"):
                 order = ["uia", "flaui", "msaa"]
+            elif fw in ("uwp", "winui"):
+                order = ["flaui", "uia", "msaa"]
             elif fw == "java_fx":
                 order = ["uia", "jab"]
             else:
@@ -72,10 +74,35 @@ class DetectionOrchestrator:
             order = ["uia", "msaa", "win32", "jab", "flaui"]
         return [b for b in order if b in self._backends and self._backends[b].is_available()]
 
+    def _framework_name(self, window_title: Optional[str] = None) -> str:
+        try:
+            from tools.framework_detect import do_detect_framework
+            return do_detect_framework(window_title).get("framework", "unknown")
+        except Exception:
+            return "unknown"
+
+    @staticmethod
+    def _weak_backend_result(
+        backend_name: str,
+        elements: list,
+        framework: str,
+    ) -> bool:
+        """True when a backend returned a low-value tree (common for UWP via MSAA)."""
+        if framework not in ("uwp", "winui") or backend_name != "msaa":
+            return False
+        if not elements or len(elements) > 2:
+            return False
+        shell_roles = {"Role_10", "Pane", "Client", "Window", "Dialog"}
+        return all(
+            not (getattr(elem, "automation_id", "") or "")
+            and (getattr(elem, "role", "") or "") in shell_roles
+            for elem in elements
+        )
+
     def list_elements(
         self,
         window_title: Optional[str] = None,
-        max_depth: int = 5,
+        max_depth: int = 12,
         role: Optional[str] = None,
         tree_mode: str = "control",
         include_offscreen: bool = False,
@@ -93,6 +120,7 @@ class DetectionOrchestrator:
                 }
 
         backends = [backend] if backend else self._backend_order(window_title)
+        framework = self._framework_name(window_title)
         last_error = ""
         for bname in backends:
             b = self._backends.get(bname)
@@ -106,7 +134,7 @@ class DetectionOrchestrator:
                     tree_mode=tree_mode,
                     include_offscreen=include_offscreen,
                 )
-                if elements:
+                if elements and not self._weak_backend_result(bname, elements, framework):
                     _tree_cache[cache_key] = (now, elements)
                     return {
                         "elements": [dict_to_legacy_element(e.to_dict()) for e in elements],

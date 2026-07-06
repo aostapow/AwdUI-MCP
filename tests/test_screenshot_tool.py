@@ -103,6 +103,32 @@ class TestCropRegion:
 # Test: capture_screenshot (mocked mss)
 # ---------------------------------------------------------------------------
 
+class TestWindowCapture:
+    def test_capture_uses_mss_crop_for_window(self):
+        from tools import screenshot as mod
+
+        fake_shot = _make_mss_monitor_shot(1920, 1080)
+        fake_sct = mock.MagicMock()
+        fake_sct.monitors = [
+            {"left": 0, "top": 0, "width": 1920, "height": 1080},
+            {"left": 0, "top": 0, "width": 1920, "height": 1080},
+        ]
+        fake_sct.grab.return_value = fake_shot
+        old_sct = mod._sct
+        mod._sct = fake_sct
+        with mock.patch.object(mod, "screenshot_manager") as mock_mgr, \
+             mock.patch.object(mod, "_focus_window_for_capture"), \
+             mock.patch.object(mod, "_mss_grab_region") as grab_mock, \
+             mock.patch.object(mod, "_region_for_window", return_value={"x": 50, "y": 0, "w": 418, "h": 675}):
+            from PIL import Image
+            grab_mock.return_value = Image.new("RGB", (418, 675), (200, 200, 200))
+            mock_mgr.save.return_value = "/tmp/fake.png"
+            result = mod.capture_screenshot(window_title="Calculadora")
+        mod._sct = old_sct
+        assert result["original_width"] == 418
+        assert result["original_height"] == 675
+
+
 class TestCaptureScreenshot:
     """Test capture_screenshot with fully mocked mss + screenshot_manager."""
 
@@ -190,6 +216,8 @@ class TestCaptureScreenshot:
         fake_path = "/tmp/awdui_fake/screenshot.png"
         fake_window = {"x": 50, "y": 60, "width": 300, "height": 200}
         with mock.patch.object(mod, "screenshot_manager") as mock_mgr, \
+             mock.patch.object(mod, "_capture_window_by_title", return_value=None), \
+             mock.patch.object(mod, "get_dpi_scale", return_value=1.0), \
              mock.patch("tools.windows.find_matching_window", return_value={"window": fake_window}), \
              mock.patch("tools.windows.do_list_windows", return_value=[]):
             mock_mgr.save.return_value = fake_path
@@ -217,6 +245,15 @@ class TestActionToolResponse:
         from tools.screenshot import action_tool_response
         assert action_tool_response("Done.", capture=False) == "Done."
 
+    def test_resolve_capture_window_full(self):
+        from tools.screenshot import resolve_capture_window
+        assert resolve_capture_window(scope="full") is None
+        assert resolve_capture_window(capture_full=True) is None
+
+    def test_resolve_capture_window_explicit(self):
+        from tools.screenshot import resolve_capture_window
+        assert resolve_capture_window(window_title="Calc") == "Calc"
+
     def test_image_and_text_when_capture_true(self):
         from tools import screenshot as mod
         from tools.screenshot import action_tool_response
@@ -237,7 +274,31 @@ class TestActionToolResponse:
         assert isinstance(result, list)
         assert len(result) == 2
         assert "Clicked." in result[1]
-        assert "Screenshot: 800x600" in result[1]
+        assert "Screenshot (full screen):" in result[1]
+
+    def test_image_uses_target_window_when_set(self):
+        from tools import screenshot as mod
+        from tools.screenshot import action_tool_response
+
+        fake_shot = _make_mss_monitor_shot(1920, 1080)
+        fake_sct = mock.MagicMock()
+        fake_sct.monitors = [
+            {"left": 0, "top": 0, "width": 1920, "height": 1080},
+            {"left": 0, "top": 0, "width": 1920, "height": 1080},
+        ]
+        fake_sct.grab.return_value = fake_shot
+        old_sct = mod._sct
+        mod._sct = fake_sct
+        with mock.patch.object(mod, "screenshot_manager") as mock_mgr, \
+             mock.patch("tools.target_window.get_target", return_value="Calculadora"), \
+             mock.patch.object(mod, "_capture_window_by_title", return_value=None), \
+             mock.patch.object(mod, "_region_for_window", return_value={"x": 50, "y": 0, "w": 418, "h": 675}):
+            mock_mgr.save.return_value = "/tmp/fake.png"
+            result = action_tool_response("Done.", capture=True)
+        mod._sct = old_sct
+        assert isinstance(result, list)
+        assert "Screenshot (window 'Calculadora'):" in result[1]
+        assert "418x675" in result[1]
 
 
 # ---------------------------------------------------------------------------
@@ -471,4 +532,24 @@ class TestVisualDetectFallback:
         full_msg = f"{base_msg}{visual_detect_text}"
         assert "Detected UI regions" in full_msg
         assert "Annotated screenshot" in full_msg
+
+
+class TestCaptureQuality:
+    def test_uwp_splash_detected(self):
+        from tools.screenshot import _is_uwp_splash_image
+
+        splash = Image.new("RGB", (400, 600), (0, 120, 215))
+        assert _is_uwp_splash_image(splash) is True
+
+    def test_calculator_ui_not_splash(self):
+        from tools.screenshot import _is_uwp_splash_image
+
+        ui = Image.new("RGB", (400, 600), (245, 245, 245))
+        assert _is_uwp_splash_image(ui) is False
+
+    def test_dark_capture_low_quality(self):
+        from tools.screenshot import _capture_quality
+
+        dark = Image.new("RGB", (400, 600), (20, 20, 20))
+        assert _capture_quality(dark) < 40
 
