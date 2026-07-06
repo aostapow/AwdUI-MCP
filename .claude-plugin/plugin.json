@@ -1,0 +1,21 @@
+{
+  "name": "awdui-mcp",
+  "version": "0.1.0",
+  "description": "Advanced desktop UI automation for Claude — screen capture and interaction for full-auto workflows",
+  "author": {
+    "name": "Ariel Ostapow",
+    "url": "https://github.com/aostapow"
+  },
+  "homepage": "https://github.com/aostapow/AwdUI-MCP",
+  "repository": "https://github.com/aostapow/AwdUI-MCP",
+  "license": "MIT",
+  "keywords": ["screen-capture", "ui-automation", "screenshot", "interaction"],
+  "mcpServers": {
+    "awdui": {
+      "command": "python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/launcher.py"],
+      "env": {}
+    }
+  }
+}
+

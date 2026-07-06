@@ -1,0 +1,19 @@
+{
+  "name": "awdui-mcp",
+  "description": "AwdUI — screen capture and desktop automation for Claude Code",
+  "owner": {
+    "name": "aostapow"
+  },
+  "plugins": [
+    {
+      "name": "awdui-mcp",
+      "description": "Advanced desktop UI automation for Claude — screen capture and interaction",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "aostapow"
+      }
+    }
+  ]
+}
+

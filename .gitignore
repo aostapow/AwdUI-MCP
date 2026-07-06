@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+mcp-servers/awdui-server/.venv/
+screenshots/
+*.egg-info/
+dist/
+build/
+.worktrees/
+.pytest_cache/
+docs/plans/
+tests/integration/failures/
+pip-install.log
+mcp-servers/*/bin/
+mcp-servers/*/obj/
+.env
+
