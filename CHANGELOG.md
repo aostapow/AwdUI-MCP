@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1
+
+Fix repo element image crops and align highlight with UIA screen coordinates.
+
+- **Element bbox**: `element_screen_bbox()` prefers UIA `list_elements` rectangles; spy offset conversion no longer mis-crops UWP controls (e.g. Calculator `num6Button`)
+- **Snapshots**: `object_snapshot` captures via screen crop only, using the same bbox path as highlight
+- **Coordinates**: `element_coords.to_screen_coords()` handles logical/physical window-relative vs screen space and DPI edge cases
+- **Repo lookup**: auto-lookup, consolidation, and `app_identity` for resolving objects across windows
+- **Repo Studio**: live polling refresh in the web UI; `refresh_repo_window.py` batch script for re-capturing all objects in a window
+- **Tests**: expanded coverage for element_coords, element_snapshot, repo_store, repo_lookup, repo_consolidate
+
 ## 0.2.0
 
 Major update to object repository, detection, and Windows platform layer.
