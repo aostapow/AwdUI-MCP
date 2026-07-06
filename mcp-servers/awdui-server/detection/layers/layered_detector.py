@@ -47,6 +47,7 @@ class ResolveResult:
   confidence: float = 0.0
   elements: list[dict] = field(default_factory=list)
   repo_updated: bool = False
+  repo_path: Optional[str] = None
   trace_id: str = ""
   error: str = ""
   agentic_context: Optional[dict] = None
@@ -62,6 +63,8 @@ class ResolveResult:
       "repo_updated": self.repo_updated,
       "trace_id": self.trace_id,
     }
+    if self.repo_path:
+      d["repo_path"] = self.repo_path
     if self.error:
       d["error"] = self.error
     if self.agentic_context:
@@ -81,16 +84,28 @@ class LayeredDetector:
     framework = "unknown"
     try:
       from tools.framework_detect import do_detect_framework
+      from detection.app_identity import repository_app_name
       fw = do_detect_framework(window_title)
       framework = fw.get("framework", "unknown")
-      app_name = fw.get("process_name") or fw.get("exe_name") or app_name
-      exe_path = fw.get("exe_path", "")
+      app_name, exe_path = repository_app_name(fw, window_title)
     except Exception:
       pass
     repo = load_repo(app_name, exe_path)
     repo["exe_path"] = exe_path
     repo["framework"] = framework
     return app_name, repo
+
+  def _resolve_repo_path(self, repo: dict, query: LocatorQuery) -> Optional[str]:
+    if query.repo_path:
+      return query.repo_path
+    from detection.repo_lookup import find_best_repo_path
+    return find_best_repo_path(
+      repo,
+      name=query.name,
+      role=query.role,
+      automation_id=query.automation_id,
+      window_title=query.window_title,
+    )
 
   def _ocr_finder(self, text: str, window_title: Optional[str]) -> list[dict]:
     try:
@@ -108,12 +123,13 @@ class LayeredDetector:
       return []
 
   def _try_repo(self, repo: dict, query: LocatorQuery) -> Optional[ResolveResult]:
-    if not query.repo_path:
+    path = self._resolve_repo_path(repo, query)
+    if not path:
       return None
     from detection.repo_resolver import resolve_repo_object
     result = resolve_repo_object(
       repo,
-      query.repo_path,
+      path,
       self._orch,
       window_title=query.window_title,
       template_matcher=self._template_match,
@@ -131,6 +147,7 @@ class LayeredDetector:
       method=result.get("method", "repository"),
       confidence=0.95,
       elements=[elem],
+      repo_path=path,
     )
 
   def _template_match(self, template_rel: str, window_title: Optional[str]) -> Optional[dict]:

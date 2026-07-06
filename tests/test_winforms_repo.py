@@ -128,6 +128,107 @@ class TestRepoResolver:
         assert result["swf_class"] == "SwfButton"
         assert result["method"].startswith("repository:")
 
+    def test_resolve_uses_spy_before_tree_walk(self, tmp_path, monkeypatch):
+        from detection import object_repository as repo_mod
+        from detection import repo_store
+        from detection.repo_resolver import resolve_repo_object
+
+        db = tmp_path / "test.db"
+        monkeypatch.setattr(repo_store, "_DB_PATH", db)
+        monkeypatch.setattr(repo_store, "_ASSETS_DIR", tmp_path / "assets")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_DIR", tmp_path / "legacy")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_BAK", tmp_path / "bak")
+        repo_store.reset_migration_flag()
+        repo_store.init_db(db)
+
+        monkeypatch.setattr("tools.spy_bridge.spy_available", lambda: True)
+        monkeypatch.setattr(
+            "tools.spy_bridge.spy_find_element",
+            lambda **kwargs: {
+                "name": "Guardar",
+                "role": "Button",
+                "automation_id": "btnSave",
+                "x": 10,
+                "y": 20,
+                "width": 80,
+                "height": 24,
+                "patterns": ["Invoke"],
+            },
+        )
+        monkeypatch.setattr("tools.perf.is_fast_mode", lambda: True)
+
+        repo = repo_mod.load_repo("TestApp.exe")
+        repo_mod.upsert_object(
+            repo,
+            "frmMain/btnSave",
+            obj_class="SwfButton",
+            identification={
+                "mandatory": {"automation_id": "btnSave", "role": "Button"},
+                "assistive": {"name": "Guardar"},
+                "smart": {},
+                "ordinal": {},
+            },
+        )
+
+        mock_orch = mock.MagicMock()
+        result = resolve_repo_object(repo, "frmMain/btnSave", mock_orch, window_title="frmMain")
+        assert result["found"]
+        assert result["method"] == "repository:spy"
+        assert result["element"]["automation_id"] == "btnSave"
+        mock_orch.find_elements.assert_not_called()
+
+    def test_resolve_skips_spy_in_verify_mode(self, tmp_path, monkeypatch):
+        from detection import object_repository as repo_mod
+        from detection import repo_store
+        from detection.repo_resolver import resolve_repo_object
+
+        db = tmp_path / "test.db"
+        monkeypatch.setattr(repo_store, "_DB_PATH", db)
+        monkeypatch.setattr(repo_store, "_ASSETS_DIR", tmp_path / "assets")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_DIR", tmp_path / "legacy")
+        monkeypatch.setattr(repo_store, "_LEGACY_JSON_BAK", tmp_path / "bak")
+        repo_store.reset_migration_flag()
+        repo_store.init_db(db)
+
+        monkeypatch.setattr("tools.spy_bridge.spy_available", lambda: True)
+        monkeypatch.setattr("tools.perf.is_fast_mode", lambda: False)
+
+        repo = repo_mod.load_repo("TestApp.exe")
+        repo_mod.upsert_object(
+            repo,
+            "frmMain/btnSave",
+            obj_class="SwfButton",
+            identification={
+                "mandatory": {"automation_id": "btnSave", "role": "Button"},
+                "assistive": {"name": "Guardar"},
+                "smart": {},
+                "ordinal": {},
+            },
+            last_resolution={
+                "layer": "repository",
+                "backend": "uia",
+                "method": "repository:mandatory",
+                "bbox": {"x": 150, "y": 150, "w": 80, "h": 32},
+                "success_count": 5,
+            },
+        )
+
+        mock_orch = mock.MagicMock()
+        mock_orch.find_elements.return_value = {
+            "found": True,
+            "backend_used": "uia",
+            "elements": [{
+                "name": "Guardar",
+                "role": "Button",
+                "automation_id": "btnSave",
+                "x": 10, "y": 20, "width": 80, "height": 24,
+            }],
+        }
+        result = resolve_repo_object(repo, "frmMain/btnSave", mock_orch)
+        assert result["found"]
+        assert result["method"] == "repository:mandatory"
+        mock_orch.find_elements.assert_called()
+
 
 class TestRepoActionValidation:
     def test_rejects_unknown_method(self, monkeypatch):

@@ -117,6 +117,36 @@ def do_find_element(
             name, role, window_title, automation_id, class_name, tree_mode, include_offscreen, index,
         )
 
+    repo_result = None
+    try:
+        from detection.repo_lookup import resolve_via_repository
+        repo_result = resolve_via_repository(
+            _orch(),
+            name=name,
+            role=role,
+            automation_id=automation_id,
+            window_title=window_title,
+            index=index,
+        )
+    except Exception:
+        pass
+    if repo_result and repo_result.get("found"):
+        if remember and repo_result.get("elements"):
+            try:
+                from detection.auto_repo import maybe_remember_element
+                path = maybe_remember_element(
+                    repo_result["elements"][min(index, len(repo_result["elements"]) - 1)],
+                    window_title=window_title,
+                    repo_path=repo_result.get("repo_path"),
+                    backend=repo_result.get("backend_used", "repository"),
+                    remember=remember,
+                )
+                if path:
+                    repo_result["repo_path"] = path
+            except Exception:
+                pass
+        return repo_result
+
     result = _orch().find_elements(
         name=name,
         role=role,
@@ -201,9 +231,12 @@ def do_invoke_element(
     name: Optional[str] = None,
     automation_id: Optional[str] = None,
     window_title: Optional[str] = None,
+    element: Optional[dict] = None,
 ) -> dict:
     if sys.platform != "win32":
         return {"success": False, "error": "invoke_element is Windows-only"}
+    if element:
+        return do_invoke_on_element(element, window_title=window_title)
     from detection.backends.uia_backend import get_uia_backend
     from detection.element_model import DetectedElement
     matches = do_find_element(
@@ -211,11 +244,26 @@ def do_invoke_element(
     )
     if not matches.get("found"):
         return {"success": False, "error": "Element not found"}
-    e = matches["elements"][0]
-    elem = DetectedElement(
-        name=e["name"], role=e["role"], automation_id=e.get("automation_id", ""),
+    return do_invoke_on_element(matches["elements"][0], window_title=window_title)
+
+
+def do_invoke_on_element(elem: dict, window_title: Optional[str] = None) -> dict:
+    """Invoke via UIA using stored properties — no coordinate click."""
+    if sys.platform != "win32":
+        return {"success": False, "error": "invoke_element is Windows-only"}
+    from detection.backends.uia_backend import get_uia_backend
+    from detection.element_model import DetectedElement
+
+    detected = DetectedElement(
+        name=elem.get("name") or "",
+        role=elem.get("role") or "",
+        automation_id=elem.get("automation_id") or "",
     )
-    return get_uia_backend().invoke_element(elem)
+    return get_uia_backend().invoke_element(detected, window_title=window_title)
+
+
+def _identifiable_by_properties(elem: dict) -> bool:
+    return bool((elem.get("automation_id") or "").strip() or (elem.get("name") or "").strip())
 
 
 def do_set_element_value(
@@ -237,7 +285,7 @@ def do_set_element_value(
     elem = DetectedElement(
         name=e["name"], role=e["role"], automation_id=e.get("automation_id", ""),
     )
-    return get_uia_backend().set_element_value(elem, value)
+    return get_uia_backend().set_element_value(elem, value, window_title=window_title)
 
 
 def _fuzzy_find_nearest(
@@ -295,11 +343,7 @@ def _try_invoke_click(elem: dict, window_title: Optional[str] = None) -> Optiona
     role = (elem.get("role") or "").lower()
     if "invoke" not in patterns and role not in ("button", "hyperlink", "menuitem", "splitbutton"):
         return None
-    inv = do_invoke_element(
-        name=elem.get("name") or None,
-        automation_id=elem.get("automation_id") or None,
-        window_title=window_title,
-    )
+    inv = do_invoke_on_element(elem, window_title=window_title)
     return inv if inv.get("success") else None
 
 
@@ -331,7 +375,19 @@ def do_click_element(
             }
             if result.get("repo_path"):
                 out["repo_path"] = result["repo_path"]
+            if result.get("method"):
+                out["resolved_via"] = result["method"]
             return out
+        if _identifiable_by_properties(elem):
+            return {
+                "success": False,
+                "error": (
+                    "Element found by properties but InvokePattern failed; "
+                    "coordinate click skipped for identifiable controls"
+                ),
+                "element": elem,
+                "repo_path": result.get("repo_path"),
+            }
         center_x, center_y = _click_coords(elem, window_title)
         click_result = do_click(center_x, center_y)
         out = {
@@ -339,6 +395,7 @@ def do_click_element(
             "element": elem,
             "clicked_at": {"x": center_x, "y": center_y},
             "backend_used": result.get("backend_used", "uia"),
+            "method": result.get("method", "click"),
         }
         if result.get("repo_path"):
             out["repo_path"] = result["repo_path"]
@@ -500,10 +557,11 @@ def do_repo_find(
 
 def do_repo_list(window_title: Optional[str] = None) -> dict:
     from detection.object_repository import list_objects, load_repo
+    from detection.app_identity import repository_app_name
     from tools.framework_detect import do_detect_framework
     fw = do_detect_framework(window_title)
-    app_name = fw.get("process_name") or fw.get("exe_name") or "foreground"
-    repo = load_repo(app_name, fw.get("exe_path", ""))
+    app_name, exe_path = repository_app_name(fw, window_title)
+    repo = load_repo(app_name, exe_path)
     win_key = None
     if window_title:
         for k, w in repo.get("windows", {}).items():
@@ -1098,7 +1156,12 @@ def register(server) -> int:
             if r.get("found"):
                 elem = r["elements"][0]
         if elem:
-            result = highlight_element_dict(elem, duration_ms=duration_ms)
+            result = highlight_element_dict(
+                elem,
+                duration_ms=duration_ms,
+                window_title=_wt(window_title, title),
+                repo_path=repo_path,
+            )
             return f"Highlighted {elem.get('name', repo_path)}: {result}"
         if x >= 0 and y >= 0:
             result = highlight_rect(x, y, 40, 24, duration_ms=duration_ms)

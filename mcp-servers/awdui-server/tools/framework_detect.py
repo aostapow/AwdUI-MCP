@@ -231,12 +231,20 @@ def do_detect_framework(window_title: Optional[str] = None) -> dict:
 
     hwnd = _get_hwnd_for_window(window_title)
     if not hwnd:
+        from detection.app_identity import title_app_name
+
+        name = title_app_name(window_title)
         return {
             "framework": "unknown",
             "uia_support": "unknown",
             "hints": ["No window found to inspect."],
             "process_name": "",
             "class_name": "",
+            "app_name": name,
+            "exe_name": name,
+            "exe_path": "",
+            "window_title": window_title or "",
+            "is_uwp_shell": False,
         }
 
     class_name = _get_class_name(hwnd)
@@ -284,12 +292,21 @@ def do_detect_framework(window_title: Optional[str] = None) -> dict:
         framework, ("unknown", ["Framework not recognized."])
     )
 
+    from detection.app_identity import resolve_app_identity
+
+    identity = resolve_app_identity(window_title, hwnd)
+
     return {
         "framework": framework,
         "uia_support": uia_support,
         "hints": hints,
-        "process_name": process_name,
+        "process_name": identity.get("process_name") or process_name,
         "class_name": class_name,
+        "app_name": identity.get("app_name", ""),
+        "exe_name": identity.get("exe_name", ""),
+        "exe_path": identity.get("exe_path", ""),
+        "window_title": identity.get("window_title", window_title or ""),
+        "is_uwp_shell": identity.get("is_uwp_shell", False),
     }
 
 
@@ -317,6 +334,7 @@ def register(server) -> int:
             f"Framework: {result['framework']}",
             f"UIA support: {result['uia_support']}",
             f"Process: {result['process_name']}",
+            f"App: {result.get('app_name', '')}",
             f"Class: {result['class_name']}",
             "",
             "Hints:",

@@ -20,7 +20,10 @@ class TestElementSnapshot:
         crop = fake.crop((10, 20, 40, 60))
         monkeypatch.setattr(
             "detection.object_snapshot._capture_element_image",
-            lambda elem, window_title=None, repo_path=None: (crop, (10, 20, 30, 40)),
+            lambda elem, window_title=None, repo_path=None, fresh=False, verify=True: (
+                crop,
+                (10, 20, 30, 40),
+            ),
         )
 
         elem = {"x": 10, "y": 20, "width": 30, "height": 40, "name": "Seis"}
@@ -33,6 +36,25 @@ class TestElementSnapshot:
         img = Image.open(png)
         assert img.size == (30, 40)
 
+    def test_capture_stores_actual_crop_dimensions(self, tmp_path, monkeypatch):
+        from detection import repo_store
+        from detection.object_snapshot import capture_element_crop
+        from PIL import Image
+
+        assets = tmp_path / "assets"
+        monkeypatch.setattr(repo_store, "_ASSETS_DIR", assets)
+        crop = Image.new("RGB", (96, 63), color=(10, 20, 30))
+        monkeypatch.setattr(
+            "detection.object_snapshot._capture_element_image",
+            lambda elem, window_title=None, repo_path=None, fresh=False, verify=True: (
+                crop,
+                (311, 782, 77, 51),
+            ),
+        )
+        elem = {"x": 311, "y": 782, "width": 77, "height": 51, "name": "Uno"}
+        out = capture_element_crop(elem, repo_path="Calculadora/num1Button", app_id="testapp")
+        assert out["latest"]["bbox"] == {"x": 311, "y": 782, "w": 77, "h": 51}
+
     def test_no_bbox_returns_none(self, tmp_path, monkeypatch):
         from detection import repo_store
         from detection.object_snapshot import capture_element_crop
@@ -41,21 +63,22 @@ class TestElementSnapshot:
         assert capture_element_crop({"name": "x"}, repo_path="w/o", app_id="a") is None
 
     def test_is_window_relative(self):
-        from detection.object_snapshot import _is_window_relative
+        from detection.element_coords import is_window_relative_bbox
 
         region = {"x": 100, "y": 50, "w": 400, "h": 600}
-        assert _is_window_relative((287, 473, 77, 50), region)
-        assert not _is_window_relative((1200, 473, 77, 50), region)
+        assert is_window_relative_bbox(287, 473, 77, 50, region)
+        assert not is_window_relative_bbox(1200, 473, 77, 50, region)
 
-    def test_bbox_candidates_window_relative_to_screen(self, monkeypatch):
-        from detection.object_snapshot import _bbox_candidates
+    def test_bbox_inside_window_from_screen_coords(self, monkeypatch):
+        from detection.element_coords import screen_bbox, to_screen_coords
 
         monkeypatch.setattr(
-            "detection.object_snapshot._window_region",
+            "detection.element_coords.window_region",
             lambda _t: {"x": 149, "y": 126, "w": 418, "h": 675},
         )
-        cands = _bbox_candidates({"x": 287, "y": 473, "width": 77, "height": 50}, window_title="Calc")
-        assert cands == [(436, 599, 77, 50)]
+        elem = {"x": 287, "y": 473, "width": 77, "height": 50}
+        screen = screen_bbox(elem, "Calculadora")
+        assert screen == (436, 599, 77, 50)
 
     def test_verify_crop_rejects_wrong_element(self, monkeypatch):
         from detection.object_snapshot import _verify_crop

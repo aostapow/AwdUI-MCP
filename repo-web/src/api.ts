@@ -5,6 +5,7 @@ export type AppInfo = {
   app_name: string;
   exe_path: string;
   framework: string;
+  object_count?: number;
 };
 
 export type TreeObject = {
@@ -47,9 +48,38 @@ async function put<T>(path: string, body: unknown): Promise<T> {
   return res.json();
 }
 
+export type RepoRevision = {
+  revision: string;
+  app_count: number;
+  object_count: number;
+};
+
+export async function fetchChanges(): Promise<RepoRevision> {
+  return get<RepoRevision>("/api/changes");
+}
+
 export async function fetchApps(): Promise<AppInfo[]> {
   const data = await get<{ apps: AppInfo[] }>("/api/apps");
-  return data.apps;
+  const normalized = data.apps.map((app) => ({
+    ...app,
+    object_count: Number(app.object_count ?? 0),
+  }));
+  const needsBackfill = data.apps.some((app) => app.object_count == null);
+  if (!needsBackfill) {
+    return normalized;
+  }
+  return Promise.all(
+    normalized.map(async (app) => {
+      if (app.object_count > 0) return app;
+      try {
+        const tree = await fetchTree(app.app_id);
+        const n = tree.windows.reduce((sum, w) => sum + w.objects.length, 0);
+        return { ...app, object_count: n };
+      } catch {
+        return app;
+      }
+    })
+  );
 }
 
 export async function fetchTree(appId: string) {
@@ -86,4 +116,19 @@ export async function saveObject(
 
 export async function searchObjects(q: string) {
   return get<{ results: RepoObject[] }>(`/api/search?q=${encodeURIComponent(q)}`);
+}
+
+export type ConsolidateResult = {
+  moved: number;
+  merged: number;
+  removed_objects: number;
+  removed_windows: number;
+  removed_apps: number;
+  apps: AppInfo[];
+};
+
+export async function consolidateRepos(): Promise<ConsolidateResult> {
+  const res = await fetch(`${API}/api/consolidate`, { method: "POST" });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }

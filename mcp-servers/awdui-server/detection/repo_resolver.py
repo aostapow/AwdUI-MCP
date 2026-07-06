@@ -28,6 +28,63 @@ def _ident_tier_props(ident: dict, tier: str) -> dict[str, str]:
     return {k: v for k, v in ident.get(tier, {}).items() if v}
 
 
+def _try_spy_find(
+    obj: dict,
+    *,
+    window_title: Optional[str],
+) -> tuple[Optional[dict], str]:
+    ident = obj.get("identification", {})
+    mand = _ident_tier_props(ident, "mandatory")
+    assist = _ident_tier_props(ident, "assistive")
+    try:
+        from tools.spy_bridge import spy_available, spy_find_element
+
+        if not spy_available():
+            return None, ""
+        elem = spy_find_element(
+            name=assist.get("name") or mand.get("name") or None,
+            automation_id=mand.get("automation_id") or obj.get("automation_id") or None,
+            window_title=window_title,
+            role=assist.get("role") or None,
+        )
+        if elem:
+            elem["backend_used"] = "spy"
+            return elem, "repository:spy"
+    except Exception:
+        pass
+    return None, ""
+
+
+def _resolve_object_elem(
+    orch,
+    obj: dict,
+    *,
+    window_title: Optional[str],
+    parent_elem: Optional[dict] = None,
+    template_matcher: Optional[Callable[[str, Optional[str]], Optional[dict]]] = None,
+    ocr_finder: Optional[Callable[[str, Optional[str]], list[dict]]] = None,
+) -> tuple[Optional[dict], str]:
+    """Property-based fast path (spy) then QTP Smart Identification."""
+    try:
+        from tools.perf import is_fast_mode
+
+        if is_fast_mode():
+            elem, method = _try_spy_find(obj, window_title=window_title)
+            if elem:
+                return elem, method
+    except Exception:
+        pass
+
+    return _smart_identify(
+        orch,
+        obj,
+        window_title=window_title,
+        parent_elem=parent_elem,
+        template_matcher=template_matcher,
+        ocr_finder=ocr_finder,
+    )
+
+
 def _ordinal_index(ident: dict, default: int = 0) -> int:
     ordinal = ident.get("ordinal", {})
     for key in ("index", "location", "creationtime"):
@@ -156,7 +213,7 @@ def resolve_parent_chain(
         parent_obj["_object_name"] = name
         parent_obj["_window_key"] = window_key
 
-        elem, method = _smart_identify(
+        elem, method = _resolve_object_elem(
             orch, parent_obj,
             window_title=window_title,
             parent_elem=parent_elem,
@@ -204,7 +261,7 @@ def resolve_repo_object(
         if err:
             return {"found": False, "error": err}
 
-    elem, method = _smart_identify(
+    elem, method = _resolve_object_elem(
         orch, obj,
         window_title=window_title,
         parent_elem=parent_elem,

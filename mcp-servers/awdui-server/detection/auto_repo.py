@@ -6,6 +6,7 @@ from typing import Any, Optional
 
 from detection.object_repository import load_repo, upsert_object
 from detection.winforms_map import build_identification, infer_swf_class
+from detection.app_identity import repository_app_name, title_app_name
 
 
 def _window_key(window_title: Optional[str]) -> str:
@@ -48,20 +49,27 @@ def maybe_remember_element(
     try:
         from tools.framework_detect import do_detect_framework
         fw = do_detect_framework(window_title)
-        app_name = fw.get("process_name") or fw.get("exe_name") or "foreground"
-        exe_path = fw.get("exe_path", "")
+        app_name, exe_path = repository_app_name(fw, window_title)
     except Exception:
-        app_name, exe_path = "foreground", ""
+        app_name = title_app_name(window_title) or "unknown"
+        exe_path = ""
 
     repo = load_repo(app_name, exe_path)
     repo["exe_path"] = exe_path
     swf = infer_swf_class(elem.get("role", ""), elem.get("class_name", ""))
+    normalized = elem
+    try:
+        from detection.element_coords import to_screen_coords
+
+        normalized = to_screen_coords(dict(elem), window_title)
+    except Exception:
+        pass
     snapshots = None
     try:
         from detection.object_snapshot import capture_element_crop
 
         snapshots = capture_element_crop(
-            elem, repo_path=path, app_id=repo["app_id"], window_title=window_title
+            normalized, repo_path=path, app_id=repo["app_id"], window_title=window_title
         )
     except Exception:
         pass
@@ -69,17 +77,17 @@ def maybe_remember_element(
         repo,
         path,
         obj_class=swf,
-        element=elem,
-        identification=build_identification(elem, swf),
+        element=normalized,
+        identification=build_identification(normalized, swf),
         snapshots=snapshots,
         last_resolution={
             "layer": "native",
             "backend": backend,
             "bbox": {
-                "x": elem.get("x", 0),
-                "y": elem.get("y", 0),
-                "w": elem.get("width", 0),
-                "h": elem.get("height", 0),
+                "x": normalized.get("x", 0),
+                "y": normalized.get("y", 0),
+                "w": normalized.get("width", 0),
+                "h": normalized.get("height", 0),
             },
         },
     )

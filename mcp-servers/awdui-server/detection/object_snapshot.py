@@ -42,52 +42,6 @@ def _element_bbox(elem: dict) -> tuple[int, int, int, int] | None:
     return x, y, w, h
 
 
-def _dpi_scale_for(window_title: Optional[str]) -> float:
-    try:
-        from tools.screenshot import get_dpi_scale
-
-        scale = float(get_dpi_scale())
-    except Exception:
-        scale = 1.0
-    if window_title:
-        try:
-            from tools.windows import find_matching_window, do_list_windows
-
-            match = find_matching_window(window_title, do_list_windows())
-            win = match.get("window") or {}
-            if win.get("dpi_scale"):
-                return float(win["dpi_scale"])
-        except Exception:
-            pass
-    return scale
-
-
-def _window_region(window_title: Optional[str]) -> Optional[dict]:
-    if not window_title:
-        return None
-    try:
-        from tools.screenshot import _region_for_window
-
-        return _region_for_window(window_title)
-    except Exception:
-        return None
-
-
-def _is_window_relative(bbox: tuple[int, int, int, int], region: dict) -> bool:
-    x, y, w, h = bbox
-    return (
-        x >= 0
-        and y >= 0
-        and x + w <= int(region["w"]) + 12
-        and y + h <= int(region["h"]) + 12
-    )
-
-
-def _to_screen_bbox(bbox: tuple[int, int, int, int], region: dict) -> tuple[int, int, int, int]:
-    x, y, w, h = bbox
-    return x + int(region["x"]), y + int(region["y"]), w, h
-
-
 def _resolve_live_bbox(
     elem: dict,
     *,
@@ -111,42 +65,14 @@ def _resolve_live_bbox(
                 window_title=window_title or "",
             )
             if result.get("found"):
-                live = spy_props_to_element(result.get("properties") or {})
+                live = spy_props_to_element(
+                    result.get("properties") or {}, window_title=window_title
+                )
                 if _element_bbox(live):
                     return live
     except Exception:
         pass
     return elem
-
-
-def _bbox_candidates(
-    elem: dict,
-    *,
-    window_title: Optional[str] = None,
-) -> list[tuple[int, int, int, int]]:
-    """Screen-space bbox candidates for legacy absolute coordinates."""
-    bbox = _element_bbox(elem)
-    if not bbox:
-        return []
-    region = _window_region(window_title)
-    if region and _is_window_relative(bbox, region):
-        return [_to_screen_bbox(bbox, region)]
-
-    x, y, w, h = bbox
-    out: list[tuple[int, int, int, int]] = [(x, y, w, h)]
-    scale = _dpi_scale_for(window_title)
-    if scale != 1.0:
-        try:
-            from tools.screenshot import logical_to_physical
-
-            px, py = logical_to_physical(x, y, scale)
-            pw, ph = logical_to_physical(w, h, scale)
-            scaled = (px, py, pw, ph)
-            if scaled not in out:
-                out.append(scaled)
-        except Exception:
-            pass
-    return out
 
 
 def _crop_on_image(img, x: int, y: int, w: int, h: int):
@@ -216,38 +142,30 @@ def _capture_element_image(
     *,
     window_title: Optional[str] = None,
     repo_path: Optional[str] = None,
+    fresh: bool = False,
+    verify: bool = True,
 ):
     """Return (PIL crop, screen bbox) or None."""
-    live = _resolve_live_bbox(elem, window_title=window_title, repo_path=repo_path)
-    aid = (live.get("automation_id") or "").strip()
-    name = (live.get("name") or "").strip()
-    bbox = _element_bbox(live)
-    if not bbox:
+    from tools.highlight import element_screen_bbox
+
+    if fresh:
+        screen = element_screen_bbox(elem, window_title=window_title, repo_path=repo_path)
+    else:
+        live = _resolve_live_bbox(elem, window_title=window_title, repo_path=repo_path)
+        screen = element_screen_bbox(live, window_title=window_title, repo_path=repo_path)
+    if not screen:
         return None
 
-    region = _window_region(window_title)
-    attempts: list[tuple[Any, tuple[int, int, int, int]]] = []
-
-    if window_title and region and _is_window_relative(bbox, region):
-        crop = _window_crop(bbox, window_title)
-        screen_bbox = _to_screen_bbox(bbox, region)
-        if crop is not None:
-            attempts.append((crop, screen_bbox))
-
-    for screen_bbox in _bbox_candidates(live, window_title=window_title):
-        if any(screen_bbox == sb for _, sb in attempts):
-            continue
-        crop = _screen_crop(screen_bbox)
-        if crop is not None:
-            attempts.append((crop, screen_bbox))
-
-    best: tuple[Any, tuple[int, int, int, int]] | None = None
-    for crop, screen_bbox in attempts:
-        if _verify_crop(crop, screen_bbox, aid, name):
-            return crop, screen_bbox
-        if best is None:
-            best = (crop, screen_bbox)
-    return best
+    aid = (elem.get("automation_id") or "").strip()
+    name = (elem.get("name") or "").strip()
+    crop = _screen_crop(screen)
+    if crop is None:
+        return None
+    if not verify:
+        return crop, screen
+    if _verify_crop(crop, screen, aid, name):
+        return crop, screen
+    return crop, screen
 
 
 def _crop_filename(repo_path: str) -> str:
@@ -261,16 +179,20 @@ def capture_element_crop(
     repo_path: str,
     app_id: str,
     window_title: Optional[str] = None,
+    fresh: bool = False,
+    verify: bool = True,
 ) -> Optional[dict]:
-    logical = _element_bbox(elem)
-    if not logical:
-        return None
-    x, y, w, h = logical
-
-    crop_result = _capture_element_image(elem, window_title=window_title, repo_path=repo_path)
+    crop_result = _capture_element_image(
+        elem,
+        window_title=window_title,
+        repo_path=repo_path,
+        fresh=fresh,
+        verify=verify,
+    )
     if crop_result is None:
         return None
-    crop, _bbox = crop_result
+    crop, screen = crop_result
+    x, y, w, h = screen
 
     fname = _crop_filename(repo_path)
     crop.save(assets_path(app_id, fname), format="PNG")
@@ -300,16 +222,13 @@ def capture_object_snapshot(
     repo["exe_path"] = exe_path
     app_id = repo["app_id"]
     path = repo_path or elem.get("name") or "object"
-    logical = _element_bbox(elem)
-    if not logical:
-        return {"error": "no bbox"}
-    x, y, w, h = logical
 
     crop_result = _capture_element_image(elem, window_title=window_title, repo_path=repo_path)
     if crop_result is None:
         return {"error": "capture failed"}
     crop, bbox = crop_result
     px, py, pw, ph = bbox
+    x, y, w, h = px, py, pw, ph
 
     screen, origin_x, origin_y = _grab_virtual_screen()
     live = _resolve_live_bbox(elem, window_title=window_title, repo_path=repo_path)

@@ -217,6 +217,26 @@ def _resolve_window(desktop, window_title: Optional[str]):
     return _get_foreground_window(desktop)
 
 
+def _find_raw_by_automation_id(window, automation_id: str):
+    """Targeted property lookup — avoids full tree walks when automation_id is set."""
+    if not automation_id:
+        return None
+    try:
+        elem = window.child_window(auto_id=automation_id)
+        if elem.exists(timeout=0):
+            return elem
+    except Exception:
+        pass
+    try:
+        for desc in window.descendants():
+            d = _pywinauto_to_element(desc)
+            if d and d.automation_id == automation_id:
+                return desc
+    except Exception:
+        pass
+    return None
+
+
 def _element_useful(d: DetectedElement, include_offscreen: bool) -> bool:
     if not include_offscreen and not d.visible:
         return False
@@ -384,6 +404,16 @@ class UIABackend(DetectionBackend):
                     return [matches[idx]]
                 return matches
 
+        if automation_id:
+            desktop = _get_desktop()
+            window = _resolve_window(desktop, window_title)
+            if window:
+                raw = _find_raw_by_automation_id(window, automation_id)
+                if raw:
+                    d = _pywinauto_to_element(raw)
+                    if d and _matches(d, name, role, automation_id, class_name):
+                        return [d]
+
         depth = 100 if (name or role or automation_id or class_name) else 12
         all_elems = self.list_elements(
             window_title=window_title,
@@ -487,49 +517,53 @@ class UIABackend(DetectionBackend):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def invoke_element(self, element: DetectedElement) -> dict:
+    def invoke_element(self, element: DetectedElement, window_title: Optional[str] = None) -> dict:
         try:
             from pywinauto.uia_defines import get_elem_interface
-            matches = self.find_elements(
-                automation_id=element.automation_id or None,
-                name=element.name or None,
-                role=element.role or None,
-                include_offscreen=True,
-            )
-            if not matches:
-                return {"success": False, "error": "Element not found for invoke"}
             desktop = _get_desktop()
-            window = _resolve_window(desktop, None)
-            for elem in window.descendants():
-                d = _pywinauto_to_element(elem)
-                if d and d.name == element.name and d.role == element.role:
-                    if element.automation_id and d.automation_id != element.automation_id:
-                        continue
-                    pattern = get_elem_interface(elem.element_info.element, "Invoke")
-                    pattern.Invoke()
-                    return {"success": True, "method": "InvokePattern"}
-            return {"success": False, "error": "InvokePattern not available"}
+            window = _resolve_window(desktop, window_title)
+            if not window:
+                return {"success": False, "error": "Window not found for invoke"}
+            raw = None
+            if element.automation_id:
+                raw = _find_raw_by_automation_id(window, element.automation_id)
+            if raw is None:
+                raw, _ = self._find_raw_element(
+                    name=element.name,
+                    role=element.role,
+                    window_title=window_title,
+                )
+            if not raw:
+                return {"success": False, "error": "Element not found for invoke"}
+            pattern = get_elem_interface(raw.element_info.element, "Invoke")
+            pattern.Invoke()
+            return {"success": True, "method": "InvokePattern"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def set_element_value(self, element: DetectedElement, value: str) -> dict:
+    def set_element_value(
+        self, element: DetectedElement, value: str, window_title: Optional[str] = None,
+    ) -> dict:
         try:
             from pywinauto.uia_defines import get_elem_interface
             desktop = _get_desktop()
-            window = _resolve_window(desktop, None)
-            for elem in window.descendants():
-                d = _pywinauto_to_element(elem)
-                if not d:
-                    continue
-                if element.automation_id and d.automation_id == element.automation_id:
-                    pattern = get_elem_interface(elem.element_info.element, "Value")
-                    pattern.SetValue(value)
-                    return {"success": True, "method": "ValuePattern"}
-                if element.name and d.name == element.name and d.role == element.role:
-                    pattern = get_elem_interface(elem.element_info.element, "Value")
-                    pattern.SetValue(value)
-                    return {"success": True, "method": "ValuePattern"}
-            return {"success": False, "error": "ValuePattern not available"}
+            window = _resolve_window(desktop, window_title)
+            if not window:
+                return {"success": False, "error": "Window not found"}
+            raw = None
+            if element.automation_id:
+                raw = _find_raw_by_automation_id(window, element.automation_id)
+            if raw is None:
+                raw, _ = self._find_raw_element(
+                    name=element.name,
+                    role=element.role,
+                    window_title=window_title,
+                )
+            if not raw:
+                return {"success": False, "error": "ValuePattern not available"}
+            pattern = get_elem_interface(raw.element_info.element, "Value")
+            pattern.SetValue(value)
+            return {"success": True, "method": "ValuePattern"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 

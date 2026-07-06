@@ -121,3 +121,48 @@ class TestRepoStore:
         items = repo_mod.list_objects(repo)
         paths = {i["repo_path"] for i in items}
         assert "w1/btn1" in paths
+
+    def test_normalize_legacy_asset_path(self, repo_db, tmp_path):
+        app_id = "abc123"
+        fname = "smoke_editor_crop.png"
+        repo_db.assets_dir(app_id).mkdir(parents=True, exist_ok=True)
+        (repo_db.assets_dir(app_id) / fname).write_bytes(b"png")
+
+        assert (
+            repo_db.normalize_asset_rel(f"{app_id}/assets/{fname}")
+            == f"{app_id}/{fname}"
+        )
+
+    def test_repo_revision_changes_on_upsert(self, repo_db):
+        before = repo_db.get_repo_revision()
+        assert before["object_count"] == 0
+        repo_db.upsert(
+            "App.exe",
+            "",
+            "w1/btn1",
+            obj_class="SwfButton",
+            identification={"mandatory": {"name": "btn1"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
+        after = repo_db.get_repo_revision()
+        assert after["object_count"] == 1
+        assert after["revision"] != before["revision"]
+
+    def test_lookup_falls_back_from_exe_path_to_app_name(self, repo_db):
+        exe = r"C:\Apps\CalculatorApp.exe"
+        repo_db.upsert(
+            "CalculatorApp.exe",
+            "",
+            "Calculadora/num1Button",
+            obj_class="SwfButton",
+            identification={
+                "mandatory": {"automation_id": "num1Button"},
+                "assistive": {"name": "Uno", "role": "Button"},
+                "smart": {},
+                "ordinal": {},
+            },
+        )
+        with repo_db._connect() as conn:
+            repo_db._resolve_lookup_app_id("CalculatorApp.exe", exe, conn=conn)
+        items = repo_db.list_objects_for_app("CalculatorApp.exe", exe)
+        assert len(items) == 1
+        assert items[0]["repo_path"] == "Calculadora/num1Button"

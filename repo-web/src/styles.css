@@ -25,6 +25,22 @@ body {
 .sidebar h1 {
   font-size: 16px;
   margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #555;
+  flex-shrink: 0;
+}
+
+.live-dot--on {
+  background: #4ec9b0;
+  box-shadow: 0 0 6px #4ec9b0;
 }
 
 .search {
@@ -37,8 +53,73 @@ body {
   border-radius: 4px;
 }
 
+.sidebar-actions {
+  margin-bottom: 10px;
+}
+
+.consolidate-btn {
+  width: 100%;
+  background: #3a3d41;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.consolidate-btn:hover {
+  background: #4a4d51;
+  border-color: #777;
+}
+
+.tree-app--junk .tree-toggle {
+  color: #888;
+  font-style: italic;
+}
+
 .tree-app {
   margin-bottom: 8px;
+}
+
+.tree-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #9cdcfe;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+  text-align: left;
+}
+
+.tree-toggle--window {
+  margin-left: 12px;
+  color: #dcdcaa;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tree-toggle:hover {
+  color: #fff;
+}
+
+.tree-chevron {
+  display: inline-block;
+  width: 14px;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: #888;
+}
+
+.tree-count {
+  margin-left: 4px;
+  color: #888;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .tree-app button {
@@ -51,7 +132,7 @@ body {
 }
 
 .tree-window {
-  margin-left: 12px;
+  margin-left: 0;
   color: #dcdcaa;
   font-size: 13px;
 }

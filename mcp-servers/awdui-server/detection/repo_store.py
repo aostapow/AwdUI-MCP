@@ -107,6 +107,47 @@ def app_id(app_name: str, exe_path: str = "") -> str:
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
+def _object_count_for_app(conn, aid: str) -> int:
+    row = conn.execute(
+        "SELECT COUNT(*) AS c FROM objects o "
+        "JOIN windows w ON o.window_id=w.id WHERE w.app_id=?",
+        (aid,),
+    ).fetchone()
+    return int(row["c"]) if row else 0
+
+
+def _resolve_lookup_app_id(
+    app_name: str,
+    exe_path: str = "",
+    *,
+    conn,
+) -> str:
+    """Pick the app_id that actually has stored objects.
+
+    Objects are often keyed by process name (``app_id(name, "")``) while live
+    detection supplies a full ``exe_path`` hash — fall back when the exe-keyed
+    app is empty or missing.
+    """
+    candidates: list[str] = []
+    if exe_path:
+        candidates.append(app_id(app_name, exe_path))
+    name_id = app_id(app_name, "")
+    if name_id not in candidates:
+        candidates.append(name_id)
+
+    best_id = candidates[0]
+    best_count = -1
+    for aid in candidates:
+        app = conn.execute("SELECT 1 FROM applications WHERE app_id=?", (aid,)).fetchone()
+        if not app:
+            continue
+        count = _object_count_for_app(conn, aid)
+        if count > best_count:
+            best_count = count
+            best_id = aid
+    return best_id
+
+
 def _now() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -177,6 +218,35 @@ def assets_path(app_id_value: str, filename: str) -> Path:
 
 def relative_asset(app_id_value: str, filename: str) -> str:
     return f"{app_id_value}/{filename}"
+
+
+def normalize_asset_rel(rel: str) -> str:
+    """Fix legacy paths like app_id/assets/file.png → app_id/file.png when needed."""
+    path = rel.replace("\\", "/").lstrip("/")
+    parts = path.split("/")
+    if len(parts) >= 3 and parts[1] == "assets":
+        candidate = "/".join([parts[0]] + parts[2:])
+        if assets_path(parts[0], "/".join(parts[2:])).is_file():
+            return candidate
+    if assets_root().joinpath(*path.split("/")).is_file():
+        return path
+    if len(parts) >= 2 and parts[1] != "assets":
+        legacy = "/".join([parts[0], "assets"] + parts[1:])
+        if assets_root().joinpath(*legacy.split("/")).is_file():
+            return legacy
+    return path
+
+
+def _normalize_snapshot(snapshot: dict) -> dict:
+    if not snapshot:
+        return snapshot
+    images = snapshot.get("images")
+    if isinstance(images, dict):
+        snapshot = dict(snapshot)
+        snapshot["images"] = {
+            k: normalize_asset_rel(str(v)) for k, v in images.items() if v
+        }
+    return snapshot
 
 
 def _ensure_application(
@@ -270,7 +340,7 @@ def _row_to_object_dict(row: sqlite3.Row, conn: sqlite3.Connection) -> dict:
     if snap:
         latest = _json_loads(snap["latest"])
         if latest:
-            obj["snapshots"] = {"latest": latest}
+            obj["snapshots"] = {"latest": _normalize_snapshot(latest)}
     if res:
         lr = {
             "layer": res["layer"] or "",
@@ -493,8 +563,8 @@ def list_objects_for_app(
     db_path: Optional[Path] = None,
 ) -> list[dict]:
     _ensure_migrated(db_path)
-    aid = app_id(app_name, exe_path)
     with _connect(db_path) as conn:
+        aid = _resolve_lookup_app_id(app_name, exe_path, conn=conn)
         if window_key:
             rows = conn.execute(
                 "SELECT o.* FROM objects o "
@@ -514,8 +584,8 @@ def list_objects_for_app(
 def load_repo_dict(app_name: str, exe_path: str = "", db_path: Optional[Path] = None) -> dict:
     """Build legacy in-memory repo dict for callers that still expect it."""
     _ensure_migrated(db_path)
-    aid = app_id(app_name, exe_path)
     with _connect(db_path) as conn:
+        aid = _resolve_lookup_app_id(app_name, exe_path, conn=conn)
         app = conn.execute("SELECT * FROM applications WHERE app_id=?", (aid,)).fetchone()
         if not app:
             return {
@@ -551,14 +621,56 @@ def load_repo_dict(app_name: str, exe_path: str = "", db_path: Optional[Path] = 
         return repo
 
 
+def get_repo_revision(db_path: Optional[Path] = None) -> dict[str, Any]:
+    """Lightweight fingerprint for polling — detects adds/updates/deletes."""
+    _ensure_migrated(db_path)
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT "
+            "(SELECT COUNT(*) FROM applications) AS app_count, "
+            "(SELECT COUNT(*) FROM objects) AS object_count, "
+            "(SELECT COALESCE(MAX(updated_at), '') FROM applications) AS apps_updated, "
+            "(SELECT COALESCE(MAX(updated_at), '') FROM objects) AS objects_updated"
+        ).fetchone()
+        parts = (
+            str(row["app_count"]),
+            str(row["object_count"]),
+            row["apps_updated"] or "",
+            row["objects_updated"] or "",
+        )
+        return {
+            "revision": ":".join(parts),
+            "app_count": int(row["app_count"]),
+            "object_count": int(row["object_count"]),
+        }
+
+
 def list_applications(db_path: Optional[Path] = None) -> list[dict]:
     _ensure_migrated(db_path)
     with _connect(db_path) as conn:
         rows = conn.execute(
-            "SELECT app_id, app_name, exe_path, framework, agent_hints, created_at, updated_at "
-            "FROM applications ORDER BY app_name"
+            "SELECT a.app_id, a.app_name, a.exe_path, a.framework, a.agent_hints, "
+            "a.created_at, a.updated_at, COUNT(o.id) AS object_count "
+            "FROM applications a "
+            "LEFT JOIN windows w ON w.app_id = a.app_id "
+            "LEFT JOIN objects o ON o.window_id = w.id "
+            "GROUP BY a.app_id "
+            "ORDER BY a.app_name"
         ).fetchall()
-        return [dict(r) for r in rows]
+        apps = []
+        for r in rows:
+            d = dict(r)
+            d["object_count"] = int(d.get("object_count") or 0)
+            apps.append(d)
+
+    def sort_key(app: dict) -> tuple:
+        from detection.repo_consolidate import is_junk_app_name
+
+        junk = is_junk_app_name(app.get("app_name", ""))
+        return (junk, -int(app.get("object_count") or 0), (app.get("app_name") or "").lower())
+
+    apps.sort(key=sort_key)
+    return apps
 
 
 def get_app_tree(app_id_value: str, db_path: Optional[Path] = None) -> dict:
@@ -576,6 +688,8 @@ def get_app_tree(app_id_value: str, db_path: Optional[Path] = None) -> dict:
                 (win["id"],),
             ):
                 objs.append(dict(row))
+            if not objs:
+                continue
             windows_out.append({
                 "window_key": win["window_key"],
                 "title_pattern": win["title_pattern"],

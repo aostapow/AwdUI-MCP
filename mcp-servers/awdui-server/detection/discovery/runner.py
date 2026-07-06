@@ -85,15 +85,17 @@ def discover_target(
                 except Exception:
                     pass
             try:
+                from detection.app_identity import repository_app_name
                 from detection.object_snapshot import capture_object_snapshot
                 from tools.framework_detect import do_detect_framework
                 fw = do_detect_framework(window_title)
+                app_name, exe_path = repository_app_name(fw, window_title)
                 capture_object_snapshot(
                     elem,
                     window_title=window_title,
                     repo_path=repo_path,
-                    app_name=fw.get("process_name") or fw.get("exe_name") or "foreground",
-                    exe_path=fw.get("exe_path", ""),
+                    app_name=app_name,
+                    exe_path=exe_path,
                     highlight=False,
                 )
             except Exception:

@@ -53,6 +53,17 @@ Every successful `find_element`, `click_element`, or `smart_find` (with `remembe
 
 Objects are keyed by stable `repo_path` (e.g. `Calculadora/num6Button`).
 
+## Auto repository lookup (Windows)
+
+When `repo_path` is omitted, `smart_find`, `find_element`, and `click_element` **search the repository first**:
+
+- Match by `automation_id`, logical name, digit → `numNButton`, or stored identification tiers
+- Scoped to the target window when `window_title` is set
+- On match, run Smart Identification (`mandatory` → `assistive` → `smart` → template → OCR)
+- If repository resolution fails, continue the normal cascade (UIA → OCR → …)
+
+Example: `smart_find(name="6", window_title="Calculadora")` resolves `Calculadora/num6Button` automatically when it exists in the repo.
+
 ## Smart Identification order
 
 1. Mandatory properties only

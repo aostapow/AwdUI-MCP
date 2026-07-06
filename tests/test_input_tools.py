@@ -226,10 +226,11 @@ class TestNavigationWarning:
         with mock.patch("tools.ui_automation.do_find_element") as mock_find:
             mock_find.return_value = {
                 "found": True,
-                "elements": [{"name": "Home", "role": "Button", "x": 50, "y": 50, "width": 80, "height": 30}],
+                "elements": [{"name": "", "role": "Button", "x": 50, "y": 50, "width": 80, "height": 30}],
                 "count": 1,
             }
-            result = do_click_element(name="Home", role="Button")
+            with mock.patch("tools.ui_automation.do_invoke_on_element", return_value={"success": False}):
+                result = do_click_element(role="Button")
             assert result["success"] is True
             assert "navigation_warning" in result
 

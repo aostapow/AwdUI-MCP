@@ -53,19 +53,47 @@ class TestFindElement:
 
 
 class TestClickElement:
-    @mock.patch("tools.ui_automation.do_click")
+    @mock.patch("tools.ui_automation.do_invoke_on_element")
     @mock.patch("tools.ui_automation.do_find_element")
-    def test_click_found_element(self, mock_find, mock_click):
+    def test_click_identifiable_uses_invoke(self, mock_find, mock_invoke):
         mock_find.return_value = {
             "found": True,
-            "elements": [{"name": "OK", "role": "Button", "x": 100, "y": 200, "width": 80, "height": 30}]
+            "elements": [{
+                "name": "OK",
+                "role": "Button",
+                "automation_id": "btnOk",
+                "x": 100,
+                "y": 200,
+                "width": 80,
+                "height": 30,
+                "patterns": ["Invoke"],
+            }],
         }
-        mock_click.return_value = {"action": "click", "x": 140, "y": 215}
+        mock_invoke.return_value = {"success": True, "method": "InvokePattern"}
 
         from tools.ui_automation import do_click_element
         result = do_click_element(name="OK", window_title="Dialog")
 
+        mock_invoke.assert_called_once()
+        assert result["success"] is True
+        assert result["method"] == "InvokePattern"
+
+    @mock.patch("tools.ui_automation.do_click")
+    @mock.patch("tools.ui_automation.do_invoke_on_element")
+    @mock.patch("tools.ui_automation.do_find_element")
+    def test_click_unidentifiable_uses_coordinates(self, mock_find, mock_invoke, mock_click):
+        mock_find.return_value = {
+            "found": True,
+            "elements": [{"name": "", "role": "Pane", "x": 100, "y": 200, "width": 80, "height": 30}],
+        }
+        mock_invoke.return_value = {"success": False, "error": "no invoke"}
+        mock_click.return_value = {"action": "click", "x": 140, "y": 215}
+
+        from tools.ui_automation import do_click_element
+        result = do_click_element(window_title="Dialog")
+
         mock_click.assert_called_once_with(140, 215)
+        assert result["success"] is True
 
     @mock.patch("tools.ui_automation._fuzzy_find_nearest", return_value=None)
     @mock.patch("tools.ui_automation.do_find_element")

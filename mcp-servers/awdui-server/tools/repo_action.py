@@ -16,10 +16,11 @@ def _orch():
 
 def _app_repo(window_title: Optional[str]) -> tuple[str, dict]:
     from tools.framework_detect import do_detect_framework
+    from detection.app_identity import repository_app_name
     fw = do_detect_framework(window_title)
-    app_name = fw.get("process_name") or fw.get("exe_name") or "foreground"
-    repo = load_repo(app_name, fw.get("exe_path", ""))
-    repo["exe_path"] = fw.get("exe_path", "")
+    app_name, exe_path = repository_app_name(fw, window_title)
+    repo = load_repo(app_name, exe_path)
+    repo["exe_path"] = exe_path
     repo["framework"] = fw.get("framework", repo.get("framework", "unknown"))
     return app_name, repo
 
@@ -197,14 +198,18 @@ def do_repo_action(
     }
 
     if method == "Click":
-        from tools.ui_automation import do_invoke_element
-        inv = do_invoke_element(
-            name=elem.get("name") or None,
-            automation_id=elem.get("automation_id") or None,
-            window_title=window_title,
-        )
+        from tools.ui_automation import do_invoke_on_element, _identifiable_by_properties
+        inv = do_invoke_on_element(elem, window_title=window_title)
         if inv.get("success"):
             result.update({"success": True, "action": inv.get("method", "InvokePattern")})
+        elif _identifiable_by_properties(elem):
+            result.update({
+                "success": False,
+                "error": (
+                    "Element resolved by properties but InvokePattern failed; "
+                    "coordinate click skipped"
+                ),
+            })
         else:
             from tools.input_tools import do_click
             cx, cy = _click_coords(elem, window_title)

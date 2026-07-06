@@ -36,4 +36,7 @@ if ($Dev) {
 
 Write-Host "[repo-studio] API http://127.0.0.1:$ApiPort"
 Set-Location $Root
-& $VenvPy -m uvicorn main:app --app-dir (Join-Path $Root "repo-api") --host 127.0.0.1 --port $ApiPort --reload
+$ApiDir = Join-Path $Root "repo-api"
+$ServerDir = Join-Path $Root "mcp-servers\awdui-server"
+& $VenvPy -m uvicorn main:app --app-dir $ApiDir --host 127.0.0.1 --port $ApiPort --reload `
+    --reload-dir $ApiDir --reload-dir $ServerDir

@@ -13,6 +13,7 @@ if str(_ROOT) not in sys.path:
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -51,6 +52,11 @@ class ObjectUpdate(BaseModel):
 @app.get("/api/health")
 def health():
     return {"ok": True}
+
+
+@app.get("/api/changes")
+def repo_changes():
+    return repo_store.get_repo_revision()
 
 
 @app.get("/api/apps")
@@ -114,6 +120,13 @@ def migrate(force: bool = False):
     return result
 
 
+@app.post("/api/consolidate")
+def consolidate():
+    from detection.repo_consolidate import consolidate_repositories
+
+    return consolidate_repositories()
+
+
 @app.get("/api/hints/{repo_path:path}")
 def hints(repo_path: str):
     path = unquote(repo_path)
@@ -121,7 +134,22 @@ def hints(repo_path: str):
 
 
 _ASSETS = repo_store.assets_root()
-app.mount("/api/assets", StaticFiles(directory=str(_ASSETS)), name="repo-assets")
+
+
+@app.get("/api/assets/{asset_path:path}")
+def serve_asset(asset_path: str):
+    rel = asset_path.replace("\\", "/").lstrip("/")
+    root = _ASSETS.resolve()
+    candidates = [rel, repo_store.normalize_asset_rel(rel)]
+    seen: set[str] = set()
+    for candidate in candidates:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        path = (root / candidate).resolve()
+        if path.is_file() and str(path).startswith(str(root)):
+            return FileResponse(path)
+    raise HTTPException(404, f"Asset not found: {asset_path}")
 
 
 # Serve built SPA when dist exists

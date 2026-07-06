@@ -38,6 +38,153 @@ def _call_sidecar(command: str, params: dict) -> dict:
         return {"error": str(exc)}
 
 
+def _matches_element(
+    props: dict,
+    automation_id: str = "",
+    name: str = "",
+) -> bool:
+    if automation_id and props.get("automation_id") == automation_id:
+        return True
+    if name and str(props.get("name", "")).lower() == name.lower():
+        return True
+    return False
+
+
+def _bbox_hits_element(
+    bbox: tuple[int, int, int, int],
+    *,
+    automation_id: str = "",
+    name: str = "",
+) -> bool:
+    if not automation_id and not name:
+        return True
+    try:
+        from tools.spy_bridge import spy_available, spy_inspect_at
+
+        if not spy_available():
+            return True
+        x, y, w, h = bbox
+        hit = spy_inspect_at(x + w // 2, y + h // 2)
+        if not hit.get("found"):
+            return True
+        return _matches_element(hit.get("properties") or {}, automation_id, name)
+    except Exception:
+        return True
+
+
+def _uia_list_bbox(
+    *,
+    automation_id: str = "",
+    name: str = "",
+    window_title: Optional[str] = None,
+) -> Optional[tuple[int, int, int, int]]:
+    """UIA/pywinauto BoundingRectangle — correct for UWP controls."""
+    try:
+        from tools.ui_automation import do_list_elements
+
+        listed = do_list_elements(
+            window_title=window_title or "",
+            max_depth=12,
+            include_offscreen=False,
+        ).get("elements", [])
+        for candidate in listed:
+            aid = (candidate.get("automation_id") or "").strip()
+            cname = (candidate.get("name") or "").strip()
+            if automation_id and aid != automation_id:
+                continue
+            if not automation_id and name and cname.lower() != name.lower():
+                continue
+            if not automation_id and not name:
+                continue
+            x = int(candidate.get("x", 0) or 0)
+            y = int(candidate.get("y", 0) or 0)
+            w = int(candidate.get("width") or candidate.get("w") or 0)
+            h = int(candidate.get("height") or candidate.get("h") or 0)
+            if w > 0 and h > 0:
+                return x, y, w, h
+    except Exception:
+        pass
+    return None
+
+
+def element_screen_bbox(
+    elem: dict,
+    *,
+    window_title: Optional[str] = None,
+    repo_path: Optional[str] = None,
+) -> Optional[tuple[int, int, int, int]]:
+    """Physical screen rectangle for highlight and repository crops."""
+    aid = (elem.get("automation_id") or "").strip()
+    name = (elem.get("name") or "").strip()
+    if not aid and repo_path:
+        leaf = repo_path.rsplit("/", 1)[-1]
+        if leaf and leaf not in ("main",):
+            aid = leaf
+
+    uia_bbox = _uia_list_bbox(
+        automation_id=aid,
+        name=name,
+        window_title=window_title,
+    )
+    if uia_bbox:
+        return uia_bbox
+
+    try:
+        from tools.spy_bridge import spy_available, spy_inspect_element
+
+        if spy_available() and (aid or name):
+            result = spy_inspect_element(
+                name=name,
+                automation_id=aid,
+                window_title=window_title or "",
+            )
+            if result.get("found"):
+                p = result.get("properties") or {}
+                x = int(p.get("x", 0) or 0)
+                y = int(p.get("y", 0) or 0)
+                w = int(p.get("width") or 0)
+                h = int(p.get("height") or 0)
+                if w > 0 and h > 0:
+                    if _bbox_hits_element((x, y, w, h), automation_id=aid, name=name):
+                        return x, y, w, h
+                    region = None
+                    try:
+                        from detection.element_coords import window_region
+
+                        region = window_region(window_title)
+                    except Exception:
+                        pass
+                    if region:
+                        sx = x + int(region["x"])
+                        sy = y + int(region["y"])
+                        offset_bbox = (sx, sy, w, h)
+                        if _bbox_hits_element(offset_bbox, automation_id=aid, name=name):
+                            return offset_bbox
+    except Exception:
+        pass
+
+    x = int(elem.get("x", 0) or 0)
+    y = int(elem.get("y", 0) or 0)
+    w = int(elem.get("width") or elem.get("w") or 0)
+    h = int(elem.get("height") or elem.get("h") or 0)
+    if w <= 0 or h <= 0:
+        return None
+    if window_title:
+        from detection.element_coords import to_screen_coords
+
+        norm = to_screen_coords(
+            {"x": x, "y": y, "width": w, "height": h},
+            window_title,
+        )
+        return (
+            int(norm["x"]),
+            int(norm["y"]),
+            int(norm["width"]),
+            int(norm["height"]),
+        )
+    return x, y, w, h
+
+
 def highlight_rect(
     x: int, y: int, w: int, h: int,
     *,
@@ -60,13 +207,17 @@ def clear_highlight() -> dict:
     return _call_sidecar("unhighlight", {})
 
 
-def highlight_element_dict(elem: dict, duration_ms: int = 3000) -> dict:
-    x = elem.get("x", 0)
-    y = elem.get("y", 0)
-    w = elem.get("width", elem.get("w", 0))
-    h = elem.get("height", elem.get("h", 0))
-    if w <= 0 or h <= 0:
+def highlight_element_dict(
+    elem: dict,
+    duration_ms: int = 3000,
+    *,
+    window_title: Optional[str] = None,
+    repo_path: Optional[str] = None,
+) -> dict:
+    bbox = element_screen_bbox(elem, window_title=window_title, repo_path=repo_path)
+    if not bbox:
         return {"error": "element has no bounding box"}
+    x, y, w, h = bbox
     return highlight_rect(x, y, w, h, duration_ms=duration_ms)
 
 
