@@ -13,12 +13,39 @@ def test_start_event_monitor_native_backend():
             with mock.patch(
                 "tools.event_monitor._start_poll_session",
             ) as poll_mock:
-                from tools.event_monitor import do_start_event_monitor
+                from tools.event_monitor import _sessions, do_start_event_monitor
 
                 out = do_start_event_monitor(event_type="focus")
+                sid = out.get("session_id")
+                if sid:
+                    _sessions.pop(sid, None)
     assert out["success"]
     assert out["backend"] == "flaui_native"
     poll_mock.assert_not_called()
+
+
+def test_start_event_monitor_falls_back_when_native_times_out():
+    import time
+
+    def slow_start(*_a, **_k):
+        time.sleep(10)
+        return {"success": True}
+
+    with mock.patch("tools.event_sidecar_bridge.sidecar_available", return_value=True):
+        with mock.patch("tools.event_sidecar_bridge.start_native_monitor", side_effect=slow_start):
+            with mock.patch("tools.event_monitor._start_poll_session") as poll_mock:
+                poll_mock.return_value = {
+                    "session_id": "poll1",
+                    "backend": "poll",
+                    "event_type": "focus",
+                    "poll_ms": 200,
+                }
+                from tools.event_monitor import do_start_event_monitor
+
+                out = do_start_event_monitor(event_type="focus", poll_ms=100)
+    assert out["success"]
+    assert out["backend"] == "poll"
+    poll_mock.assert_called_once()
 
 
 def test_get_event_log_native_delegates():

@@ -11,44 +11,108 @@ def _scope_title(scope: dict, window_title: Optional[str]) -> str:
     return scope.get("resolved_title") or window_title or ""
 
 
-def do_scroll_into_view(
-    automation_id: str,
+def _resolve_raw_control(
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = -1,
     window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+) -> tuple[Optional[object], Optional[dict[str, Any]], Optional[str], dict[str, Any]]:
+    """Resolve a UIA raw control by automation_id or by name/role/index."""
+    aid = (automation_id or "").strip()
+    if aid:
+        raw, _elem, data, scope = _resolve_control(aid, window_title)
+        return raw, data, aid, scope
+
+    if not (name or role):
+        return None, None, None, {}
+
+    from tools.ui_automation import do_find_element
+
+    found = do_find_element(
+        name=name,
+        role=role,
+        window_title=window_title,
+        window_handle=window_handle,
+        index=index,
+        remember=False,
+    )
+    if not found.get("found") or not found.get("elements"):
+        return None, None, None, {}
+
+    from tools.app_session import pick_element_index
+
+    elem = found["elements"][pick_element_index(index, len(found["elements"]))]
+    resolved_aid = str(elem.get("automation_id") or "").strip()
+    if not resolved_aid:
+        return None, elem, None, {}
+    raw, _elem, data, scope = _resolve_control(resolved_aid, window_title)
+    return raw, data or elem, resolved_aid, scope
+
+
+def do_scroll_into_view(
+    automation_id: str = "",
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = -1,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
 ) -> dict[str, Any]:
     if sys.platform != "win32":
         return {"success": False, "error": "scroll_into_view is Windows-only"}
-    if not (automation_id or "").strip():
-        return {"success": False, "error": "automation_id is required"}
-
-    raw, _elem, _data, scope = _resolve_control(automation_id, window_title)
+    raw, data, resolved_aid, scope = _resolve_raw_control(
+        automation_id=automation_id or None,
+        name=name,
+        role=role,
+        index=index,
+        window_title=window_title,
+        window_handle=window_handle,
+    )
     if not raw:
-        return {"success": False, "error": f"Control not found: {automation_id}"}
+        label = automation_id or name or role or "element"
+        return {"success": False, "error": f"Control not found: {label}"}
 
     from detection.uia_patterns import scroll_item_into_view
 
     result = scroll_item_into_view(raw)
-    result["automation_id"] = automation_id
+    if resolved_aid:
+        result["automation_id"] = resolved_aid
+    elif data:
+        result["name"] = data.get("name", "")
     result["resolved_window_title"] = _scope_title(scope, window_title)
     return result
 
 
 def do_realize_virtualized_item(
-    automation_id: str,
+    automation_id: str = "",
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = -1,
     window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
 ) -> dict[str, Any]:
     if sys.platform != "win32":
         return {"success": False, "error": "realize_virtualized_item is Windows-only"}
-    if not (automation_id or "").strip():
-        return {"success": False, "error": "automation_id is required"}
-
-    raw, _elem, _data, scope = _resolve_control(automation_id, window_title)
+    raw, data, resolved_aid, scope = _resolve_raw_control(
+        automation_id=automation_id or None,
+        name=name,
+        role=role,
+        index=index,
+        window_title=window_title,
+        window_handle=window_handle,
+    )
     if not raw:
-        return {"success": False, "error": f"Control not found: {automation_id}"}
+        label = automation_id or name or role or "element"
+        return {"success": False, "error": f"Control not found: {label}"}
 
     from detection.uia_patterns import realize_virtualized_item
 
     result = realize_virtualized_item(raw)
-    result["automation_id"] = automation_id
+    if resolved_aid:
+        result["automation_id"] = resolved_aid
+    elif data:
+        result["name"] = data.get("name", "")
     result["resolved_window_title"] = _scope_title(scope, window_title)
     return result
 
@@ -78,17 +142,14 @@ def do_find_item_by_property(
 
     start_after_raw = None
     if (start_after_automation_id or "").strip():
-        start_after_raw, _, _, _ = _resolve_control(
-            start_after_automation_id.strip(),
-            window_title,
-        )
+        start_after_raw, _, _, _ = _resolve_control(start_after_automation_id, window_title)
 
     from detection.uia_patterns import find_item_by_property
 
     result = find_item_by_property(
         raw,
-        property_name=property_name,
-        value=property_value,
+        property_name,
+        property_value,
         start_after_raw=start_after_raw,
     )
     result["container_automation_id"] = container_automation_id
@@ -97,22 +158,35 @@ def do_find_item_by_property(
 
 
 def do_scroll_element(
-    automation_id: str,
+    automation_id: str = "",
     direction: str = "down",
     amount: str = "large",
     repeat: int = 1,
+    clicks: int = 0,
     horizontal_percent: float = -1.0,
     vertical_percent: float = -1.0,
     window_title: Optional[str] = None,
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = -1,
+    window_handle: Optional[int] = None,
 ) -> dict[str, Any]:
     if sys.platform != "win32":
         return {"success": False, "error": "scroll_element is Windows-only"}
-    if not (automation_id or "").strip():
-        return {"success": False, "error": "automation_id is required"}
+    if clicks and int(clicks) > 0:
+        repeat = int(clicks)
 
-    raw, _elem, _data, scope = _resolve_control(automation_id, window_title)
+    raw, data, resolved_aid, scope = _resolve_raw_control(
+        automation_id=automation_id or None,
+        name=name,
+        role=role,
+        index=index,
+        window_title=window_title,
+        window_handle=window_handle,
+    )
     if not raw:
-        return {"success": False, "error": f"Control not found: {automation_id}"}
+        label = automation_id or name or role or "element"
+        return {"success": False, "error": f"Control not found: {label}"}
 
     from detection.uia_patterns import apply_scroll_pattern
 
@@ -126,6 +200,9 @@ def do_scroll_element(
         horizontal_percent=h_pct,
         vertical_percent=v_pct,
     )
-    result["automation_id"] = automation_id
+    if resolved_aid:
+        result["automation_id"] = resolved_aid
+    elif data:
+        result["name"] = data.get("name", "")
     result["resolved_window_title"] = _scope_title(scope, window_title)
     return result

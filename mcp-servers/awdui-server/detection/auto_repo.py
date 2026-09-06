@@ -136,9 +136,11 @@ def maybe_remember_element(
         from tools.framework_detect import do_detect_framework
         fw = do_detect_framework(window_title)
         app_name, exe_path = repository_app_name(fw, window_title)
+        fw_label = fw.get("framework", "unknown")
     except Exception:
         app_name = title_app_name(window_title) or "unknown"
         exe_path = ""
+        fw_label = "unknown"
 
     if not should_auto_remember(window_title, app_name, exe_path, force=force):
         return None
@@ -146,6 +148,12 @@ def maybe_remember_element(
     path = repo_path or auto_repo_path(window_title, elem)
     repo = load_repo(app_name, exe_path)
     repo["exe_path"] = exe_path
+    try:
+        from detection.repo_framework import merge_framework
+
+        repo["framework"] = merge_framework(repo.get("framework", "unknown"), fw_label)
+    except Exception:
+        repo["framework"] = fw_label
     swf = infer_swf_class(elem.get("role", ""), elem.get("class_name", ""))
     normalized = elem
     try:

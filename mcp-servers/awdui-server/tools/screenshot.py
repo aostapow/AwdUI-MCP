@@ -625,6 +625,98 @@ def action_tool_response(
     ]
 
 
+def check_printwindow_compatible(window_title: str = "") -> dict:
+    """Return whether PrintWindow capture is appropriate for the target framework."""
+    from detection.framework_capabilities import printwindow_capability
+    from tools.framework_detect import do_detect_framework
+
+    detected = do_detect_framework(window_title or "")
+    fw = detected.get("framework", "unknown")
+    cap = printwindow_capability(fw)
+    out = {
+        "compatible": bool(cap.get("compatible")),
+        "framework": fw,
+        "level": cap.get("level", ""),
+    }
+    if not out["compatible"]:
+        out["error"] = (
+            f"PrintWindow screenshot is not compatible with framework '{fw}'. "
+            "Use screenshot(scope='window') or UIA-based verification instead."
+        )
+    elif cap.get("reason"):
+        out["warning"] = cap["reason"]
+    return out
+
+
+def capture_window_printwindow(
+    window_title: str,
+    *,
+    region: Optional[dict] = None,
+    region_coords: str = "window",
+    focused: bool = False,
+) -> dict:
+    """Capture a window via PrintWindow (Win32), optionally cropping a region."""
+    from tools.framework_detect import do_detect_framework
+    from tools.windows import do_list_windows, find_matching_window
+
+    compat = check_printwindow_compatible(window_title)
+    if not compat.get("compatible"):
+        return {"success": False, "error": compat.get("error", "not compatible"), **compat}
+
+    match = find_matching_window(window_title, do_list_windows())
+    win = match.get("window")
+    if not win:
+        return {"success": False, "error": f"window not found: {window_title}"}
+
+    detected = do_detect_framework(window_title)
+    fw = detected.get("framework", "unknown")
+    try:
+        from awdui_platform.win32_backend import capture_window_image, get_window_rect
+
+        hwnd = int(win.get("hwnd") or 0)
+        img = capture_window_image(hwnd)
+        rect = get_window_rect(hwnd) or {
+            "x": win.get("x", 0),
+            "y": win.get("y", 0),
+            "w": win.get("width", img.width),
+            "h": win.get("height", img.height),
+        }
+    except Exception as exc:
+        return {"success": False, "error": str(exc), "framework": fw}
+
+    if region:
+        rx = int(region.get("x", 0))
+        ry = int(region.get("y", 0))
+        rw = int(region.get("w", region.get("width", img.width)))
+        rh = int(region.get("h", region.get("height", img.height)))
+        if region_coords == "screen":
+            ox = int(rect.get("x", win.get("x", 0)))
+            oy = int(rect.get("y", win.get("y", 0)))
+            rx -= ox
+            ry -= oy
+        x1 = max(0, rx)
+        y1 = max(0, ry)
+        x2 = min(img.width, rx + rw)
+        y2 = min(img.height, ry + rh)
+        if x2 > x1 and y2 > y1:
+            img = img.crop((x1, y1, x2, y2))
+
+    path = ""
+    if screenshot_manager is not None:
+        path = screenshot_manager.save(img)
+
+    return {
+        "success": True,
+        "method": "printwindow",
+        "framework": fw,
+        "path": path,
+        "width": img.width,
+        "height": img.height,
+        "hwnd": win.get("hwnd"),
+        "focused": bool(focused),
+    }
+
+
 # ------------------------------------------------------------------
 # MCP tool registration
 # ------------------------------------------------------------------

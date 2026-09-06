@@ -2,25 +2,39 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from typing import Any, Optional
 
 from detection.uia_text import get_item_text
 from detection.uia_tree import _walk_control_tree, _wrap_raw
 
-_ITEM_ROLES = frozenset({"ListItem", "DataItem", "TreeItem", "MenuItem"})
+_ITEM_ROLES = frozenset(
+    {"ListItem", "DataItem", "TreeItem", "MenuItem", "TabItem", "RadioButton", "Button"}
+)
+
+
+def _fold_text(value: str) -> str:
+    """Case- and accent-insensitive match key."""
+    text = (value or "").strip()
+    if not text:
+        return ""
+    folded = unicodedata.normalize("NFKD", text)
+    return "".join(ch for ch in folded if not unicodedata.combining(ch)).lower()
 
 
 def _matches_filter(item: dict, filter_text: str) -> bool:
     if not filter_text:
         return True
-    needle = filter_text.lower()
-    blob = " ".join(
-        [
-            (item.get("name") or ""),
-            (item.get("value") or ""),
-            (item.get("display_text") or ""),
-        ]
-    ).lower()
+    needle = _fold_text(filter_text)
+    blob = _fold_text(
+        " ".join(
+            [
+                (item.get("name") or ""),
+                (item.get("value") or ""),
+                (item.get("display_text") or ""),
+            ]
+        )
+    )
     return needle in blob
 
 
@@ -75,15 +89,17 @@ def collect_control_items(
 
 
 def find_item_raw_by_name(root, value: str) -> tuple[Optional[object], Optional[dict]]:
-    needle = (value or "").strip().lower()
+    needle = _fold_text(value)
     if not needle:
         return None, None
     best: Optional[dict] = None
     best_raw = None
     for item in _list_item_nodes(root):
-        blob = " ".join(
-            [(item.get("name") or ""), (item.get("value") or ""), (item.get("display_text") or "")]
-        ).lower()
+        blob = _fold_text(
+            " ".join(
+                [(item.get("name") or ""), (item.get("value") or ""), (item.get("display_text") or "")]
+            )
+        )
         if needle in blob:
             best = item
             best_raw = item.get("item_raw")

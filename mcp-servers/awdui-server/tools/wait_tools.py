@@ -411,7 +411,7 @@ def do_invalidate_uia_cache(
 
 def register(server) -> int:
     """Register wait tools on *server*."""
-    from tools.params import resolve_window_title as _wt
+    from tools.params import resolve_scoped_window, resolve_window_title as _wt
     from tools.safety import ActionTimeoutError, with_timeout
 
     @server.tool()
@@ -421,6 +421,7 @@ def register(server) -> int:
         role: str = "",
         window_title: str = "",
         title: str = "",
+        app_id: str = "",
         timeout_ms: int = 10000,
         poll_ms: int = 100,
     ) -> str:
@@ -428,13 +429,16 @@ def register(server) -> int:
 
         Prefer this over wait_for_change when you know the control id or name.
         """
+        wt, _hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, 0)
+        if scope_err:
+            return f"ERROR: {scope_err}"
         try:
             result = with_timeout(
                 lambda: do_wait_for_element(
                     automation_id=automation_id or None,
                     name=name or None,
                     role=role or None,
-                    window_title=_wt(window_title, title),
+                    window_title=wt,
                     timeout_ms=timeout_ms,
                     poll_ms=poll_ms,
                 ),
@@ -464,6 +468,7 @@ def register(server) -> int:
         role: str = "",
         window_title: str = "",
         title: str = "",
+        app_id: str = "",
         timeout_ms: int = 10000,
         poll_ms: int = 100,
     ) -> str:
@@ -472,6 +477,9 @@ def register(server) -> int:
         Properties: name, isEnabled, isOffscreen, visible, text, value, isChecked,
         isSelected, selectedItem. Comparison is case-insensitive; text/value use contains.
         """
+        wt, _hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, 0)
+        if scope_err:
+            return f"ERROR: {scope_err}"
         try:
             result = with_timeout(
                 lambda: do_wait_for_condition(
@@ -480,7 +488,7 @@ def register(server) -> int:
                     automation_id=automation_id or None,
                     name=name or None,
                     role=role or None,
-                    window_title=_wt(window_title, title),
+                    window_title=wt,
                     timeout_ms=timeout_ms,
                     poll_ms=poll_ms,
                 ),
@@ -503,16 +511,20 @@ def register(server) -> int:
     def wait_for_input_idle(
         window_title: str = "",
         title: str = "",
+        app_id: str = "",
         timeout_ms: int = 10000,
     ) -> str:
         """Wait until the target window is idle and ready for input (Windows).
 
         Use after launch_app or heavy navigation before the first interaction.
         """
+        wt, _hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, 0)
+        if scope_err:
+            return f"ERROR: {scope_err}"
         try:
             result = with_timeout(
                 lambda: do_wait_for_input_idle(
-                    window_title=_wt(window_title, title) or None,
+                    window_title=wt,
                     timeout_ms=timeout_ms,
                 ),
                 timeout=max(timeout_ms / 1000.0, 1.0) + 5.0,
@@ -534,16 +546,20 @@ def register(server) -> int:
         role: str = "",
         window_title: str = "",
         title: str = "",
+        app_id: str = "",
     ) -> str:
         """Single-shot check whether a control exists (no polling).
 
         Use before acting on optional UI; prefer wait_for_element when you can wait.
         """
+        wt, _hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, 0)
+        if scope_err:
+            return f"ERROR: {scope_err}"
         exists = do_element_exists(
             automation_id=automation_id or None,
             name=name or None,
             role=role or None,
-            window_title=_wt(window_title, title),
+            window_title=wt,
         )
         label = automation_id or name or role or "element"
         return f"OK exists {label}" if exists else f"NOT FOUND {label}"
@@ -553,15 +569,19 @@ def register(server) -> int:
         window_title: str = "",
         title: str = "",
         hwnd: int = 0,
+        app_id: str = "",
     ) -> str:
         """Clear UIA caches after relaunch, Calculator mode switch, or stale element reads.
 
         Clears list_elements tree cache, per-HWND descendant cache, and window classify cache.
         Pass hwnd to scope descendant cache to one window; omit for full invalidation.
         """
+        wt, scoped_hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, hwnd)
+        if scope_err:
+            return scope_err
         result = do_invalidate_uia_cache(
-            window_title=_wt(window_title, title) or None,
-            hwnd=int(hwnd) if hwnd and int(hwnd) > 0 else None,
+            window_title=wt,
+            hwnd=int(scoped_hwnd or hwnd) if (scoped_hwnd or hwnd) else None,
         )
         if not result.get("success"):
             return result.get("error", "invalidate_cache failed")

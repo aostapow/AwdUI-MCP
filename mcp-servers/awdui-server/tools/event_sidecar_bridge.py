@@ -80,7 +80,7 @@ def _ensure_server() -> bool:
             return False
         _reader = threading.Thread(target=_reader_loop, daemon=True, name="awdui-event-sidecar-reader")
         _reader.start()
-        ping = _call("ping", {}, timeout=5.0)
+        ping = _call("ping", {}, timeout=2.0)
         return bool(ping.get("success"))
 
 
@@ -152,7 +152,7 @@ def start_native_monitor(
     params = _enrich_params(window_title, window_handle, automation_id, name)
     params["session_id"] = session_id
     params["event_type"] = event_type
-    resp = _call("monitor_start", params)
+    resp = _call("monitor_start", params, timeout=3.0)
     if resp.get("success"):
         _native_sessions.add(session_id)
     return resp

@@ -284,6 +284,16 @@ def do_select_control_item(
 
     item_raw, item = find_item_raw_by_name(raw, needle)
     if not item:
+        from tools.ui_automation import do_invoke_element
+
+        invoked = do_invoke_element(name=needle, window_title=title)
+        if invoked.get("success"):
+            return {
+                "success": True,
+                "method": "invoke_element_fallback",
+                "item": needle,
+                "verified_value": invoked.get("verified_value", ""),
+            }
         return {"success": False, "error": f"Item not found matching '{needle}'"}
     return _activate_item(
         item_raw=item_raw,

@@ -4,7 +4,7 @@ Referencia canónica para agentes de IA. Describe **cada tool** del servidor `aw
 
 - **Estrategia general:** [AGENT_GUIDE.md](AGENT_GUIDE.md)
 - **Patrones por tipo de control:** [.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md](../.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md)
-- **Última revisión:** 2026-09-06 (87 tools — `ascii_ui_view` ojo ASCII)
+- **Última revisión:** 2026-09-06 (111 tools — paridad WinApp `winapp_parity`)
 - **Mantener actualizado:** ver [.cursor/rules/awdui-tools-catalog.mdc](../.cursor/rules/awdui-tools-catalog.mdc)
 
 ---
@@ -13,25 +13,25 @@ Referencia canónica para agentes de IA. Describe **cada tool** del servidor `aw
 
 | Sesión / foco | Tools |
 |---------------|-------|
-| **Target** | `set_target_window`, `get_target_window` |
-| **Ventanas** | `list_windows`, `focus_window`, `launch_app`, `restore_window`, `virtual_desktop` |
-| **Exploración UIA** | `find_element`, `find_all_elements`, `list_elements`, `get_snapshot`, `ascii_ui_view`, `read_element`, `read_element_by_index`, `get_focused_element`, `element_at_point`, `get_element_properties`, `discover_control_interaction`, `spy_inspect`, `spy_tree`, `ui_fingerprint`, `detection_health`, `detect_framework`, `check_java_bridge` |
+| **Target** | `set_target_window`, `get_target_window`, `attach_to_app`, `attach_to_pid`, `list_apps`, `close_app` |
+| **Ventanas** | `list_windows`, `list_desktop_windows`, `focus_window`, `launch_app`, `restore_window`, `virtual_desktop` |
+| **Exploración UIA** | `find_element`, `find_elements`, `find_elements_fuzzy`, `find_all_elements`, `list_elements`, `get_snapshot`, `get_snapshot_hwnd`, `get_tree_hash`, `get_element_bounds`, `ascii_ui_view`, `read_element`, `read_element_by_index`, `get_focused_element`, `element_at_point`, `get_element_properties`, `discover_control_interaction`, `spy_inspect`, `spy_tree`, `ui_fingerprint`, `detection_health`, `detect_framework`, `check_java_bridge` |
 | **Espera / verify UIA** | `wait_for_element`, `wait_for_condition`, `wait_for_input_idle`, `element_exists` |
-| **Sesión / caché** | `check_session_status`, `invalidate_cache`, `release_all` |
-| **Formularios** | `fill_form`, `get_all_values`, `set_element_value` |
+| **Sesión / caché** | `check_session_status`, `invalidate_cache`, `release_all`, `release_keyboard` |
+| **Formularios** | `fill_form`, `get_all_values`, `set_element_value`, `set_value_hwnd`, `type_into_element` |
 | **Eventos UIA** | `start_event_monitor`, `stop_event_monitor`, `get_event_log` |
-| **Acción UIA** | `click_element`, `invoke_element`, `expand_element`, `set_element_value`, `list_control_items`, `select_control_item`, `get_grid_item`, `read_table`, `scroll_into_view`, `realize_virtualized_item`, `find_item_by_property`, `scroll_element` |
-| **Input coordenadas** | `click`, `type_text`, `send_keys`, `scroll`, `drag`, `hover`, `get_mouse_position` |
+| **Acción UIA** | `click_element`, `click_element_hwnd`, `double_click_element`, `right_click_element`, `drag_element`, `invoke_element`, `expand_element`, `expand_collapse_element`, `set_element_value`, `list_control_items`, `select_control_item`, `select_option`, `get_grid_item`, `read_table`, `scroll_into_view`, `realize_virtualized_item`, `find_item_by_property`, `scroll_element` |
+| **Input coordenadas** | `click`, `type_text`, `send_keys`, `press_key`, `press_key_combo`, `scroll`, `drag`, `hover`, `get_mouse_position` |
 | **OCR / visual** | `find_text`, `click_text`, `smart_find`, `detect_visual_regions`, `find_by_template_tool` |
-| **Screenshots** | `screenshot`, `wait_for_change`, `get_screen_size`, `screenshot_baseline`, `screenshot_diff` |
+| **Screenshots** | `screenshot`, `take_screenshot_optimized`, `annotate_screenshot`, `compare_screenshot_files`, `wait_for_change`, `get_screen_size`, `screenshot_baseline`, `screenshot_diff` |
 | **Repositorio QTP** | `repo_find`, `repo_list`, `repo_hints`, `repo_action`, `repo_capture` |
 | **Descubrimiento** | `observe_ui_tool`, `plan_probes_tool`, `apply_probe_tool`, `discover_target_tool`, `spy_walk_visible_tool`, `build_detection_context` |
 | **Batch / utilidades** | `batch_actions`, `clipboard`, `manage_screenshots`, `highlight_element`, `clear_highlight` |
 | **Watcher** | `start_watcher`, `stop_watcher`, `get_notifications` |
 | **Sistema** | `configure_uac`, `check_version`, `get_server_info` |
 
-**Lista alfabética (87):**  
-`apply_probe_tool`, `ascii_ui_view`, `batch_actions`, `build_detection_context`, `check_java_bridge`, `check_session_status`, `check_version`, `clear_highlight`, `click`, `click_element`, `click_text`, `clipboard`, `configure_uac`, `detect_framework`, `detect_visual_regions`, `detection_health`, `discover_control_interaction`, `discover_target_tool`, `drag`, `element_at_point`, `element_exists`, `expand_element`, `fill_form`, `find_all_elements`, `find_by_template_tool`, `find_element`, `find_item_by_property`, `find_text`, `focus_window`, `get_all_values`, `get_element_properties`, `get_event_log`, `get_focused_element`, `get_grid_item`, `get_mouse_position`, `get_notifications`, `get_screen_size`, `get_server_info`, `get_snapshot`, `get_target_window`, `highlight_element`, `hover`, `invalidate_cache`, `invoke_element`, `launch_app`, `list_control_items`, `list_elements`, `list_windows`, `manage_screenshots`, `observe_ui_tool`, `plan_probes_tool`, `read_element`, `read_element_by_index`, `read_table`, `realize_virtualized_item`, `release_all`, `repo_action`, `repo_capture`, `repo_find`, `repo_hints`, `repo_list`, `restore_window`, `screenshot`, `screenshot_baseline`, `screenshot_diff`, `scroll`, `scroll_element`, `scroll_into_view`, `select_control_item`, `send_keys`, `set_element_value`, `set_target_window`, `smart_find`, `spy_inspect`, `spy_tree`, `spy_walk_visible_tool`, `start_event_monitor`, `start_watcher`, `stop_event_monitor`, `stop_watcher`, `type_text`, `ui_fingerprint`, `virtual_desktop`, `wait_for_change`, `wait_for_condition`, `wait_for_element`, `wait_for_input_idle`
+**Lista alfabética (111):**  
+`annotate_screenshot`, `apply_probe_tool`, `ascii_ui_view`, `attach_to_app`, `attach_to_pid`, `batch_actions`, `build_detection_context`, `check_java_bridge`, `check_session_status`, `check_version`, `clear_highlight`, `click`, `click_element`, `click_element_hwnd`, `click_text`, `clipboard`, `close_app`, `compare_screenshot_files`, `configure_uac`, `detect_framework`, `detect_visual_regions`, `detection_health`, `discover_control_interaction`, `discover_target_tool`, `double_click_element`, `drag`, `drag_element`, `element_at_point`, `element_exists`, `expand_collapse_element`, `expand_element`, `fill_form`, `find_all_elements`, `find_by_template_tool`, `find_element`, `find_elements`, `find_elements_fuzzy`, `find_item_by_property`, `find_text`, `focus_window`, `get_all_values`, `get_element_bounds`, `get_element_properties`, `get_event_log`, `get_focused_element`, `get_grid_item`, `get_mouse_position`, `get_notifications`, `get_screen_size`, `get_server_info`, `get_snapshot`, `get_snapshot_hwnd`, `get_target_window`, `get_tree_hash`, `highlight_element`, `hover`, `invalidate_cache`, `invoke_element`, `launch_app`, `list_apps`, `list_control_items`, `list_desktop_windows`, `list_elements`, `list_windows`, `manage_screenshots`, `observe_ui_tool`, `plan_probes_tool`, `press_key`, `press_key_combo`, `read_element`, `read_element_by_index`, `read_table`, `realize_virtualized_item`, `release_all`, `release_keyboard`, `repo_action`, `repo_capture`, `repo_find`, `repo_hints`, `repo_list`, `restore_window`, `right_click_element`, `screenshot`, `screenshot_baseline`, `screenshot_diff`, `scroll`, `scroll_element`, `scroll_into_view`, `select_control_item`, `select_option`, `send_keys`, `set_element_value`, `set_target_window`, `set_value_hwnd`, `smart_find`, `spy_inspect`, `spy_tree`, `spy_walk_visible_tool`, `start_event_monitor`, `start_watcher`, `stop_event_monitor`, `stop_watcher`, `take_screenshot_optimized`, `type_into_element`, `type_text`, `ui_fingerprint`, `virtual_desktop`, `wait_for_change`, `wait_for_condition`, `wait_for_element`, `wait_for_input_idle`
 
 ## Convenciones comunes
 
@@ -916,6 +916,226 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 
 ---
 
+## 12. Paridad WinApp (`winapp_parity`)
+
+### `attach_to_app`
+
+**Qué hace:** Adjunta sesión a un proceso en ejecución por nombre y devuelve `app_id`.
+**Cuándo usarla:** Migrar flujos WinApp que usan `appId` o trabajar con varias apps en paralelo.
+**Parámetros clave:** `process_name`
+**Evitar:** Sin ventana visible del proceso — fallará el attach.
+**Ejemplo:** `attach_to_app("Calculator")`
+**Relacionadas:** `attach_to_pid`, `list_apps`, `set_target_window`
+
+### `attach_to_pid`
+
+**Qué hace:** Adjunta sesión por PID y devuelve `app_id`.
+**Cuándo usarla:** Cuando ya conocés el PID (p. ej. desde `list_desktop_windows`).
+**Parámetros clave:** `pid`
+**Evitar:** PID de proceso sin ventana UIA accesible.
+**Ejemplo:** `attach_to_pid(12345)`
+**Relacionadas:** `attach_to_app`, `list_desktop_windows`
+
+### `list_apps`
+
+**Qué hace:** Lista sesiones `app_id` activas con pid/hwnd/título.
+**Cuándo usarla:** Verificar attach o elegir `app_id` para tools scoped.
+**Parámetros clave:** —
+**Evitar:** Asumir que `launch_app` crea `app_id` — solo `attach_*`.
+**Ejemplo:** `list_apps()`
+**Relacionadas:** `attach_to_app`, `close_app`
+
+### `close_app`
+
+**Qué hace:** Termina el proceso de un `app_id` y elimina la sesión.
+**Cuándo usarla:** Cleanup al final de un flujo WinApp-style.
+**Parámetros clave:** `app_id`
+**Evitar:** Cerrar apps del usuario sin confirmación explícita.
+**Ejemplo:** `close_app("app_a1b2c3d4")`
+**Relacionadas:** `list_apps`, `release_all`
+
+### `list_desktop_windows`
+
+**Qué hace:** Lista ventanas top-level con HWND, PID, proceso y geometría.
+**Cuándo usarla:** Obtener HWND para `click_element_hwnd` o apps multi-ventana.
+**Parámetros clave:** —
+**Evitar:** Confundir con árbol UIA — solo metadatos de ventana.
+**Ejemplo:** `list_desktop_windows()`
+**Relacionadas:** `list_windows`, `click_element_hwnd`
+
+### `release_keyboard`
+
+**Qué hace:** Suelta modificadores atascados (shift/ctrl/alt/win).
+**Cuándo usarla:** Tras atajos fallidos o tests que dejan teclas presionadas.
+**Parámetros clave:** —
+**Evitar:** Como sustituto de `release_all` — no limpia target ni caché.
+**Ejemplo:** `release_keyboard()`
+**Relacionadas:** `release_all`, `send_keys`, `press_key_combo`
+
+### `find_elements`
+
+**Qué hace:** Busca elementos UIA con filtros `control_type`, `id_contains`, `name_contains`.
+**Cuándo usarla:** Exploración acotada más rápida que `list_elements` completo.
+**Parámetros clave:** `control_type`, `id_contains`, `name_contains`, `max_results`, `app_id`
+**Evitar:** Sin scope (`set_target_window` o `app_id`).
+**Ejemplo:** `find_elements(name_contains="Guardar", control_type="Button")`
+**Relacionadas:** `find_elements_fuzzy`, `find_all_elements`
+
+### `find_elements_fuzzy`
+
+**Qué hace:** Búsqueda fuzzy por nombre/automation_id (typos, parcial, reorden).
+**Cuándo usarla:** Nombres dinámicos o inciertos.
+**Parámetros clave:** `query`, `min_score`, `max_results`
+**Evitar:** Cuando tenés `automation_id` estable — usar `find_element`.
+**Ejemplo:** `find_elements_fuzzy("calcualdor")`
+**Relacionadas:** `find_element`, `smart_find`
+
+### `get_tree_hash`
+
+**Qué hace:** Hash SHA del árbol UIA visible para detectar cambios de UI.
+**Cuándo usarla:** Polling ligero post-navegación o carga de datos.
+**Parámetros clave:** `max_depth`, `app_id`, `window_handle`
+**Evitar:** Comparar hashes con distinto `max_depth` o ventana distinta.
+**Ejemplo:** `get_tree_hash(max_depth=6)`
+**Relacionadas:** `wait_for_condition`, `ui_fingerprint`
+
+### `get_element_bounds`
+
+**Qué hace:** Devuelve bounding box (x, y, width, height) de un elemento.
+**Cuándo usarla:** Verificar posición antes de clic coordenado o anotación visual.
+**Parámetros clave:** `automation_id`, `name`, `fuzzy_match`, `index`
+**Evitar:** Elementos offscreen sin `include_offscreen` en find previo.
+**Ejemplo:** `get_element_bounds(automation_id="btnOK")`
+**Relacionadas:** `get_element_properties`, `annotate_screenshot`
+
+### `double_click_element`
+
+**Qué hace:** Doble clic UIA por `automation_id` o `name`.
+**Cuándo usarla:** Abrir ítems, editar celdas, acciones que requieren doble clic.
+**Parámetros clave:** `automation_id`, `name`, `fuzzy_match`, `capture`
+**Evitar:** Preferir `invoke_element` si el control lo soporta.
+**Ejemplo:** `double_click_element(name="Documento.txt")`
+**Relacionadas:** `click_element`, `invoke_element`
+
+### `right_click_element`
+
+**Qué hace:** Clic derecho UIA por `automation_id` o `name`.
+**Cuándo usarla:** Menús contextuales.
+**Parámetros clave:** `automation_id`, `name`, `fuzzy_match`
+**Evitar:** Sin verificar que apareció el menú — usar `wait_for_element` después.
+**Ejemplo:** `right_click_element(automation_id="gridRow1")`
+**Relacionadas:** `click_element`, `list_elements`
+
+### `drag_element`
+
+**Qué hace:** Arrastra del centro del elemento origen al centro del destino.
+**Cuándo usarla:** Reordenar listas, sliders, drag-and-drop UIA.
+**Parámetros clave:** `source_*`, `target_*`, `duration`, `source_index`/`target_index` (-1 = primero)
+**Evitar:** Cuando `ScrollPattern` o `invoke` resuelven el caso.
+**Ejemplo:** `drag_element(source_name="Item A", target_name="Item B")`
+**Relacionadas:** `drag`, `scroll_element`
+
+### `expand_collapse_element`
+
+**Qué hace:** Expande, colapsa o alterna (`toggle`) controles ExpandCollapse.
+**Cuándo usarla:** Paridad WinApp `expand_collapse_element`; alias explícito de acción.
+**Parámetros clave:** `action` (`expand`|`collapse`|`toggle`), `automation_id`, `name`
+**Evitar:** UWP SettingsExpander sin pattern — usar `expand_element(fallback_click=true)`.
+**Ejemplo:** `expand_collapse_element(action="expand", automation_id="section1")`
+**Relacionadas:** `expand_element`
+
+### `select_option`
+
+**Qué hace:** Selecciona opción de ComboBox por texto en un solo paso.
+**Cuándo usarla:** Dropdowns WinForms/WPF sin cadena click→wait→click manual.
+**Parámetros clave:** `option_text`, `automation_id`, `name`, `index` (-1 = primero)
+**Evitar:** Grids complejos — usar `select_control_item` con columna.
+**Ejemplo:** `select_option(option_text="Español", automation_id="cboLang")`
+**Relacionadas:** `select_control_item`, `list_control_items`
+
+### `type_into_element`
+
+**Qué hace:** Escribe texto en campo localizado (ValuePattern o click+type).
+**Cuándo usarla:** Paridad WinApp `type_text` con localizador de campo.
+**Parámetros clave:** `text`, `automation_id`, `name`, `clear_first`, `app_id`
+**Evitar:** Campos read-only — preferir `set_element_value`.
+**Ejemplo:** `type_into_element(text="hola", automation_id="txtNombre")`
+**Relacionadas:** `set_element_value`, `type_text`
+
+### `take_screenshot_optimized`
+
+**Qué hace:** Captura y redimensiona para aproximar un presupuesto de tokens LLM.
+**Cuándo usarla:** Screenshots grandes que saturan contexto del agente.
+**Parámetros clave:** `max_tokens`, `app_id`, `window_title`
+**Evitar:** Cuando necesitás pixels exactos para OCR — usar `screenshot`.
+**Ejemplo:** `take_screenshot_optimized(max_tokens=4000)`
+**Relacionadas:** `screenshot`, `manage_screenshots`
+
+### `annotate_screenshot`
+
+**Qué hace:** Screenshot con cajas rojas alrededor de elementos indicados.
+**Cuándo usarla:** Verificación visual de localización de controles.
+**Parámetros clave:** `automation_ids[]`, `names[]`
+**Evitar:** Muchos elementos — limitar a los relevantes al paso actual.
+**Ejemplo:** `annotate_screenshot(automation_ids=["btnSave","btnCancel"])`
+**Relacionadas:** `screenshot`, `highlight_element`
+
+### `compare_screenshot_files`
+
+**Qué hace:** Diff pixel a pixel entre dos archivos de imagen; guarda overlay.
+**Cuándo usarla:** Paridad WinApp `screenshot_diff` entre paths en disco.
+**Parámetros clave:** `image_path1`, `image_path2`, `output_path`, `threshold`
+**Evitar:** Imágenes de distinta resolución — fallará el diff.
+**Ejemplo:** `compare_screenshot_files("before.png", "after.png")`
+**Relacionadas:** `screenshot_diff`, `screenshot_baseline`
+
+### `click_element_hwnd`
+
+**Qué hace:** Clic UIA scoped a un HWND específico (multi-ventana).
+**Cuándo usarla:** Apps con varias ventanas top-level del mismo proceso.
+**Parámetros clave:** `window_handle`, `automation_id`, `name`, `fuzzy_match`
+**Evitar:** HWND stale tras cerrar ventana — refrescar con `list_desktop_windows`.
+**Ejemplo:** `click_element_hwnd(window_handle=123456, automation_id="btnOK")`
+**Relacionadas:** `click_element`, `list_desktop_windows`
+
+### `set_value_hwnd`
+
+**Qué hace:** Establece valor en control scoped a HWND.
+**Cuándo usarla:** Formularios en ventana hija/modal identificada por HWND.
+**Parámetros clave:** `window_handle`, `value`, `automation_id`, `fuzzy_match`
+**Evitar:** Sin foco en ventana — puede fallar ValuePattern.
+**Ejemplo:** `set_value_hwnd(window_handle=123456, value="test", automation_id="txtField")`
+**Relacionadas:** `set_element_value`, `type_into_element`
+
+### `get_snapshot_hwnd`
+
+**Qué hace:** Snapshot UIA compacto scoped a HWND.
+**Cuándo usarla:** Explorar sub-ventana sin cambiar `set_target_window`.
+**Parámetros clave:** `window_handle`, `max_depth`, `role`
+**Evitar:** Profundidad alta en árboles enormes — acotar `max_depth`.
+**Ejemplo:** `get_snapshot_hwnd(window_handle=123456, max_depth=4)`
+**Relacionadas:** `get_snapshot`, `spy_tree`
+
+### `press_key`
+
+**Qué hace:** Presiona una tecla (RETURN, TAB, ESCAPE, F5, etc.).
+**Cuándo usarla:** Atajos simples; alias explícito de `send_keys` mono-tecla.
+**Parámetros clave:** `key`
+**Evitar:** Combos — usar `press_key_combo`.
+**Ejemplo:** `press_key("TAB")`
+**Relacionadas:** `send_keys`, `press_key_combo`
+
+### `press_key_combo`
+
+**Qué hace:** Presiona atajo de teclado (`ctrl+s`, `alt+f4`, etc.).
+**Cuándo usarla:** Paridad WinApp para shortcuts con array de teclas.
+**Parámetros clave:** `keys` (array, ej. `["ctrl","s"]`)
+**Evitar:** En consola Win32 — puede rutear distinto que en GUI.
+**Ejemplo:** `press_key_combo(["ctrl", "s"])`
+**Relacionadas:** `send_keys`, `press_key`
+
+---
+
 ## Árbol de decisión rápido
 
 ```
@@ -932,7 +1152,7 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 
 | Fecha | Cambio |
 |-------|--------|
-| 2026-09-06 | `list_elements`: cluster espacial adaptativo (`adaptive_cluster`, `content_region`); sin reglas por app. |
+| 2026-09-06 | **Migración WinApp:** `launch_app` devuelve `app_id`; `app_id` opcional en tools core; `scroll_element` por name/clicks; `fuzzy_match` en `click_element`; `index=-1` soportado. |
 | 2026-09-06 | `max_depth=0`: profundidad adaptativa por framework (`tree_depth.py` + `detect_framework`); `-1` = ilimitado. |
 | 2026-09-06 | **Regla diseño:** MCP agnóstico de app — eliminado `calculator_mode_filter`; ver `.cursor/rules/awdui-app-agnostic.mdc`. |
 | 2026-09-06 | `set_target_window`: `focus_policy` minimal (default) / always / never — UIA sin robar foco; pointer/teclado solo si hace falta. |

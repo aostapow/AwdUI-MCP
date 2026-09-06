@@ -393,6 +393,15 @@ class TestDoScroll:
         mock_pag.hscroll.assert_called_once_with(-50)
         assert result["method"] == "wheel"
 
+    @mock.patch("tools.perf.verify_visual_changes", return_value=False)
+    @mock.patch("tools.input_tools.pyautogui")
+    def test_fast_mode_allows_none_pixel_diff(self, mock_pag, _verify):
+        from tools.input_tools import do_scroll
+
+        result = do_scroll(0, 0, "down")
+        assert result["pixel_diff"] is None
+        assert result["method"] == "keyboard"
+
     # -- Validation --
 
     @mock.patch("tools.screenshot.capture_screenshot", return_value=_FAKE_SHOT)

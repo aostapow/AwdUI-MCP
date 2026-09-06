@@ -10,7 +10,9 @@ def observe_ui(
 ) -> dict[str, Any]:
     """Capture methodical observation of current UI state."""
     import sys
+    import time
 
+    started = time.perf_counter()
     obs: dict[str, Any] = {
         "window_title": window_title or "",
         "framework": "unknown",
@@ -107,4 +109,5 @@ def observe_ui(
         except Exception:
             pass
 
+    obs["duration_ms"] = int((time.perf_counter() - started) * 1000)
     return obs

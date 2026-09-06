@@ -225,6 +225,10 @@ def repository_app_name(
     window_title: Optional[str] = None,
 ) -> tuple[str, str]:
     """Return (app_name, exe_path) for SQLite repository keys."""
+    if not framework and window_title:
+        name = title_app_name(window_title) or window_title.strip()
+        return name, ""
+
     identity = framework
     if not identity.get("app_name"):
         identity = {

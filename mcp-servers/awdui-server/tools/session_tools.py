@@ -33,16 +33,30 @@ def _window_minimized(hwnd: int) -> bool:
         return False
 
 
-def do_check_session_status(window_title: Optional[str] = None) -> dict[str, Any]:
+def do_check_session_status(
+    window_title: Optional[str] = None,
+    app_id: str = "",
+) -> dict[str, Any]:
     """Report target window, HWND liveness, lock/minimize state, and MCP readiness."""
+    from tools.app_session import resolve_scope
     from tools.target_window import get_target
     from tools.windows import resolve_window_handle
 
-    target = (window_title or get_target() or "").strip()
-    hwnd = 0
+    wt, hwnd_from_app, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    target = (wt or get_target() or "").strip()
+    hwnd = int(hwnd_from_app or 0)
+    if target and not hwnd:
+        resolved = resolve_window_handle(target)
+        if resolved:
+            hwnd = int(resolved)
     alive = False
     minimized = False
-    if target:
+    if hwnd:
+        alive = True
+        minimized = _window_minimized(hwnd)
+    elif target:
         resolved = resolve_window_handle(target)
         if resolved:
             hwnd = int(resolved)
@@ -73,6 +87,7 @@ def do_check_session_status(window_title: Optional[str] = None) -> dict[str, Any
         "target_hwnd": hwnd,
         "target_alive": alive,
         "target_minimized": minimized,
+        "app_id": app_id or "",
         "session_locked": locked,
         "operations_available": operations,
         "platform": sys.platform,
@@ -97,6 +112,12 @@ def do_release_all() -> dict[str, Any]:
     clear_highlight()
     do_stop_event_monitor()
     try:
+        from tools.winapp_parity import do_release_keyboard
+
+        do_release_keyboard()
+    except Exception:
+        pass
+    try:
         from tools.event_sidecar_bridge import shutdown_sidecar
 
         shutdown_sidecar()
@@ -107,20 +128,24 @@ def do_release_all() -> dict[str, Any]:
 
 def register(server) -> int:
     """Register session tools on *server*."""
-    from tools.params import resolve_window_title as _wt
+    from tools.params import resolve_scoped_window, resolve_window_title as _wt
     from tools.safety import ActionTimeoutError, with_timeout
 
     @server.tool()
     def check_session_status(
         window_title: str = "",
         title: str = "",
+        app_id: str = "",
     ) -> str:
         """Report session health: target alive, locked desktop, minimized, operations."""
         import json
 
+        wt, _hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, 0)
+        if scope_err:
+            return f"ERROR: {scope_err}"
         try:
             result = with_timeout(
-                lambda: do_check_session_status(window_title=_wt(window_title, title) or None),
+                lambda: do_check_session_status(window_title=wt, app_id=app_id),
                 timeout=10.0,
             )
         except ActionTimeoutError as exc:

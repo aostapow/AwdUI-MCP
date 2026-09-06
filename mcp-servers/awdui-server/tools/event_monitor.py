@@ -140,44 +140,55 @@ def do_start_event_monitor(
     window_handle: Optional[int] = None,
     poll_ms: int = 200,
 ) -> dict[str, Any]:
+    import os
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
+
     session_id = uuid.uuid4().hex[:12]
     event_type_norm = (event_type or "focus").lower()
+    poll_only = os.environ.get("AWDUI_EVENT_POLL_ONLY", "").strip().lower() in ("1", "true", "yes")
 
-    try:
-        from tools.event_sidecar_bridge import sidecar_available, start_native_monitor
+    if not poll_only:
+        try:
+            from tools.event_sidecar_bridge import sidecar_available, start_native_monitor
 
-        if sidecar_available():
-            native = start_native_monitor(
-                session_id=session_id,
-                event_type=event_type_norm,
-                automation_id=automation_id,
-                name=name,
-                window_title=window_title,
-                window_handle=window_handle,
-            )
-            if native.get("success"):
-                with _lock:
-                    _sessions[session_id] = {
+            if sidecar_available():
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    fut = pool.submit(
+                        start_native_monitor,
+                        session_id=session_id,
+                        event_type=event_type_norm,
+                        automation_id=automation_id,
+                        name=name,
+                        window_title=window_title,
+                        window_handle=window_handle,
+                    )
+                    try:
+                        native = fut.result(timeout=4.0)
+                    except FuturesTimeout:
+                        native = {"success": False, "error": "native event monitor start timed out"}
+                if native.get("success"):
+                    with _lock:
+                        _sessions[session_id] = {
+                            "session_id": session_id,
+                            "backend": "flaui_native",
+                            "event_type": event_type_norm,
+                            "automation_id": automation_id or "",
+                            "name": name or "",
+                            "window_title": window_title or "",
+                            "window_handle": int(window_handle or 0),
+                            "poll_ms": 0,
+                            "started_at": time.time(),
+                            "events": [],
+                        }
+                    return {
+                        "success": True,
                         "session_id": session_id,
-                        "backend": "flaui_native",
                         "event_type": event_type_norm,
-                        "automation_id": automation_id or "",
-                        "name": name or "",
-                        "window_title": window_title or "",
-                        "window_handle": int(window_handle or 0),
+                        "backend": "flaui_native",
                         "poll_ms": 0,
-                        "started_at": time.time(),
-                        "events": [],
                     }
-                return {
-                    "success": True,
-                    "session_id": session_id,
-                    "event_type": event_type_norm,
-                    "backend": "flaui_native",
-                    "poll_ms": 0,
-                }
-    except Exception:
-        pass
+        except Exception:
+            pass
 
     session = _start_poll_session(
         session_id,

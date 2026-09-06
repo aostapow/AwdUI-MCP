@@ -182,6 +182,8 @@ def capture_element_crop(
     fresh: bool = False,
     verify: bool = True,
 ) -> Optional[dict]:
+    if _element_bbox(elem) is None:
+        return None
     crop_result = _capture_element_image(
         elem,
         window_title=window_title,

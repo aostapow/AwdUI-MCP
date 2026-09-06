@@ -163,9 +163,20 @@ def resolve_window_visual_rect(window_title: Optional[str] = None) -> Optional[d
     }
 
 
-def _best_window_candidate(windows: list[dict], title_hint: str = "") -> dict:
-    """Pick the best window when several share the same title (common for UWP)."""
+def _best_window_candidate(
+    windows: list[dict],
+    title_hint: str = "",
+    *,
+    purpose: str = "handle",
+) -> dict:
+    """Pick the best window when several share the same title (common for UWP).
+
+    purpose:
+        handle — HWND/UIA attach (prefer CoreWindow / CalculatorApp.exe)
+        visual — screenshot bounds (prefer ApplicationFrameHost frame)
+    """
     hint = title_hint.lower()
+    prefer_visual = purpose == "visual"
 
     def score(win: dict) -> int:
         s = 0
@@ -176,10 +187,16 @@ def _best_window_candidate(windows: list[dict], title_hint: str = "") -> dict:
             s += 2000
         proc = (win.get("process_name") or "").lower()
         if hint in ("calculadora", "calculator"):
-            if "applicationframehost" in proc:
-                s += 12000
-            elif "calculatorapp" in proc:
-                s += 8000
+            if prefer_visual:
+                if "applicationframehost" in proc:
+                    s += 12000
+                elif "calculatorapp" in proc:
+                    s += 8000
+            else:
+                if "calculatorapp" in proc:
+                    s += 12000
+                elif "applicationframehost" in proc:
+                    s += 8000
         elif "applicationframehost" in proc:
             s += 1000
         x, y = win.get("x", 0), win.get("y", 0)
@@ -679,7 +696,11 @@ def do_launch_app(
             if reuse and not replace:
                 reused = try_reuse_existing(path, replace=False)
                 if reused:
-                    return reused
+                    try:
+                        from tools.app_session import apply_scope_to_launch_result
+                        return apply_scope_to_launch_result(reused, path)
+                    except Exception:
+                        return reused
             elif replace:
                 try_reuse_existing(path, replace=True)
         except Exception:
@@ -695,7 +716,13 @@ def do_launch_app(
             invalidate_tree_cache()
         except Exception:
             pass
-        return {"success": True, "pid": proc.pid, "reused": False, "action": "launched"}
+        result = {"success": True, "pid": proc.pid, "reused": False, "action": "launched"}
+        try:
+            from tools.app_session import apply_scope_to_launch_result
+            result = apply_scope_to_launch_result(result, path)
+        except Exception:
+            pass
+        return result
     except (FileNotFoundError, OSError) as exc:
         return {"success": False, "error": str(exc)}
 
@@ -713,12 +740,18 @@ def register(server) -> int:
     from tools.safety import with_timeout, ActionTimeoutError
 
     @server.tool()
-    def list_windows() -> str:
-        """List all visible windows with their titles and positions."""
+    def list_windows(app_id: str = "") -> str:
+        """List visible windows; optional app_id filters to that session's process."""
         try:
             windows = with_timeout(do_list_windows, timeout=5.0)
         except ActionTimeoutError:
             return "Timed out after 5s listing windows. The system may be unresponsive."
+        if app_id:
+            from tools.app_session import filter_windows_for_app, get_app
+
+            if not get_app(app_id):
+                return f"Unknown app_id: {app_id}"
+            windows = filter_windows_for_app(windows, app_id)
         if not windows:
             return "No visible windows found."
         lines = []
@@ -814,8 +847,11 @@ def register(server) -> int:
             msg = f"Reused {title} (PID {result['pid']})"
             if extra:
                 msg += f"; closed {extra} duplicate instance(s)"
-            return msg
-        return f"Launched {path} (PID {result['pid']})"
+        else:
+            msg = f"Launched {path} (PID {result['pid']})"
+        if result.get("app_id"):
+            msg += f" app_id={result['app_id']}"
+        return msg
 
-    return 3
+    return 4
 

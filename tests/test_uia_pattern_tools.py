@@ -115,4 +115,24 @@ def test_do_scroll_into_view_missing_id():
 
     out = do_scroll_into_view("")
     assert out["success"] is False
-    assert "required" in out["error"]
+    assert "not found" in out["error"].lower()
+
+
+def test_do_scroll_element_clicks_alias(monkeypatch):
+    from tools.uia_pattern_tools import do_scroll_element
+
+    monkeypatch.setattr(
+        "tools.uia_pattern_tools._resolve_raw_control",
+        lambda **kwargs: (object(), {}, "listPane", {}),
+    )
+    captured = {}
+
+    def fake_scroll(raw, **kwargs):
+        captured.update(kwargs)
+        return {"success": True, "method": "Scroll.Scroll"}
+
+    monkeypatch.setattr("detection.uia_patterns.apply_scroll_pattern", fake_scroll)
+
+    out = do_scroll_element("listPane", clicks=4)
+    assert out["success"] is True
+    assert captured["repeat"] == 4

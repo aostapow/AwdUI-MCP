@@ -678,7 +678,7 @@ def register(server) -> int:
         except ActionTimeoutError:
             return f"Timed out after 10s scrolling at ({x}, {y}). The UI may be frozen."
 
-        diff_pct = result['pixel_diff'] * 100
+        diff_pct = (result.get("pixel_diff") or 0) * 100
 
         method = result.get("method", "wheel")
         if method == "keyboard":

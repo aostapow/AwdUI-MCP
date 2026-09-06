@@ -148,6 +148,35 @@ def _resolve_lookup_app_id(
     return best_id
 
 
+def resolve_storage_app(
+    conn: sqlite3.Connection,
+    window_hint: str,
+    exe_path: str = "",
+) -> tuple[str, str, str]:
+    """Resolve canonical repository app bucket for a window title hint."""
+    from detection.repo_consolidate import WINDOW_APP_ALIASES, _infer_from_text
+
+    hint = (window_hint or "").strip()
+    inferred = _infer_from_text(hint)
+    if inferred:
+        name, exe = inferred
+        return app_id(name, exe), name, exe
+
+    hint_lower = hint.lower()
+    for row in conn.execute("SELECT app_id, app_name, exe_path FROM applications"):
+        app_name = row["app_name"] or ""
+        if hint_lower in app_name.lower() or hint_lower in (row["exe_path"] or "").lower():
+            return row["app_id"], app_name, row["exe_path"] or ""
+
+    norm = hint_lower.replace(" ", "_")
+    if norm in WINDOW_APP_ALIASES:
+        name, exe = WINDOW_APP_ALIASES[norm]
+        return app_id(name, exe), name, exe
+
+    name = hint if hint.lower().endswith(".exe") else f"{hint}.exe"
+    return app_id(name, exe_path), name, exe_path
+
+
 def _now() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -256,9 +285,15 @@ def _ensure_application(
     exe_path: str = "",
     framework: str = "unknown",
 ) -> None:
+    from detection.repo_framework import merge_framework
+
     now = _now()
-    row = conn.execute("SELECT app_id FROM applications WHERE app_id=?", (aid,)).fetchone()
+    row = conn.execute(
+        "SELECT app_id, framework FROM applications WHERE app_id=?",
+        (aid,),
+    ).fetchone()
     if row:
+        framework = merge_framework(row["framework"] or "unknown", framework)
         conn.execute(
             "UPDATE applications SET app_name=?, exe_path=?, framework=?, updated_at=? WHERE app_id=?",
             (app_name, exe_path, framework, now, aid),
@@ -670,7 +705,83 @@ def list_applications(db_path: Optional[Path] = None) -> list[dict]:
         return (junk, -int(app.get("object_count") or 0), (app.get("app_name") or "").lower())
 
     apps.sort(key=sort_key)
-    return apps
+
+    by_name: dict[str, dict] = {}
+    for app in apps:
+        key = (app.get("app_name") or "").lower()
+        prev = by_name.get(key)
+        if prev is None or int(app.get("object_count") or 0) > int(prev.get("object_count") or 0):
+            by_name[key] = app
+    return list(by_name.values())
+
+
+def get_application(app_id_value: str, db_path: Optional[Path] = None) -> Optional[dict]:
+    _ensure_migrated(db_path)
+    with _connect(db_path) as conn:
+        app = conn.execute("SELECT * FROM applications WHERE app_id=?", (app_id_value,)).fetchone()
+        if not app:
+            return None
+        out = dict(app)
+        out["object_count"] = _object_count_for_app(conn, app_id_value)
+        out["window_count"] = int(
+            conn.execute(
+                "SELECT COUNT(*) FROM windows WHERE app_id=?",
+                (app_id_value,),
+            ).fetchone()[0]
+        )
+        return out
+
+
+def update_application(
+    app_id_value: str,
+    db_path: Optional[Path] = None,
+    **fields: Any,
+) -> dict:
+    from detection.repo_framework import merge_framework
+
+    _ensure_migrated(db_path)
+    allowed = {"app_name", "exe_path", "framework", "agent_hints"}
+    updates = {k: v for k, v in fields.items() if k in allowed and v is not None}
+    if not updates:
+        detail = get_application(app_id_value, db_path=db_path)
+        if not detail:
+            raise ValueError("application not found")
+        return detail
+
+    with _connect(db_path) as conn:
+        row = conn.execute("SELECT * FROM applications WHERE app_id=?", (app_id_value,)).fetchone()
+        if not row:
+            raise ValueError("application not found")
+        if "framework" in updates:
+            updates["framework"] = merge_framework(row["framework"] or "unknown", updates["framework"])
+        updates["updated_at"] = _now()
+        cols = ", ".join(f"{k}=?" for k in updates)
+        conn.execute(
+            f"UPDATE applications SET {cols} WHERE app_id=?",
+            (*updates.values(), app_id_value),
+        )
+    detail = get_application(app_id_value, db_path=db_path)
+    return detail or {}
+
+
+def reset_repository(db_path: Optional[Path] = None) -> dict[str, Any]:
+    _ensure_migrated(db_path)
+    with _connect(db_path) as conn:
+        objects_removed = int(conn.execute("SELECT COUNT(*) FROM objects").fetchone()[0])
+        apps_removed = int(conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0])
+        conn.execute("DELETE FROM object_identification")
+        conn.execute("DELETE FROM object_properties")
+        conn.execute("DELETE FROM object_snapshots")
+        conn.execute("DELETE FROM object_resolution")
+        conn.execute("DELETE FROM agent_hints")
+        conn.execute("DELETE FROM objects")
+        conn.execute("DELETE FROM windows")
+        conn.execute("DELETE FROM applications")
+    return {
+        "success": True,
+        "objects_removed": objects_removed,
+        "apps_removed": apps_removed,
+    }
 
 
 def get_app_tree(app_id_value: str, db_path: Optional[Path] = None) -> dict:
@@ -785,6 +896,10 @@ def delete_application(
     removed_assets = False
     with _connect(db_path) as conn:
         aid = (app_id_value or "").strip()
+        if not aid and app_name and not exe_path:
+            if conn.execute("SELECT 1 FROM applications WHERE app_id=?", (app_name,)).fetchone():
+                aid = app_name
+                app_name = ""
         if not aid:
             aid = _resolve_lookup_app_id(app_name, exe_path, conn=conn)
         row = conn.execute(

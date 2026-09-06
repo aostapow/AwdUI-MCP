@@ -123,6 +123,7 @@ class TestRepoFramework:
                 "exe_path": "C:\\AST\\Administrador.exe",
             },
         )
+        monkeypatch.setattr("tools.target_window.get_target", lambda: "AST - Activities Manager")
         elem = {
             "name": "Guardar",
             "role": "Button",

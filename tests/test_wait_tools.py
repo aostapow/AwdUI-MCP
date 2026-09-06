@@ -74,30 +74,68 @@ class TestElementExists:
         assert do_element_exists(automation_id="x") is True
 
 
-class TestPropertyHelpers:
-    def test_extract_toggle_checked(self):
-        from tools.wait_tools import _extract_property
-
-        props = {"patterns": {"Toggle": {"state": "On"}}}
-        assert _extract_property(props, "isChecked") == "true"
-
-
 class TestWithTimeoutWrapper:
+    @staticmethod
+    def _register_tools():
+        from tools.wait_tools import register
+
+        tools: dict = {}
+
+        class _Srv:
+            def tool(self):
+                def deco(fn):
+                    tools[fn.__name__] = fn
+                    return fn
+
+                return deco
+
+        register(_Srv())
+        return tools
+
+    @mock.patch("tools.safety.with_timeout")
+    @mock.patch("tools.wait_tools.do_wait_for_input_idle")
+    def test_wait_for_input_idle_passes_timeout_kwarg(self, mock_idle, mock_wt):
+        mock_idle.return_value = {
+            "success": True,
+            "elapsed_ms": 5,
+            "pid": 1,
+            "window_title": "Calculadora",
+        }
+        mock_wt.side_effect = lambda fn, timeout=10.0, default=object(): fn()
+
+        tools = self._register_tools()
+        out = tools["wait_for_input_idle"](window_title="Calculadora", timeout_ms=2500)
+        assert "OK idle" in out
+        assert mock_wt.call_count == 1
+        _args, kwargs = mock_wt.call_args
+        assert kwargs.get("timeout") == max(2500 / 1000.0, 1.0) + 5.0
+        assert "timeout_s" not in kwargs
+
+    @mock.patch("tools.safety.with_timeout")
     @mock.patch("tools.wait_tools.do_wait_for_element")
-    def test_wait_for_element_uses_timeout_kwarg(self, mock_wait):
+    def test_wait_for_element_passes_timeout_kwarg(self, mock_wait, mock_wt):
         mock_wait.return_value = {
             "success": True,
             "elapsed_ms": 10,
             "attempts": 1,
             "element": {"name": "OK"},
         }
-        from tools.safety import with_timeout
+        mock_wt.side_effect = lambda fn, timeout=10.0, default=object(): fn()
 
-        result = with_timeout(
-            lambda: mock_wait(automation_id="btnOk", timeout_ms=100, poll_ms=20),
-            timeout=2.0,
-        )
-        assert result["success"] is True
+        tools = self._register_tools()
+        out = tools["wait_for_element"](automation_id="btnOk", timeout_ms=500)
+        assert "OK found" in out
+        _args, kwargs = mock_wt.call_args
+        assert kwargs.get("timeout") == max(500 / 1000.0, 1.0) + 5.0
+        assert "timeout_s" not in kwargs
+
+
+class TestPropertyHelpers:
+    def test_extract_toggle_checked(self):
+        from tools.wait_tools import _extract_property
+
+        props = {"patterns": {"Toggle": {"state": "On"}}}
+        assert _extract_property(props, "isChecked") == "true"
 
 
 class TestPropertyMatches:

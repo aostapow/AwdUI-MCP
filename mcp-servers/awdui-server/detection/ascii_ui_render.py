@@ -504,10 +504,18 @@ def select_elements_for_ascii_render(
         return drawables
 
     seen = {_elem_key(e) for e in drawables}
+    _interactive = frozenset(
+        {"Button", "Edit", "ComboBox", "CheckBox", "RadioButton", "Hyperlink", "ListItem", "DataItem"}
+    )
     for elem in filtered:
         if _elem_key(elem) in seen:
             continue
         if _is_wide_text_strip(elem, win_w):
+            if any(
+                _center_inside(elem, d) and (d.get("role") or "").strip() in _interactive
+                for d in drawables
+            ):
+                continue
             drawables = [
                 d for d in drawables
                 if not _center_inside(elem, d) or _is_wide_text_strip(d, win_w)

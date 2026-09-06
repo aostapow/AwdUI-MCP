@@ -159,7 +159,7 @@ screenshot_mgr = ScreenshotManager(SCREENSHOT_DIR)
 mcp = FastMCP("awdui-mcp")
 
 # Register all tool modules
-from tools import screenshot, input_tools, windows, manage, uac, desktop, ui_automation, ocr, batch, framework_detect, target_window, visual_diff, watcher, version, discovery, wait_tools, session_tools, form_tools, element_read_tools, event_monitor, ascii_view
+from tools import screenshot, input_tools, windows, manage, uac, desktop, ui_automation, ocr, batch, framework_detect, target_window, visual_diff, watcher, version, discovery, wait_tools, session_tools, form_tools, element_read_tools, event_monitor, ascii_view, winapp_parity
 
 # Set screenshot_manager reference for tools that need it
 screenshot.screenshot_manager = screenshot_mgr
@@ -185,6 +185,7 @@ form_tools.register(mcp)
 element_read_tools.register(mcp)
 event_monitor.register(mcp)
 ascii_view.register(mcp)
+winapp_parity.register(mcp)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

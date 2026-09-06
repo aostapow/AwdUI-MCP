@@ -115,6 +115,9 @@ def do_find_element(
 ) -> dict:
     import time
     from tools.action_timing import attach_simple_elapsed
+    from tools.app_session import normalize_index
+
+    index = normalize_index(index)
 
     t0 = time.perf_counter()
     if sys.platform == "darwin":
@@ -935,8 +938,11 @@ def do_click_element(
     verify_name_contains: Optional[str] = None,
     verify_timeout_ms: int = 5000,
     verify_poll_ms: int = 100,
+    fuzzy_match: bool = False,
 ) -> dict:
     from tools.action_timing import ActionTimer
+    from tools.app_session import normalize_index
+    from tools.element_resolve import find_element_for_action
 
     verify_kwargs = {
         "verify_timeout_ms": verify_timeout_ms,
@@ -945,15 +951,30 @@ def do_click_element(
 
     timer = ActionTimer()
     timer.start("find")
-    result = do_find_element(
-        name=name, role=role, window_title=window_title,
-        index=index, automation_id=automation_id,
-        remember=remember,
-        window_handle=window_handle,
-    )
+    if fuzzy_match and (name or automation_id):
+        elem, find_err = find_element_for_action(
+            automation_id=automation_id,
+            name=name,
+            role=role,
+            index=index,
+            window_title=window_title,
+            window_handle=window_handle,
+            fuzzy_match=True,
+        )
+        if find_err:
+            return timer.attach(find_err)
+        result = {"found": True, "elements": [elem], "backend_used": "fuzzy"}
+    else:
+        result = do_find_element(
+            name=name, role=role, window_title=window_title,
+            index=index, automation_id=automation_id,
+            remember=remember,
+            window_handle=window_handle,
+        )
     timer.end()
     if result["found"]:
-        idx = min(index, len(result["elements"]) - 1)
+        from tools.app_session import pick_element_index
+        idx = pick_element_index(index, len(result["elements"]))
         elem = result["elements"][idx]
         timer.start("act")
         inv = _try_invoke_click(elem, window_title)
@@ -1311,6 +1332,8 @@ def register(server) -> int:
         index: int = 0,
         automation_id: str = "",
         window_handle: int = 0,
+        app_id: str = "",
+        fuzzy_match: bool = False,
         capture: bool = False,
         capture_full: bool = False,
         verify_automation_id: str = "",
@@ -1321,6 +1344,8 @@ def register(server) -> int:
         """Find a UI element and click its center (or clickable point).
 
         Parameters:
+            app_id: Optional WinApp-style session id from launch_app/attach_to_*.
+            fuzzy_match: Tolerate typos/partial names when locating the element.
             capture: When True, attach a post-click screenshot (default False).
             capture_full: When True with capture, full screen; else target window if set.
             verify_automation_id: After click, poll until this control is found / matches.
@@ -1328,6 +1353,13 @@ def register(server) -> int:
             verify_timeout_ms: Max wait for verify poll (default 5000).
             verify_poll_ms: Poll interval for verify (default 100).
         """
+        from tools.params import resolve_scoped_window
+
+        wt, hwnd, scope_err = resolve_scoped_window(
+            app_id, window_title, title, window_handle,
+        )
+        if scope_err:
+            return f"Failed: {scope_err}"
         action_timeout = 10.0
         if verify_automation_id or verify_name_contains:
             action_timeout = max(action_timeout, verify_timeout_ms / 1000.0 + 5.0)
@@ -1336,10 +1368,11 @@ def register(server) -> int:
                 lambda: do_click_element(
                     name=name or None,
                     role=role or None,
-                    window_title=_wt(window_title, title),
+                    window_title=wt,
                     index=index,
                     automation_id=automation_id or None,
-                    window_handle=window_handle or None,
+                    window_handle=hwnd,
+                    fuzzy_match=fuzzy_match,
                     verify_automation_id=verify_automation_id or None,
                     verify_name_contains=verify_name_contains or None,
                     verify_timeout_ms=verify_timeout_ms,
@@ -2175,19 +2208,32 @@ def register(server) -> int:
     @server.tool()
     def scroll_into_view(
         automation_id: str = "",
+        name: str = "",
+        role: str = "",
+        index: int = -1,
         window_title: str = "",
         title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
     ) -> str:
         """Scroll a list/grid item into view via ScrollItemPattern.ScrollIntoView."""
+        from tools.params import resolve_scoped_window
         from tools.uia_pattern_tools import do_scroll_into_view
 
-        if not automation_id:
-            return "automation_id is required"
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
+        if not (automation_id or name or role):
+            return "automation_id, name, or role is required"
         try:
             result = with_timeout(
                 lambda: do_scroll_into_view(
                     automation_id=automation_id,
-                    window_title=_wt(window_title, title),
+                    name=name or None,
+                    role=role or None,
+                    index=index,
+                    window_title=wt,
+                    window_handle=hwnd,
                 ),
                 timeout=15.0,
             )
@@ -2203,19 +2249,32 @@ def register(server) -> int:
     @server.tool()
     def realize_virtualized_item(
         automation_id: str = "",
+        name: str = "",
+        role: str = "",
+        index: int = -1,
         window_title: str = "",
         title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
     ) -> str:
         """Materialize a virtualized list item via VirtualizedItemPattern.Realize."""
+        from tools.params import resolve_scoped_window
         from tools.uia_pattern_tools import do_realize_virtualized_item
 
-        if not automation_id:
-            return "automation_id is required"
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
+        if not (automation_id or name or role):
+            return "automation_id, name, or role is required"
         try:
             result = with_timeout(
                 lambda: do_realize_virtualized_item(
                     automation_id=automation_id,
-                    window_title=_wt(window_title, title),
+                    name=name or None,
+                    role=role or None,
+                    index=index,
+                    window_title=wt,
+                    window_handle=hwnd,
                 ),
                 timeout=15.0,
             )
@@ -2268,29 +2327,44 @@ def register(server) -> int:
     @server.tool()
     def scroll_element(
         automation_id: str = "",
+        name: str = "",
+        role: str = "",
+        index: int = -1,
         direction: str = "down",
         amount: str = "large",
         repeat: int = 1,
+        clicks: int = 0,
         horizontal_percent: float = -1.0,
         vertical_percent: float = -1.0,
         window_title: str = "",
         title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
     ) -> str:
         """Scroll a scrollable container via ScrollPattern (direction/amount or SetScrollPercent)."""
+        from tools.params import resolve_scoped_window
         from tools.uia_pattern_tools import do_scroll_element
 
-        if not automation_id:
-            return "automation_id is required"
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
+        if not (automation_id or name or role):
+            return "automation_id, name, or role is required"
         try:
             result = with_timeout(
                 lambda: do_scroll_element(
                     automation_id=automation_id,
+                    name=name or None,
+                    role=role or None,
+                    index=index,
                     direction=direction or "down",
                     amount=amount or "large",
                     repeat=repeat,
+                    clicks=clicks,
                     horizontal_percent=horizontal_percent,
                     vertical_percent=vertical_percent,
-                    window_title=_wt(window_title, title),
+                    window_title=wt,
+                    window_handle=hwnd,
                 ),
                 timeout=15.0,
             )

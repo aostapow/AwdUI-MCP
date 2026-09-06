@@ -197,17 +197,29 @@ class DetectionOrchestrator:
             if not b:
                 continue
             try:
-                matches = b.find_elements(
-                    name=name,
-                    role=role,
-                    automation_id=automation_id,
-                    class_name=class_name,
-                    window_title=window_title,
-                    tree_mode=tree_mode,
-                    include_offscreen=include_offscreen,
-                    index=0,
-                    window_handle=window_handle,
-                )
+                try:
+                    matches = b.find_elements(
+                        name=name,
+                        role=role,
+                        automation_id=automation_id,
+                        class_name=class_name,
+                        window_title=window_title,
+                        tree_mode=tree_mode,
+                        include_offscreen=include_offscreen,
+                        index=0,
+                        window_handle=window_handle,
+                    )
+                except TypeError:
+                    matches = b.find_elements(
+                        name=name,
+                        role=role,
+                        automation_id=automation_id,
+                        class_name=class_name,
+                        window_title=window_title,
+                        tree_mode=tree_mode,
+                        include_offscreen=include_offscreen,
+                        index=0,
+                    )
                 if matches:
                     framework = self._framework_name(window_title)
                     if self._weak_backend_result(bname, matches, framework):
@@ -271,13 +283,21 @@ class DetectionOrchestrator:
             b = self._backends.get(bname)
             if not b:
                 continue
-            matches = b.find_elements(
-                name=name,
-                automation_id=automation_id,
-                window_title=window_title,
-                include_offscreen=True,
-                window_handle=window_handle,
-            )
+            try:
+                matches = b.find_elements(
+                    name=name,
+                    automation_id=automation_id,
+                    window_title=window_title,
+                    include_offscreen=True,
+                    window_handle=window_handle,
+                )
+            except TypeError:
+                matches = b.find_elements(
+                    name=name,
+                    automation_id=automation_id,
+                    window_title=window_title,
+                    include_offscreen=True,
+                )
             if matches:
                 elem = matches[0]
                 backend_used = bname

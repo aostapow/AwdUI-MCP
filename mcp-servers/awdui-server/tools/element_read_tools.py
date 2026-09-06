@@ -52,7 +52,10 @@ def do_read_element(
 ) -> dict[str, Any]:
     if sys.platform != "win32":
         return {"success": False, "error": "read_element is Windows-only"}
+    from tools.app_session import normalize_index
     from tools.ui_automation import do_get_element_properties
+
+    index = normalize_index(index)
 
     props = do_get_element_properties(
         name=name,
@@ -147,7 +150,7 @@ def do_get_snapshot(
 
 
 def register(server) -> int:
-    from tools.params import resolve_window_title as _wt
+    from tools.params import resolve_scoped_window, resolve_window_title as _wt
     from tools.safety import ActionTimeoutError, with_timeout
 
     @server.tool()
@@ -158,16 +161,20 @@ def register(server) -> int:
         window_title: str = "",
         title: str = "",
         window_handle: int = 0,
+        app_id: str = "",
     ) -> str:
         """List all matching elements with index (for disambiguating duplicates)."""
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
         try:
             result = with_timeout(
                 lambda: do_find_all_elements(
                     automation_id=automation_id or None,
                     name=name or None,
                     role=role or None,
-                    window_title=_wt(window_title, title),
-                    window_handle=window_handle or None,
+                    window_title=wt,
+                    window_handle=hwnd,
                 ),
                 timeout=20.0,
             )
@@ -191,17 +198,21 @@ def register(server) -> int:
         window_title: str = "",
         title: str = "",
         window_handle: int = 0,
+        app_id: str = "",
         index: int = 0,
     ) -> str:
         """Read properties of a UI element (by automation_id/name; optional index)."""
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
         try:
             result = with_timeout(
                 lambda: do_read_element(
                     automation_id=automation_id or None,
                     name=name or None,
                     role=role or None,
-                    window_title=_wt(window_title, title),
-                    window_handle=window_handle or None,
+                    window_title=wt,
+                    window_handle=hwnd,
                     index=index,
                 ),
                 timeout=15.0,
@@ -227,8 +238,12 @@ def register(server) -> int:
         window_title: str = "",
         title: str = "",
         window_handle: int = 0,
+        app_id: str = "",
     ) -> str:
         """Read element properties by index from find_all_elements results."""
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
         try:
             result = with_timeout(
                 lambda: do_read_element_by_index(
@@ -236,8 +251,8 @@ def register(server) -> int:
                     automation_id=automation_id or None,
                     name=name or None,
                     role=role or None,
-                    window_title=_wt(window_title, title),
-                    window_handle=window_handle or None,
+                    window_title=wt,
+                    window_handle=hwnd,
                 ),
                 timeout=15.0,
             )
@@ -258,15 +273,19 @@ def register(server) -> int:
         window_title: str = "",
         title: str = "",
         window_handle: int = 0,
+        app_id: str = "",
         max_depth: int = 3,
         role: str = "",
     ) -> str:
         """Compact UI tree snapshot (like browser DOM) for a window or HWND modal."""
+        wt, hwnd, scope_err = resolve_scoped_window(app_id, window_title, title, window_handle)
+        if scope_err:
+            return scope_err
         try:
             result = with_timeout(
                 lambda: do_get_snapshot(
-                    window_title=_wt(window_title, title),
-                    window_handle=window_handle or None,
+                    window_title=wt,
+                    window_handle=hwnd,
                     max_depth=max_depth,
                     role=role or None,
                 ),

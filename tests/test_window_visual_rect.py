@@ -41,5 +41,5 @@ def test_best_window_candidate_prefers_application_frame_for_calculator():
             "height": 675,
         },
     ]
-    best = _best_window_candidate(windows, "calculadora")
+    best = _best_window_candidate(windows, "calculadora", purpose="visual")
     assert "applicationframehost" in (best.get("process_name") or "").lower()

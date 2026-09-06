@@ -18,8 +18,9 @@ def _mock_orch():
 
 
 class TestFindElement:
+    @mock.patch("detection.element_coords.to_screen_coords", side_effect=lambda elem, _wt=None: elem)
     @_mock_orch()
-    def test_find_by_name(self, mock_orch_fn):
+    def test_find_by_name(self, mock_orch_fn, _coords):
         mock_orch = mock.MagicMock()
         mock_orch_fn.return_value = mock_orch
         mock_orch.find_elements.return_value = {
@@ -304,7 +305,7 @@ class TestRegister:
         server = mock.MagicMock()
         from tools.ui_automation import register
         count = register(server)
-        assert count == 22
+        assert count == 26
 
     def test_registers_discovery_tools(self):
         server = mock.MagicMock()
@@ -330,4 +331,4 @@ class TestRegister:
                 discovery.register,
             )
         )
-        assert total == 58
+        assert total == 63
