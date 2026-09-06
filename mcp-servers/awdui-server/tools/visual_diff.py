@@ -12,6 +12,7 @@ code change produced the expected visual result.
 import base64
 import io
 import time
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -134,6 +135,148 @@ def compute_visual_diff(
 # MCP tool registration
 # ------------------------------------------------------------------
 
+def do_compare_screenshot_files(
+    image_path1: str,
+    image_path2: str,
+    output_path: Optional[str] = None,
+    threshold: float = 0.02,
+) -> dict[str, Any]:
+    p1 = Path(image_path1)
+    p2 = Path(image_path2)
+    if not p1.is_file() or not p2.is_file():
+        return {"success": False, "error": "One or both image paths do not exist"}
+
+    from PIL import Image
+
+    from tools.visual_diff import compute_visual_diff
+
+    def _file_b64(path: Path) -> str:
+        img = Image.open(path).convert("RGB")
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        return base64.b64encode(buf.getvalue()).decode("ascii")
+
+    b1 = _file_b64(p1)
+    b2 = _file_b64(p2)
+    diff = compute_visual_diff(b1, b2, threshold=threshold)
+    out_path = output_path or str(p1.parent / f"diff_{p1.stem}_{p2.stem}.png")
+    if diff.get("overlay_b64"):
+        data = base64.b64decode(diff["overlay_b64"])
+        Path(out_path).write_bytes(data)
+    return {
+        "success": True,
+        "changed_fraction": diff.get("changed_fraction", 0.0),
+        "is_identical": diff.get("is_identical", False),
+        "bbox": diff.get("bbox"),
+        "output_path": out_path,
+    }
+
+
+def do_click_element_hwnd(
+    window_handle: int,
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    control_type: Optional[str] = None,
+    fuzzy_match: bool = False,
+    index: int = 0,
+) -> dict[str, Any]:
+    if fuzzy_match:
+        return _click_hwnd_fuzzy(
+            window_handle, automation_id, name, control_type, index,
+        )
+    from tools.ui_automation import do_click_element
+
+    return do_click_element(
+        automation_id=automation_id,
+        name=name,
+        role=control_type,
+        window_handle=window_handle or None,
+        index=index,
+        remember=False,
+    )
+
+
+def _click_hwnd_fuzzy(
+    window_handle: int,
+    automation_id: Optional[str],
+    name: Optional[str],
+    control_type: Optional[str],
+    index: int,
+) -> dict[str, Any]:
+    elem, err = _find_element_for_action(
+        automation_id,
+        name,
+        control_type,
+        index,
+        None,
+        window_handle,
+        fuzzy_match=True,
+    )
+    if err:
+        return err
+    from tools.input_tools import do_click
+    from tools.ui_automation import _click_coords
+
+    x, y = _click_coords(elem, None)
+    do_click(x, y)
+    return {"success": True, "element": elem, "clicked_at": {"x": x, "y": y}, "method": "fuzzy_click"}
+
+
+def do_set_value_hwnd(
+    window_handle: int,
+    value: str,
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    fuzzy_match: bool = False,
+    index: int = 0,
+) -> dict[str, Any]:
+    if fuzzy_match:
+        elem, err = _find_element_for_action(
+            automation_id, name, None, index, None, window_handle, fuzzy_match=True,
+        )
+        if err:
+            return err
+        automation_id = elem.get("automation_id")
+        name = elem.get("name")
+    from tools.ui_automation import do_set_element_value
+
+    return do_set_element_value(
+        value,
+        automation_id=automation_id,
+        name=name,
+        window_handle=window_handle or None,
+        index=index,
+    )
+
+
+def do_get_snapshot_hwnd(
+    window_handle: int,
+    max_depth: int = 3,
+    role: Optional[str] = None,
+) -> dict[str, Any]:
+    from tools.element_read_tools import do_get_snapshot
+
+    return do_get_snapshot(
+        window_handle=window_handle or None,
+        max_depth=max_depth,
+        role=role,
+    )
+
+
+def do_press_key(key: str) -> dict[str, Any]:
+    from tools.input_tools import do_send_keys
+
+    return do_send_keys((key or "").strip())
+
+
+def do_press_key_combo(keys: list[str]) -> dict[str, Any]:
+    from tools.input_tools import do_send_keys
+
+    combo = "+".join(k.strip() for k in (keys or []) if k.strip())
+    if not combo:
+        return {"success": False, "error": "keys array is required"}
+    return do_send_keys(combo)
+
 def register(server) -> int:
     """Register *screenshot_baseline* and *screenshot_diff* tools.
 
@@ -246,5 +389,32 @@ def register(server) -> int:
             summary,
         ]
 
-    return 2
+    @server.tool()
+    def compare_screenshot_files(
+        image_path1: str,
+        image_path2: str,
+        output_path: str = "",
+        threshold: float = 0.02,
+    ) -> str:
+        """Pixel diff between two screenshot files ."""
+        try:
+            result = with_timeout(
+                lambda: do_compare_screenshot_files(
+                    image_path1,
+                    image_path2,
+                    output_path=output_path or None,
+                    threshold=threshold,
+                ),
+                timeout=20.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out comparing screenshots."
+        if not result.get("success"):
+            return result.get("error", "compare_screenshot_files failed")
+        return (
+            f"changed_fraction={result.get('changed_fraction')} "
+            f"identical={result.get('is_identical')} output={result.get('output_path')}"
+        )
+
+    return 3
 

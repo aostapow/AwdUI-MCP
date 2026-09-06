@@ -565,6 +565,16 @@ def do_get_mouse_position() -> dict:
 # MCP tool registration
 # ------------------------------------------------------------------
 
+def do_press_key(key: str) -> dict:
+    return do_send_keys((key or "").strip())
+
+
+def do_press_key_combo(keys: list[str]) -> dict:
+    combo = "+".join(k.strip() for k in (keys or []) if k.strip())
+    if not combo:
+        return {"success": False, "error": "keys array is required"}
+    return do_send_keys(combo)
+
 def register(server) -> int:
     """Register the seven input MCP tools on *server*.
 
@@ -754,5 +764,23 @@ def register(server) -> int:
             return "Timed out after 2s getting mouse position."
         return f"Mouse position: ({result['x']}, {result['y']})"
 
-    return 7
+    @server.tool()
+    def press_key(key: str) -> str:
+        """Press a single key (RETURN, TAB, ESCAPE, F5, etc.)."""
+        try:
+            with_timeout(lambda: do_press_key(key), timeout=5.0)
+        except ActionTimeoutError:
+            return "Timed out press_key."
+        return f"press_key: {key}"
+
+    @server.tool()
+    def press_key_combo(keys: list[str]) -> str:
+        """Press a keyboard shortcut (e.g. ['ctrl','s'])."""
+        try:
+            with_timeout(lambda: do_press_key_combo(keys), timeout=5.0)
+        except ActionTimeoutError:
+            return "Timed out press_key_combo."
+        return f"press_key_combo: {'+'.join(keys)}"
+
+    return 9
 

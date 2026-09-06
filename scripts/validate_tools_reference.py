@@ -4,7 +4,8 @@
 Checks:
   1. Every @server.tool() appears in the quick-index section.
   2. Every tool has a dedicated ### `tool_name` section (no grouped headers).
-  3. Each dedicated section includes minimum template fields.
+  3. Each dedicated section includes minimum template fields (+ **Módulo:**).
+  4. Module index table and **Módulo:** fields match code.
 
 Usage:
     python scripts/validate_tools_reference.py
@@ -67,7 +68,10 @@ def _tools_in_reference_index(text: str) -> set[str]:
         if line.strip().startswith("## Índice rápido"):
             in_index = True
             continue
-        if in_index and line.startswith("## ") and "Índice" not in line:
+        if in_index and (
+            "<!-- MODULE_INDEX:START -->" in line
+            or (line.startswith("## ") and "Índice" not in line)
+        ):
             break
         if in_index:
             names.update(re.findall(r"`([a-z][a-z0-9_]*)`", line))
@@ -89,6 +93,37 @@ def _dedicated_sections(text: str) -> dict[str, str]:
     return sections
 
 
+def _module_index_from_doc(text: str) -> dict[str, str]:
+    """Parse MODULE_INDEX table: tool -> module stem."""
+    if "<!-- MODULE_INDEX:START -->" not in text:
+        return {}
+    start = text.index("<!-- MODULE_INDEX:START -->")
+    end = text.index("<!-- MODULE_INDEX:END -->")
+    block = text[start:end]
+    out: dict[str, str] = {}
+    for line in block.splitlines():
+        if not line.startswith("| `"):
+            continue
+        parts = [p.strip() for p in line.strip("|").split("|")]
+        if len(parts) >= 2:
+            tool = parts[0].strip("`")
+            mod = parts[1].strip("`")
+            out[tool] = mod
+    return out
+
+
+def _module_in_sections(text: str) -> dict[str, str]:
+    """Parse **Módulo:** lines under ### headers."""
+    out: dict[str, str] = {}
+    pattern = re.compile(
+        r"^### `([^`]+)`\s*\n\n\*\*Módulo:\*\* `([^`]+)`",
+        re.M,
+    )
+    for tool, mod in pattern.findall(text):
+        out[tool] = mod
+    return out
+
+
 def _section_issues(body: str) -> list[str]:
     issues: list[str] = []
     for marker in _REQUIRED_MARKERS:
@@ -98,6 +133,8 @@ def _section_issues(body: str) -> list[str]:
         issues.append("missing **Evitar:**")
     if "**Relacionadas:**" not in body:
         issues.append("missing **Relacionadas:**")
+    if "**Módulo:**" not in body:
+        issues.append("missing **Módulo:**")
     return issues
 
 
@@ -157,6 +194,21 @@ def main() -> int:
         )
         if len(incomplete) > 20:
             errors.append(f"  ... and {len(incomplete) - 20} more")
+
+    module_index = _module_index_from_doc(ref_text)
+    module_sections = _module_in_sections(ref_text)
+    for name in sorted(code_names):
+        expected = discovered[name]["module"]
+        if module_index.get(name) != expected:
+            errors.append(
+                f"Module index mismatch for {name}: "
+                f"doc={module_index.get(name)!r} code={expected!r}"
+            )
+        if module_sections.get(name) != expected:
+            errors.append(
+                f"Section **Módulo:** mismatch for {name}: "
+                f"doc={module_sections.get(name)!r} code={expected!r}"
+            )
 
     grouped = [
         m.group(1)

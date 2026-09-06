@@ -721,6 +721,120 @@ def capture_window_printwindow(
 # MCP tool registration
 # ------------------------------------------------------------------
 
+def do_take_screenshot_optimized(
+    max_tokens: int = 8000,
+    window_title: Optional[str] = None,
+    app_id: str = "",
+) -> dict[str, Any]:
+    wt, _hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    from tools.screenshot import MAX_SCREENSHOT_WIDTH, capture_screenshot, get_dpi_scale
+
+    shot = capture_screenshot(window_title=wt or None)
+    from PIL import Image
+
+    img = Image.open(io.BytesIO(base64.b64decode(shot["image"])))
+    w, h = img.size
+    # Rough token budget: ~0.75 tokens per 1k pixels at JPEG quality 85
+    est_tokens = int((w * h) / 750)
+    scale = 1.0
+    if max_tokens > 0 and est_tokens > max_tokens:
+        scale = (max_tokens / max(est_tokens, 1)) ** 0.5
+        new_w = max(320, int(w * scale))
+        new_h = max(240, int(h * scale))
+        if new_w > MAX_SCREENSHOT_WIDTH:
+            ratio = MAX_SCREENSHOT_WIDTH / new_w
+            new_w = MAX_SCREENSHOT_WIDTH
+            new_h = max(240, int(new_h * ratio))
+        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=85)
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+        return {
+            "success": True,
+            "image": b64,
+            "width": new_w,
+            "height": new_h,
+            "estimated_tokens": int((new_w * new_h) / 750),
+            "scaled": True,
+            "dpi_scale": get_dpi_scale(),
+            "path": shot.get("path", ""),
+        }
+    return {
+        "success": True,
+        "image": shot["image"],
+        "width": w,
+        "height": h,
+        "estimated_tokens": est_tokens,
+        "scaled": False,
+        "dpi_scale": get_dpi_scale(),
+        "path": shot.get("path", ""),
+    }
+
+
+def do_annotate_screenshot(
+    automation_ids: Optional[list[str]] = None,
+    names: Optional[list[str]] = None,
+    window_title: Optional[str] = None,
+    app_id: str = "",
+    output_path: Optional[str] = None,
+) -> dict[str, Any]:
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    from PIL import Image, ImageDraw
+
+    from tools.screenshot import capture_screenshot
+    from tools.ui_automation import do_find_element
+
+    shot = capture_screenshot(window_title=wt or None)
+    img = Image.open(io.BytesIO(base64.b64decode(shot["image"])))
+    draw = ImageDraw.Draw(img)
+    boxes: list[dict[str, Any]] = []
+
+    specs: list[tuple[Optional[str], Optional[str]]] = []
+    for aid in automation_ids or []:
+        specs.append((aid, None))
+    for nm in names or []:
+        specs.append((None, nm))
+
+    for aid, nm in specs:
+        found = do_find_element(
+            automation_id=aid,
+            name=nm,
+            window_title=wt or None,
+            window_handle=hwnd,
+            remember=False,
+        )
+        if not found.get("elements"):
+            continue
+        elem = found["elements"][0]
+        x = int(elem.get("x") or 0)
+        y = int(elem.get("y") or 0)
+        w = int(elem.get("width") or 0)
+        h = int(elem.get("height") or 0)
+        if w > 0 and h > 0:
+            draw.rectangle([x, y, x + w, y + h], outline="red", width=3)
+            boxes.append({"automation_id": aid, "name": nm, "x": x, "y": y, "width": w, "height": h})
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+    saved_path = ""
+    if output_path:
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(buf.getvalue())
+        saved_path = str(out)
+    return {
+        "success": True,
+        "image": b64,
+        "boxes": boxes,
+        "count": len(boxes),
+        "output_path": saved_path,
+    }
+
 def register(server) -> int:
     """Register *screenshot* and *wait_for_change* tools on *server*.
 
@@ -947,5 +1061,60 @@ def register(server) -> int:
             )
         return "\n".join(lines)
 
-    return 3
+    @server.tool()
+    def take_screenshot_optimized(
+        max_tokens: int = 8000,
+        window_title: str = "",
+        title: str = "",
+        app_id: str = "",
+    ) -> str:
+        """Screenshot resized to fit an approximate LLM token budget."""
+        try:
+            result = with_timeout(
+                lambda: do_take_screenshot_optimized(
+                    max_tokens=max_tokens,
+                    window_title=_wt(window_title, title),
+                    app_id=app_id,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out taking optimized screenshot."
+        if not result.get("success"):
+            return result.get("error", "take_screenshot_optimized failed")
+        return (
+            f"optimized screenshot {result.get('width')}x{result.get('height')} "
+            f"tokens~{result.get('estimated_tokens')} scaled={result.get('scaled')} "
+            f"path={result.get('path', '')}"
+        )
+
+    @server.tool()
+    def annotate_screenshot(
+        automation_ids: list[str] = [],
+        names: list[str] = [],
+        window_title: str = "",
+        title: str = "",
+        app_id: str = "",
+        output_path: str = "",
+    ) -> str:
+        """Screenshot with red boxes around specified elements."""
+        try:
+            result = with_timeout(
+                lambda: do_annotate_screenshot(
+                    automation_ids=automation_ids or None,
+                    names=names or None,
+                    window_title=_wt(window_title, title),
+                    app_id=app_id,
+                    output_path=output_path or None,
+                ),
+                timeout=20.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out annotating screenshot."
+        if not result.get("success"):
+            return result.get("error", "annotate_screenshot failed")
+        path_note = f" path={result.get('output_path')}" if result.get("output_path") else ""
+        return f"annotate_screenshot: {result.get('count', 0)} boxes drawn{path_note}"
+
+    return 5
 

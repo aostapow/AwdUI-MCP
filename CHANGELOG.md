@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0
+
+WinApp-style session model and unified tool surface (111 tools).
+
+- **Session / attach**: `attach_to_app`, `attach_to_pid`, `list_apps`, `close_app`, `app_id` session model, `release_keyboard`
+- **Discovery**: `find_elements`, `find_elements_fuzzy`, `get_snapshot_hwnd`, `get_tree_hash`, `get_element_bounds`, fuzzy matching layer
+- **Actions**: `click_element_hwnd`, `double_click_element`, `right_click_element`, `drag_element`, `expand_collapse_element`, `select_option`, `set_value_hwnd`, `type_into_element`, `press_key`, `press_key_combo`
+- **Screenshots**: `take_screenshot_optimized`, `annotate_screenshot`, `compare_screenshot_files`; improved `screenshot` / `visual_diff`
+- **Consolidation**: WinApp parity folded into core modules (`ui_automation`, `session_tools`, `windows`); removed `winapp_parity.py` shim
+- **Docs**: `MCP_TOOLS_REFERENCE.md` expanded with per-module index (111 tools); catalog sync/audit scripts
+- **Tests**: `test_extended_ui`, updated tools reference matrix, framework capabilities coverage
+
 ## 0.3.0
 
 Major expansion of UIA tooling, detection scope, and agentic improvement cycle.

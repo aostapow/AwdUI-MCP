@@ -8,8 +8,10 @@ from __future__ import annotations
 import hashlib
 import sys
 from difflib import SequenceMatcher
-from typing import Optional
+from typing import Any, Optional
 
+from tools.app_session import pick_element_index, resolve_scope
+from tools.element_resolve import find_element_for_action
 from tools.input_tools import do_click
 
 
@@ -1246,6 +1248,401 @@ def do_detection_health(window_title: Optional[str] = None) -> dict:
     return _orch().detection_health(window_title)
 
 
+def do_find_elements(
+    control_type: Optional[str] = None,
+    id_contains: Optional[str] = None,
+    name_contains: Optional[str] = None,
+    max_results: int = 50,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+) -> dict[str, Any]:
+    if sys.platform != "win32":
+        return {"success": False, "error": "find_elements is Windows-only"}
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+
+    from tools.ui_automation import do_list_elements
+
+    listing = do_list_elements(
+        window_title=wt or None,
+        window_handle=hwnd,
+        max_depth=8,
+        include_offscreen=False,
+    )
+    results: list[dict[str, Any]] = []
+    ct = (control_type or "").lower()
+    id_q = (id_contains or "").lower()
+    name_q = (name_contains or "").lower()
+
+    for elem in listing.get("elements") or []:
+        role = str(elem.get("role") or "")
+        if ct and ct not in role.lower():
+            continue
+        aid = str(elem.get("automation_id") or "")
+        name = str(elem.get("name") or "")
+        if id_q and id_q not in aid.lower():
+            continue
+        if name_q and name_q not in name.lower():
+            continue
+        results.append(elem)
+        if len(results) >= max(1, int(max_results or 50)):
+            break
+
+    return {
+        "success": bool(results),
+        "count": len(results),
+        "elements": results,
+        "backend_used": listing.get("backend_used", ""),
+    }
+
+
+def do_find_elements_fuzzy(
+    query: str,
+    control_type: Optional[str] = None,
+    max_results: int = 20,
+    min_score: float = 0.55,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+) -> dict[str, Any]:
+    if sys.platform != "win32":
+        return {"success": False, "error": "find_elements_fuzzy is Windows-only"}
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+
+    from detection.fuzzy_match import fuzzy_match_elements
+    from tools.ui_automation import do_list_elements
+
+    listing = do_list_elements(
+        window_title=wt or None,
+        window_handle=hwnd,
+        max_depth=8,
+        include_offscreen=False,
+        role=control_type or None,
+    )
+    matched = fuzzy_match_elements(
+        listing.get("elements") or [],
+        query,
+        min_score=min_score,
+        max_results=max_results,
+    )
+    return {
+        "success": bool(matched),
+        "count": len(matched),
+        "elements": matched,
+        "backend_used": listing.get("backend_used", ""),
+    }
+
+
+def do_get_tree_hash(
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+    max_depth: int = 6,
+) -> dict[str, Any]:
+    if sys.platform != "win32":
+        return {"success": False, "error": "get_tree_hash is Windows-only"}
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+
+    from tools.ui_automation import do_list_elements
+
+    listing = do_list_elements(
+        window_title=wt or None,
+        window_handle=hwnd,
+        max_depth=max_depth,
+        include_offscreen=False,
+    )
+    lines: list[str] = []
+    for elem in listing.get("elements") or []:
+        lines.append(
+            f"{elem.get('role', '')}|{elem.get('automation_id', '')}|{elem.get('name', '')}"
+        )
+    lines.sort()
+    digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()[:16]
+    return {
+        "success": True,
+        "tree_hash": digest,
+        "element_count": len(lines),
+        "max_depth": max_depth,
+    }
+
+
+def do_get_element_bounds(
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = 0,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+    fuzzy_match: bool = False,
+) -> dict[str, Any]:
+    if sys.platform != "win32":
+        return {"success": False, "error": "get_element_bounds is Windows-only"}
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+
+    elem: Optional[dict[str, Any]] = None
+    if fuzzy_match and (name or automation_id):
+        query = name or automation_id or ""
+        fuzzy = do_find_elements_fuzzy(
+            query,
+            control_type=role,
+            max_results=5,
+            window_title=wt or None,
+            window_handle=hwnd,
+        )
+        elems = fuzzy.get("elements") or []
+        if elems:
+            elem = elems[pick_element_index(index, len(elems))]
+    else:
+        from tools.ui_automation import do_find_element
+
+        found = do_find_element(
+            automation_id=automation_id,
+            name=name,
+            role=role,
+            window_title=wt or None,
+            window_handle=hwnd,
+            index=index,
+            remember=False,
+        )
+        if found.get("found") and found.get("elements"):
+            elem = found["elements"][pick_element_index(index, len(found["elements"]))]
+
+    if not elem:
+        return {"success": False, "error": "Element not found"}
+
+    return {
+        "success": True,
+        "bounds": {
+            "x": int(elem.get("x") or 0),
+            "y": int(elem.get("y") or 0),
+            "width": int(elem.get("width") or 0),
+            "height": int(elem.get("height") or 0),
+        },
+        "element": elem,
+    }
+
+
+def do_double_click_element(
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = 0,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+    fuzzy_match: bool = False,
+) -> dict[str, Any]:
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+    elem, find_err = find_element_for_action(
+        automation_id, name, role, index, wt or None, hwnd, fuzzy_match,
+    )
+    if find_err:
+        return find_err
+    from tools.input_tools import do_double_click
+    from tools.ui_automation import _click_coords
+
+    x, y = _click_coords(elem, wt or None)
+    do_double_click(x, y)
+    return {"success": True, "element": elem, "clicked_at": {"x": x, "y": y}, "method": "double_click"}
+
+
+def do_right_click_element(
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    index: int = 0,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+    fuzzy_match: bool = False,
+) -> dict[str, Any]:
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+    elem, find_err = find_element_for_action(
+        automation_id, name, role, index, wt or None, hwnd, fuzzy_match,
+    )
+    if find_err:
+        return find_err
+    from tools.input_tools import do_click
+    from tools.ui_automation import _click_coords
+
+    x, y = _click_coords(elem, wt or None)
+    do_click(x, y, button="right")
+    return {"success": True, "element": elem, "clicked_at": {"x": x, "y": y}, "method": "right_click"}
+
+
+def do_drag_element(
+    source_automation_id: Optional[str] = None,
+    source_name: Optional[str] = None,
+    source_control_type: Optional[str] = None,
+    source_index: int = -1,
+    target_automation_id: Optional[str] = None,
+    target_name: Optional[str] = None,
+    target_control_type: Optional[str] = None,
+    target_index: int = -1,
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    app_id: str = "",
+    duration: float = 0.5,
+) -> dict[str, Any]:
+    wt, hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    hwnd = window_handle or hwnd
+    src, src_err = find_element_for_action(
+        source_automation_id,
+        source_name,
+        source_control_type,
+        source_index,
+        wt or None,
+        hwnd,
+    )
+    if src_err:
+        return {**src_err, "phase": "source"}
+    tgt, tgt_err = find_element_for_action(
+        target_automation_id,
+        target_name,
+        target_control_type,
+        target_index,
+        wt or None,
+        hwnd,
+    )
+    if tgt_err:
+        return {**tgt_err, "phase": "target"}
+
+    from tools.input_tools import do_drag
+    from tools.ui_automation import _click_coords
+
+    sx, sy = _click_coords(src, wt or None)
+    tx, ty = _click_coords(tgt, wt or None)
+    drag = do_drag(sx, sy, tx, ty, duration=duration)
+    return {
+        "success": True,
+        "source": src,
+        "target": tgt,
+        "from": {"x": sx, "y": sy},
+        "to": {"x": tx, "y": ty},
+        "drag": drag,
+    }
+
+
+def do_expand_collapse_element(
+    action: str = "toggle",
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    window_title: Optional[str] = None,
+    app_id: str = "",
+) -> dict[str, Any]:
+    wt, _hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    from tools.ui_automation import do_expand_element
+
+    act = (action or "toggle").lower()
+    if act not in ("expand", "collapse", "toggle"):
+        act = "toggle"
+    return do_expand_element(
+        name=name,
+        automation_id=automation_id,
+        window_title=wt or None,
+        action=act,
+    )
+
+
+def do_select_option(
+    option_text: str,
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    index: int = -1,
+    window_title: Optional[str] = None,
+    app_id: str = "",
+) -> dict[str, Any]:
+    wt, _hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    from tools.control_items import do_select_control_item
+    from tools.ui_automation import do_find_element
+
+    found = do_find_element(
+        automation_id=automation_id,
+        name=name,
+        role="ComboBox",
+        window_title=wt or None,
+        include_offscreen=True,
+        remember=False,
+    )
+    if not found.get("found") or not found.get("elements"):
+        found = do_find_element(
+            automation_id=automation_id,
+            name=name,
+            window_title=wt or None,
+            include_offscreen=True,
+            remember=False,
+        )
+    elems = found.get("elements") or []
+    if not elems:
+        return {"success": False, "error": "ComboBox not found"}
+    elem = elems[pick_element_index(index, len(elems))]
+    aid = str(elem.get("automation_id") or "")
+    if not aid:
+        return {"success": False, "error": "ComboBox has no automation_id"}
+    return do_select_control_item(aid, option_text, window_title=wt or None)
+
+
+def do_type_into_element(
+    text: str,
+    automation_id: Optional[str] = None,
+    name: Optional[str] = None,
+    window_title: Optional[str] = None,
+    app_id: str = "",
+    clear_first: bool = True,
+) -> dict[str, Any]:
+    wt, _hwnd, err = resolve_scope(app_id, window_title)
+    if err:
+        return err
+    from tools.input_tools import do_send_keys, do_type_text
+    from tools.ui_automation import do_click_element, do_set_element_value
+
+    set_result = do_set_element_value(
+        text if not clear_first else text,
+        name=name,
+        automation_id=automation_id,
+        window_title=wt or None,
+    )
+    if set_result.get("success"):
+        return {"success": True, "method": "ValuePattern", "text": text}
+
+    click = do_click_element(
+        name=name,
+        automation_id=automation_id,
+        window_title=wt or None,
+        remember=False,
+    )
+    if not click.get("success"):
+        return {"success": False, "error": click.get("error", "Element not found")}
+    if clear_first:
+        do_send_keys("ctrl+a")
+    do_type_text(text)
+    return {"success": True, "method": "click+type", "text": text}
+
 def register(server) -> int:
     """Register UI automation and inspector tools."""
     from tools.safety import with_timeout, ActionTimeoutError
@@ -1344,7 +1741,7 @@ def register(server) -> int:
         """Find a UI element and click its center (or clickable point).
 
         Parameters:
-            app_id: Optional WinApp-style session id from launch_app/attach_to_*.
+            app_id: Optional session id from launch_app/attach_to_*.
             fuzzy_match: Tolerate typos/partial names when locating the element.
             capture: When True, attach a post-click screenshot (default False).
             capture_full: When True with capture, full screen; else target window if set.
@@ -2472,4 +2869,413 @@ def register(server) -> int:
             lines.append(f"  {act}")
         return "\n".join(lines)
 
-    return 26
+    @server.tool()
+    def find_elements(
+        control_type: str = "",
+        id_contains: str = "",
+        name_contains: str = "",
+        max_results: int = 50,
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+    ) -> str:
+        """Search UIA elements with substring filters (Extended UIA)."""
+        try:
+            result = with_timeout(
+                lambda: do_find_elements(
+                    control_type=control_type or None,
+                    id_contains=id_contains or None,
+                    name_contains=name_contains or None,
+                    max_results=max_results,
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                ),
+                timeout=25.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out in find_elements."
+        if not result.get("success"):
+            return result.get("error", "find_elements: no matches")
+        lines = [f"count={result.get('count', 0)}"]
+        for i, elem in enumerate(result.get("elements") or []):
+            lines.append(
+                f"  [{i}] {elem.get('role', '')} id={elem.get('automation_id', '')!r} "
+                f"name={elem.get('name', '')!r}"
+            )
+        return "\n".join(lines)
+
+    @server.tool()
+    def find_elements_fuzzy(
+        query: str,
+        control_type: str = "",
+        max_results: int = 20,
+        min_score: float = 0.55,
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+    ) -> str:
+        """Fuzzy UIA search tolerating typos and partial names."""
+        try:
+            result = with_timeout(
+                lambda: do_find_elements_fuzzy(
+                    query,
+                    control_type=control_type or None,
+                    max_results=max_results,
+                    min_score=min_score,
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                ),
+                timeout=25.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out in find_elements_fuzzy."
+        if not result.get("success"):
+            return result.get("error", "find_elements_fuzzy: no matches")
+        lines = [f"count={result.get('count', 0)}"]
+        for i, elem in enumerate(result.get("elements") or []):
+            lines.append(
+                f"  [{i}] score={elem.get('fuzzy_score', 0)} "
+                f"{elem.get('role', '')} id={elem.get('automation_id', '')!r} "
+                f"name={elem.get('name', '')!r}"
+            )
+        return "\n".join(lines)
+
+    @server.tool()
+    def get_tree_hash(
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+        max_depth: int = 6,
+    ) -> str:
+        """Hash of visible UIA tree for change detection."""
+        try:
+            result = with_timeout(
+                lambda: do_get_tree_hash(
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                    max_depth=max_depth,
+                ),
+                timeout=25.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out computing tree hash."
+        if not result.get("success"):
+            return result.get("error", "get_tree_hash failed")
+        return (
+            f"tree_hash={result.get('tree_hash')} "
+            f"elements={result.get('element_count')} depth={result.get('max_depth')}"
+        )
+
+    @server.tool()
+    def get_element_bounds(
+        automation_id: str = "",
+        name: str = "",
+        role: str = "",
+        index: int = 0,
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+        fuzzy_match: bool = False,
+    ) -> str:
+        """Return bounding box of a UIA element."""
+        try:
+            result = with_timeout(
+                lambda: do_get_element_bounds(
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    role=role or None,
+                    index=index,
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                    fuzzy_match=fuzzy_match,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out getting element bounds."
+        if not result.get("success"):
+            return result.get("error", "get_element_bounds failed")
+        b = result.get("bounds") or {}
+        return f"x={b.get('x')} y={b.get('y')} width={b.get('width')} height={b.get('height')}"
+
+    @server.tool()
+    def double_click_element(
+        automation_id: str = "",
+        name: str = "",
+        role: str = "",
+        index: int = 0,
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+        fuzzy_match: bool = False,
+        capture: bool = False,
+        capture_full: bool = False,
+    ) -> str:
+        """Double-click a UIA element by automation_id or name."""
+        try:
+            result = with_timeout(
+                lambda: do_double_click_element(
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    role=role or None,
+                    index=index,
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                    fuzzy_match=fuzzy_match,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out double-clicking element."
+        if not result.get("success"):
+            return result.get("error", "double_click_element failed")
+        from tools.screenshot import action_tool_response
+
+        msg = f"Double-clicked at ({result['clicked_at']['x']}, {result['clicked_at']['y']})."
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
+
+    @server.tool()
+    def right_click_element(
+        automation_id: str = "",
+        name: str = "",
+        role: str = "",
+        index: int = 0,
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+        fuzzy_match: bool = False,
+        capture: bool = False,
+        capture_full: bool = False,
+    ) -> str:
+        """Right-click a UIA element by automation_id or name."""
+        try:
+            result = with_timeout(
+                lambda: do_right_click_element(
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    role=role or None,
+                    index=index,
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                    fuzzy_match=fuzzy_match,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out right-clicking element."
+        if not result.get("success"):
+            return result.get("error", "right_click_element failed")
+        from tools.screenshot import action_tool_response
+
+        msg = f"Right-clicked at ({result['clicked_at']['x']}, {result['clicked_at']['y']})."
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
+
+    @server.tool()
+    def drag_element(
+        source_automation_id: str = "",
+        source_name: str = "",
+        source_control_type: str = "",
+        source_index: int = -1,
+        target_automation_id: str = "",
+        target_name: str = "",
+        target_control_type: str = "",
+        target_index: int = -1,
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+        app_id: str = "",
+        duration: float = 0.5,
+        capture: bool = False,
+        capture_full: bool = False,
+    ) -> str:
+        """Drag from source element to target element (center to center)."""
+        try:
+            result = with_timeout(
+                lambda: do_drag_element(
+                    source_automation_id=source_automation_id or None,
+                    source_name=source_name or None,
+                    source_control_type=source_control_type or None,
+                    source_index=source_index,
+                    target_automation_id=target_automation_id or None,
+                    target_name=target_name or None,
+                    target_control_type=target_control_type or None,
+                    target_index=target_index,
+                    window_title=_wt(window_title, title),
+                    window_handle=window_handle or None,
+                    app_id=app_id,
+                    duration=duration,
+                ),
+                timeout=20.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out dragging element."
+        if not result.get("success"):
+            return result.get("error", "drag_element failed")
+        from tools.screenshot import action_tool_response
+
+        msg = (
+            f"Dragged ({result['from']['x']}, {result['from']['y']}) -> "
+            f"({result['to']['x']}, {result['to']['y']})."
+        )
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
+
+    @server.tool()
+    def expand_collapse_element(
+        action: str = "toggle",
+        automation_id: str = "",
+        name: str = "",
+        window_title: str = "",
+        title: str = "",
+        app_id: str = "",
+    ) -> str:
+        """Expand, collapse, or toggle an ExpandCollapse control."""
+        try:
+            result = with_timeout(
+                lambda: do_expand_collapse_element(
+                    action=action,
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    window_title=_wt(window_title, title),
+                    app_id=app_id,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out expand/collapse."
+        if result.get("success"):
+            return f"expand_collapse_element: {action} OK"
+        return result.get("error", "expand_collapse_element failed")
+
+    @server.tool()
+    def select_option(
+        option_text: str,
+        automation_id: str = "",
+        name: str = "",
+        index: int = -1,
+        window_title: str = "",
+        title: str = "",
+        app_id: str = "",
+    ) -> str:
+        """Select ComboBox option by visible text (one-shot)."""
+        try:
+            result = with_timeout(
+                lambda: do_select_option(
+                    option_text,
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    index=index,
+                    window_title=_wt(window_title, title),
+                    app_id=app_id,
+                ),
+                timeout=20.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out selecting option."
+        if result.get("success"):
+            return f"select_option: selected '{option_text}'"
+        return result.get("error", "select_option failed")
+
+    @server.tool()
+    def type_into_element(
+        text: str,
+        automation_id: str = "",
+        name: str = "",
+        window_title: str = "",
+        title: str = "",
+        app_id: str = "",
+        clear_first: bool = True,
+    ) -> str:
+        """Type text into a field found by automation_id or name ."""
+        try:
+            result = with_timeout(
+                lambda: do_type_into_element(
+                    text,
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    window_title=_wt(window_title, title),
+                    app_id=app_id,
+                    clear_first=clear_first,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out typing into element."
+        if result.get("success"):
+            return f"type_into_element: typed {len(text)} chars via {result.get('method')}"
+        return result.get("error", "type_into_element failed")
+
+    @server.tool()
+    def click_element_hwnd(
+        window_handle: int,
+        automation_id: str = "",
+        name: str = "",
+        control_type: str = "",
+        fuzzy_match: bool = False,
+        index: int = 0,
+        capture: bool = False,
+        capture_full: bool = False,
+    ) -> str:
+        """Click element scoped to a specific HWND."""
+        try:
+            result = with_timeout(
+                lambda: do_click_element_hwnd(
+                    window_handle,
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    control_type=control_type or None,
+                    fuzzy_match=fuzzy_match,
+                    index=index,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out click_element_hwnd."
+        if not result.get("success"):
+            return result.get("error", "click_element_hwnd failed")
+        from tools.screenshot import action_tool_response
+
+        pt = result.get("clicked_at") or {}
+        msg = f"Clicked hwnd={window_handle} at ({pt.get('x')}, {pt.get('y')})."
+        return action_tool_response(msg, capture=capture, capture_full=capture_full)
+
+    @server.tool()
+    def set_value_hwnd(
+        window_handle: int,
+        value: str,
+        automation_id: str = "",
+        name: str = "",
+        fuzzy_match: bool = False,
+        index: int = 0,
+    ) -> str:
+        """Set value on element scoped to HWND."""
+        try:
+            result = with_timeout(
+                lambda: do_set_value_hwnd(
+                    window_handle,
+                    value,
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    fuzzy_match=fuzzy_match,
+                    index=index,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out set_value_hwnd."
+        if result.get("success"):
+            return f"set_value_hwnd: value set on hwnd={window_handle}"
+        return result.get("error", "set_value_hwnd failed")
+
+    return 38

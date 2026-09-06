@@ -462,6 +462,6 @@ class TestRegister:
         # server.tool() returns a decorator, which returns the function
         mock_server.tool.return_value = lambda fn: fn
         count = register(mock_server)
-        assert count == 7
-        assert mock_server.tool.call_count == 7
+        assert count == 9
+        assert mock_server.tool.call_count == 9
 

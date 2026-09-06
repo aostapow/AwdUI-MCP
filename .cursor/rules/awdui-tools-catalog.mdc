@@ -22,7 +22,7 @@ Al tocar `mcp-servers/awdui-server/tools/**` o `server.py`, el agente **debe**:
 1. Leer la implementación real (`@server.tool`, docstring, parámetros).
 2. Actualizar `docs/MCP_TOOLS_REFERENCE.md` con una **sección dedicada por tool** (no agrupar varias tools en un solo `###`).
 3. Completar la plantilla obligatoria (ver abajo) con contenido **específico** de esa tool — no placeholders.
-4. Actualizar índice rápido + lista alfabética si cambia el inventario.
+4. Actualizar índice rápido; ejecutar `python scripts/sync_catalog_modules.py` (tabla **Módulo** + campo por sección).
 5. Ejecutar `python scripts/validate_tools_reference.py` y corregir hasta verde.
 
 El script solo detecta omisiones estructurales; **la calidad y exactitud del texto es trabajo agentico**.
@@ -31,7 +31,7 @@ El script solo detecta omisiones estructurales; **la calidad y exactitud del tex
 
 | Cambio en código | Acción en el doc |
 |------------------|------------------|
-| **Nueva** `@server.tool()` | Índice + sección `### \`nombre\`` completa |
+| **Nueva** `@server.tool()` | Índice + sección `### \`nombre\`` completa + `sync_catalog_modules.py` |
 | **Modificar** parámetros o comportamiento | Actualizar esa sección (params, ejemplo, evitar) |
 | **Eliminar** tool | Quitar del índice y borrar sección; changelog |
 | **Renombrar** tool | Renombrar en todo el doc |
@@ -41,6 +41,7 @@ El script solo detecta omisiones estructurales; **la calidad y exactitud del tex
 ```markdown
 ### `nombre_tool`
 
+**Módulo:** `modulo` (`mcp-servers/awdui-server/tools/modulo.py`) — sincronizar con `python scripts/sync_catalog_modules.py`
 **Qué hace:** …  
 **Cuándo usarla:** …  
 **Parámetros clave:** `param1`, `param2`  
@@ -59,8 +60,8 @@ Reglas:
 
 1. `docs/MCP_TOOLS_REFERENCE.md` — fecha «Última revisión» en encabezado.
 2. Si cambia estrategia global → una línea en `docs/AGENT_GUIDE.md`.
-3. `python scripts/validate_tools_reference.py` (debe pasar).
-4. Cambio user-facing notable → README tools.
+3. `python scripts/sync_catalog_modules.py` (si cambió inventario o módulo).
+4. `python scripts/validate_tools_reference.py` (debe pasar).
 
 ## Validación automática (complementaria)
 

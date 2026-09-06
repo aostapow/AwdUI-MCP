@@ -406,6 +406,6 @@ class TestRegister:
         mock_server = mock.MagicMock()
         mock_server.tool.return_value = lambda fn: fn
         count = register(mock_server)
-        assert count == 4
-        assert mock_server.tool.call_count == 4
+        assert count == 5
+        assert mock_server.tool.call_count == 5
 

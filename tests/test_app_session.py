@@ -1,4 +1,4 @@
-"""Tests for WinApp app_id session registry."""
+"""Tests for app_id session registry."""
 from __future__ import annotations
 
 from unittest import mock

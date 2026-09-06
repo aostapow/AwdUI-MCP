@@ -1,4 +1,4 @@
-"""Shared element resolution for actions (exact + fuzzy, WinApp index rules)."""
+"""Shared element resolution for actions (exact + fuzzy matching)."""
 from __future__ import annotations
 
 from typing import Any, Optional

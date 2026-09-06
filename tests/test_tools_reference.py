@@ -15,3 +15,12 @@ def test_tools_reference_in_sync():
         text=True,
     )
     assert result.returncode == 0, result.stderr or result.stdout
+
+    audit = REPO / "scripts" / "audit_catalog_vs_code.py"
+    result2 = subprocess.run(
+        [sys.executable, str(audit)],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
+    assert result2.returncode == 0, result2.stderr or result2.stdout

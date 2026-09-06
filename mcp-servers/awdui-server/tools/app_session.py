@@ -1,4 +1,4 @@
-"""WinApp-style app_id session registry (shared across tools)."""
+"""app_id session registry (shared across tools)."""
 from __future__ import annotations
 
 import uuid
@@ -9,7 +9,7 @@ _apps: dict[str, dict[str, Any]] = {}
 
 
 def normalize_index(index: int) -> int:
-    """WinApp uses -1 for first match; AwdUI historically used 0."""
+    """Treat index -1 as first match (legacy convention)."""
     if index < 0:
         return 0
     return index

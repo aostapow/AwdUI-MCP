@@ -17,7 +17,7 @@ import version_check
 
 class TestParseVersion:
     def test_simple(self):
-        assert version_check.parse_version("0.3.0") == (0, 3, 0)
+        assert version_check.parse_version("0.4.0") == (0, 4, 0)
 
     def test_with_v_prefix(self):
         assert version_check.parse_version("v1.2.3") == (1, 2, 3)
@@ -33,14 +33,14 @@ class TestParseVersion:
 class TestVersionCompare:
     def test_is_newer(self):
         assert version_check.is_newer_version("0.4.0", "0.3.0")
-        assert version_check.is_newer_version("0.3.1", "0.3.0")
-        assert not version_check.is_newer_version("0.3.0", "0.3.0")
-        assert not version_check.is_newer_version("0.2.9", "0.3.0")
+        assert version_check.is_newer_version("0.4.1", "0.4.0")
+        assert not version_check.is_newer_version("0.4.0", "0.4.0")
+        assert not version_check.is_newer_version("0.2.9", "0.4.0")
 
 
 class TestGetLocalVersion:
     def test_reads_version_file(self):
-        assert version_check.get_local_version() == "0.3.0"
+        assert version_check.get_local_version() == "0.4.0"
 
 
 class TestCheckVersion:
@@ -55,7 +55,7 @@ class TestCheckVersion:
 
         info = version_check.check_version(force=True)
 
-        assert info.current_version == "0.3.0"
+        assert info.current_version == "0.4.0"
         assert info.latest_version == "0.5.0"
         assert info.update_available is True
         assert info.source == "release"
@@ -66,7 +66,7 @@ class TestCheckVersion:
         cache_file.write_text(
             json.dumps(
                 {
-                    "current_version": "0.3.0",
+                    "current_version": "0.4.0",
                     "latest_version": "0.5.0",
                     "update_available": True,
                     "release_url": "https://example.com",
@@ -87,7 +87,7 @@ class TestCheckVersion:
         assert info.update_available is True
 
     def test_best_tag_version(self):
-        tags = [{"name": "v0.2.0"}, {"name": "0.3.0"}, {"name": "0.10.0"}]
+        tags = [{"name": "v0.2.0"}, {"name": "0.4.0"}, {"name": "0.10.0"}]
         assert version_check._best_tag_version(tags) == "0.10.0"
 
 

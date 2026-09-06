@@ -1,4 +1,4 @@
-"""Fuzzy text matching for UIA element discovery (WinApp parity)."""
+"""Fuzzy text matching for UIA element discovery."""
 from __future__ import annotations
 
 from difflib import SequenceMatcher

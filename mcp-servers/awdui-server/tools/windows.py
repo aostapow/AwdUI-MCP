@@ -17,7 +17,7 @@ MCP registration:
 import platform
 import subprocess
 import shlex
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 # ------------------------------------------------------------------
@@ -727,6 +727,25 @@ def do_launch_app(
         return {"success": False, "error": str(exc)}
 
 
+def do_list_desktop_windows() -> dict[str, Any]:
+    windows = do_list_windows()
+    rows = []
+    for w in windows:
+        rows.append(
+            {
+                "hwnd": int(w.get("hwnd") or 0),
+                "title": w.get("title", ""),
+                "pid": int(w.get("pid") or 0),
+                "process": w.get("process", ""),
+                "x": w.get("x", 0),
+                "y": w.get("y", 0),
+                "width": w.get("width", 0),
+                "height": w.get("height", 0),
+            }
+        )
+    return {"success": True, "count": len(rows), "windows": rows}
+
+
 # ------------------------------------------------------------------
 # MCP tool registration
 # ------------------------------------------------------------------
@@ -853,5 +872,20 @@ def register(server) -> int:
             msg += f" app_id={result['app_id']}"
         return msg
 
-    return 4
+    @server.tool()
+    def list_desktop_windows() -> str:
+        """List top-level windows with HWND, title, PID, and geometry."""
+        try:
+            result = with_timeout(do_list_desktop_windows, timeout=15.0)
+        except ActionTimeoutError:
+            return "Timed out listing desktop windows."
+        lines = [f"count={result.get('count', 0)}"]
+        for w in result.get("windows") or []:
+            lines.append(
+                f"hwnd={w.get('hwnd')} pid={w.get('pid')} "
+                f"process={w.get('process')!r} title={w.get('title')!r}"
+            )
+        return "\n".join(lines)
+
+    return 5
 

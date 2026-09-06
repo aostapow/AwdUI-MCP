@@ -1,4 +1,4 @@
-"""Tests for D1-D5 winapp parity tools."""
+"""Tests for form/read/snapshot/event session tools (bloque D)."""
 from __future__ import annotations
 
 from unittest import mock

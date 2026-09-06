@@ -149,6 +149,34 @@ def do_get_snapshot(
     }
 
 
+def do_get_snapshot_hwnd(
+    window_handle: int,
+    max_depth: int = 3,
+    role: Optional[str] = None,
+) -> dict[str, Any]:
+    from tools.element_read_tools import do_get_snapshot
+
+    return do_get_snapshot(
+        window_handle=window_handle or None,
+        max_depth=max_depth,
+        role=role,
+    )
+
+
+def do_press_key(key: str) -> dict[str, Any]:
+    from tools.input_tools import do_send_keys
+
+    return do_send_keys((key or "").strip())
+
+
+def do_press_key_combo(keys: list[str]) -> dict[str, Any]:
+    from tools.input_tools import do_send_keys
+
+    combo = "+".join(k.strip() for k in (keys or []) if k.strip())
+    if not combo:
+        return {"success": False, "error": "keys array is required"}
+    return do_send_keys(combo)
+
 def register(server) -> int:
     from tools.params import resolve_scoped_window, resolve_window_title as _wt
     from tools.safety import ActionTimeoutError, with_timeout
@@ -297,4 +325,32 @@ def register(server) -> int:
             return result.get("error", "get_snapshot failed")
         return json.dumps(result, ensure_ascii=False)
 
-    return 4
+    @server.tool()
+    def get_snapshot_hwnd(
+        window_handle: int,
+        max_depth: int = 3,
+        role: str = "",
+    ) -> str:
+        """Compact UIA snapshot scoped to HWND."""
+        try:
+            result = with_timeout(
+                lambda: do_get_snapshot_hwnd(
+                    window_handle,
+                    max_depth=max_depth,
+                    role=role or None,
+                ),
+                timeout=25.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out get_snapshot_hwnd."
+        if not result.get("success"):
+            return result.get("error", "get_snapshot_hwnd failed")
+        lines = [f"count={result.get('count', 0)} hwnd={window_handle}"]
+        for node in (result.get("nodes") or [])[:40]:
+            lines.append(
+                f"  {node.get('role', '')} id={node.get('automation_id', '')!r} "
+                f"name={node.get('name', '')!r}"
+            )
+        return "\n".join(lines)
+
+    return 5
