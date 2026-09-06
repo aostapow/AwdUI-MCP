@@ -45,13 +45,41 @@ WinForms and UIA controls use QTP-style classes (`SwfButton`, `SwfEdit`, …) wi
 
 ## Auto-capture
 
-Every successful `find_element`, `click_element`, or `smart_find` (with `remember=true`, default) saves:
+Auto-capture runs on successful `find_element`, `click_element`, or `smart_find` when `remember=true` (default), **but only if**:
+
+1. **`set_target_window` is set** and the interaction's window matches that target (e.g. target `Calculadora` → only Calculator controls are stored).
+2. The app is **not** on the host blocklist (Cursor, Chrome, Outlook, Claude, PowerToys, shells, etc.).
+
+Without an active target, nothing is auto-captured unless `AWDUI_AUTO_REPO=1` (legacy/dev).
+
+**Explicit capture** via `repo_capture` is always allowed.
+
+Each allowed capture saves:
 - Full detectable properties
 - Identification tiers (mandatory / assistive / smart / ordinal)
 - Last resolution (backend, bbox)
 - Optional snapshots when `AWDUI_SNAPSHOT=1`
 
-Objects are keyed by stable `repo_path` (e.g. `Calculadora/num6Button`).
+Objects are keyed by stable `repo_path` (e.g. `MyApp/frmMain/btnSave`).
+
+## Agent hints (app-specific, not MCP code)
+
+Store operational notes per object in `agent_hints` (Repo Studio or `repo_capture`). Plain text lines or JSON.
+
+| Key | Purpose |
+|-----|---------|
+| `verify_automation_id` | After `invoke_element`/`click_element` on this control with `verify_name_contains`, read this other control instead (e.g. keypad → display) |
+| `verify_target` | Alias of `verify_automation_id` |
+| `note` | Free text for the agent |
+
+Example (Calculadora lab — belongs in repo, not server code):
+
+```
+verify_automation_id: CalculatorResults
+note: keypad buttons verify display text, not button name
+```
+
+`discover_control_interaction` and post-act verify read these hints when the acted `automation_id` matches a repo object.
 
 ## Auto repository lookup (Windows)
 

@@ -1,0 +1,56 @@
+---
+description: El servidor MCP AwdUI debe ser agnóstico de la aplicación automatizada
+alwaysApply: true
+---
+
+# MCP agnóstico de aplicación
+
+## Regla
+
+El código en `mcp-servers/awdui-server/**` **no** puede contener lógica específica de un producto (Calculadora, AST, etc.).
+
+| Permitido en MCP | Prohibido en MCP |
+|------------------|------------------|
+| UIA, patterns, roles, framework (UWP/WinForms/WPF) | Listas de `automation_id` de una app |
+| Scope por ventana/HWND/PID/client rect | Detectar "modo activo" leyendo header de una app |
+| Filtros por `visible`, offscreen, tamaño, gap espacial | `if window_title == "Calculadora"` o equivalente |
+| **Cluster espacial adaptativo** (`spatial_cluster.py`): banda dominante de controles por ventana | Listas de `automation_id` por producto |
+| Dedupe, contención, oclusión genérica | Filtros por nombre de botón de un producto |
+| **Parámetros explícitos** para ampliar el árbol (`include_offscreen`, `tree_mode`) | Ocultar nodos offscreen **sin** parámetro y sin documentar |
+
+## Visibilidad: default vs exploración completa
+
+El MCP **no** decide qué modo de una app está activo. Sí aplica filtros **genéricos** con defaults prácticos:
+
+| Necesidad | Tool | Parámetros |
+|-----------|------|------------|
+| Pantalla accionable (default) | `list_elements` | `max_depth=0` (auto/framework), `include_offscreen=false` |
+| Árbol acotado (rápido) | `list_elements` | `max_depth=8` |
+| Árbol ilimitado | `list_elements` / `spy_tree` | `max_depth=-1` |
+| Offscreen + raw | `list_elements` | `include_offscreen=true`, `tree_mode="raw"` |
+| Snapshot compacto | `get_snapshot` | `max_depth` según profundidad |
+
+**Regla:** el default prioriza controles visibles/en scope. Si el usuario o el agente piden contexto no visible, usar los parámetros de la tabla — **no** reintroducir filtros por app.
+
+## Si UIA expone nodos "fantasma"
+
+No parchear por app en el servidor. Opciones en orden:
+
+1. **Exploración explícita:** `list_elements(include_offscreen=true)` o `spy_tree(mode="raw")`
+2. **Interpretación agente/skill:** al planificar clics, priorizar nodos visibles (`visible`, bbox en client rect)
+3. **Mejora genérica MCP:** scope, visibilidad UIA, layout ASCII (gaps/anchos), oclusión — nunca listas de `automation_id` por producto
+## Dónde va el conocimiento de producto
+
+- **Skills de producto:** `.cursor/skills/{producto}/` (IDs, flujos, quirks)
+- **Patrones de exploración:** `.cursor/skills/awdui-flow-exploration/patterns/`
+- **Scripts de laboratorio** (fuera del servidor): `scripts/`, `tests/integration/` — nunca importados por el MCP en runtime
+
+
+- `calculator_mode_filter`, listas de modos NavView por app
+- Hardcodear IDs de AST/Calculadora en `detection/` o `tools/`
+- Ramas `if "AST" in title` en código del servidor
+
+## Referencias
+
+- Misión: `.cursor/rules/awdui-mission.mdc`
+- Skills producto: `.cursor/rules/awdui-skill-routing.mdc`

@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+
+# Mark this process as the supervised MCP server (coordinate input allowed).
+os.environ.setdefault("AWDUI_MCP_SERVER", "1")
 import sys
 import subprocess
 import site
@@ -156,7 +159,7 @@ screenshot_mgr = ScreenshotManager(SCREENSHOT_DIR)
 mcp = FastMCP("awdui-mcp")
 
 # Register all tool modules
-from tools import screenshot, input_tools, windows, manage, uac, desktop, ui_automation, ocr, batch, framework_detect, target_window, visual_diff, watcher, version, discovery
+from tools import screenshot, input_tools, windows, manage, uac, desktop, ui_automation, ocr, batch, framework_detect, target_window, visual_diff, watcher, version, discovery, wait_tools, session_tools, form_tools, element_read_tools, event_monitor, ascii_view
 
 # Set screenshot_manager reference for tools that need it
 screenshot.screenshot_manager = screenshot_mgr
@@ -176,6 +179,12 @@ visual_diff.register(mcp)
 watcher.register(mcp)
 version.register(mcp)
 discovery.register(mcp)
+wait_tools.register(mcp)
+session_tools.register(mcp)
+form_tools.register(mcp)
+element_read_tools.register(mcp)
+event_monitor.register(mcp)
+ascii_view.register(mcp)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

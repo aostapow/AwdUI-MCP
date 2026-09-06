@@ -1,21 +1,33 @@
 """Target window auto-focus -- session state for multi-window workflows.
 
-When a target window is set, every input action (click, type, keys, scroll,
-drag, hover) will auto-focus that window before executing.  This eliminates
-the need to call ``focus_window`` before every interaction when the terminal
-keeps stealing focus between tool calls.
+When a target window is set, input actions (click, type, keys, scroll,
+drag, hover) may auto-focus that window before executing — controlled by
+``focus_policy`` (default ``minimal``: only steal focus when pointer/keyboard
+input requires it and the target is not already foreground).
 
-Provides two MCP tools:
-    set_target_window  - set (or clear) the target window title
-    get_target_window  - return the current target window title
+Provides MCP tools:
+    set_target_window  - set (or clear) the target window title + focus policy
+    get_target_window  - return the current target window title and policy
 """
 
 import sys
-from typing import Optional
+from typing import Literal, Optional
+
+FocusPolicy = Literal["minimal", "always", "never"]
 
 _target_window: Optional[str] = None
+_focus_policy: FocusPolicy = "minimal"
 _last_focus_target: Optional[str] = None
 _last_focus_time: float = 0.0
+
+_VALID_POLICIES = frozenset({"minimal", "always", "never"})
+
+
+def _normalize_policy(policy: Optional[str]) -> FocusPolicy:
+    p = (policy or "minimal").strip().lower()
+    if p in _VALID_POLICIES:
+        return p  # type: ignore[return-value]
+    return "minimal"
 
 
 def _find_ancestor_window() -> bool:
@@ -42,7 +54,6 @@ def _find_ancestor_window_win32() -> bool:
         user32 = ctypes.windll.user32
         kernel32 = ctypes.windll.kernel32
 
-        # Collect visible windows → PID mapping
         GetWindowThreadProcessId = user32.GetWindowThreadProcessId
         IsWindowVisible = user32.IsWindowVisible
         GetWindowTextLengthW = user32.GetWindowTextLengthW
@@ -57,14 +68,12 @@ def _find_ancestor_window_win32() -> bool:
             if IsWindowVisible(hwnd) and GetWindowTextLengthW(hwnd) > 0:
                 pid = ctypes.wintypes.DWORD()
                 GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-                # Keep first (topmost) window per PID
                 if pid.value not in pid_to_hwnd:
                     pid_to_hwnd[pid.value] = hwnd
             return True
 
         EnumWindows(EnumWindowsProc(_enum), 0)
 
-        # Walk up parent chain (max 10 levels to avoid infinite loops)
         pid = os.getpid()
         for _ in range(10):
             pid = _get_parent_pid_win32(pid)
@@ -72,7 +81,6 @@ def _find_ancestor_window_win32() -> bool:
                 break
             if pid in pid_to_hwnd:
                 hwnd = pid_to_hwnd[pid]
-                # Focus this window
                 from tools.windows import do_focus_window
                 SetForegroundWindow = user32.SetForegroundWindow
                 ShowWindow = user32.ShowWindow
@@ -100,7 +108,7 @@ def _find_ancestor_window_win32() -> bool:
                     time.sleep(0.01)
                     if GetForegroundWindow() == hwnd:
                         return True
-                return True  # best effort even if poll didn't confirm
+                return True
     except Exception:
         pass
     return False
@@ -157,7 +165,6 @@ def _find_ancestor_window_darwin() -> bool:
 
         pid = os.getpid()
         for _ in range(10):
-            # Get parent PID
             result = subprocess.run(
                 ["ps", "-o", "ppid=", "-p", str(pid)],
                 capture_output=True, text=True, timeout=2,
@@ -169,7 +176,6 @@ def _find_ancestor_window_darwin() -> bool:
             if pid <= 1:
                 break
 
-            # Get process name
             result = subprocess.run(
                 ["ps", "-o", "comm=", "-p", str(pid)],
                 capture_output=True, text=True, timeout=2,
@@ -178,8 +184,6 @@ def _find_ancestor_window_darwin() -> bool:
             if not comm:
                 continue
 
-            # Try to activate this app via AppleScript
-            app_name = os.path.basename(comm)
             activate = subprocess.run(
                 ["osascript", "-e",
                  f'tell application "System Events" to set frontmost '
@@ -194,17 +198,10 @@ def _find_ancestor_window_darwin() -> bool:
 
 
 def _refocus_host_terminal() -> None:
-    """Bring the host terminal back to the foreground.
-
-    Primary strategy: walk the process tree to find the ancestor that
-    owns a visible window (works regardless of terminal app name).
-    Fallback: try common terminal window titles.
-    """
-    # Strategy 1: process-tree walk (reliable, no title guessing)
+    """Bring the host terminal back to the foreground."""
     if _find_ancestor_window():
         return
 
-    # Strategy 2: title-based fallback
     try:
         from tools.windows import do_focus_window
         if sys.platform == "darwin":
@@ -229,7 +226,7 @@ def _refocus_host_terminal() -> None:
 
 
 def set_target(title: Optional[str]) -> None:
-    """Set (or clear) the target window for auto-focus."""
+    """Set (or clear) the target window for session scope."""
     global _target_window, _last_focus_target, _last_focus_time
     was_set = _target_window is not None
     if title is not None and title.strip() == "":
@@ -245,15 +242,53 @@ def set_target(title: Optional[str]) -> None:
             _refocus_host_terminal()
 
 
+def set_focus_policy(policy: Optional[str]) -> FocusPolicy:
+    """Set session focus policy (minimal | always | never)."""
+    global _focus_policy
+    _focus_policy = _normalize_policy(policy)
+    print(f"[target_window] focus_policy={_focus_policy}", file=sys.stderr)
+    return _focus_policy
+
+
 def get_target() -> Optional[str]:
     """Return the current target window title, or ``None``."""
     return _target_window
 
 
-def ensure_focus() -> None:
-    """If a target window is set, focus it before an input action (cached)."""
+def get_focus_policy() -> FocusPolicy:
+    return _focus_policy
+
+
+def is_target_foreground() -> bool:
+    """True when no target is set, or the target title matches the foreground window."""
     if _target_window is None:
-        return
+        return True
+    try:
+        from tools.windows import get_foreground_title
+        fg = (get_foreground_title() or "").lower()
+        target = _target_window.lower()
+        if not fg:
+            return False
+        return target in fg or fg in target
+    except Exception:
+        return False
+
+
+def ensure_focus(force: bool = False) -> bool:
+    """Focus the target window when policy allows.
+
+    minimal (default): only focuses when ``force=True`` or policy is ``always``.
+    never: never steals focus; returns whether target is already foreground.
+    """
+    if _target_window is None:
+        return True
+    if _focus_policy == "never":
+        return is_target_foreground()
+    if is_target_foreground():
+        return True
+    if _focus_policy == "minimal" and not force:
+        return False
+
     import time
     from tools.perf import focus_cache_ttl
     global _last_focus_target, _last_focus_time
@@ -261,69 +296,82 @@ def ensure_focus() -> None:
     if (
         _last_focus_target == _target_window
         and now - _last_focus_time < focus_cache_ttl()
+        and is_target_foreground()
     ):
-        try:
-            from tools.windows import get_foreground_title
-            fg = get_foreground_title().lower()
-            target = _target_window.lower()
-            if target in fg or fg in target:
-                return
-        except Exception:
-            pass
+        return True
+
     from tools.windows import do_focus_window
     do_focus_window(_target_window, action="focus")
     _last_focus_target = _target_window
     _last_focus_time = now
+    return is_target_foreground()
 
 
-# ------------------------------------------------------------------
-# MCP tool registration
-# ------------------------------------------------------------------
+def ensure_focus_for_input() -> bool:
+    """Focus before pointer/keyboard input when the target is not already foreground."""
+    if _target_window is None:
+        return True
+    if is_target_foreground():
+        return True
+    if _focus_policy == "never":
+        return False
+    return ensure_focus(force=True)
+
+
+def ensure_focus_for_capture() -> bool:
+    """Optional focus before screenshot/OCR — skipped under minimal/never (crop by HWND)."""
+    if _focus_policy == "always":
+        return ensure_focus(force=True)
+    return is_target_foreground()
+
 
 def register(server) -> int:
     """Register the target-window tools on *server*. Returns 2."""
 
     @server.tool()
-    def set_target_window(title: str = "", window_title: str = "") -> str:
-        """Set or clear the target window for automatic focus.
+    def set_target_window(
+        title: str = "",
+        window_title: str = "",
+        focus_policy: str = "",
+    ) -> str:
+        """Set or clear the target window for session scope and optional focus policy.
 
-        When set, every input action (click, type_text, send_keys, scroll,
-        drag, hover) will auto-focus this window before executing.  This
-        prevents the terminal from stealing focus between tool calls.
+        focus_policy (default **minimal**):
+          minimal — UIA observe/act without stealing focus; focus only for
+            pointer/keyboard input when the target is not already foreground.
+          always — legacy: auto-focus target before input, screenshot, and on set.
+          never — never steal focus; pointer/keyboard may fail if target is in background.
 
-        When cleared (empty string), the host terminal is automatically
-        brought back to the foreground.
+        When cleared (empty title), the host terminal is refocused.
 
-        IMPORTANT: You MUST clear the target (pass empty string) when you
-        are done interacting with a GUI application. This brings the
-        terminal back to the foreground so the user can see your output.
-        Without this, the user has no way to know you are finished.
-
-        Parameters:
-            title: Partial window title to match (case-insensitive).
-                   Pass empty string to clear the target.
-            window_title: Alias for title — either parameter is accepted.
+        IMPORTANT: call set_target_window('') when done with GUI work.
         """
         from tools.params import resolve_window_title
         resolved = resolve_window_title(window_title, title)
+        if focus_policy.strip():
+            set_focus_policy(focus_policy)
         set_target(resolved)
         current = get_target()
+        policy = get_focus_policy()
         if current:
-            ensure_focus()
-            return f"Target window set to {current!r}. All input actions will auto-focus this window. REMEMBER: call set_target_window('') when done to return focus to the terminal."
+            if policy == "always":
+                ensure_focus(force=True)
+            msg = (
+                f"Target window set to {current!r} (focus_policy={policy}). "
+                "UIA tools work without foreground; pointer/keyboard focus only when needed. "
+                "REMEMBER: call set_target_window('') when done."
+            )
+            return msg
         return "Target window cleared. Terminal refocused."
 
     @server.tool()
     def get_target_window() -> str:
-        """Get the current target window for automatic focus.
-
-        Returns the partial title being used for auto-focus, or a message
-        indicating no target is set.
-        """
+        """Get the current target window and focus policy."""
         current = get_target()
+        policy = get_focus_policy()
         if current:
-            return f"Target window: {current!r}"
-        return "No target window set."
+            fg = "foreground" if is_target_foreground() else "background"
+            return f"Target window: {current!r}  focus_policy={policy}  ({fg})"
+        return f"No target window set. focus_policy={policy}"
 
     return 2
-

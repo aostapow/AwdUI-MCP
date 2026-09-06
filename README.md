@@ -107,7 +107,7 @@ Use `/awdui` to start a guided automation session.
 | Spy | `spy_inspect`, `spy_tree`, `highlight_element` | Windows sidecar (`.exe`) |
 | Utility | `check_version`, `get_server_info`, `configure_uac` | UAC is Windows-only |
 
-Full reference: [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md)
+Full reference: [docs/MCP_TOOLS_REFERENCE.md](docs/MCP_TOOLS_REFERENCE.md) (per-tool catalog) · [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md) (strategy)
 
 ## How targeting works
 
@@ -122,7 +122,9 @@ Full reference: [docs/AGENT_GUIDE.md](docs/AGENT_GUIDE.md)
 | Text visible but no accessibility node | `find_text` / `click_text` |
 | Browser **page** content (not chrome) | Tab, clipboard, `find_text` — not `find_element` |
 
-Exploration workflow for multi-step flows: [.cursor/skills/awdui-flow-exploration/SKILL.md](.cursor/skills/awdui-flow-exploration/SKILL.md)
+Exploration workflow (generic): [.cursor/skills/awdui-flow-exploration/SKILL.md](.cursor/skills/awdui-flow-exploration/SKILL.md)
+
+Product-specific skills (object maps, flows): e.g. [.cursor/skills/ast-activities-manager/SKILL.md](.cursor/skills/ast-activities-manager/SKILL.md)
 
 ### Layered cascade (`smart_find`)
 
@@ -161,6 +163,7 @@ Details: [docs/OBJECT_REPOSITORY.md](docs/OBJECT_REPOSITORY.md)
 
 ## Documentation
 
+- [MCP Tools Reference](docs/MCP_TOOLS_REFERENCE.md) — complete catalog of all MCP tools
 - [Agent Guide](docs/AGENT_GUIDE.md) — tool selection, performance, browser/content caveats
 - [Object Repository](docs/OBJECT_REPOSITORY.md) — auto-lookup, `repo_action`, Repo Studio
 - [Discovery Protocol](docs/DISCOVERY_PROTOCOL.md) — probes and `discover_target_tool`

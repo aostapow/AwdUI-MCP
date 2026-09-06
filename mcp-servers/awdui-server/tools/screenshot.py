@@ -250,7 +250,17 @@ def _capture_window_by_title(window_title: str) -> Optional[Image.Image]:
 
 def _region_for_window(window_title: str) -> Optional[dict]:
     """Resolve a window title to a screenshot crop region (physical pixels)."""
-    from tools.windows import find_matching_window, do_list_windows
+    from tools.windows import find_matching_window, do_list_windows, resolve_window_visual_rect
+
+    try:
+        visual = resolve_window_visual_rect(window_title)
+        if visual and int(visual.get("w", 0)) >= 350:
+            scale = get_dpi_scale()
+            x, y = logical_to_physical(visual["x"], visual["y"], scale)
+            w, h = logical_to_physical(visual["w"], visual["h"], scale)
+            return {"x": max(0, x), "y": max(0, y), "w": w, "h": h}
+    except Exception:
+        pass
 
     match = find_matching_window(window_title, do_list_windows())
     win = match.get("window")
@@ -656,15 +666,15 @@ def register(server) -> int:
         # Focus target window before capture so it's in the foreground
         try:
             import time
-            from tools.target_window import ensure_focus, get_target
+            from tools.target_window import ensure_focus_for_capture, get_focus_policy, get_target
             from tools.windows import do_focus_window
             wt = resolve_capture_window(window_title, title, scope, capture_full=(scope == "full"))
-            if wt and scope != "full":
+            if wt and scope != "full" and get_focus_policy() == "always":
                 do_focus_window(wt, "focus")
                 time.sleep(0.35)
             elif get_target() and scope != "full":
-                ensure_focus()
-                time.sleep(0.3)
+                if ensure_focus_for_capture():
+                    time.sleep(0.15)
         except Exception:
             pass
         region = _build_region(region_x, region_y, region_w, region_h)

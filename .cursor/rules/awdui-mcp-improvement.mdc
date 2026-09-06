@@ -1,0 +1,41 @@
+---
+description: Lanza awdui-mcp-improvement-advisor en background tras automatización Windows
+alwaysApply: true
+---
+
+# Advisor de mejora AwdUI MCP
+
+## Exclusión
+
+Si el mensaje contiene **sin mcp advisor**, **no mcp advisor** o **skip mcp advisor** → omitir advisor.
+
+## Disparo obligatorio (agente principal)
+
+**Después de enviar la respuesta al usuario**, si en el turno hubo:
+
+- ≥3 llamadas a tools `user-awdui`, o
+- automatización / exploración / formulario GUI, o
+- fricción visible (timeout, OCR fallback, not found, reintentos)
+
+→ lanzar **inmediatamente** el subagente en background **solo si el ciclo NO está pausado** (`cycle_control.paused` o archivo `PAUSED`):
+
+```
+Task(description="AwdUI MCP Improvement Advisor", run_in_background=true, ...)
+```
+
+Prompt: incluir `usuario_sesion`, pedido original, cronología AwdUI, skills leídas (genérica + producto si aplica), versión MCP.
+Instrucción: leer `.cursor/skills/awdui-mcp-improvement-advisor/SKILL.md`.
+
+**No esperar** el resultado. **No mencionar** el advisor en el chat (ver `awdui-mcp-improvement-output.mdc`).
+
+## Invocación manual
+
+- `/awdui-mcp-improvement-advisor` (agente en `.cursor/agents/`)
+- O pedido explícito: «ejecutar el advisor»
+
+## Por qué no es automático «solo»
+
+Las rules **instruyen** al agente; no ejecutan código. Sin este paso explícito post-respuesta,
+el advisor no corre. Full Modulos usa el mismo patrón en `coach-testing.mdc` + agente + hooks.
+
+Este repo aún **no** tiene hooks `subagentStop` (opcional para log de respaldo).

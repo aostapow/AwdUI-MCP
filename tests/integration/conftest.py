@@ -34,6 +34,9 @@ if _screenshot_mod.screenshot_manager is None:
 
 FAILURE_DIR = os.path.join(os.path.dirname(__file__), "failures")
 
+# Supervised GUI: integration tests may use coordinate clicks via harness.
+os.environ.setdefault("AWDUI_GUI_SESSION", "pytest")
+
 
 @pytest.fixture(scope="session", autouse=True)
 def virtual_desktop():

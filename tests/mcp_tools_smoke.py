@@ -94,7 +94,7 @@ def main() -> int:
     from tools.windows import do_focus_window, do_launch_app, do_list_windows
 
     screenshot_mod.screenshot_manager = ScreenshotManager(
-        os.path.join(tempfile.gettempdir(), "awdui_screenshots")
+        os.path.join(os.path.expanduser("~"), ".awdui-mcp", "screenshots")
     )
 
     # System / utility
@@ -202,7 +202,13 @@ def main() -> int:
         if not r["ok"]:
             print(f"  FAIL: {r['tool']} -> {r['detail'][:200]}")
 
-    out = os.path.join(ROOT, "smoke_test_results.json")
+    out = os.path.join(
+        os.path.expanduser("~"),
+        ".awdui-mcp",
+        "diagnostics",
+        "smoke_test_results.json",
+    )
+    os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(RESULTS, f, indent=2, ensure_ascii=False)
     return 1 if fail else 0

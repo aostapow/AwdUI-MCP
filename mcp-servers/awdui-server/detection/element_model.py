@@ -55,6 +55,29 @@ def element_to_dict(elem: DetectedElement) -> dict:
     return elem.to_dict()
 
 
+def legacy_dict_to_detected(d: dict) -> DetectedElement:
+    """Convert legacy ui_automation element dict to DetectedElement."""
+    return DetectedElement(
+        name=str(d.get("name") or ""),
+        role=str(d.get("role") or ""),
+        x=int(d.get("x") or 0),
+        y=int(d.get("y") or 0),
+        width=int(d.get("width") or 0),
+        height=int(d.get("height") or 0),
+        value=str(d.get("value") or ""),
+        backend=str(d.get("backend") or "uia"),
+        automation_id=str(d.get("automation_id") or ""),
+        class_name=str(d.get("class_name") or ""),
+        framework_id=str(d.get("framework_id") or ""),
+        process_id=int(d.get("process_id") or 0),
+        visible=bool(d.get("visible", True)),
+        enabled=bool(d.get("enabled", True)),
+        clickable_x=d.get("clickable_x"),
+        clickable_y=d.get("clickable_y"),
+        patterns=list(d.get("patterns") or []),
+    )
+
+
 def dict_to_legacy_element(d: dict) -> dict:
     """Convert DetectedElement dict to legacy ui_automation format."""
     return {

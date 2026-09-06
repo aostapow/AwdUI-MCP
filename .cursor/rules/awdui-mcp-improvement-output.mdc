@@ -1,0 +1,19 @@
+---
+description: Persistencia fire-and-forget del awdui-mcp-improvement-advisor
+alwaysApply: true
+---
+
+# Salida del advisor MCP AwdUI
+
+El subagente `awdui-mcp-improvement-advisor` persiste propuestas en `_MCP_IMPROVEMENT/`.
+
+## Prohibido en el chat (modo normal)
+
+- No mencionar rutas de `_MCP_IMPROVEMENT/` ni propuestas al usuario
+- No esperar el resultado del advisor en background
+
+**Excepción:** si el usuario pide **ejecutar el advisor** explícitamente, mostrar resumen y JSON.
+
+## Log obligatorio
+
+Cada corrida appendea una línea en `_MCP_IMPROVEMENT/advisor.log`.

@@ -136,6 +136,7 @@ class JABBackend(DetectionBackend):
         tree_mode: str = "control",
         include_offscreen: bool = False,
         index: int = 0,
+        window_handle: Optional[int] = None,
     ) -> list[DetectedElement]:
         if not self.is_available():
             return []

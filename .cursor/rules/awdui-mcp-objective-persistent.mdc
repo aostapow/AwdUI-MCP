@@ -1,0 +1,57 @@
+---
+description: Objetivo MCP durable — leer skill y state; no parar si objective_met es false
+alwaysApply: true
+---
+
+# Objetivo MCP persistente
+
+## Al trabajar en este repo (MCP, Calculadora laboratorio, tests servidor)
+
+1. Leer `.cursor/skills/awdui-mcp-objective/SKILL.md` y `.cursor/skills/calculator-mcp-harness/SKILL.md`
+2. Leer `.cursor/mcp-improvement-cycle/state.json` antes de actuar
+3. Si `objective_met` o `calculator_perfect` es `false`: **no dar por cerrado**; ciclo agentico MCP (sin scripts para evaluar la app)
+4. **Calculadora** es la única app de prueba hasta `calculator_perfect: true`
+
+## Hooks (automático)
+
+- `sessionStart` → inyecta **protocolo completo** de ciclo (leer skills + ejecutar un turno sin esperar)
+- `stop` → `followup_message` de continuación si `objective_met` es false (hasta `loop_limit`) **y el ciclo no está pausado**
+
+## Comportamiento del agente en este repo
+
+Mientras `objective_met` sea `false`:
+
+1. **Al abrir chat** (hook `sessionStart`): leer skills y **empezar el ciclo** sin preguntar «¿sigo?».
+2. **Al terminar un turno** (hook `stop`): continuar con el siguiente ciclo si el usuario no pausó.
+3. **Si el usuario manda un mensaje vago** («continuar», «dale», «seguí») o solo abre el chat: ejecutar `last_cycle.next` desde `state.json`.
+4. **Si el usuario pide otra cosa** (pregunta, fix puntual): atender eso, pero no declarar objetivo cumplido.
+
+Si `state.json` tiene JSON inválido, los hooks **no corren** — validar con:
+
+```powershell
+python .cursor/hooks/check_mcp_objective.py --mode status
+```
+
+## Pausar el ciclo (usuario detuvo agente / subagente)
+
+Si el hook sigue reinyectando "OBJETIVO MCP INCOMPLETO" tras un stop manual:
+
+```powershell
+& scripts/pause-mcp-cycle.ps1 -Reason "usuario detuvo subagente"
+```
+
+Eso crea `.cursor/mcp-improvement-cycle/PAUSED` y pone `cycle_control.paused: true` en `state.json`. El hook `stop` **no** emite `followup_message` mientras esté pausado.
+
+Reanudar:
+
+```powershell
+& scripts/resume-mcp-cycle.ps1
+```
+
+El agente debe llamar `pause-mcp-cycle` si el usuario pide explícitamente parar el ciclo automático o indica que usó **Stop manual** en Cursor.
+
+## Verificación manual
+
+```powershell
+python .cursor/hooks/check_mcp_objective.py --mode status
+```

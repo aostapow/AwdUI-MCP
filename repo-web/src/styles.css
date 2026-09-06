@@ -82,6 +82,108 @@ body {
   margin-bottom: 8px;
 }
 
+.tree-app-header {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tree-chevron-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 2px;
+  flex-shrink: 0;
+}
+
+.tree-chevron-btn:hover {
+  color: #fff;
+}
+
+.tree-app-label {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #9cdcfe;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+  text-align: left;
+}
+
+.tree-app-label:hover,
+.tree-app-label.active {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.app-subtitle {
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.app-props select {
+  background: #3c3c3c;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.app-props code {
+  font-size: 12px;
+  color: #ce9178;
+}
+
+.app-actions .action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.danger-btn {
+  background: #8b2e2e;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.danger-btn:hover:not(:disabled) {
+  background: #a33a3a;
+}
+
+.danger-btn--outline {
+  background: transparent;
+  border: 1px solid #8b2e2e;
+  color: #f48771;
+}
+
+.danger-btn--outline:hover:not(:disabled) {
+  background: #3a2020;
+}
+
+.app-delete-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+.danger-btn:disabled,
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.status-msg {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #4ec9b0;
+}
+
 .tree-toggle {
   display: flex;
   align-items: center;

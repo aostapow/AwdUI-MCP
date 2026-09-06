@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
+*.pyo
+**/*.tsbuildinfo
 .venv/
 node_modules/
 repo-web/dist/
@@ -12,10 +14,17 @@ build/
 .pytest_cache/
 docs/plans/
 tests/integration/failures/
+tests/integration/evidence/
+tests/.output/
 pip-install.log
 mcp-servers/*/bin/
 mcp-servers/*/obj/
 .env
+# Legacy runtime artifacts (now under ~/.awdui-mcp/)
 prueba_screenshot_calculadora.png
 smoke_test_results.json
+highlight_annotated.png
+_ascii_out.txt
+.cursor/mcp-improvement-cycle/cycle.log
+_MCP_IMPROVEMENT/advisor.log
 

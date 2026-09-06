@@ -112,6 +112,7 @@ class Win32HwndBackend(DetectionBackend):
         tree_mode: str = "control",
         include_offscreen: bool = False,
         index: int = 0,
+        window_handle: Optional[int] = None,
     ) -> list[DetectedElement]:
         all_elems = self.list_elements(window_title=window_title, max_depth=10)
         matches = []

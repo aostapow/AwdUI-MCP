@@ -87,7 +87,11 @@ class DetectionOrchestrator:
         elements: list,
         framework: str,
     ) -> bool:
-        """True when a backend returned a low-value tree (common for UWP via MSAA)."""
+        """True when a backend returned a low-value tree (common for UWP via MSAA/FlaUI)."""
+        if framework in ("uwp", "winui") and backend_name == "flaui":
+            aids = sum(1 for e in elements if getattr(e, "automation_id", ""))
+            if aids < 15:
+                return True
         if framework not in ("uwp", "winui") or backend_name != "msaa":
             return False
         if not elements or len(elements) > 2:
@@ -102,13 +106,25 @@ class DetectionOrchestrator:
     def list_elements(
         self,
         window_title: Optional[str] = None,
-        max_depth: int = 12,
+        max_depth: Optional[int] = None,
         role: Optional[str] = None,
         tree_mode: str = "control",
         include_offscreen: bool = False,
         backend: Optional[str] = None,
+        window_handle: Optional[int] = None,
+        adaptive_cluster: bool = True,
     ) -> dict:
-        cache_key = f"{window_title}|{max_depth}|{role}|{tree_mode}|{include_offscreen}|{backend}"
+        from detection.tree_depth import normalize_tree_depth
+
+        max_depth = normalize_tree_depth(max_depth)
+        if max_depth == 0:
+            from detection.tree_depth import resolve_list_depth
+
+            _, max_depth, _ = resolve_list_depth(0, window_title=window_title, role=role)
+        cache_key = (
+            f"{window_title}|{window_handle}|{max_depth}|{role}|"
+            f"{tree_mode}|{include_offscreen}|{backend}"
+        )
         now = time.monotonic()
         if cache_key in _tree_cache:
             ts, cached = _tree_cache[cache_key]
@@ -116,6 +132,7 @@ class DetectionOrchestrator:
                 return {
                     "elements": [dict_to_legacy_element(e.to_dict()) for e in cached],
                     "count": len(cached),
+                    "scoped_out": 0,
                     "backend_used": backend or "cache",
                 }
 
@@ -133,12 +150,27 @@ class DetectionOrchestrator:
                     role=role,
                     tree_mode=tree_mode,
                     include_offscreen=include_offscreen,
+                    window_handle=window_handle,
                 )
                 if elements and not self._weak_backend_result(bname, elements, framework):
-                    _tree_cache[cache_key] = (now, elements)
+                    from detection.element_scope import filter_elements_to_scope
+
+                    scoped_elements, scoped_out, cluster_out, content_region = (
+                        filter_elements_to_scope(
+                            elements,
+                            window_title,
+                            adaptive_cluster=adaptive_cluster,
+                        )
+                    )
+                    _tree_cache[cache_key] = (now, scoped_elements)
                     return {
-                        "elements": [dict_to_legacy_element(e.to_dict()) for e in elements],
-                        "count": len(elements),
+                        "elements": [
+                            dict_to_legacy_element(e.to_dict()) for e in scoped_elements
+                        ],
+                        "count": len(scoped_elements),
+                        "scoped_out": scoped_out,
+                        "cluster_out": cluster_out,
+                        "content_region": content_region,
                         "backend_used": bname,
                     }
             except Exception as e:
@@ -155,6 +187,7 @@ class DetectionOrchestrator:
         tree_mode: str = "control",
         include_offscreen: bool = False,
         index: int = 0,
+        window_handle: Optional[int] = None,
     ) -> dict:
         backends = self._backend_order(window_title)
         all_matches: list[DetectedElement] = []
@@ -173,8 +206,16 @@ class DetectionOrchestrator:
                     tree_mode=tree_mode,
                     include_offscreen=include_offscreen,
                     index=0,
+                    window_handle=window_handle,
                 )
                 if matches:
+                    framework = self._framework_name(window_title)
+                    if self._weak_backend_result(bname, matches, framework):
+                        continue
+                    if automation_id and not any(
+                        (getattr(m, "automation_id", "") or "") == automation_id for m in matches
+                    ):
+                        continue
                     all_matches = matches
                     backend_used = bname
                     break
@@ -218,6 +259,7 @@ class DetectionOrchestrator:
         x: Optional[int] = None,
         y: Optional[int] = None,
         window_title: Optional[str] = None,
+        window_handle: Optional[int] = None,
     ) -> dict:
         elem = None
         backend_used = ""
@@ -234,6 +276,7 @@ class DetectionOrchestrator:
                 automation_id=automation_id,
                 window_title=window_title,
                 include_offscreen=True,
+                window_handle=window_handle,
             )
             if matches:
                 elem = matches[0]
@@ -327,3 +370,23 @@ def get_orchestrator() -> DetectionOrchestrator:
     if _orchestrator is None:
         _orchestrator = DetectionOrchestrator()
     return _orchestrator
+
+
+def invalidate_tree_cache(window_title: Optional[str] = None) -> int:
+    """Clear list_elements tree cache (all windows or one title prefix)."""
+    from detection.spatial_cluster import invalidate_content_region_cache
+
+    invalidate_content_region_cache(window_title)
+    global _tree_cache
+    if not window_title:
+        n = len(_tree_cache)
+        _tree_cache.clear()
+        return n
+    prefix = f"{window_title}|"
+    keys = [k for k in _tree_cache if k.startswith(prefix)]
+    for k in keys:
+        del _tree_cache[k]
+    return len(keys)
+
+
+clear_tree_cache = invalidate_tree_cache

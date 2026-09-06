@@ -166,3 +166,39 @@ class TestRepoStore:
         items = repo_db.list_objects_for_app("CalculatorApp.exe", exe)
         assert len(items) == 1
         assert items[0]["repo_path"] == "Calculadora/num1Button"
+
+    def test_reset_repository(self, repo_db):
+        repo_db.upsert(
+            "App.exe",
+            "",
+            "frm/btnOk",
+            obj_class="SwfButton",
+            identification={"mandatory": {"name": "OK"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
+        result = repo_db.reset_repository()
+        assert result["objects_removed"] == 1
+        assert result["apps_removed"] == 1
+        assert repo_db.list_applications() == []
+
+    def test_application_crud(self, repo_db):
+        repo_db.upsert(
+            "AST.exe",
+            "C:\\AST\\Administrador.exe",
+            "wfMain/btnGuardar",
+            obj_class="SwfButton",
+            framework="winforms",
+            identification={"mandatory": {"automation_id": "btnGuardar"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
+        apps = repo_db.list_applications()
+        app_id = apps[0]["app_id"]
+        detail = repo_db.get_application(app_id)
+        assert detail is not None
+        assert detail["object_count"] == 1
+        assert detail["window_count"] == 1
+        updated = repo_db.update_application(
+            app_id, framework="winforms", agent_hints="priorizar automation_id"
+        )
+        assert updated["agent_hints"] == "priorizar automation_id"
+        result = repo_db.delete_application(app_id)
+        assert result["objects_removed"] == 1
+        assert repo_db.get_application(app_id) is None

@@ -1,0 +1,78 @@
+---
+description: Mantener docs/MCP_TOOLS_REFERENCE.md al cambiar tools MCP
+globs: mcp-servers/awdui-server/tools/**/*.py,mcp-servers/awdui-server/server.py
+alwaysApply: false
+---
+
+# Catálogo de tools MCP — mantenimiento obligatorio
+
+Este repo **desarrolla** el servidor `awdui`. Cada cambio en tools debe reflejarse en la documentación para agentes.
+
+## Documento canónico
+
+**`docs/MCP_TOOLS_REFERENCE.md`** — contrato de **cada** tool: qué hace, cuándo, parámetros, evitar, ejemplo.
+
+Los agentes deben leerlo **antes** de elegir tools en flujos nuevos.  
+`docs/AGENT_GUIDE.md` cubre estrategia general; el catálogo es la referencia por tool.
+
+## Responsabilidad del agente (no delegar al script)
+
+Al tocar `mcp-servers/awdui-server/tools/**` o `server.py`, el agente **debe**:
+
+1. Leer la implementación real (`@server.tool`, docstring, parámetros).
+2. Actualizar `docs/MCP_TOOLS_REFERENCE.md` con una **sección dedicada por tool** (no agrupar varias tools en un solo `###`).
+3. Completar la plantilla obligatoria (ver abajo) con contenido **específico** de esa tool — no placeholders.
+4. Actualizar índice rápido + lista alfabética si cambia el inventario.
+5. Ejecutar `python scripts/validate_tools_reference.py` y corregir hasta verde.
+
+El script solo detecta omisiones estructurales; **la calidad y exactitud del texto es trabajo agentico**.
+
+## Cuándo actualizar (obligatorio)
+
+| Cambio en código | Acción en el doc |
+|------------------|------------------|
+| **Nueva** `@server.tool()` | Índice + sección `### \`nombre\`` completa |
+| **Modificar** parámetros o comportamiento | Actualizar esa sección (params, ejemplo, evitar) |
+| **Eliminar** tool | Quitar del índice y borrar sección; changelog |
+| **Renombrar** tool | Renombrar en todo el doc |
+
+## Plantilla obligatoria (una sección por tool)
+
+```markdown
+### `nombre_tool`
+
+**Qué hace:** …  
+**Cuándo usarla:** …  
+**Parámetros clave:** `param1`, `param2`  
+**Evitar:** … (o «—» si no aplica)  
+**Ejemplo:** `nombre_tool(...)`  
+**Relacionadas:** `otra_tool`
+```
+
+Reglas:
+
+- **Un solo** `### \`tool\`` por tool — prohibido `### \`a\` / \`b\``.
+- **Parámetros clave** deben coincidir con la firma MCP actual.
+- **Ejemplo** invocable (valores realistas, no `...` genérico salvo args opcionales obvios).
+
+## Checklist al cerrar el cambio
+
+1. `docs/MCP_TOOLS_REFERENCE.md` — fecha «Última revisión» en encabezado.
+2. Si cambia estrategia global → una línea en `docs/AGENT_GUIDE.md`.
+3. `python scripts/validate_tools_reference.py` (debe pasar).
+4. Cambio user-facing notable → README tools.
+
+## Validación automática (complementaria)
+
+```powershell
+python scripts/validate_tools_reference.py
+```
+
+Comprueba presencia en índice, sección `### \`tool\`` dedicada (sin agrupar) y campos mínimos de plantilla.  
+**No sustituye** revisar el código y redactar texto preciso — eso es siempre trabajo del agente.
+
+## No duplicar
+
+- Skills = metodología y patrones por tipo de control.
+- `MCP_TOOLS_REFERENCE.md` = contrato MCP por tool.
+- Enlazar al doc desde skills; no copiar el catálogo entero.

@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "source_url": "https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/control-pattern-mapping-for-ui-automation-clients",
+  "source_note": "Conditional/must patterns per Microsoft UIA; MCP tools are AwdUI-specific.",
+  "controls": {
+    "AppBar": {
+      "patterns_ms": { "must": ["ExpandCollapse", "Toggle"], "conditional": [], "not": ["Invoke"] },
+      "read": ["spy_inspect", "list_elements"],
+      "act": [
+        { "id": "map_appbar_toggle", "tools": ["invoke_element"], "patterns": ["Toggle"], "steps": ["invoke_element toggles AppBar visibility"] },
+        { "id": "map_appbar_expand", "tools": ["expand_element"], "patterns": ["ExpandCollapse"], "steps": ["expand_element on AppBar sections"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Button": {
+      "patterns_ms": { "must": [], "conditional": ["ExpandCollapse", "Invoke", "Toggle", "Value"], "not": [] },
+      "read": ["spy_inspect", "get_element_properties"],
+      "act": [
+        { "id": "map_invoke", "tools": ["invoke_element"], "patterns": ["Invoke"], "steps": ["invoke_element — InvokePattern (MS conditional)"] },
+        { "id": "map_toggle", "tools": ["invoke_element"], "patterns": ["Toggle"], "steps": ["invoke_element — TogglePattern"] },
+        { "id": "map_expand", "tools": ["expand_element"], "patterns": ["ExpandCollapse"], "steps": ["expand_element — drop-down portion"] },
+        { "id": "map_value", "tools": ["set_element_value"], "patterns": ["Value"], "steps": ["set_element_value if Value exposed on Button"] }
+      ],
+      "fallback": ["click_element", "click", "send_keys"]
+    },
+    "Calendar": {
+      "patterns_ms": { "must": ["Grid", "Table"], "conditional": ["Scroll", "Selection", "Value"], "not": [] },
+      "read": ["list_control_items", "spy_inspect"],
+      "act": [
+        { "id": "map_grid_select", "tools": ["list_control_items", "select_control_item", "click_element"], "patterns": ["Grid", "Table"], "steps": ["list_control_items for date cells", "select_control_item or click_element on day"] },
+        { "id": "map_scroll", "tools": ["scroll"], "patterns": ["Scroll"], "steps": ["scroll calendar view"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "CheckBox": {
+      "patterns_ms": { "must": ["Toggle"], "conditional": [], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [{ "id": "map_toggle", "tools": ["invoke_element"], "patterns": ["Toggle"], "steps": ["invoke_element toggles CheckBox"] }],
+      "fallback": ["click_element"]
+    },
+    "ComboBox": {
+      "patterns_ms": { "must": ["ExpandCollapse"], "conditional": ["Selection", "Value"], "not": ["Scroll"] },
+      "read": ["list_control_items", "spy_inspect"],
+      "act": [
+        { "id": "map_combo_list", "tools": ["expand_element", "list_control_items", "select_control_item"], "patterns": ["ExpandCollapse", "Selection"], "steps": ["expand_element", "list_control_items", "select_control_item"] },
+        { "id": "map_combo_value", "tools": ["set_element_value"], "patterns": ["Value"], "steps": ["set_element_value on editable combo only"] }
+      ],
+      "fallback": ["click_element", "type_text"]
+    },
+    "DataGrid": {
+      "patterns_ms": { "must": ["Grid"], "conditional": ["Scroll", "Selection", "Table"], "not": [] },
+      "read": ["list_control_items", "spy_inspect"],
+      "act": [
+        { "id": "map_grid", "tools": ["list_control_items", "select_control_item"], "patterns": ["Grid", "Table"], "steps": ["list_control_items rows", "select_control_item on row"] },
+        { "id": "map_scroll", "tools": ["scroll"], "patterns": ["Scroll"], "steps": ["scroll virtualized grid"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "DataItem": {
+      "patterns_ms": { "must": ["SelectionItem"], "conditional": ["GridItem", "TableItem", "Value", "Toggle", "ExpandCollapse", "ScrollItem"], "not": [] },
+      "read": ["spy_inspect", "get_element_properties"],
+      "act": [
+        { "id": "map_selection", "tools": ["select_control_item", "invoke_element"], "patterns": ["SelectionItem"], "steps": ["select under parent grid", "read Value not only name"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Document": {
+      "patterns_ms": { "must": ["Text"], "conditional": ["Scroll", "Value"], "not": [] },
+      "read": ["get_element_properties", "spy_inspect"],
+      "act": [
+        { "id": "map_text", "tools": ["set_element_value"], "patterns": ["Text", "Value"], "steps": ["set_element_value or clipboard paste"] }
+      ],
+      "fallback": ["type_text", "clipboard"]
+    },
+    "Edit": {
+      "patterns_ms": { "must": [], "conditional": ["Text", "RangeValue", "Value"], "not": [] },
+      "read": ["get_element_properties"],
+      "act": [
+        { "id": "map_value", "tools": ["set_element_value"], "patterns": ["Value"], "steps": ["set_element_value"] },
+        { "id": "map_text", "tools": ["set_element_value"], "patterns": ["Text"], "steps": ["set_element_value via Text pattern"] }
+      ],
+      "fallback": ["click_element", "type_text"]
+    },
+    "Group": {
+      "patterns_ms": { "must": [], "conditional": ["ExpandCollapse"], "not": [] },
+      "read": ["list_elements", "discover_control_interaction"],
+      "act": [
+        { "id": "map_expand", "tools": ["expand_element"], "patterns": ["ExpandCollapse"], "steps": ["expand_element on group header"] },
+        { "id": "map_children", "tools": ["list_elements", "discover_control_interaction"], "patterns": [], "steps": ["act on children not Group shell"] }
+      ],
+      "fallback": []
+    },
+    "Header": {
+      "patterns_ms": { "must": [], "conditional": ["Transform"], "not": [] },
+      "read": ["list_elements", "spy_inspect"],
+      "act": [],
+      "fallback": []
+    },
+    "HeaderItem": {
+      "patterns_ms": { "must": [], "conditional": ["Transform", "Invoke"], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [{ "id": "map_invoke", "tools": ["invoke_element"], "patterns": ["Invoke"], "steps": ["invoke_element on sortable column header"] }],
+      "fallback": ["click_element"]
+    },
+    "Hyperlink": {
+      "patterns_ms": { "must": ["Invoke"], "conditional": ["Value"], "not": [] },
+      "read": ["spy_inspect", "get_element_properties"],
+      "act": [{ "id": "map_invoke", "tools": ["invoke_element"], "patterns": ["Invoke"], "steps": ["invoke_element opens link"] }],
+      "fallback": ["click_element"]
+    },
+    "Image": {
+      "patterns_ms": { "must": [], "conditional": ["GridItem", "TableItem"], "not": ["Invoke", "SelectionItem"] },
+      "read": ["spy_inspect"],
+      "act": [],
+      "fallback": ["smart_find", "find_text"]
+    },
+    "List": {
+      "patterns_ms": { "must": [], "conditional": ["Grid", "MultipleView", "Scroll", "Selection"], "not": ["Table"] },
+      "read": ["list_control_items"],
+      "act": [
+        { "id": "map_list_select", "tools": ["list_control_items", "select_control_item"], "patterns": ["Selection"], "steps": ["list_control_items", "select_control_item"] },
+        { "id": "map_scroll", "tools": ["scroll"], "patterns": ["Scroll"], "steps": ["scroll list"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "ListItem": {
+      "patterns_ms": { "must": ["SelectionItem"], "conditional": ["Invoke", "ExpandCollapse", "Toggle", "Value", "GridItem", "ScrollItem"], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [
+        { "id": "map_selection", "tools": ["select_control_item", "invoke_element"], "patterns": ["SelectionItem"], "steps": ["select_control_item or invoke_element"] },
+        { "id": "map_invoke", "tools": ["invoke_element"], "patterns": ["Invoke"], "steps": ["invoke_element if button-like item"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Menu": {
+      "patterns_ms": { "must": [], "conditional": [], "not": [] },
+      "read": ["list_elements"],
+      "act": [{ "id": "map_menu_children", "tools": ["list_elements"], "patterns": [], "steps": ["list_elements(role=MenuItem)"] }],
+      "fallback": []
+    },
+    "MenuBar": {
+      "patterns_ms": { "must": [], "conditional": ["ExpandCollapse", "Dock", "Transform"], "not": [] },
+      "read": ["list_elements"],
+      "act": [{ "id": "map_menubar", "tools": ["list_elements", "invoke_element"], "patterns": [], "steps": ["list_elements MenuItem children"] }],
+      "fallback": []
+    },
+    "MenuItem": {
+      "patterns_ms": { "must": [], "conditional": ["Invoke", "ExpandCollapse", "SelectionItem", "Toggle"], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [
+        { "id": "map_invoke", "tools": ["invoke_element"], "patterns": ["Invoke"], "steps": ["invoke_element executes command"] },
+        { "id": "map_expand", "tools": ["expand_element", "list_elements"], "patterns": ["ExpandCollapse"], "steps": ["expand submenu"] },
+        { "id": "map_toggle", "tools": ["invoke_element"], "patterns": ["Toggle"], "steps": ["toggle checked menu item"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Pane": {
+      "patterns_ms": { "must": [], "conditional": ["Dock", "Scroll", "Transform"], "not": ["Window"] },
+      "read": ["list_elements", "discover_control_interaction"],
+      "act": [{ "id": "map_children", "tools": ["discover_control_interaction", "list_elements"], "patterns": [], "steps": ["discover children — do not click Pane shell"] }],
+      "fallback": []
+    },
+    "ProgressBar": {
+      "patterns_ms": { "must": [], "conditional": ["RangeValue", "Value"], "not": [] },
+      "read": ["get_element_properties", "spy_inspect"],
+      "act": [],
+      "fallback": []
+    },
+    "RadioButton": {
+      "patterns_ms": { "must": ["SelectionItem"], "conditional": [], "not": ["Toggle"] },
+      "read": ["spy_inspect"],
+      "act": [{ "id": "map_selection", "tools": ["select_control_item", "invoke_element"], "patterns": ["SelectionItem"], "steps": ["select_control_item in radio group"] }],
+      "fallback": ["click_element"]
+    },
+    "ScrollBar": {
+      "patterns_ms": { "must": [], "conditional": ["RangeValue"], "not": ["Scroll"] },
+      "read": ["get_element_properties"],
+      "act": [
+        { "id": "map_range", "tools": ["send_keys", "scroll"], "patterns": ["RangeValue"], "steps": ["send_keys PageUp/Down or drag thumb"] }
+      ],
+      "fallback": ["click"]
+    },
+    "Separator": {
+      "patterns_ms": { "must": [], "conditional": [], "not": [] },
+      "read": [],
+      "act": [],
+      "fallback": []
+    },
+    "Slider": {
+      "patterns_ms": { "must": [], "conditional": ["RangeValue", "Selection", "Value"], "not": [] },
+      "read": ["get_element_properties"],
+      "act": [{ "id": "map_range", "tools": ["set_element_value", "send_keys"], "patterns": ["RangeValue", "Value"], "steps": ["set_element_value or arrow keys"] }],
+      "fallback": []
+    },
+    "Spinner": {
+      "patterns_ms": { "must": [], "conditional": ["RangeValue", "Selection", "Value"], "not": [] },
+      "read": ["get_element_properties"],
+      "act": [{ "id": "map_range", "tools": ["set_element_value", "send_keys"], "patterns": ["RangeValue", "Value"], "steps": ["set_element_value or up/down keys"] }],
+      "fallback": []
+    },
+    "SplitButton": {
+      "patterns_ms": { "must": ["Invoke", "ExpandCollapse"], "conditional": [], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [
+        { "id": "map_split", "tools": ["invoke_element", "expand_element", "list_control_items"], "patterns": ["Invoke", "ExpandCollapse"], "steps": ["invoke main area", "expand_element for menu"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "StatusBar": {
+      "patterns_ms": { "must": [], "conditional": ["Grid"], "not": [] },
+      "read": ["list_elements"],
+      "act": [{ "id": "map_status_read", "tools": ["list_elements"], "patterns": ["Grid"], "steps": ["read status panes from children"] }],
+      "fallback": []
+    },
+    "Tab": {
+      "patterns_ms": { "must": ["Selection"], "conditional": ["Scroll"], "not": [] },
+      "read": ["list_elements"],
+      "act": [{ "id": "map_tab_items", "tools": ["list_elements"], "patterns": [], "steps": ["list_elements TabItem children"] }],
+      "fallback": []
+    },
+    "TabItem": {
+      "patterns_ms": { "must": ["SelectionItem"], "conditional": [], "not": ["Invoke"] },
+      "read": ["spy_inspect"],
+      "act": [{ "id": "map_selection", "tools": ["select_control_item", "invoke_element"], "patterns": ["SelectionItem"], "steps": ["select_control_item switches tab"] }],
+      "fallback": ["click_element"]
+    },
+    "Table": {
+      "patterns_ms": { "must": ["Grid", "GridItem", "Table", "TableItem"], "conditional": [], "not": [] },
+      "read": ["list_control_items", "spy_inspect"],
+      "act": [
+        { "id": "map_grid", "tools": ["list_control_items", "select_control_item"], "patterns": ["Grid", "Table"], "steps": ["list_control_items DataItem rows", "select_control_item; double_click for lookup"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Text": {
+      "patterns_ms": { "must": [], "conditional": ["GridItem", "TableItem", "Text"], "not": ["Value"] },
+      "read": ["spy_inspect", "get_element_properties"],
+      "act": [],
+      "fallback": []
+    },
+    "Thumb": {
+      "patterns_ms": { "must": ["Transform"], "conditional": [], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [{ "id": "map_drag", "tools": ["drag"], "patterns": ["Transform"], "steps": ["drag Thumb to scroll"] }],
+      "fallback": []
+    },
+    "TitleBar": {
+      "patterns_ms": { "must": [], "conditional": [], "not": [] },
+      "read": [],
+      "act": [],
+      "fallback": []
+    },
+    "ToolBar": {
+      "patterns_ms": { "must": [], "conditional": ["Dock", "ExpandCollapse", "Transform"], "not": [] },
+      "read": ["list_elements"],
+      "act": [{ "id": "map_toolbar", "tools": ["list_elements", "invoke_element"], "patterns": [], "steps": ["invoke_element on Button children"] }],
+      "fallback": []
+    },
+    "ToolTip": {
+      "patterns_ms": { "must": [], "conditional": ["Text", "Window"], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [],
+      "fallback": []
+    },
+    "Tree": {
+      "patterns_ms": { "must": [], "conditional": ["Scroll", "Selection"], "not": [] },
+      "read": ["list_elements"],
+      "act": [
+        { "id": "map_tree_items", "tools": ["list_elements"], "patterns": [], "steps": ["list_elements TreeItem after expand"] },
+        { "id": "map_scroll", "tools": ["scroll"], "patterns": ["Scroll"], "steps": ["scroll tree"] }
+      ],
+      "fallback": []
+    },
+    "TreeItem": {
+      "patterns_ms": { "must": ["ExpandCollapse"], "conditional": ["Invoke", "SelectionItem", "Toggle", "ScrollItem"], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [
+        { "id": "map_expand", "tools": ["expand_element", "list_elements"], "patterns": ["ExpandCollapse"], "steps": ["expand_element then list children"] },
+        { "id": "map_selection", "tools": ["select_control_item", "invoke_element"], "patterns": ["SelectionItem", "Invoke"], "steps": ["select or invoke leaf node"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Window": {
+      "patterns_ms": { "must": ["Transform", "Window"], "conditional": ["Dock"], "not": [] },
+      "read": ["set_target_window", "list_elements"],
+      "act": [{ "id": "map_window_scope", "tools": ["set_target_window", "focus_window"], "patterns": [], "steps": ["set_target_window for scope; act on children"] }],
+      "fallback": []
+    },
+    "SemanticZoom": {
+      "patterns_ms": { "must": [], "conditional": ["Toggle", "Scroll"], "not": [] },
+      "read": ["spy_inspect"],
+      "act": [
+        { "id": "map_semzoom_toggle", "tools": ["invoke_element"], "patterns": ["Toggle"], "steps": ["invoke_element toggles zoomed view"] },
+        { "id": "map_scroll", "tools": ["scroll"], "patterns": ["Scroll"], "steps": ["scroll between zoom levels"] }
+      ],
+      "fallback": ["click_element"]
+    },
+    "Custom": {
+      "patterns_ms": { "must": [], "conditional": [], "not": [], "note": "Not an MS control type — runtime patterns only" },
+      "read": ["spy_inspect", "discover_control_interaction"],
+      "act": [{ "id": "map_custom_inspect", "tools": ["spy_inspect", "discover_control_interaction"], "patterns": [], "steps": ["inspect patterns; discover children"] }],
+      "fallback": ["smart_find", "find_text"]
+    }
+  }
+}

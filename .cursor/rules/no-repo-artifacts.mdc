@@ -1,0 +1,16 @@
+# No runtime artifacts in the git repo
+
+Never write screenshots, logs, smoke results, captures, or diagnostics under the project root (`AwdUI-MCP/`).
+
+Use `~/.awdui-mcp/` instead:
+
+| Kind | Path |
+|------|------|
+| Screenshots | `~/.awdui-mcp/screenshots/` |
+| Smoke / diagnostics | `~/.awdui-mcp/diagnostics/` |
+| Repository DB + crops | `~/.awdui-mcp/repository.db`, `repository-assets/` |
+| Discovery traces | `~/.awdui-mcp/traces/` |
+
+When testing screenshots manually, save to `%TEMP%\awdui_diag\` or `~/.awdui-mcp/diagnostics/`, not the repo.
+
+The MCP launcher sets `cwd` to `~/.awdui-mcp` so relative paths do not pollute the checkout.

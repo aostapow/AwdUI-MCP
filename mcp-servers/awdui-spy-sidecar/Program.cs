@@ -47,6 +47,8 @@ static class Program
         "from_point" => FromPoint(req.Params),
         "inspect_full" => InspectFull(req.Params),
         "walk_tree" => WalkTree(req.Params),
+        "invoke" => InvokeCmd(req.Params),
+        "expand_collapse" => ExpandCollapseCmd(req.Params),
         "highlight" => HighlightCmd(req.Params),
         "unhighlight" => HighlightOverlay.Unhighlight(),
         _ => new { error = $"unknown command: {req.Command}" },
@@ -75,31 +77,275 @@ static class Program
     static object InspectFull(JsonElement p)
     {
         using var automation = new UIA3Automation();
-        var window = ResolveWindow(automation, GetStr(p, "window_title"));
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
         if (window == null) return new { found = false, error = "no window" };
         var name = GetStr(p, "name");
         var aid = GetStr(p, "automation_id");
+        AutomationElement? elem = FindInScope(automation, window, name, aid, p);
+        if (elem == null) return new { found = false, error = "not found" };
+        return new { found = true, properties = InspectElement(elem) };
+    }
+
+    static object InvokeCmd(JsonElement p)
+    {
+        using var automation = new UIA3Automation();
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
+        if (window == null) return new { success = false, error = "no window" };
+        var name = GetStr(p, "name");
+        var aid = GetStr(p, "automation_id");
+        var elem = FindInScope(automation, window, name, aid, p);
+        if (elem == null) return new { success = false, error = "not found" };
+        return ActivateElement(elem);
+    }
+
+    /// <summary>Invoke for buttons; SelectionItem for NavView ListItems (UWP).</summary>
+    static object ActivateElement(AutomationElement elem)
+    {
+        if (elem.Patterns.Invoke.IsSupported)
+        {
+            elem.Patterns.Invoke.Pattern.Invoke();
+            return new { success = true, method = "InvokePattern" };
+        }
+        if (elem.Patterns.SelectionItem.IsSupported)
+        {
+            elem.Patterns.SelectionItem.Pattern.Select();
+            return new { success = true, method = "SelectionItemPattern" };
+        }
+        if (elem.Patterns.Toggle.IsSupported)
+        {
+            elem.Patterns.Toggle.Pattern.Toggle();
+            return new { success = true, method = "TogglePattern" };
+        }
+        if (elem.Patterns.ExpandCollapse.IsSupported)
+        {
+            elem.Patterns.ExpandCollapse.Pattern.Expand();
+            return new { success = true, method = "ExpandCollapse.Expand" };
+        }
+        return new { success = false, error = "No Invoke, SelectionItem, Toggle nor ExpandCollapse supported" };
+    }
+
+    static object ExpandCollapseCmd(JsonElement p)
+    {
+        using var automation = new UIA3Automation();
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
+        if (window == null) return new { success = false, error = "no window" };
+        var name = GetStr(p, "name");
+        var aid = GetStr(p, "automation_id");
+        var elem = FindInScope(automation, window, name, aid, p);
+        if (elem == null) return new { success = false, error = "not found" };
+        if (!elem.Patterns.ExpandCollapse.IsSupported)
+            return new { success = false, error = "ExpandCollapse not supported" };
+        var action = GetStr(p, "action");
+        var pattern = elem.Patterns.ExpandCollapse.Pattern;
+        if (action.Equals("collapse", StringComparison.OrdinalIgnoreCase))
+        {
+            pattern.Collapse();
+            return new { success = true, method = "ExpandCollapse.Collapse" };
+        }
+        pattern.Expand();
+        return new { success = true, method = "ExpandCollapse.Expand" };
+    }
+
+    static bool RectsIntersect(System.Drawing.Rectangle a, System.Drawing.Rectangle b)
+    {
+        return a.IntersectsWith(b);
+    }
+
+    static bool TryGetVisualRect(JsonElement p, out System.Drawing.Rectangle rect)
+    {
+        if (!p.TryGetProperty("window_rect", out var wr))
+        {
+            rect = default;
+            return false;
+        }
+        if (!wr.TryGetProperty("x", out var xp) || !wr.TryGetProperty("y", out var yp))
+        {
+            rect = default;
+            return false;
+        }
+        int w = wr.TryGetProperty("w", out var wp) ? wp.GetInt32()
+            : wr.TryGetProperty("width", out var wp2) ? wp2.GetInt32() : 0;
+        int h = wr.TryGetProperty("h", out var hp) ? hp.GetInt32()
+            : wr.TryGetProperty("height", out var hp2) ? hp2.GetInt32() : 0;
+        if (w <= 0 || h <= 0)
+        {
+            rect = default;
+            return false;
+        }
+        rect = new System.Drawing.Rectangle(xp.GetInt32(), yp.GetInt32(), w, h);
+        return true;
+    }
+
+    static bool ElementInScope(AutomationElement e, AutomationElement window, JsonElement p)
+    {
+        try
+        {
+            var er = e.BoundingRectangle;
+            if (er.Width <= 0 && er.Height <= 0) return false;
+            if (TryGetVisualRect(p, out var vr))
+            {
+                var cx = er.X + er.Width / 2.0;
+                var cy = er.Y + er.Height / 2.0;
+                return cx >= vr.Left && cx < vr.Right && cy >= vr.Top && cy < vr.Bottom;
+            }
+            return ElementInWindow(e, window);
+        }
+        catch { return false; }
+    }
+
+    static bool ElementInWindow(AutomationElement e, AutomationElement window)
+    {
+        try
+        {
+            var wr = window.BoundingRectangle;
+            var er = e.BoundingRectangle;
+            if (wr.Width <= 0 || wr.Height <= 0) return false;
+            if (er.Width <= 0 && er.Height <= 0) return false;
+            return RectsIntersect(wr, er);
+        }
+        catch { return false; }
+    }
+
+    static IEnumerable<AutomationElement> DesktopElementsInScope(
+        UIA3Automation automation,
+        AutomationElement window,
+        JsonElement p)
+    {
+        var desktop = automation.GetDesktop();
+        foreach (var e in desktop.FindAllDescendants())
+        {
+            if (ElementInScope(e, window, p))
+                yield return e;
+        }
+    }
+
+    static AutomationElement? FindInScope(
+        UIA3Automation automation,
+        AutomationElement window,
+        string name,
+        string aid,
+        JsonElement p)
+    {
         AutomationElement? elem = null;
         if (!string.IsNullOrEmpty(aid))
             elem = window.FindFirstDescendant(cf => cf.ByAutomationId(aid));
         if (elem == null && !string.IsNullOrEmpty(name))
             elem = window.FindFirstDescendant(cf => cf.ByName(name));
-        if (elem == null) return new { found = false, error = "not found" };
-        return new { found = true, properties = InspectElement(elem) };
+        if (elem != null) return elem;
+
+        foreach (var e in DesktopElementsInScope(automation, window, p))
+        {
+            string eAid = "";
+            try { eAid = e.AutomationId ?? ""; } catch { }
+            if (!string.IsNullOrEmpty(aid) && eAid == aid)
+                return e;
+            if (!string.IsNullOrEmpty(name) && (e.Name ?? "").Contains(name, StringComparison.OrdinalIgnoreCase))
+                return e;
+        }
+        return null;
+    }
+
+    static void SupplementDesktopInScope(
+        UIA3Automation automation,
+        AutomationElement window,
+        JsonElement p,
+        int maxDepth,
+        bool visibleOnly,
+        string roleFilter,
+        List<Dictionary<string, object?>> outList)
+    {
+        var seen = new HashSet<string>();
+        foreach (var existing in outList)
+        {
+            var key = $"{existing.GetValueOrDefault("automation_id")}|{existing.GetValueOrDefault("x")}|{existing.GetValueOrDefault("y")}";
+            seen.Add(key);
+        }
+        try
+        {
+            foreach (var e in DesktopElementsInScope(automation, window, p))
+            {
+                if (outList.Count >= 500) break;
+                Dictionary<string, object?> info;
+                try { info = InspectElement(e); }
+                catch { continue; }
+                var key = $"{info.GetValueOrDefault("automation_id")}|{info.GetValueOrDefault("x")}|{info.GetValueOrDefault("y")}";
+                if (seen.Contains(key)) continue;
+                if (visibleOnly && (info["is_offscreen"] as bool? ?? false)) continue;
+                var role = info["role"]?.ToString() ?? "";
+                if (!string.IsNullOrEmpty(roleFilter) &&
+                    !role.Contains(roleFilter, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                var aid = info["automation_id"]?.ToString() ?? "";
+                var ename = info["name"]?.ToString() ?? "";
+                if (string.IsNullOrEmpty(aid) && string.IsNullOrEmpty(ename) && role == "Pane")
+                    continue;
+                outList.Add(info);
+                seen.Add(key);
+            }
+        }
+        catch { /* optional */ }
     }
 
     static object WalkTree(JsonElement p)
     {
         using var automation = new UIA3Automation();
-        var window = ResolveWindow(automation, GetStr(p, "window_title"));
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
         if (window == null) return new { elements = Array.Empty<object>() };
         int maxDepth = p.TryGetProperty("max_depth", out var dp) ? dp.GetInt32() : 5;
         bool visibleOnly = p.TryGetProperty("visible_only", out var vp) && vp.GetBoolean();
         string roleFilter = GetStr(p, "role");
 
         var elements = new List<Dictionary<string, object?>>();
-        WalkElement(window, 0, maxDepth, visibleOnly, roleFilter, elements);
+        CollectDescendants(window, maxDepth, visibleOnly, roleFilter, elements);
+        SupplementDesktopInScope(automation, window, p, maxDepth, visibleOnly, roleFilter, elements);
+
         return new { elements, count = elements.Count };
+    }
+
+    static void CollectDescendants(
+        AutomationElement root,
+        int maxDepth,
+        bool visibleOnly,
+        string roleFilter,
+        List<Dictionary<string, object?>> outList)
+    {
+        try
+        {
+            foreach (var e in root.FindAllDescendants())
+            {
+                if (outList.Count >= 500) break;
+                TryAddElement(e, 0, maxDepth, visibleOnly, roleFilter, outList);
+            }
+        }
+        catch
+        {
+            WalkElement(root, 0, maxDepth, visibleOnly, roleFilter, outList);
+        }
+    }
+
+    static void TryAddElement(
+        AutomationElement e,
+        int depth,
+        int maxDepth,
+        bool visibleOnly,
+        string roleFilter,
+        List<Dictionary<string, object?>> outList)
+    {
+        if (depth > maxDepth || outList.Count >= 500) return;
+        Dictionary<string, object?> info;
+        try { info = InspectElement(e); }
+        catch { return; }
+
+        if (visibleOnly && (info["is_offscreen"] as bool? ?? false)) return;
+        var role = info["role"]?.ToString() ?? "";
+        if (!string.IsNullOrEmpty(roleFilter) &&
+            !role.Contains(roleFilter, StringComparison.OrdinalIgnoreCase))
+            return;
+        var aid = info["automation_id"]?.ToString() ?? "";
+        var ename = info["name"]?.ToString() ?? "";
+        if (string.IsNullOrEmpty(aid) && string.IsNullOrEmpty(ename) && role == "Pane")
+            return;
+        outList.Add(info);
     }
 
     static void WalkElement(
@@ -151,6 +397,19 @@ static class Program
         try
         {
             if (e.Patterns.Invoke.IsSupported) patterns["Invoke"] = new { supported = true };
+            if (e.Patterns.SelectionItem.IsSupported)
+            {
+                try
+                {
+                    var sel = e.Patterns.SelectionItem.Pattern;
+                    patterns["SelectionItem"] = new
+                    {
+                        supported = true,
+                        is_selected = sel.IsSelected,
+                    };
+                }
+                catch { patterns["SelectionItem"] = new { supported = true }; }
+            }
             if (e.Patterns.Value.IsSupported)
             {
                 try { patterns["Value"] = new { supported = true, value = e.Patterns.Value.Pattern.Value.Value }; }
@@ -171,7 +430,7 @@ static class Program
         catch { /* patterns optional */ }
 
         string automationId = "";
-        try { automationId = e.AutomationId ?? ""; } catch { }
+        try { automationId = e.AutomationId ?? ""; } catch { automationId = ""; }
 
         long hwnd = 0;
         try { hwnd = (long)e.Properties.NativeWindowHandle.ValueOrDefault; } catch { }
@@ -226,8 +485,18 @@ static class Program
         catch { return false; }
     }
 
-    static AutomationElement? ResolveWindow(UIA3Automation automation, string title)
+    static AutomationElement? ResolveWindow(UIA3Automation automation, string title, JsonElement p)
     {
+        if (p.TryGetProperty("hwnd", out var hwndProp))
+        {
+            var hwnd = hwndProp.GetInt64();
+            if (hwnd > 0)
+            {
+                try { return automation.FromHandle((nint)hwnd); }
+                catch { /* fall through */ }
+            }
+        }
+
         var desktop = automation.GetDesktop();
         if (string.IsNullOrEmpty(title))
         {
@@ -241,14 +510,35 @@ static class Program
             return desktop.FindFirstDescendant(cf => cf.ByControlType(ControlType.Window));
         }
 
-        // Partial title match (case-insensitive), consistent with Python find_matching_window.
+        var titleLower = title.ToLowerInvariant();
+        AutomationElement? best = null;
+        var bestScore = int.MinValue;
         foreach (var window in desktop.FindAllDescendants(cf => cf.ByControlType(ControlType.Window)))
         {
             var name = window.Name ?? "";
-            if (name.Contains(title, StringComparison.OrdinalIgnoreCase))
-                return window;
+            if (!name.Contains(title, StringComparison.OrdinalIgnoreCase))
+                continue;
+            var r = window.BoundingRectangle;
+            var score = 0;
+            if (name.Equals(title, StringComparison.OrdinalIgnoreCase)) score += 10000;
+            if (r.X > -1000 && r.Y > -1000) score += 500;
+            score += (int)(r.Width * r.Height) / 1000;
+            var cls = (window.ClassName ?? "").ToLowerInvariant();
+            if (titleLower is "calculadora" or "calculator")
+            {
+                // Title chrome (HistoryButton, TogglePaneButton) lives on ApplicationFrameHost,
+                // not CoreWindow — prefer frame host for find/invoke scope.
+                if (cls.Contains("applicationframe")) score += 12000;
+                else if (cls.Contains("corewindow")) score += 8000;
+            }
+            else if (cls.Contains("applicationframe")) score += 100;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = window;
+            }
         }
-        return null;
+        return best;
     }
 
     static string GetStr(JsonElement p, string key) =>

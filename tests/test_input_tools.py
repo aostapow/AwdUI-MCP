@@ -237,9 +237,9 @@ class TestNavigationWarning:
     @mock.patch("tools.screenshot.capture_screenshot", return_value=_FAKE_SHOT)
     @mock.patch("tools.input_tools.pyautogui")
     @mock.patch("tools.windows.get_foreground_title")
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     def test_no_false_positive_with_target_window(self, mock_focus, mock_title, mock_pag, mock_cap):
-        """ensure_focus re-focuses before post_title read, preventing false positives."""
+        """ensure_focus_for_input re-focuses before post_title read, preventing false positives."""
         mock_title.return_value = "My Target App"
         from tools.input_tools import do_click
         result = do_click(100, 200, verify_visual=True)

@@ -7,10 +7,19 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Never write .pyc into the git checkout when MCP runs from the repo.
+sys.dont_write_bytecode = True
+
 ROOT = Path(__file__).resolve().parent.parent
 SERVER_DIR = ROOT / "mcp-servers" / "awdui-server"
+SCRIPTS_DIR = ROOT / "scripts"
+AWDUI_DATA = Path.home() / ".awdui-mcp"
 sys.path.insert(0, str(SERVER_DIR))
-os.chdir(ROOT)
+sys.path.insert(0, str(SCRIPTS_DIR))
+os.environ.setdefault("AWDUI_DATA", str(AWDUI_DATA))
+# Runtime cwd must not be the git repo (prevents stray screenshots/logs in project root).
+os.chdir(AWDUI_DATA)
+AWDUI_DATA.mkdir(parents=True, exist_ok=True)
 
 
 def _load_dotenv(path: Path) -> None:
@@ -50,6 +59,13 @@ if auto_update_enabled():
             )
     except Exception as exc:
         sys.stderr.write(f"[AwdUI:launcher] Update step failed: {exc}\n")
+
+try:
+    from repo_studio_launcher import maybe_start_repo_studio
+
+    maybe_start_repo_studio(ROOT, python=sys.executable)
+except Exception as exc:
+    sys.stderr.write(f"[AwdUI:launcher] Repo Studio start skipped: {exc}\n")
 
 server_entry = ROOT / UPDATE_CONFIG["server_entry"]
 if not server_entry.is_file():

@@ -1,0 +1,43 @@
+---
+description: Archivar mejoras MCP aplicadas/aceptadas/rechazadas fuera de mejoras-*/
+alwaysApply: true
+---
+
+# Archivo del backlog `_MCP_IMPROVEMENT`
+
+Las carpetas `mejoras-skill/`, `mejoras-tool/` y `mejoras-codigo/` deben contener **solo propuestas pendientes** (`Estado: propuesta`).
+
+## Cuándo archivar
+
+Tras cambiar el **Estado** de un `.md` en `_MCP_IMPROVEMENT/mejoras-*/` a:
+
+| Estado | Destino |
+|--------|---------|
+| `aplicada` | `aceptadas/{misma-carpeta}/` |
+| `aceptada` | `aceptadas/{misma-carpeta}/` |
+| `rechazada` | `rechazadas/{misma-carpeta}/` |
+
+`propuesta` **permanece** en `mejoras-*/`.
+
+## Comando (obligatorio tras marcar estado final)
+
+```powershell
+& scripts/archive-mcp-improvements.ps1
+```
+
+Vista previa:
+
+```powershell
+& scripts/archive-mcp-improvements.ps1 -DryRun
+```
+
+## Quién lo ejecuta
+
+- El agente o mantenedor **inmediatamente después** de implementar una mejora del backlog y actualizar `Estado` a `aplicada`.
+- Tras rechazar una propuesta (`rechazada`).
+
+No pedir permiso para archivar: es parte del cierre del ítem de backlog.
+
+## Advisor
+
+El subagente **solo crea** archivos en `mejoras-*/` con `Estado: propuesta`. No mueve archivos; el archivado lo hace el mantenedor o el agente implementador con el script.

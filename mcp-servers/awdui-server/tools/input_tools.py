@@ -277,16 +277,41 @@ def validate_direction(direction: str) -> str:
 # Core functions
 # ------------------------------------------------------------------
 
+def _coordinate_input_allowed() -> bool:
+    """Block orphan scripts from moving the mouse outside MCP or supervised runs."""
+    import os
+
+    if os.environ.get("AWDUI_MCP_SERVER") == "1":
+        return True
+    if os.environ.get("AWDUI_GUI_SESSION"):
+        return True
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return True
+    return False
+
+
+def _blocked_coordinate_input(action: str) -> dict:
+    return {
+        "success": False,
+        "error": (
+            f"BLOCKED: {action} refused outside MCP server or supervised GUI session. "
+            "Use MCP tools from the agent, or set AWDUI_GUI_SESSION=1 for a foreground script."
+        ),
+    }
+
+
 def do_click(x: int, y: int, button: str = "left", clicks: int = 1, *, verify_visual: bool | None = None) -> dict:
     """Click at (*x*, *y*) with the given *button* and *clicks* count.
 
     Visual before/after comparison is skipped in fast mode (default).
     Set AWDUI_VERIFY=1 to enable screenshot diff on every click.
     """
+    if not _coordinate_input_allowed():
+        return _blocked_coordinate_input("click")
     import time
-    from tools.target_window import ensure_focus
+    from tools.target_window import ensure_focus_for_input
     from tools.perf import verify_visual_changes
-    ensure_focus()
+    ensure_focus_for_input()
     button = validate_button(button)
 
     if verify_visual is None:
@@ -324,7 +349,7 @@ def do_click(x: int, y: int, button: str = "left", clicks: int = 1, *, verify_vi
         return result
 
     from tools.screenshot import capture_screenshot, compare_screenshots
-    from tools.target_window import ensure_focus as _refocus
+    from tools.target_window import ensure_focus_for_input as _refocus
     time.sleep(0.15)
     _refocus()
     from tools.windows import get_foreground_title
@@ -343,10 +368,15 @@ def do_click(x: int, y: int, button: str = "left", clicks: int = 1, *, verify_vi
     return result
 
 
+def do_double_click(x: int, y: int, button: str = "left") -> dict:
+    """Double-click at screen coordinates."""
+    return do_click(x, y, button=button, clicks=2)
+
+
 def do_type_text(text: str, interval: float = 0.02) -> dict:
     """Type text — routes to Win32 console API for console windows, pyautogui otherwise."""
-    from tools.target_window import ensure_focus
-    ensure_focus()
+    from tools.target_window import ensure_focus_for_input
+    ensure_focus_for_input()
     fg = get_foreground_type()
     if fg["type"] == "console":
         result = _send_text_to_console(fg["pid"], text, hwnd=fg["hwnd"])
@@ -357,8 +387,8 @@ def do_type_text(text: str, interval: float = 0.02) -> dict:
 
 def do_send_keys(keys: str) -> dict:
     """Send keys — routes to Win32 console API for console windows, pyautogui otherwise."""
-    from tools.target_window import ensure_focus
-    ensure_focus()
+    from tools.target_window import ensure_focus_for_input
+    ensure_focus_for_input()
     fg = get_foreground_type()
     if fg["type"] == "console" and _HAS_WIN32:
         parts = parse_hotkey(keys)
@@ -399,10 +429,12 @@ def do_scroll(
     Captures before/after screenshots and compares to detect whether the
     scroll actually changed anything on screen.
     """
+    if not _coordinate_input_allowed():
+        return _blocked_coordinate_input("scroll")
     import time
-    from tools.target_window import ensure_focus
+    from tools.target_window import ensure_focus_for_input
     from tools.perf import verify_visual_changes
-    ensure_focus()
+    ensure_focus_for_input()
     direction = validate_direction(direction)
 
     pyautogui.moveTo(x, y)
@@ -491,8 +523,10 @@ def do_drag(
     duration: float = 0.5,
 ) -> dict:
     """Drag from (*from_x*, *from_y*) to (*to_x*, *to_y*)."""
-    from tools.target_window import ensure_focus
-    ensure_focus()
+    if not _coordinate_input_allowed():
+        return _blocked_coordinate_input("drag")
+    from tools.target_window import ensure_focus_for_input
+    ensure_focus_for_input()
     pyautogui.moveTo(from_x, from_y)
     dx = to_x - from_x
     dy = to_y - from_y
@@ -509,8 +543,10 @@ def do_drag(
 
 def do_hover(x: int, y: int) -> dict:
     """Move the mouse to (*x*, *y*) without clicking."""
-    from tools.target_window import ensure_focus
-    ensure_focus()
+    if not _coordinate_input_allowed():
+        return _blocked_coordinate_input("hover")
+    from tools.target_window import ensure_focus_for_input
+    ensure_focus_for_input()
     pyautogui.moveTo(x, y)
     return {
         "action": "hover",

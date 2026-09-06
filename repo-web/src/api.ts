@@ -8,6 +8,13 @@ export type AppInfo = {
   object_count?: number;
 };
 
+export type AppDetail = AppInfo & {
+  window_count: number;
+  agent_hints: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type TreeObject = {
   repo_path: string;
   logical_name: string;
@@ -91,6 +98,71 @@ export async function fetchTree(appId: string) {
       objects: TreeObject[];
     }[];
   }>(`/api/apps/${appId}/tree`);
+}
+
+export async function fetchApp(appId: string): Promise<AppDetail> {
+  const data = await get<{ app: AppDetail }>(`/api/apps/${encodeURIComponent(appId)}`);
+  return data.app;
+}
+
+export async function updateApp(
+  appId: string,
+  payload: {
+    app_name?: string;
+    exe_path?: string;
+    framework?: string;
+    agent_hints?: string;
+  }
+): Promise<AppDetail> {
+  const data = await put<{ app: AppDetail }>(
+    `/api/apps/${encodeURIComponent(appId)}`,
+    payload
+  );
+  return data.app;
+}
+
+export async function detectAppFramework(
+  appId: string,
+  options?: { force?: boolean; windowTitle?: string }
+): Promise<{ app: AppDetail; detection: Record<string, unknown> }> {
+  const params = new URLSearchParams();
+  if (options?.force) params.set("force", "true");
+  if (options?.windowTitle) params.set("window_title", options.windowTitle);
+  const qs = params.toString();
+  const res = await fetch(
+    `${API}/api/apps/${encodeURIComponent(appId)}/detect-framework${qs ? `?${qs}` : ""}`,
+    { method: "POST" }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function deleteApp(appId: string, clearAssets = true) {
+  const res = await fetch(
+    `${API}/api/apps/${encodeURIComponent(appId)}?clear_assets=${clearAssets ? "true" : "false"}`,
+    { method: "DELETE" }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{
+    app_id: string;
+    app_name: string;
+    objects_removed: number;
+    windows_removed: number;
+    assets_cleared: number;
+  }>;
+}
+
+export async function resetRepository(clearAssets = true) {
+  const res = await fetch(
+    `${API}/api/reset?clear_assets=${clearAssets ? "true" : "false"}`,
+    { method: "POST" }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{
+    objects_removed: number;
+    apps_removed: number;
+    assets_cleared: number;
+  }>;
 }
 
 export async function fetchObject(repoPath: string) {

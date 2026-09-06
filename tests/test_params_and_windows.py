@@ -105,3 +105,15 @@ class TestOrchestratorWeakMsaa:
             name="OK", role="Button", x=0, y=0, width=10, height=10, automation_id="btnOk"
         )
         assert not DetectionOrchestrator._weak_backend_result("msaa", [elem], "uwp")
+
+    def test_weak_flaui_uwp_few_automation_ids(self):
+        from detection.orchestrator import DetectionOrchestrator
+        from detection.element_model import DetectedElement
+
+        few = [
+            DetectedElement(name="A", role="Button", automation_id="a"),
+            DetectedElement(name="B", role="Button", automation_id="b"),
+        ]
+        assert DetectionOrchestrator._weak_backend_result("flaui", few, "uwp")
+        many = [DetectedElement(name=f"n{i}", role="Button", automation_id=f"id{i}") for i in range(20)]
+        assert not DetectionOrchestrator._weak_backend_result("flaui", many, "uwp")

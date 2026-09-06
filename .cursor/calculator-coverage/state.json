@@ -1,0 +1,50 @@
+{
+  "goal": "Catálogo UIA completo de Windows Calculator + tests con evidencia por modo",
+  "status": "running",
+  "completion_criteria": [
+    "tests/integration/evidence/calculator_catalog.json existe y tiene 9 modos con header verificado",
+    "Cada modo tiene inventario por rol (Button, Text, ComboBox, Edit, ListItem)",
+    "Flyouts trig/func documentados",
+    "Paneles history/memory/settings inventariados",
+    "run_calculator_coverage.py pasa o cada fallo tiene status blocked con razón"
+  ],
+  "tasks": [
+    {
+      "id": "fix_switch_mode",
+      "status": "blocked",
+      "owner": "agent"
+    },
+    {
+      "id": "catalog_all_modes",
+      "status": "blocked",
+      "owner": "explore_calculator_full.py"
+    },
+    {
+      "id": "catalog_flyouts",
+      "status": "pending",
+      "owner": "explore_calculator_full.py"
+    },
+    {
+      "id": "catalog_panels",
+      "status": "pending",
+      "owner": "explore_calculator_full.py"
+    },
+    {
+      "id": "catalog_settings",
+      "status": "pending",
+      "owner": "explore_calculator_full.py"
+    },
+    {
+      "id": "tests_per_mode",
+      "status": "pending",
+      "owner": "pytest"
+    },
+    {
+      "id": "gate_green",
+      "status": "pending",
+      "owner": "run_calculator_coverage.py"
+    }
+  ],
+  "blockers": [],
+  "last_updated": "2026-09-05T13:25:09.220328+00:00"
+}

@@ -1,4 +1,6 @@
 # Start AwdUI Object Repository Studio (API + optional React dev server).
+# Also started automatically when awdui MCP loads (scripts/launcher.py).
+# Set AWDUI_REPO_STUDIO=0 to disable. Set AWDUI_REPO_DEV=1 for Vite :5173.
 param(
     [switch]$Dev,
     [int]$ApiPort = 8765

@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "source_url": "https://learn.microsoft.com/en-us/dotnet/framework/ui-automation/control-pattern-mapping-for-ui-automation-clients",
+  "source_note": "Microsoft UIA pattern mapping only. Refresh: python scripts/sync_uia_control_map.py --fetch-reference",
+  "controls": {
+    "AppBar": {
+      "patterns_ms": {
+        "must": [
+          "ExpandCollapse",
+          "Toggle"
+        ],
+        "conditional": [],
+        "not": [
+          "Invoke"
+        ]
+      }
+    },
+    "Button": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "ExpandCollapse",
+          "Invoke",
+          "Toggle",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "Calendar": {
+      "patterns_ms": {
+        "must": [
+          "Grid",
+          "Table"
+        ],
+        "conditional": [
+          "Scroll",
+          "Selection",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "CheckBox": {
+      "patterns_ms": {
+        "must": [
+          "Toggle"
+        ],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "ComboBox": {
+      "patterns_ms": {
+        "must": [
+          "ExpandCollapse"
+        ],
+        "conditional": [
+          "Selection",
+          "Value"
+        ],
+        "not": [
+          "Scroll"
+        ]
+      }
+    },
+    "DataGrid": {
+      "patterns_ms": {
+        "must": [
+          "Grid"
+        ],
+        "conditional": [
+          "Scroll",
+          "Selection",
+          "Table"
+        ],
+        "not": []
+      }
+    },
+    "DataItem": {
+      "patterns_ms": {
+        "must": [
+          "SelectionItem"
+        ],
+        "conditional": [
+          "GridItem",
+          "TableItem",
+          "Value",
+          "Toggle",
+          "ExpandCollapse",
+          "ScrollItem"
+        ],
+        "not": []
+      }
+    },
+    "Document": {
+      "patterns_ms": {
+        "must": [
+          "Text"
+        ],
+        "conditional": [
+          "Scroll",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "Edit": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Text",
+          "RangeValue",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "Group": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "ExpandCollapse"
+        ],
+        "not": []
+      }
+    },
+    "Header": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Transform"
+        ],
+        "not": []
+      }
+    },
+    "HeaderItem": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Transform",
+          "Invoke"
+        ],
+        "not": []
+      }
+    },
+    "Hyperlink": {
+      "patterns_ms": {
+        "must": [
+          "Invoke"
+        ],
+        "conditional": [
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "Image": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "GridItem",
+          "TableItem"
+        ],
+        "not": [
+          "Invoke",
+          "SelectionItem"
+        ]
+      }
+    },
+    "List": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Grid",
+          "MultipleView",
+          "Scroll",
+          "Selection"
+        ],
+        "not": [
+          "Table"
+        ]
+      }
+    },
+    "ListItem": {
+      "patterns_ms": {
+        "must": [
+          "SelectionItem"
+        ],
+        "conditional": [
+          "Invoke",
+          "ExpandCollapse",
+          "Toggle",
+          "Value",
+          "GridItem",
+          "ScrollItem"
+        ],
+        "not": []
+      }
+    },
+    "Menu": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "MenuBar": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "ExpandCollapse",
+          "Dock",
+          "Transform"
+        ],
+        "not": []
+      }
+    },
+    "MenuItem": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Invoke",
+          "ExpandCollapse",
+          "SelectionItem",
+          "Toggle"
+        ],
+        "not": []
+      }
+    },
+    "Pane": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Dock",
+          "Scroll",
+          "Transform"
+        ],
+        "not": [
+          "Window"
+        ]
+      }
+    },
+    "ProgressBar": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "RangeValue",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "RadioButton": {
+      "patterns_ms": {
+        "must": [
+          "SelectionItem"
+        ],
+        "conditional": [],
+        "not": [
+          "Toggle"
+        ]
+      }
+    },
+    "ScrollBar": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "RangeValue"
+        ],
+        "not": [
+          "Scroll"
+        ]
+      }
+    },
+    "Separator": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "Slider": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "RangeValue",
+          "Selection",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "Spinner": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "RangeValue",
+          "Selection",
+          "Value"
+        ],
+        "not": []
+      }
+    },
+    "SplitButton": {
+      "patterns_ms": {
+        "must": [
+          "Invoke",
+          "ExpandCollapse"
+        ],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "StatusBar": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Grid"
+        ],
+        "not": []
+      }
+    },
+    "Tab": {
+      "patterns_ms": {
+        "must": [
+          "Selection"
+        ],
+        "conditional": [
+          "Scroll"
+        ],
+        "not": []
+      }
+    },
+    "TabItem": {
+      "patterns_ms": {
+        "must": [
+          "SelectionItem"
+        ],
+        "conditional": [],
+        "not": [
+          "Invoke"
+        ]
+      }
+    },
+    "Table": {
+      "patterns_ms": {
+        "must": [
+          "Grid",
+          "GridItem",
+          "Table",
+          "TableItem"
+        ],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "Text": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "GridItem",
+          "TableItem",
+          "Text"
+        ],
+        "not": [
+          "Value"
+        ]
+      }
+    },
+    "Thumb": {
+      "patterns_ms": {
+        "must": [
+          "Transform"
+        ],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "TitleBar": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [],
+        "not": []
+      }
+    },
+    "ToolBar": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Dock",
+          "ExpandCollapse",
+          "Transform"
+        ],
+        "not": []
+      }
+    },
+    "ToolTip": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Text",
+          "Window"
+        ],
+        "not": []
+      }
+    },
+    "Tree": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Scroll",
+          "Selection"
+        ],
+        "not": []
+      }
+    },
+    "TreeItem": {
+      "patterns_ms": {
+        "must": [
+          "ExpandCollapse"
+        ],
+        "conditional": [
+          "Invoke",
+          "SelectionItem",
+          "Toggle",
+          "ScrollItem"
+        ],
+        "not": []
+      }
+    },
+    "Window": {
+      "patterns_ms": {
+        "must": [
+          "Transform",
+          "Window"
+        ],
+        "conditional": [
+          "Dock"
+        ],
+        "not": []
+      }
+    },
+    "SemanticZoom": {
+      "patterns_ms": {
+        "must": [],
+        "conditional": [
+          "Toggle",
+          "Scroll"
+        ],
+        "not": []
+      }
+    }
+  }
+}

@@ -48,9 +48,13 @@ def observe_ui(
 
     if sys.platform == "win32":
         try:
+            from detection.tree_depth import OBSERVE_UI_MAX_DEPTH, OBSERVE_UI_MAX_ELEMENTS
             from tools.ui_automation import do_list_elements
-            result = do_list_elements(window_title=window_title, max_depth=5)
-            elements = result.get("elements", [])
+            result = do_list_elements(
+                window_title=window_title,
+                max_depth=OBSERVE_UI_MAX_DEPTH,
+            )
+            elements = result.get("elements", [])[:OBSERVE_UI_MAX_ELEMENTS]
             obs["element_count"] = result.get("count", len(elements))
             named = [e for e in elements if e.get("name")]
             obs["named_count"] = len(named)

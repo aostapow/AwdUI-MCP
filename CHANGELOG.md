@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0
+
+Major expansion of UIA tooling, detection scope, and agentic improvement cycle.
+
+- **Tools (87)**: `ascii_ui_view`, `wait_for_element` / `wait_for_condition` / `wait_for_input_idle`, `element_exists`, session/cache tools, `fill_form` / `get_all_values`, `list_control_items` / `select_control_item`, `get_grid_item` / `read_table`, `expand_element`, `start_event_monitor` / `get_event_log`, and more — see `docs/MCP_TOOLS_REFERENCE.md`
+- **Detection**: window/HWND scope, element dedupe, spatial clustering, UIA control map, tree depth/caching, WinForms combo helpers, post-action verify target
+- **Event sidecar**: new `awdui-event-sidecar` for UIA structure/property change events
+- **Calculator lab**: integration harness, coverage docs, MCP improvement cycle (skills, rules, hooks)
+- **Repo / Spy**: target-window scoping for `list_elements` and `spy_tree`, expand-element fallbacks, filter scope for UWP screen coords
+- **Tests**: broad new unit/integration coverage; tools reference validation script
+- **Cursor**: agent skills (flow exploration, AST, calculator harness), improvement advisor backlog in `_MCP_IMPROVEMENT/`
+
 ## 0.2.1
 
 Fix repo element image crops and align highlight with UIA screen coordinates.

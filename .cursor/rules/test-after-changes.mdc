@@ -17,6 +17,11 @@ Ejecutar los tests relevantes del repo antes de dar por cerrado el trabajo:
 
 Si el cambio es acotado, al menos los tests del módulo tocado (ej. `tests/test_screenshot_tool.py`).
 
+Si el cambio afecta **tools MCP** (`mcp-servers/awdui-server/tools/**`):
+
+1. Actualizar `docs/MCP_TOOLS_REFERENCE.md` (ver `.cursor/rules/awdui-tools-catalog.mdc`)
+2. Validar: `python scripts/validate_tools_reference.py` (también cubierto por `tests/test_tools_reference.py`)
+
 ## 2. Prueba de funcionamiento (MCP vivo)
 
 Si el cambio afecta `mcp-servers/awdui-server/**`:

@@ -56,8 +56,18 @@ static class Program
         };
     }
 
-    static AutomationElement? ResolveWindow(UIA3Automation automation, string title)
+    static AutomationElement? ResolveWindow(UIA3Automation automation, string title, JsonElement p)
     {
+        if (p.TryGetProperty("hwnd", out var hwndProp))
+        {
+            var hwnd = hwndProp.GetInt64();
+            if (hwnd > 0)
+            {
+                try { return automation.FromHandle((nint)hwnd); }
+                catch { /* fall through */ }
+            }
+        }
+
         var desktop = automation.GetDesktop();
         if (string.IsNullOrEmpty(title))
         {
@@ -69,6 +79,7 @@ static class Program
         var windows = desktop.FindAllDescendants(cf => cf.ByControlType(ControlType.Window));
         AutomationElement? best = null;
         var bestScore = int.MinValue;
+        var titleLower = title.ToLowerInvariant();
         foreach (var w in windows)
         {
             var name = w.Name ?? "";
@@ -76,11 +87,15 @@ static class Program
                 continue;
             var r = w.BoundingRectangle;
             var score = 0;
+            if (name.Equals(title, StringComparison.OrdinalIgnoreCase)) score += 10000;
             if (r.X > -1000 && r.Y > -1000) score += 500;
             score += (int)(r.Width * r.Height) / 1000;
-            var cls = w.ClassName ?? "";
-            if (cls.Contains("ApplicationFrame", StringComparison.OrdinalIgnoreCase))
-                score += 1000;
+            var cls = (w.ClassName ?? "").ToLowerInvariant();
+            if (titleLower is "calculadora" or "calculator")
+            {
+                if (cls.Contains("corewindow")) score += 8000;
+            }
+            if (cls.Contains("applicationframe")) score += 100;
             if (score > bestScore)
             {
                 bestScore = score;
@@ -88,6 +103,89 @@ static class Program
             }
         }
         return best;
+    }
+
+    static bool TryGetVisualRect(JsonElement p, out System.Drawing.Rectangle rect)
+    {
+        if (!p.TryGetProperty("window_rect", out var wr))
+        {
+            rect = default;
+            return false;
+        }
+        if (!wr.TryGetProperty("x", out var xp) || !wr.TryGetProperty("y", out var yp))
+        {
+            rect = default;
+            return false;
+        }
+        int w = wr.TryGetProperty("w", out var wp) ? wp.GetInt32()
+            : wr.TryGetProperty("width", out var wp2) ? wp2.GetInt32() : 0;
+        int h = wr.TryGetProperty("h", out var hp) ? hp.GetInt32()
+            : wr.TryGetProperty("height", out var hp2) ? hp2.GetInt32() : 0;
+        if (w <= 0 || h <= 0)
+        {
+            rect = default;
+            return false;
+        }
+        rect = new System.Drawing.Rectangle(xp.GetInt32(), yp.GetInt32(), w, h);
+        return true;
+    }
+
+    static bool ElementInScope(AutomationElement e, AutomationElement window, JsonElement p)
+    {
+        try
+        {
+            var er = e.BoundingRectangle;
+            if (er.Width <= 0 && er.Height <= 0) return false;
+            if (TryGetVisualRect(p, out var vr))
+            {
+                var cx = er.X + er.Width / 2.0;
+                var cy = er.Y + er.Height / 2.0;
+                return cx >= vr.Left && cx < vr.Right && cy >= vr.Top && cy < vr.Bottom;
+            }
+            return ElementInWindow(e, window);
+        }
+        catch { return false; }
+    }
+
+    static bool ElementInWindow(AutomationElement e, AutomationElement window)
+    {
+        try
+        {
+            var wr = window.BoundingRectangle;
+            var er = e.BoundingRectangle;
+            if (wr.Width <= 0 || wr.Height <= 0) return false;
+            return wr.IntersectsWith(er);
+        }
+        catch { return false; }
+    }
+
+    static IEnumerable<AutomationElement> DesktopElementsInScope(
+        UIA3Automation automation,
+        AutomationElement window,
+        JsonElement p)
+    {
+        foreach (var e in automation.GetDesktop().FindAllDescendants())
+        {
+            if (ElementInScope(e, window, p))
+                yield return e;
+        }
+    }
+
+    static IEnumerable<AutomationElement> DesktopElementsInWindow(
+        UIA3Automation automation,
+        AutomationElement window)
+    {
+        foreach (var e in automation.GetDesktop().FindAllDescendants())
+        {
+            if (ElementInWindow(e, window))
+                yield return e;
+        }
+    }
+
+    static string SafeString(Func<string> getter)
+    {
+        try { return getter(); }
+        catch { return ""; }
     }
 
     static Dictionary<string, object?> ElemToDict(AutomationElement e)
@@ -130,17 +228,51 @@ static class Program
 
     static object Find(UIA3Automation automation, JsonElement p)
     {
-        var window = ResolveWindow(automation, GetStr(p, "window_title"));
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
         if (window == null) return new { elements = Array.Empty<object>() };
         var name = GetStr(p, "name");
         var role = GetStr(p, "role");
         var aid = GetStr(p, "automation_id");
-        var all = window.FindAllDescendants();
-        var matches = all.Where(e =>
-            (string.IsNullOrEmpty(name) || (e.Name ?? "").Contains(name, StringComparison.OrdinalIgnoreCase)) &&
-            (string.IsNullOrEmpty(role) || e.ControlType.ToString().Equals(role, StringComparison.OrdinalIgnoreCase)) &&
-            (string.IsNullOrEmpty(aid) || (e.AutomationId ?? "") == aid)
-        ).Select(ElemToDict).ToList();
+        var matches = new List<Dictionary<string, object?>>();
+
+        void addIfMatch(AutomationElement e)
+        {
+            if (!string.IsNullOrEmpty(name) && !(e.Name ?? "").Contains(name, StringComparison.OrdinalIgnoreCase))
+                return;
+            if (!string.IsNullOrEmpty(role) && !e.ControlType.ToString().Equals(role, StringComparison.OrdinalIgnoreCase))
+                return;
+            if (!string.IsNullOrEmpty(aid) && (e.AutomationId ?? "") != aid)
+                return;
+            matches.Add(ElemToDict(e));
+        }
+
+        try
+        {
+            foreach (var e in window.FindAllDescendants())
+                addIfMatch(e);
+        }
+        catch { /* fall through */ }
+
+        if (matches.Count == 0)
+        {
+            try
+            {
+                foreach (var e in DesktopElementsInScope(automation, window, p))
+                    addIfMatch(e);
+            }
+            catch { /* optional */ }
+        }
+
+        if (matches.Count == 0)
+        {
+            try
+            {
+                foreach (var e in DesktopElementsInWindow(automation, window))
+                    addIfMatch(e);
+            }
+            catch { /* optional */ }
+        }
+
         int index = p.TryGetProperty("index", out var ip) ? ip.GetInt32() : 0;
         if (index > 0 && matches.Count > index)
             matches = new List<Dictionary<string, object?>> { matches[index] };
@@ -149,18 +281,71 @@ static class Program
 
     static object ListTree(UIA3Automation automation, JsonElement p)
     {
-        var window = ResolveWindow(automation, GetStr(p, "window_title"));
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
         if (window == null) return new { elements = Array.Empty<object>() };
         int maxDepth = p.TryGetProperty("max_depth", out var dp) ? dp.GetInt32() : 5;
         var role = GetStr(p, "role");
-        var all = window.FindAllDescendants();
-        var elements = all
-            .Where(e => string.IsNullOrEmpty(role) || e.ControlType.ToString().Equals(role, StringComparison.OrdinalIgnoreCase))
-            .Where(e => !string.IsNullOrEmpty(e.Name) || e.ControlType != ControlType.Pane)
-            .Take(500)
-            .Select(ElemToDict)
-            .ToList();
+        var elements = new List<Dictionary<string, object?>>();
+
+        void collectFrom(AutomationElement root)
+        {
+            try
+            {
+                foreach (var e in root.FindAllDescendants())
+                {
+                    if (elements.Count >= 500) break;
+                    if (!string.IsNullOrEmpty(role) &&
+                        !e.ControlType.ToString().Equals(role, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    var aid = e.AutomationId ?? "";
+                    var ename = e.Name ?? "";
+                    if (string.IsNullOrEmpty(aid) && string.IsNullOrEmpty(ename) &&
+                        e.ControlType == ControlType.Pane)
+                        continue;
+                    elements.Add(ElemToDict(e));
+                }
+            }
+            catch { /* skip */ }
+        }
+
+        collectFrom(window);
+        SupplementDesktopInScope(automation, window, p, role, elements);
         return new { elements };
+    }
+
+    static void SupplementDesktopInScope(
+        UIA3Automation automation,
+        AutomationElement window,
+        JsonElement p,
+        string role,
+        List<Dictionary<string, object?>> elements)
+    {
+        var seen = new HashSet<string>();
+        foreach (var existing in elements)
+        {
+            seen.Add($"{existing.GetValueOrDefault("automation_id")}|{existing.GetValueOrDefault("x")}|{existing.GetValueOrDefault("y")}");
+        }
+        try
+        {
+            foreach (var e in DesktopElementsInScope(automation, window, p))
+            {
+                if (elements.Count >= 500) break;
+                if (!string.IsNullOrEmpty(role) &&
+                    !e.ControlType.ToString().Equals(role, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                var aid = e.AutomationId ?? "";
+                var ename = e.Name ?? "";
+                if (string.IsNullOrEmpty(aid) && string.IsNullOrEmpty(ename) &&
+                    e.ControlType == ControlType.Pane)
+                    continue;
+                var dict = ElemToDict(e);
+                var key = $"{dict.GetValueOrDefault("automation_id")}|{dict.GetValueOrDefault("x")}|{dict.GetValueOrDefault("y")}";
+                if (seen.Contains(key)) continue;
+                elements.Add(dict);
+                seen.Add(key);
+            }
+        }
+        catch { /* optional */ }
     }
 
     static object GetProperties(UIA3Automation automation, JsonElement p)
@@ -177,7 +362,7 @@ static class Program
     static object Invoke(UIA3Automation automation, JsonElement p)
     {
         var result = Find(automation, p);
-        var window = ResolveWindow(automation, GetStr(p, "window_title"));
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
         if (window == null) return new { success = false, error = "no window" };
         var name = GetStr(p, "name");
         var elem = window.FindFirstDescendant(cf => cf.ByName(name));
@@ -188,7 +373,7 @@ static class Program
 
     static object SetValue(UIA3Automation automation, JsonElement p)
     {
-        var window = ResolveWindow(automation, GetStr(p, "window_title"));
+        var window = ResolveWindow(automation, GetStr(p, "window_title"), p);
         if (window == null) return new { success = false, error = "no window" };
         var name = GetStr(p, "name");
         var value = GetStr(p, "value");

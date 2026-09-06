@@ -95,3 +95,36 @@ class TestRepoConsolidate:
         apps = repo_db.list_applications()
         assert len(apps) == 1
         assert apps[0]["app_name"] == "Dialog"
+
+    def test_resolve_storage_app_unifies_notepad(self, repo_db):
+        from detection.repo_store import resolve_storage_app, _connect
+
+        repo_db.upsert(
+            "Notepad.exe",
+            "",
+            "Notepad/File",
+            obj_class="SwfMenuItem",
+            identification={"mandatory": {"name": "File"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
+        with _connect() as conn:
+            aid, name, _exe = resolve_storage_app(conn, "Notepad", "")
+        assert name == "Notepad.exe"
+        assert repo_db.get_object_by_path("Notepad/File") is not None
+
+    def test_list_applications_hides_empty_duplicate(self, repo_db):
+        from detection.repo_store import _connect, _ensure_application
+
+        exe = r"C:\Apps\CalculatorApp.exe"
+        repo_db.upsert(
+            "CalculatorApp.exe",
+            exe,
+            "Calculadora/num1Button",
+            obj_class="SwfButton",
+            identification={"mandatory": {"automation_id": "num1Button"}, "assistive": {}, "smart": {}, "ordinal": {}},
+        )
+        with _connect() as conn:
+            _ensure_application(conn, "deadbeef00000001", "CalculatorApp.exe", exe, "unknown")
+        visible = repo_db.list_applications()
+        calc = [a for a in visible if "calc" in a["app_name"].lower()]
+        assert len(calc) == 1
+        assert calc[0]["object_count"] == 1

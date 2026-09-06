@@ -14,12 +14,14 @@ No clicar por coordenadas ni adivinar hasta tener un mapa estable ventana → pa
 
 ## Reglas
 
+0. **Ventana activa primero** — antes de actuar, evaluar qué ventana tiene el foco y qué se espera de ella. Si abrís un diálogo, completá el sub-flujo **en esa ventana** y verificá que **cerró** antes de volver al padre. Ver [patterns/active-window.md](patterns/active-window.md).
 1. **Explorar antes de actuar** — ningún `click`, `click_element` o `type_text` hasta completar el mapa del paso actual.
 2. **Top-down estricto** — ventana → contenedores padre → controles hijo.
-3. **Una ventana activa** — fijar target al inicio con `set_target_window` y mantenerla durante todo el flujo.
+3. **Target vs foco** — `set_target_window` define alcance UIA; el foco del SO define dónde llegan clic/teclado. No asumir que son lo mismo.
 4. **Preferir identificadores estables** — en este orden: `automation_id` > `name`+`role` > `class_name` > OCR > coordenadas.
 5. **Verificar antes de usar** — `highlight_element` o `smart_find` con `highlight=true` para confirmar el objeto correcto.
 6. **Una tool a la vez** en Windows — no paralelizar llamadas AwdUI (COM/UIA).
+7. **Bloqueado → entender, no reintentar** — si una acción no produce el efecto esperado, `list_windows` + screenshot para diagnosticar **qué ventana está activa** y qué falta cerrar o completar; no repetir el mismo click en el padre.
 
 ## Fases del workflow
 
@@ -40,16 +42,19 @@ Exploración del flujo:
 
 ## Fase 0 — Contexto y ventana objetivo
 
-**Objetivo:** saber en qué ventana trabajar antes de listar controles.
+**Objetivo:** saber en qué ventana trabajar **y cuál tiene el foco** antes de listar controles.
 
 | Paso | Tool | Qué obtener |
 |------|------|-------------|
-| 0.1 | `list_windows` | Títulos parciales, posición, proceso |
-| 0.2 | `focus_window` | Traer la app al frente (si hace falta) |
-| 0.3 | `set_target_window` | Fijar ventana para auto-focus en cada acción |
-| 0.4 | `get_target_window` | Confirmar target activo |
+| 0.1 | `list_windows` | Todas las ventanas del proceso — detectar modales ya abiertos |
+| 0.2 | `get_focused_element` | Ventana/control con foco real del SO |
+| 0.3 | `focus_window` | Traer la ventana correcta al frente (si hace falta) |
+| 0.4 | `set_target_window` | Fijar alcance UIA para el flujo principal |
+| 0.5 | `get_target_window` | Confirmar target MCP |
 
 Si hay varias ventanas similares, anotar el título exacto o distintivo (ej. `* - Notepad` vs `Guardar como`).
+
+**Antes de cada paso de Fase 6:** repetir 0.1–0.2 si la acción anterior pudo abrir o cambiar ventana. Si aparece un diálogo nuevo → sub-flujo modal (ver [patterns/active-window.md](patterns/active-window.md)); no continuar en el padre hasta cerrarlo.
 
 ---
 
@@ -130,9 +135,10 @@ Subir profundidad solo dentro del padre ya identificado.
 
 | Paso | Tool | Uso |
 |------|------|-----|
-| 3.1 | `list_elements` | `max_depth=5`, opcional `role="Button"` / `Edit` / `ComboBox` |
+| 3.0 | `discover_control_interaction` | **Antes de actuar**: estrategias ordenadas (tools, pasos, evitar). Obligatorio si role=Pane/Custom o `set_element_value` falló |
+| 3.1 | `list_elements` | `max_depth=0` (árbol completo) o filtro `role="ComboBox"` / `Edit` / `Button` |
 | 3.2 | `get_focused_element` | Saber qué control tiene foco en formularios |
-| 3.3 | `spy_inspect` | Propiedades completas de un control candidato |
+| 3.3 | `spy_inspect` | Propiedades + discovery automático de interacción |
 | 3.4 | `get_element_properties` | Inspector UIA de un elemento por name/automation_id |
 | 3.5 | `element_at_point` | Solo si el usuario indica coordenadas; confirmar con highlight |
 | 3.6 | `smart_find` | Cascada repo → nativo → OCR → visual (`agentic=false` en exploración) |
@@ -152,6 +158,25 @@ Si un hijo no aparece en el árbol:
 - Probar `find_text` para confirmar que es visible en pantalla
 - `detect_visual_regions` para apps custom-painted
 - `find_by_template_tool` si hay icono estable
+
+### Patrones por framework
+
+| Framework | Referencia |
+|-----------|------------|
+| **Roles UIA → leer / interactuar** | [patterns/control-catalog.md](patterns/control-catalog.md) (40 tipos) + [control-patterns-reference.md](patterns/control-patterns-reference.md) |
+| WinForms (combos, lookup, MDI) | [patterns/winforms.md](patterns/winforms.md) |
+
+Al identificar un control en Fase 3: consultar **control-catalog** por `role` y `patterns` de `spy_inspect` antes de elegir tool.
+
+No documentar `automation_id` de un producto concreto aquí — usar la skill del producto (ver abajo).
+
+### Skills por producto
+
+| Producto | Skill |
+|----------|-------|
+| AST — Activities Manager | [ast-activities-manager](../ast-activities-manager/SKILL.md) |
+
+Al automatizar un producto conocido, leer **ambas**: esta skill (metodología) + la skill del producto (mapa de objetos y flujos).
 
 ---
 
@@ -184,7 +209,9 @@ Por cada objeto del mapa, en orden padre → hijo:
 
 ## Fase 6 — Reproducción del flujo
 
-Solo ahora ejecutar acciones, usando los localizadores validados:
+Solo ahora ejecutar acciones, usando los localizadores validados.
+
+**Al abrir un diálogo:** el paso actual es la ventana nueva hasta que cierre. Scope `window_title` al diálogo; al salir, `list_windows` para confirmar que desapareció; recién entonces el siguiente paso es el formulario padre.
 
 | Acción | Tool preferida | `capture` |
 |--------|----------------|-----------|
@@ -192,6 +219,8 @@ Solo ahora ejecutar acciones, usando los localizadores validados:
 | Clic con cascada | `click_element` | `false` (default) |
 | Texto visible sin UIA | `click_text` | `false` |
 | Escribir en campo | `set_element_value` o `click_element` + `type_text` | `false` |
+| Combo / lista paginada | `list_control_items` + `select_control_item` | n/a |
+| Fila en diálogo lookup | `select_lookup_row` o `select_control_item(double_click=true)` | n/a |
 | Atajo de teclado | `send_keys` | n/a |
 | Secuencia corta | `batch_actions` | `true` solo al final, o `false` + `screenshot()` aparte |
 | Verificar resultado | `screenshot()` / `wait_for_change` / `ui_fingerprint` | explícito |
@@ -206,18 +235,31 @@ Al terminar: `focus_window(title="Claude")` o la ventana del usuario.
 
 ## Anti-patrones
 
+- Actuar en el formulario padre mientras un modal/diálogo sigue abierto
+- Asumir que `set_target_window` implica que esa ventana tiene el foco del SO
+- Abrir Buscar / Guardar como / OK-Cancel y seguir el flujo principal sin cerrar el diálogo
+- Reintentar el mismo control en el padre cuando el efecto no aparece — sin evaluar ventana activa primero
 - Clicar por coordenadas estimadas desde screenshot downscaled
-- `list_elements(max_depth=10)` en la primera pasada — oculta la jerarquía
+- `list_elements(max_depth=10)` en la primera pasada de Fase 2 — oculta la jerarquía de padres (en Fase 3 usar `max_depth=0` o filtro por rol)
 - Buscar hijos antes de fijar ventana y padre contenedor
 - Paralelizar tools AwdUI en Windows
 - Saltar `highlight_element` cuando el localizador es ambiguo
 - Usar `click`/`type_text` durante la fase de exploración
 - `click_element` en bucle sin `capture=false` — cada screenshot cuesta segundos
+- Usar `observe_ui_tool` en cada paso de Fase 6 — reservar para Fase 1 (snapshot inicial)
+- Mezclar conocimiento de un producto (IDs, menús) en esta skill — usar la skill del producto
+
+Patrones WinForms (lookup, combos, MDI): ver [patterns/winforms.md](patterns/winforms.md).
 
 ---
 
 ## Recursos
 
 - Template de mapa: [object-map-template.md](object-map-template.md)
-- Ejemplo completo: [examples.md](examples.md)
+- Ejemplo genérico: [examples.md](examples.md) (Notepad)
+- Ventana activa y modales: [patterns/active-window.md](patterns/active-window.md)
+- Patrones WinForms: [patterns/winforms.md](patterns/winforms.md)
+- Catálogo roles UIA (40 tipos): [patterns/control-catalog.md](patterns/control-catalog.md)
+- Referencia patterns UIA: [patterns/control-patterns-reference.md](patterns/control-patterns-reference.md)
 - Guía general AwdUI: `docs/AGENT_GUIDE.md`
+- Productos: [ast-activities-manager](../ast-activities-manager/SKILL.md)

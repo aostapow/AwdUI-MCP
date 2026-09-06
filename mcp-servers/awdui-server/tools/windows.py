@@ -98,6 +98,71 @@ def find_matching_window(title: str, windows: list[dict]) -> dict:
     return {"window": best, "match_quality": "exact"}
 
 
+def resolve_window_handle(window_title: Optional[str] = None) -> Optional[int]:
+    """Resolve a visible top-level HWND for *window_title* (UWP-aware).
+
+    Uses ``set_target_window`` when *window_title* is empty.
+    """
+    from tools.target_window import get_target
+
+    title = (window_title or get_target() or "").strip()
+    if not title:
+        return None
+    match = find_matching_window(title, do_list_windows())
+    win = match.get("window")
+    if not win:
+        return None
+    hwnd = win.get("hwnd")
+    return int(hwnd) if hwnd else None
+
+
+def resolve_window_visual_rect(window_title: Optional[str] = None) -> Optional[dict]:
+    """Screen bounding box for UIA enumeration (UWP: prefer ApplicationFrameHost).
+
+    CoreWindow UIA bounds are often smaller than the visible host frame; controls
+    like Calculator numpad buttons can sit outside CoreWindow but inside the frame.
+    """
+    from tools.target_window import get_target
+
+    title = (window_title or get_target() or "").strip()
+    if not title:
+        return None
+    title_lower = title.lower()
+    candidates = [
+        w for w in do_list_windows()
+        if title_lower in (w.get("title") or "").lower()
+    ]
+    if not candidates:
+        match = find_matching_window(title, do_list_windows())
+        win = match.get("window")
+        if not win:
+            return None
+        candidates = [win]
+
+    def score(win: dict) -> int:
+        s = 0
+        proc = (win.get("process_name") or "").lower()
+        if title_lower in ("calculadora", "calculator"):
+            if "applicationframehost" in proc:
+                s += 20000
+            elif "calculatorapp" in proc:
+                s += 5000
+        x, y = win.get("x", 0), win.get("y", 0)
+        if x > 0 and y > 0:
+            s += 1000
+        area = max(0, win.get("width", 0)) * max(0, win.get("height", 0))
+        s += area // 500
+        return s
+
+    best = max(candidates, key=score)
+    return {
+        "x": int(best.get("x", 0)),
+        "y": int(best.get("y", 0)),
+        "w": int(best.get("width", 0)),
+        "h": int(best.get("height", 0)),
+    }
+
+
 def _best_window_candidate(windows: list[dict], title_hint: str = "") -> dict:
     """Pick the best window when several share the same title (common for UWP)."""
     hint = title_hint.lower()
@@ -111,9 +176,11 @@ def _best_window_candidate(windows: list[dict], title_hint: str = "") -> dict:
             s += 2000
         proc = (win.get("process_name") or "").lower()
         if hint in ("calculadora", "calculator"):
-            if "calculatorapp" in proc:
+            if "applicationframehost" in proc:
+                s += 12000
+            elif "calculatorapp" in proc:
                 s += 8000
-        if "applicationframehost" in proc:
+        elif "applicationframehost" in proc:
             s += 1000
         x, y = win.get("x", 0), win.get("y", 0)
         if x > -1000 and y > -1000:
@@ -194,6 +261,7 @@ def _list_windows_win32() -> List[dict]:
         windows.append({
             "title": title,
             "process_name": proc_name,
+            "hwnd": int(hwnd),
             "x": rect.left,
             "y": rect.top,
             "width": rect.right - rect.left,
@@ -529,8 +597,63 @@ def do_focus_window(title: str, action: str = "focus") -> dict:
         return _focus_window_linux(title, action)
 
 
-def do_launch_app(path: str, args: Optional[str] = None) -> dict:
+def do_restore_window(
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+) -> dict:
+    """Restore (un-minimize) a window by title or HWND."""
+    if get_platform() != "windows":
+        return {"success": False, "error": "restore_window is Windows-only"}
+    import ctypes
+
+    hwnd = int(window_handle or 0) or resolve_window_handle(window_title)
+    if not hwnd:
+        return {"success": False, "error": "window not found"}
+    user32 = ctypes.windll.user32
+    user32.ShowWindow(int(hwnd), 9)
+    user32.SetForegroundWindow(int(hwnd))
+    return {"success": True, "hwnd": int(hwnd), "action": "restore"}
+
+
+def do_list_app_windows(window_title: Optional[str] = None) -> list[dict]:
+    """List visible windows that belong to the same process as the target app."""
+    from tools.target_window import get_target
+    from tools.window_scope import resolve_window_scope
+
+    scope = resolve_window_scope(window_title or get_target())
+    pid = (scope.get("window") or {}).get("process_id")
+    if not pid:
+        title = (window_title or get_target() or "").strip()
+        if not title:
+            return []
+        match = find_matching_window(title, do_list_windows())
+        target = match.get("window") or {}
+        pid = target.get("pid") or target.get("process_id")
+    if not pid:
+        return []
+    return [
+        w
+        for w in do_list_windows()
+        if (w.get("pid") or w.get("process_id")) == pid
+    ]
+
+
+def do_launch_app(
+    path: str,
+    args: Optional[str] = None,
+    *,
+    reuse: bool = True,
+    replace: bool = False,
+) -> dict:
     """Launch an application at *path* with optional *args*.
+
+    When *reuse* is True (default), an already-running instance is focused
+    instead of spawning a duplicate. Extra duplicate windows/processes are
+    closed automatically (e.g. multiple Calculator instances).
+
+    When *replace* is True, existing instances are closed first, then a
+    fresh process is started. Use for stale UIA recovery — never stack
+    ``launch_app`` without ``replace`` on apps already open.
 
     Parameters
     ----------
@@ -538,19 +661,41 @@ def do_launch_app(path: str, args: Optional[str] = None) -> dict:
         Path or name of the executable to launch.
     args : str | None
         Space-separated arguments to pass to the executable.
+    reuse : bool
+        Focus existing instance when found (default True).
+    replace : bool
+        Close all existing instances before launching (default False).
 
     Returns
     -------
     dict
-        ``{"success": True, "pid": int}`` on success,
+        ``{"success": True, "pid": int, "reused": bool?, ...}`` on success,
         ``{"success": False, "error": str}`` on failure.
     """
+    if reuse or replace:
+        try:
+            from tools.app_launch import try_reuse_existing
+
+            if reuse and not replace:
+                reused = try_reuse_existing(path, replace=False)
+                if reused:
+                    return reused
+            elif replace:
+                try_reuse_existing(path, replace=True)
+        except Exception:
+            pass
+
     try:
         cmd = [path]
         if args:
             cmd.extend(shlex.split(args))
         proc = subprocess.Popen(cmd)
-        return {"success": True, "pid": proc.pid}
+        try:
+            from detection.orchestrator import invalidate_tree_cache
+            invalidate_tree_cache()
+        except Exception:
+            pass
+        return {"success": True, "pid": proc.pid, "reused": False, "action": "launched"}
     except (FileNotFoundError, OSError) as exc:
         return {"success": False, "error": str(exc)}
 
@@ -621,17 +766,56 @@ def register(server) -> int:
         return f"Failed: {result['error']}"
 
     @server.tool()
-    def launch_app(path: str, args: str = "") -> str:
-        """Launch an application.
+    def restore_window(
+        window_title: str = "",
+        title: str = "",
+        window_handle: int = 0,
+    ) -> str:
+        """Restore (un-minimize) the target window before UIA interaction."""
+        from tools.params import resolve_window_title as _wt
+
+        result = do_restore_window(
+            window_title=_wt(window_title, title),
+            window_handle=window_handle or None,
+        )
+        if result.get("success"):
+            return f"OK restored hwnd={result.get('hwnd')}"
+        return f"Failed: {result.get('error', 'unknown')}"
+
+    @server.tool()
+    def launch_app(
+        path: str,
+        args: str = "",
+        reuse: bool = True,
+        replace: bool = False,
+    ) -> str:
+        """Launch an application (reuses existing instance by default).
 
         Parameters:
             path: Path or name of the executable to launch.
             args: Space-separated arguments (default "").
+            reuse: If True (default), focus an already-running instance instead
+                of opening a duplicate. Closes extra duplicate windows when found.
+            replace: If True, close all existing instances first, then launch
+                fresh. Use for stale UIA recovery — do not call launch_app
+                repeatedly without replace on an app that is already open.
         """
-        result = do_launch_app(path, args=args if args else None)
-        if result["success"]:
-            return f"Launched {path} (PID {result['pid']})"
-        return f"Failed to launch {path}: {result['error']}"
+        result = do_launch_app(
+            path,
+            args=args if args else None,
+            reuse=reuse,
+            replace=replace,
+        )
+        if not result["success"]:
+            return f"Failed to launch {path}: {result['error']}"
+        if result.get("reused"):
+            extra = int(result.get("closed_extra") or 0)
+            title = result.get("window_title") or path
+            msg = f"Reused {title} (PID {result['pid']})"
+            if extra:
+                msg += f"; closed {extra} duplicate instance(s)"
+            return msg
+        return f"Launched {path} (PID {result['pid']})"
 
     return 3
 

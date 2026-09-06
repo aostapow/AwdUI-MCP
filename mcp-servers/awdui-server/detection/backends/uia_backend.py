@@ -61,16 +61,29 @@ def _get_foreground_window(desktop):
     return windows[0] if windows else None
 
 
-def _find_window(desktop, window_title: str):
-    from tools.windows import find_matching_window
+def _find_window(desktop, window_title: Optional[str]):
+    from tools.target_window import get_target
+    from tools.windows import find_matching_window, resolve_window_handle
+
+    title = (window_title or get_target() or "").strip()
+    if not title:
+        return None
+
+    hwnd = resolve_window_handle(title)
+    if hwnd:
+        try:
+            return desktop.window(handle=hwnd)
+        except Exception:
+            pass
+
     windows = []
     for win in desktop.windows():
         try:
             windows.append({"_obj": win, "title": win.window_text()})
         except Exception:
             continue
-    result = find_matching_window(window_title, windows)
-    return result["window"]["_obj"] if result["window"] else None
+    result = find_matching_window(title, windows)
+    return result["window"]["_obj"] if result.get("window") else None
 
 
 def _safe_get(fn, default=None):
@@ -211,10 +224,33 @@ def _walk_tree_comtypes(root_element, tree_mode: str = "control", max_depth: int
     return results
 
 
-def _resolve_window(desktop, window_title: Optional[str]):
-    if window_title:
-        return _find_window(desktop, window_title)
+def _resolve_window(desktop, window_title: Optional[str], window_handle: Optional[int] = None):
+    if window_handle and int(window_handle) > 0:
+        try:
+            return desktop.window(handle=int(window_handle))
+        except Exception:
+            wrapper = _window_from_hwnd(int(window_handle))
+            if wrapper is not None:
+                return wrapper
+    from tools.target_window import get_target
+
+    title = window_title or get_target()
+    if title:
+        found = _find_window(desktop, title)
+        if found:
+            return found
     return _get_foreground_window(desktop)
+
+
+def _window_from_hwnd(hwnd: int):
+    try:
+        from pywinauto.uia_element_info import UIAElementInfo
+        from pywinauto.controls.uiawrapper import UIAWrapper
+
+        info = UIAElementInfo(hwnd)
+        return UIAWrapper(info)
+    except Exception:
+        return None
 
 
 def _find_raw_by_automation_id(window, automation_id: str):
@@ -300,6 +336,7 @@ class UIABackend(DetectionBackend):
             automation_id=d.get("automation_id", ""),
             class_name=d.get("class_name", ""),
             framework_id=d.get("framework_id", ""),
+            process_id=int(d.get("process_id", 0) or 0),
             visible=d.get("visible", True),
             enabled=d.get("enabled", True),
             clickable_x=d.get("clickable_x"),
@@ -339,11 +376,12 @@ class UIABackend(DetectionBackend):
         role: Optional[str] = None,
         tree_mode: str = "control",
         include_offscreen: bool = False,
+        window_handle: Optional[int] = None,
     ) -> list[DetectedElement]:
         if not self.is_available():
             return []
         desktop = _get_desktop()
-        window = _resolve_window(desktop, window_title)
+        window = _resolve_window(desktop, window_title, window_handle=window_handle)
         if not window:
             return []
         try:
@@ -363,25 +401,44 @@ class UIABackend(DetectionBackend):
                 continue
             elements.append(d)
 
-        # Spy fallback when UIA tree is shallow (common in XAML / UWP).
-        if len(elements) < 3:
-            try:
-                from tools.spy_bridge import spy_available, spy_list_elements
-                if spy_available():
-                    spy_elems = spy_list_elements(
-                        window_title=window_title or "",
-                        max_depth=max_depth,
-                        role_filter=role or "",
-                    )
-                    for raw in spy_elems:
-                        d = self._legacy_dict_to_detected(raw)
-                        if role_lower and (d.role or "").lower() != role_lower:
-                            continue
-                        if not _element_useful(d, include_offscreen):
-                            continue
-                        elements.append(d)
-            except Exception:
-                pass
+        try:
+            from tools.spy_bridge import spy_available, spy_list_elements
+            if spy_available():
+                spy_elems = spy_list_elements(
+                    window_title=window_title or "",
+                    max_depth=max_depth,
+                    role_filter=role or "",
+                    visible_only=not include_offscreen,
+                )
+                seen = {(d.automation_id, d.x, d.y) for d in elements}
+                for raw in spy_elems:
+                    d = self._legacy_dict_to_detected(raw)
+                    if role_lower and (d.role or "").lower() != role_lower:
+                        continue
+                    if not _element_useful(d, include_offscreen):
+                        continue
+                    key = (d.automation_id, d.x, d.y)
+                    if key in seen:
+                        continue
+                    elements.append(d)
+                    seen.add(key)
+        except Exception:
+            pass
+
+        try:
+            from tools.framework_detect import do_detect_framework
+            if do_detect_framework(window_title).get("framework") in ("uwp", "winui"):
+                xaml_only = [
+                    d for d in elements
+                    if (d.framework_id or "").upper() == "XAML"
+                ]
+                if len(xaml_only) >= 10:
+                    elements = xaml_only
+        except Exception:
+            pass
+
+        from detection.element_dedupe import dedupe_detected_elements
+        elements = dedupe_detected_elements(elements)
         return elements
 
     def find_elements(
@@ -394,6 +451,7 @@ class UIABackend(DetectionBackend):
         tree_mode: str = "control",
         include_offscreen: bool = False,
         index: int = 0,
+        window_handle: Optional[int] = None,
     ) -> list[DetectedElement]:
         spy_hits = self._try_spy_find(name, automation_id, window_title, role)
         if spy_hits:
@@ -406,7 +464,7 @@ class UIABackend(DetectionBackend):
 
         if automation_id:
             desktop = _get_desktop()
-            window = _resolve_window(desktop, window_title)
+            window = _resolve_window(desktop, window_title, window_handle=window_handle)
             if window:
                 raw = _find_raw_by_automation_id(window, automation_id)
                 if raw:
@@ -421,6 +479,7 @@ class UIABackend(DetectionBackend):
             role=role,
             tree_mode=tree_mode,
             include_offscreen=include_offscreen,
+            window_handle=window_handle,
         )
         matches = [
             d for d in all_elems
@@ -517,27 +576,76 @@ class UIABackend(DetectionBackend):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
+    def _resolve_raw_element(
+        self,
+        element: DetectedElement,
+        window_title: Optional[str] = None,
+    ):
+        desktop = _get_desktop()
+        window = _resolve_window(desktop, window_title)
+        if not window:
+            return None, "Window not found"
+        raw = None
+        if element.automation_id:
+            raw = _find_raw_by_automation_id(window, element.automation_id)
+        if raw is None:
+            raw, _ = self._find_raw_element(
+                name=element.name,
+                role=element.role,
+                window_title=window_title,
+            )
+        if not raw:
+            return None, "Element not found"
+        return raw, None
+
+    def expand_collapse_element(
+        self,
+        element: DetectedElement,
+        action: str = "expand",
+        window_title: Optional[str] = None,
+    ) -> dict:
+        """Expand or collapse via UIA ExpandCollapsePattern."""
+        try:
+            from pywinauto.uia_defines import get_elem_interface
+            raw, err = self._resolve_raw_element(element, window_title)
+            if not raw:
+                return {"success": False, "error": err or "Element not found"}
+            pattern = get_elem_interface(raw.element_info.element, "ExpandCollapse")
+            collapse = (action or "expand").lower() == "collapse"
+            if collapse:
+                pattern.Collapse()
+                return {"success": True, "method": "ExpandCollapse.Collapse"}
+            pattern.Expand()
+            return {"success": True, "method": "ExpandCollapse.Expand"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
     def invoke_element(self, element: DetectedElement, window_title: Optional[str] = None) -> dict:
         try:
             from pywinauto.uia_defines import get_elem_interface
-            desktop = _get_desktop()
-            window = _resolve_window(desktop, window_title)
-            if not window:
-                return {"success": False, "error": "Window not found for invoke"}
-            raw = None
-            if element.automation_id:
-                raw = _find_raw_by_automation_id(window, element.automation_id)
-            if raw is None:
-                raw, _ = self._find_raw_element(
-                    name=element.name,
-                    role=element.role,
-                    window_title=window_title,
-                )
+            raw, err = self._resolve_raw_element(element, window_title)
             if not raw:
-                return {"success": False, "error": "Element not found for invoke"}
-            pattern = get_elem_interface(raw.element_info.element, "Invoke")
-            pattern.Invoke()
-            return {"success": True, "method": "InvokePattern"}
+                return {"success": False, "error": err or "Element not found for invoke"}
+            element_iface = raw.element_info.element
+            for pattern_name, invoke_fn in (
+                ("Invoke", lambda p: p.Invoke()),
+                ("Toggle", lambda p: p.Toggle()),
+                ("SelectionItem", lambda p: p.Select()),
+                ("ExpandCollapse", lambda p: p.Expand()),
+            ):
+                try:
+                    pattern = get_elem_interface(element_iface, pattern_name)
+                    invoke_fn(pattern)
+                    method = f"{pattern_name}Pattern"
+                    if pattern_name == "ExpandCollapse":
+                        method = "ExpandCollapse.Expand"
+                    return {"success": True, "method": method}
+                except Exception:
+                    continue
+            return {
+                "success": False,
+                "error": "No Invoke/Toggle/SelectionItem/ExpandCollapse pattern available",
+            }
         except Exception as e:
             return {"success": False, "error": str(e)}
 

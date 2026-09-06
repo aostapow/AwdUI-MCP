@@ -522,8 +522,8 @@ def do_find_text(
 
     # Ensure target window is focused before OCR capture
     try:
-        from tools.target_window import ensure_focus
-        ensure_focus()
+        from tools.target_window import ensure_focus_for_capture
+        ensure_focus_for_capture()
     except Exception:
         pass
 

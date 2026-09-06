@@ -1,0 +1,58 @@
+---
+description: Al automatizar AST, leer skill genérica + skill de producto antes de actuar
+alwaysApply: true
+---
+
+# Skills AwdUI — routing genérica + producto
+
+## Cuándo aplica
+
+Si el turno involucra **AST**, **Activities Manager**, **Time Report**, **carga de horas**, o la ventana/proceso objetivo es AST:
+
+1. Leer **ambas** skills **antes** de la primera tool `user-awdui` de exploración o ejecución.
+2. No mezclar IDs de AST en la skill genérica ni improvisar localizadores si ya están documentados.
+
+## Skills obligatorias (AST)
+
+| Orden | Skill | Ruta |
+|-------|-------|------|
+| 1 | Metodología (fases 0–6) | `.cursor/skills/awdui-flow-exploration/SKILL.md` |
+| 2 | Producto AST (mapa, flujos, quirks) | `.cursor/skills/ast-activities-manager/SKILL.md` |
+
+Si el flujo es Time Report / carga de horas, leer también:
+
+- `.cursor/skills/ast-activities-manager/flows/time-report-hours.md`
+
+Patrones WinForms (lookup, combos, MDI) — solo si aplica:
+
+- `.cursor/skills/awdui-flow-exploration/patterns/winforms.md`
+
+**Catálogo de controles** (role → leer valores → interactuar) — consultar en Fase 3:
+
+- `.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md`
+
+**Catálogo de tools MCP** (qué hace cada tool, parámetros, ejemplos) — antes de ejecutar:
+
+- `docs/MCP_TOOLS_REFERENCE.md`
+
+## Secuencia mínima al detectar AST
+
+1. Leer skills (tabla arriba).
+2. `set_target_window("AST")` al iniciar interacción GUI.
+3. Usar `automation_id` y flujos de la skill de producto; seguir fases de la genérica.
+4. `set_target_window("")` al terminar.
+
+## Señales de detección
+
+- Usuario menciona AST, Activities Manager, Time Report, carga de horas.
+- `list_windows` / `detect_framework` muestra proceso o título con `AST`.
+- `set_target_window` ya apunta a `AST`.
+- Flujo en curso usa IDs documentados (`cboActividad`, `btnBuscar`, `gcGrillaActividades`, etc.).
+
+## Nuevos productos
+
+Si se agrega otra app bajo `.cursor/skills/{producto}/`, aplicar el mismo patrón: **genérica + skill del producto** cuando ese producto sea el objetivo.
+
+## Advisor
+
+En el prompt del improvement advisor, indicar si se leyeron `awdui-flow-exploration` y `ast-activities-manager`.

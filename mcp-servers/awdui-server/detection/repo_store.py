@@ -773,10 +773,65 @@ def delete_object(repo_path: str, db_path: Optional[Path] = None) -> bool:
         return cur.rowcount > 0
 
 
+def delete_application(
+    app_name: str = "",
+    exe_path: str = "",
+    *,
+    app_id_value: str = "",
+    db_path: Optional[Path] = None,
+) -> dict:
+    """Delete an application and all stored objects/windows (CASCADE)."""
+    _ensure_migrated(db_path)
+    removed_assets = False
+    with _connect(db_path) as conn:
+        aid = (app_id_value or "").strip()
+        if not aid:
+            aid = _resolve_lookup_app_id(app_name, exe_path, conn=conn)
+        row = conn.execute(
+            "SELECT app_id, app_name FROM applications WHERE app_id=?",
+            (aid,),
+        ).fetchone()
+        if not row:
+            return {"success": False, "error": "application not found", "app_id": aid}
+        count = _object_count_for_app(conn, aid)
+        conn.execute("DELETE FROM applications WHERE app_id=?", (aid,))
+        assets = assets_dir(aid)
+        if assets.exists():
+            shutil.rmtree(assets, ignore_errors=True)
+            removed_assets = True
+        return {
+            "success": True,
+            "app_id": aid,
+            "app_name": row["app_name"],
+            "objects_removed": count,
+            "assets_removed": removed_assets,
+        }
+
+
 def get_agent_hints(repo_path: str, db_path: Optional[Path] = None) -> str:
     _ensure_migrated(db_path)
     with _connect(db_path) as conn:
         row = conn.execute("SELECT id FROM objects WHERE repo_path=?", (repo_path,)).fetchone()
+        if not row:
+            return ""
+        hint = conn.execute(
+            "SELECT hints FROM agent_hints WHERE scope='object' AND scope_id=?",
+            (str(row["id"]),),
+        ).fetchone()
+        return hint["hints"] if hint else ""
+
+
+def get_hints_by_automation_id(automation_id: str, db_path: Optional[Path] = None) -> str:
+    """Return agent_hints for the most recently updated repo object with this automation_id."""
+    aid = (automation_id or "").strip()
+    if not aid:
+        return ""
+    _ensure_migrated(db_path)
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT id FROM objects WHERE automation_id=? ORDER BY updated_at DESC LIMIT 1",
+            (aid,),
+        ).fetchone()
         if not row:
             return ""
         hint = conn.execute(

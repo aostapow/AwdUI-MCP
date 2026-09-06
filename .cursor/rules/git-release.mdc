@@ -1,0 +1,15 @@
+# Subir a git = release completo
+
+Cuando el usuario pida **subir a git**, **commit**, **push**, o similar tras un cambio de producto:
+
+1. **Bump** `VERSION` (patch para fixes, minor para features)
+2. **CHANGELOG** — sección `## X.Y.Z` con bullets del cambio
+3. **Tests** — actualizar `tests/test_version_check.py` si cambia la versión local; correr pytest
+4. **Commit** en `main` con mensaje `Release vX.Y.Z: …`
+5. **Push** `main`
+6. **Tag** `vX.Y.Z` y **push del tag** — el workflow `.github/workflows/release.yml` publica el GitHub Release y el zip
+7. **Verificar** release con `& "C:\Program Files\GitHub CLI\gh.exe" release view vX.Y.Z --repo aostapow/AwdUI-MCP`
+
+`gh` está en `C:\Program Files\GitHub CLI\gh.exe` (no siempre en PATH de la terminal de Cursor).
+
+No preguntar si hace falta versión/release — es parte del entregable.

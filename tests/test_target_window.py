@@ -26,6 +26,7 @@ class TestTargetState:
         """Reset state between tests."""
         from tools import target_window
         target_window._target_window = None
+        target_window._focus_policy = "minimal"
 
     def test_set_and_get_target(self):
         from tools.target_window import set_target, get_target
@@ -63,12 +64,40 @@ class TestEnsureFocus:
     def setup_method(self):
         from tools import target_window
         target_window._target_window = None
+        target_window._focus_policy = "minimal"
 
     @mock.patch("tools.windows.do_focus_window")
-    def test_calls_do_focus_window_when_target_set(self, mock_focus):
+    @mock.patch("tools.target_window.is_target_foreground", return_value=False)
+    def test_minimal_does_not_steal_without_force(self, _fg, mock_focus):
         from tools.target_window import set_target, ensure_focus
+        set_target("Browser")
+        assert ensure_focus(force=False) is False
+        mock_focus.assert_not_called()
+
+    @mock.patch("tools.windows.do_focus_window")
+    @mock.patch("tools.target_window.is_target_foreground", return_value=False)
+    def test_minimal_force_focuses_for_input(self, _fg, mock_focus):
+        from tools.target_window import set_target, ensure_focus_for_input
         mock_focus.return_value = {"success": True, "window": "Browser", "action": "focus"}
         set_target("Browser")
+        ensure_focus_for_input()
+        mock_focus.assert_called_once_with("Browser", action="focus")
+
+    @mock.patch("tools.windows.do_focus_window")
+    @mock.patch("tools.target_window.is_target_foreground", return_value=True)
+    def test_minimal_skips_when_already_foreground(self, _fg, mock_focus):
+        from tools.target_window import set_target, ensure_focus_for_input
+        set_target("Browser")
+        ensure_focus_for_input()
+        mock_focus.assert_not_called()
+
+    @mock.patch("tools.windows.do_focus_window")
+    @mock.patch("tools.target_window.is_target_foreground", return_value=False)
+    def test_always_policy_focuses(self, _fg, mock_focus):
+        from tools.target_window import set_target, set_focus_policy, ensure_focus
+        mock_focus.return_value = {"success": True, "window": "Browser", "action": "focus"}
+        set_target("Browser")
+        set_focus_policy("always")
         ensure_focus()
         mock_focus.assert_called_once_with("Browser", action="focus")
 
@@ -84,11 +113,11 @@ class TestEnsureFocus:
 # ---------------------------------------------------------------------------
 
 class TestInputToolsCallEnsureFocus:
-    """Verify that each do_* function calls ensure_focus() before acting."""
+    """Verify that each do_* function calls ensure_focus_for_input() before acting."""
 
     @mock.patch("tools.screenshot.capture_screenshot")
     @mock.patch("tools.windows.get_foreground_title", return_value="App")
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     @mock.patch("tools.input_tools.pyautogui")
     def test_do_click_calls_ensure_focus(self, mock_pag, mock_ef, mock_title, mock_cap):
         # Need valid base64 image for compare_screenshots
@@ -102,7 +131,7 @@ class TestInputToolsCallEnsureFocus:
         # Called twice when verifying: before click and after sleep (to re-focus before title check)
         assert mock_ef.call_count == 2
 
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     @mock.patch("tools.input_tools.pyautogui")
     @mock.patch("tools.input_tools.get_foreground_type", return_value={"type": "gui", "pid": 0, "hwnd": 0})
     def test_do_type_text_calls_ensure_focus(self, mock_fg, mock_pag, mock_ef):
@@ -110,7 +139,7 @@ class TestInputToolsCallEnsureFocus:
         do_type_text("hello")
         mock_ef.assert_called_once()
 
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     @mock.patch("tools.input_tools.pyautogui")
     @mock.patch("tools.input_tools.get_foreground_type", return_value={"type": "gui", "pid": 0, "hwnd": 0})
     def test_do_send_keys_calls_ensure_focus(self, mock_fg, mock_pag, mock_ef):
@@ -119,7 +148,7 @@ class TestInputToolsCallEnsureFocus:
         mock_ef.assert_called_once()
 
     @mock.patch("tools.screenshot.capture_screenshot")
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     @mock.patch("tools.input_tools.pyautogui")
     def test_do_scroll_calls_ensure_focus(self, mock_pag, mock_ef, mock_cap):
         import base64, io, numpy as np
@@ -131,14 +160,14 @@ class TestInputToolsCallEnsureFocus:
         do_scroll(500, 400, "up")
         mock_ef.assert_called_once()
 
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     @mock.patch("tools.input_tools.pyautogui")
     def test_do_drag_calls_ensure_focus(self, mock_pag, mock_ef):
         from tools.input_tools import do_drag
         do_drag(0, 0, 100, 100)
         mock_ef.assert_called_once()
 
-    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.ensure_focus_for_input")
     @mock.patch("tools.input_tools.pyautogui")
     def test_do_hover_calls_ensure_focus(self, mock_pag, mock_ef):
         from tools.input_tools import do_hover

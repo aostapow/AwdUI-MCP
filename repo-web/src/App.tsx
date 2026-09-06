@@ -10,6 +10,7 @@ import {
   searchObjects,
   consolidateRepos,
 } from "./api";
+import AppPanel from "./AppPanel";
 
 const POLL_MS = 2500;
 
@@ -23,6 +24,26 @@ const JUNK_APPS = new Set([
 function isJunkApp(name: string): boolean {
   const lower = name.toLowerCase();
   return JUNK_APPS.has(lower) || lower.endsWith("applicationframehost.exe");
+}
+
+function appStorageKey(app: AppInfo): string {
+  const exe = (app.exe_path || "").trim().toLowerCase();
+  if (exe) return exe;
+  const lower = app.app_name.toLowerCase();
+  if (lower === "notepad") return "notepad.exe";
+  if (lower === "calculadora" || lower === "calculator" || lower === "calc") {
+    return "calculatorapp.exe";
+  }
+  return lower;
+}
+
+function hasDuplicateApps(apps: AppInfo[]): boolean {
+  const groups = new Map<string, number>();
+  for (const app of apps) {
+    const key = appStorageKey(app);
+    groups.set(key, (groups.get(key) || 0) + 1);
+  }
+  return [...groups.values()].some((count) => count > 1);
 }
 
 type TreeData = Awaited<ReturnType<typeof fetchTree>>;
@@ -41,6 +62,7 @@ export default function App() {
   const [trees, setTrees] = useState<Record<string, TreeData>>({});
   const [expandedWindows, setExpandedWindows] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<string>("");
+  const [selectedAppId, setSelectedAppId] = useState<string>("");
   const [detail, setDetail] = useState<RepoObject | null>(null);
   const [hints, setHints] = useState("");
   const [search, setSearch] = useState("");
@@ -134,6 +156,18 @@ export default function App() {
     });
   };
 
+  const selectApp = async (appId: string) => {
+    setSelectedAppId(appId);
+    setSelected("");
+    setDetail(null);
+    setHints("");
+    setDirty(false);
+    setSearchResults([]);
+    if (!trees[appId]) {
+      await toggleApp(appId);
+    }
+  };
+
   const toggleWindow = (appId: string, windowKey: string) => {
     const key = `${appId}::${windowKey}`;
     setExpandedWindows((prev) => {
@@ -146,6 +180,7 @@ export default function App() {
 
   const selectObject = async (repoPath: string) => {
     setSelected(repoPath);
+    setSelectedAppId("");
     setDirty(false);
     const data = await fetchObject(repoPath);
     setDetail(data.object);
@@ -203,6 +238,7 @@ export default function App() {
       setTrees({});
       setExpandedWindows(new Set());
       setSelected("");
+      setSelectedAppId("");
       setDetail(null);
       revisionRef.current = (await fetchChanges()).revision;
       setStatus(
@@ -215,7 +251,9 @@ export default function App() {
   };
 
   const keys = tierKeys(detail);
-  const hasJunkApps = apps.some((app) => isJunkApp(app.app_name));
+  const showOrganize =
+    apps.some((app) => isJunkApp(app.app_name) && Number(app.object_count ?? 0) > 0) ||
+    hasDuplicateApps(apps);
 
   return (
     <div className="app">
@@ -224,13 +262,13 @@ export default function App() {
           AwdUI Repo Studio
           <span className={`live-dot${live ? " live-dot--on" : ""}`} title="Actualización automática cada 2.5s" />
         </h1>
-        {hasJunkApps && (
+        {showOrganize && (
           <div className="sidebar-actions">
             <button
               type="button"
               className="consolidate-btn"
               onClick={onConsolidate}
-              title="Une apps duplicadas (foreground, ApplicationFrameHost) y borra ventanas vacías"
+              title="Une apps duplicadas y elimina buckets vacíos"
             >
               Organizar repositorio
             </button>
@@ -263,22 +301,31 @@ export default function App() {
           const treeCount =
             trees[app.app_id]?.windows.reduce((n, w) => n + w.objects.length, 0) ?? 0;
           const count = treeCount > 0 ? treeCount : Number(app.object_count ?? 0);
-          if (junk && count === 0) return null;
+          if (count === 0) return null;
           return (
             <div key={app.app_id} className={`tree-app${junk ? " tree-app--junk" : ""}`}>
-              <button
-                type="button"
-                className={`tree-toggle${appOpen ? " tree-toggle--open" : ""}`}
-                onClick={() => toggleApp(app.app_id)}
-                aria-expanded={appOpen}
-                title={junk ? "App legacy — usá Organizar repositorio" : undefined}
-              >
-                <span className="tree-chevron" aria-hidden>
-                  {appOpen ? "▼" : "▶"}
-                </span>
-                {app.app_name}
-                <span className="tree-count">({count})</span>
-              </button>
+              <div className="tree-app-header">
+                <button
+                  type="button"
+                  className={`tree-chevron-btn${appOpen ? " tree-chevron-btn--open" : ""}`}
+                  onClick={() => toggleApp(app.app_id)}
+                  aria-expanded={appOpen}
+                  aria-label={appOpen ? "Contraer" : "Expandir"}
+                >
+                  <span className="tree-chevron" aria-hidden>
+                    {appOpen ? "▼" : "▶"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={`tree-app-label${selectedAppId === app.app_id ? " active" : ""}`}
+                  onClick={() => selectApp(app.app_id)}
+                  title={junk ? "App legacy — usá Organizar repositorio" : "Ver propiedades de la aplicación"}
+                >
+                  {app.app_name}
+                  <span className="tree-count">({count})</span>
+                </button>
+              </div>
               {appOpen &&
                 trees[app.app_id]?.windows.map((win) => {
                   const winKey = `${app.app_id}::${win.window_key}`;
@@ -317,9 +364,7 @@ export default function App() {
         })}
       </aside>
       <main className="inspector">
-        {!detail ? (
-          <div className="empty">Seleccioná un objeto del repositorio</div>
-        ) : (
+        {detail ? (
           <>
             <h2>{selected}</h2>
             <p>
@@ -402,6 +447,35 @@ export default function App() {
               {status && <span style={{ marginLeft: 12 }}>{status}</span>}
             </div>
           </>
+        ) : selectedAppId ? (
+          <AppPanel
+            appId={selectedAppId}
+            onDeleted={async (deletedAppId) => {
+              setSelectedAppId("");
+              setTrees((t) => {
+                const next = { ...t };
+                delete next[deletedAppId];
+                return next;
+              });
+              setExpandedWindows((prev) => {
+                const next = new Set(prev);
+                for (const key of prev) {
+                  if (key.startsWith(`${deletedAppId}::`)) next.delete(key);
+                }
+                return next;
+              });
+              await loadApps();
+              revisionRef.current = (await fetchChanges()).revision;
+            }}
+            onSaved={async () => {
+              await loadApps();
+              revisionRef.current = (await fetchChanges()).revision;
+            }}
+          />
+        ) : (
+          <div className="empty">
+            Seleccioná una aplicación o un objeto del repositorio
+          </div>
         )}
       </main>
     </div>

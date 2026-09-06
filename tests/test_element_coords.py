@@ -8,6 +8,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "mcp-servers", 
 
 
 class TestElementCoords:
+    @pytest.fixture(autouse=True)
+    def _no_live_window_scope(self, monkeypatch):
+        """Unit tests use mocked window_region only — avoid live Calculadora client rect."""
+        monkeypatch.setattr(
+            "detection.element_scope.resolve_window_scope",
+            lambda *args, **kwargs: None,
+        )
+
     def test_window_relative_to_screen(self, monkeypatch):
         from detection.element_coords import to_screen_coords
 
@@ -93,3 +101,19 @@ class TestElementCoords:
         out = to_screen_coords(elem, "Calculadora")
         assert out["x"] == 436
         assert out["y"] == 599
+
+    def test_screen_coords_left_edge_center_inside_visual(self, monkeypatch):
+        """UWP may report x slightly left of visual rect; center is still on-screen."""
+        from detection.element_coords import to_screen_coords
+
+        monkeypatch.setattr(
+            "detection.element_coords.window_region",
+            lambda _t: {"x": 122, "y": 397, "w": 531, "h": 843},
+        )
+        monkeypatch.setattr("detection.element_coords._dpi_scale_for", lambda _t: 1.25)
+        elem = {"x": 112, "y": 848, "width": 98, "height": 64, "name": "Uno"}
+        out = to_screen_coords(elem, "Calculadora")
+        assert out["x"] == 112
+        assert out["y"] == 848
+        assert out["width"] == 98
+        assert out["height"] == 64

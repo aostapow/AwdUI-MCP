@@ -2,6 +2,11 @@
 
 Quick reference for Claude and other AI agents using AwdUI tools.
 
+## Tool catalog (read first)
+
+**Full per-tool reference:** [MCP_TOOLS_REFERENCE.md](MCP_TOOLS_REFERENCE.md) — what each of the ~66 MCP tools does, parameters, examples, and when to use it.  
+Keep it updated when adding/changing/removing tools (see `.cursor/rules/awdui-tools-catalog.mdc`).
+
 ## Tool Selection Flow
 
 Use this priority order when interacting with a GUI:
@@ -14,13 +19,18 @@ Use this priority order when interacting with a GUI:
 ## Starting on a New App
 
 1. Call `detect_framework` to understand what toolkit the app uses
-2. Call `list_elements` to see what's accessible
-3. If few elements found, try `list_elements(role="Button")` to search deeper
-4. Check framework hints for tips (e.g., Electron may need accessibility flag)
+2. Call `get_automation_profile` for preferred/blocked tools and app-specific notes (matrix in `detection/framework_capabilities.py`)
+3. Before interacting with an **unfamiliar control**, call `discover_control_interaction(automation_id=...)` — do not guess calendar vs type vs combo
+4. Call `list_elements` to see what's accessible
+5. If few elements found, try `list_elements(role="Button")` to search deeper
+6. Check framework hints for tips (e.g., Electron may need accessibility flag)
+7. For each control: match **role** + **patterns** to the [control catalog](../.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md) (ComboBox → list items first; Table → grid row tools; Button → invoke)
 
 ## Focus Management
 
 **Set a target window early.** Call `set_target_window("Browser")` (or whatever app you're automating) at the start of a session. This auto-focuses the target before every input action, preventing the terminal from stealing focus between tool calls.
+
+**Scope enforcement:** With a target set, clicks and UIA actions (`set_element_value`, `invoke_element`, `click_element`, pattern tools) are **blocked** if the element or coordinates belong to another app (e.g. browser address bar behind the form). Modal dialogs (`window_title="Buscar"`) are resolved as same-process children of the target.
 
 Clear it when switching apps or when done: `set_target_window("")`.
 
@@ -67,6 +77,19 @@ Environment variables:
 - `AWDUI_FOCUS_TTL=3` — seconds to skip redundant focus (default 3)
 
 **Fast Paint / WinForms flow:** `set_target_window` once → `invoke_element` / `click_element(capture=false)` / `batch_actions(capture=false)` → one `screenshot()` at the end.
+
+### Combos, patterns y lookup dialogs
+
+- **`get_control_state`** — leer Toggle, Range, Scroll %, Expand antes de actuar.
+- **`invoke_pattern`** — Toggle, ExpandCollapse, RangeValue, SelectionItem, VirtualizedItem.
+- **`scroll_element`** — scroll UIA en contenedor (grillas virtualizadas).
+- **`select_grid_cell`** — fila de grilla por índice numérico.
+- **`list_control_items`** — paginated items for a known `automation_id` (combo, list, grid). No full-window tree walk.
+- **`select_control_item`** — pick by substring; use `double_click=true` for WinForms lookup grids.
+- **`select_lookup_row`** — shortcut for modal search grids (`double_click=true` by default).
+- **`list_elements(max_depth=0)`** — default is full tree; use `role="ComboBox"` filter for fast combo discovery.
+- **`observe_ui_tool`** — capped at depth 8 / 80 elements; use only for initial exploration, not per-step execution.
+- **MDI child forms:** if `window_title` partial fails, set `set_target_window` to the parent app — OCR/UIA resolve same-process child windows automatically.
 
 ## Coordinate System
 

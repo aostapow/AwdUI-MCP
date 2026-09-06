@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/mcp-objective-session.ps1"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/mcp-objective-continue.ps1",
+        "loop_limit": 80
+      }
+    ]
+  }
+}

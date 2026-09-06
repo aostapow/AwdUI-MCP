@@ -194,8 +194,9 @@ class TestDoFocusWindow:
 # ---------------------------------------------------------------------------
 
 class TestDoLaunchApp:
+    @mock.patch("tools.app_launch.try_reuse_existing", return_value=None)
     @mock.patch("tools.windows.subprocess.Popen")
-    def test_launch_success(self, mock_popen):
+    def test_launch_success(self, mock_popen, _mock_reuse):
         from tools.windows import do_launch_app
         mock_proc = mock.MagicMock()
         mock_proc.pid = 12345
@@ -205,8 +206,9 @@ class TestDoLaunchApp:
         assert result["success"] is True
         assert result["pid"] == 12345
 
+    @mock.patch("tools.app_launch.try_reuse_existing", return_value=None)
     @mock.patch("tools.windows.subprocess.Popen")
-    def test_launch_with_args(self, mock_popen):
+    def test_launch_with_args(self, mock_popen, _mock_reuse):
         from tools.windows import do_launch_app
         mock_proc = mock.MagicMock()
         mock_proc.pid = 54321
@@ -220,8 +222,9 @@ class TestDoLaunchApp:
         assert result["success"] is True
         assert result["pid"] == 54321
 
+    @mock.patch("tools.app_launch.try_reuse_existing", return_value=None)
     @mock.patch("tools.windows.subprocess.Popen")
-    def test_launch_with_empty_args(self, mock_popen):
+    def test_launch_with_empty_args(self, mock_popen, _mock_reuse):
         from tools.windows import do_launch_app
         mock_proc = mock.MagicMock()
         mock_proc.pid = 99

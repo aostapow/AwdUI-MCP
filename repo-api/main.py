@@ -21,6 +21,16 @@ from detection import repo_store
 
 app = FastAPI(title="AwdUI Repo Studio", version="1.0.0")
 
+
+@app.on_event("startup")
+def _startup_consolidate():
+    try:
+        from detection.repo_consolidate import maybe_auto_consolidate
+
+        maybe_auto_consolidate()
+    except Exception:
+        pass
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -49,6 +59,13 @@ class ObjectUpdate(BaseModel):
     full_properties: Optional[dict[str, Any]] = None
 
 
+class AppUpdate(BaseModel):
+    app_name: Optional[str] = None
+    exe_path: Optional[str] = None
+    framework: Optional[str] = None
+    agent_hints: Optional[str] = None
+
+
 @app.get("/api/health")
 def health():
     return {"ok": True}
@@ -61,7 +78,70 @@ def repo_changes():
 
 @app.get("/api/apps")
 def list_apps():
+    try:
+        from detection.repo_consolidate import maybe_auto_consolidate
+
+        maybe_auto_consolidate()
+    except Exception:
+        pass
+    try:
+        from detection.repo_framework import maybe_refresh_unknown_frameworks
+
+        maybe_refresh_unknown_frameworks()
+    except Exception:
+        pass
     return {"apps": repo_store.list_applications()}
+
+
+@app.get("/api/apps/{app_id}")
+def get_app(app_id: str):
+    try:
+        from detection.repo_framework import refresh_app_framework
+
+        refresh_app_framework(app_id)
+    except Exception:
+        pass
+    app = repo_store.get_application(app_id)
+    if not app:
+        raise HTTPException(404, f"Application not found: {app_id}")
+    return {"app": app}
+
+
+@app.post("/api/apps/{app_id}/detect-framework")
+def detect_app_framework(app_id: str, force: bool = False, window_title: str = ""):
+    from detection.repo_framework import refresh_app_framework
+
+    result = refresh_app_framework(
+        app_id,
+        window_title=window_title or None,
+        force=force,
+    )
+    if not result.get("success"):
+        raise HTTPException(404, result.get("error", "Detection failed"))
+    app = repo_store.get_application(app_id)
+    return {"app": app, "detection": result}
+
+
+@app.put("/api/apps/{app_id}")
+def update_app(app_id: str, body: AppUpdate):
+    app = repo_store.update_application(
+        app_id,
+        app_name=body.app_name,
+        exe_path=body.exe_path,
+        framework=body.framework,
+        agent_hints=body.agent_hints,
+    )
+    if not app:
+        raise HTTPException(404, f"Application not found: {app_id}")
+    return {"app": app}
+
+
+@app.delete("/api/apps/{app_id}")
+def delete_app(app_id: str, clear_assets: bool = True):
+    result = repo_store.delete_application(app_id, clear_assets=clear_assets)
+    if not result:
+        raise HTTPException(404, f"Application not found: {app_id}")
+    return result
 
 
 @app.get("/api/apps/{app_id}/tree")
@@ -125,6 +205,11 @@ def consolidate():
     from detection.repo_consolidate import consolidate_repositories
 
     return consolidate_repositories()
+
+
+@app.post("/api/reset")
+def reset_repo(clear_assets: bool = True):
+    return repo_store.reset_repository(clear_assets=clear_assets)
 
 
 @app.get("/api/hints/{repo_path:path}")

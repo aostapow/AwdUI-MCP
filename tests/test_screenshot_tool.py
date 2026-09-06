@@ -553,3 +553,88 @@ class TestCaptureQuality:
         dark = Image.new("RGB", (400, 600), (20, 20, 20))
         assert _capture_quality(dark) < 40
 
+
+class TestScreenshotWindow:
+    def test_compat_blocks_uwp(self):
+        from tools.screenshot import check_printwindow_compatible
+
+        with mock.patch(
+            "tools.framework_detect.do_detect_framework",
+            return_value={"framework": "uwp"},
+        ):
+            out = check_printwindow_compatible("Calculator")
+        assert out["compatible"] is False
+        assert "not compatible" in out["error"].lower()
+
+    def test_compat_allows_winforms(self):
+        from tools.screenshot import check_printwindow_compatible
+
+        with mock.patch(
+            "tools.framework_detect.do_detect_framework",
+            return_value={"framework": "winforms"},
+        ):
+            out = check_printwindow_compatible("AST")
+        assert out["compatible"] is True
+        assert not out.get("warning")
+
+    def test_capture_printwindow_full_window(self):
+        from tools import screenshot as mod
+
+        fake_img = Image.new("RGB", (500, 400), (10, 20, 30))
+        fake_win = {"hwnd": 12345, "title": "AST - Activities Manager", "x": 10, "y": 20, "width": 500, "height": 400}
+        with mock.patch.object(mod, "screenshot_manager") as mock_mgr, \
+             mock.patch("tools.windows.find_matching_window", return_value={"window": fake_win}), \
+             mock.patch("tools.windows.do_list_windows", return_value=[]), \
+             mock.patch("tools.framework_detect.do_detect_framework", return_value={"framework": "winforms"}), \
+             mock.patch("awdui_platform.win32_backend.capture_window_image", return_value=fake_img), \
+             mock.patch("awdui_platform.win32_backend.get_window_rect", return_value={"x": 10, "y": 20, "w": 500, "h": 400}):
+            mock_mgr.save.return_value = "/tmp/pw.png"
+            result = mod.capture_window_printwindow("AST")
+        assert result["success"] is True
+        assert result["method"] == "printwindow"
+        assert result["framework"] == "winforms"
+        assert result["width"] == 500
+        assert result["focused"] is False
+
+    def test_capture_printwindow_region_window_coords(self):
+        from tools import screenshot as mod
+
+        fake_img = Image.new("RGB", (500, 400), (255, 0, 0))
+        fake_win = {"hwnd": 99, "title": "AST", "x": 0, "y": 0, "width": 500, "height": 400}
+        with mock.patch.object(mod, "screenshot_manager") as mock_mgr, \
+             mock.patch("tools.windows.find_matching_window", return_value={"window": fake_win}), \
+             mock.patch("tools.windows.do_list_windows", return_value=[]), \
+             mock.patch("tools.framework_detect.do_detect_framework", return_value={"framework": "winforms"}), \
+             mock.patch("awdui_platform.win32_backend.capture_window_image", return_value=fake_img), \
+             mock.patch("awdui_platform.win32_backend.get_window_rect", return_value={"x": 0, "y": 0, "w": 500, "h": 400}):
+            mock_mgr.save.return_value = "/tmp/pw.png"
+            result = mod.capture_window_printwindow(
+                "AST",
+                region={"x": 100, "y": 50, "w": 200, "h": 150},
+                region_coords="window",
+            )
+        assert result["success"] is True
+        assert result["width"] == 200
+        assert result["height"] == 150
+
+    def test_capture_printwindow_region_screen_coords(self):
+        from tools import screenshot as mod
+
+        fake_img = Image.new("RGB", (500, 400), (0, 255, 0))
+        fake_win = {"hwnd": 99, "title": "AST", "x": 50, "y": 60, "width": 500, "height": 400}
+        with mock.patch.object(mod, "screenshot_manager") as mock_mgr, \
+             mock.patch("tools.windows.find_matching_window", return_value={"window": fake_win}), \
+             mock.patch("tools.windows.do_list_windows", return_value=[]), \
+             mock.patch("tools.framework_detect.do_detect_framework", return_value={"framework": "winforms"}), \
+             mock.patch("awdui_platform.win32_backend.capture_window_image", return_value=fake_img), \
+             mock.patch("awdui_platform.win32_backend.get_window_rect", return_value={"x": 50, "y": 60, "w": 500, "h": 400}):
+            mock_mgr.save.return_value = "/tmp/pw.png"
+            result = mod.capture_window_printwindow(
+                "AST",
+                region={"x": 150, "y": 110, "w": 100, "h": 80},
+                region_coords="screen",
+            )
+        assert result["success"] is True
+        assert result["width"] == 100
+        assert result["height"] == 80
+

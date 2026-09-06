@@ -1,0 +1,1207 @@
+{
+  "goal": "Auditoría agentica: 87 tools MCP + detección UIA/patterns — Calculadora + Notepad",
+  "lab_apps": [
+    "Windows Calculator (UWP)",
+    "Bloc de notas (Notepad)"
+  ],
+  "ast_policy": "consulta_skill_only",
+  "objective_met": false,
+  "mcp_infra_ready": true,
+  "calculator_perfect": true,
+  "status": "paused",
+  "current_focus": "PAUSADO — repensar estrategia auditoria (pytest + spot-check MCP, no 87 secuenciales)",
+  "focus_policy": "minimal",
+  "agent": "awdui-mcp-improvement-runner",
+  "cycle_control": {
+    "paused": true,
+    "pause_hint": "scripts/pause-mcp-cycle.ps1",
+    "paused_reason": "Auditoria 87 tools insostenible en chat; usuario reporta colgado"
+  },
+  "completion_criteria": [
+    "Cada una de las 87 tools en MCP_TOOLS_REFERENCE.md tiene fila en tool_validation_matrix con estado met|na|fail",
+    "Por tool accionable: al menos un OBS→ACT→VERIFY en Calculadora o Notepad con timing citado",
+    "Por tool solo observación: al menos una invocación exitosa con output útil citado",
+    "Detección: list_elements, spy_tree, find_element, discover_control_interaction, ascii_ui_view, detection_health, detect_framework en Calculadora Estándar + Notepad",
+    "Patterns por rol (control-catalog): Button/Invoke, Edit/set_value, Combo/list+select, expand, grid/table — UWP + Win32",
+    "Eficiencia: ninguna tool crítica slow (>=3000ms) sin blocker + propuesta fix",
+    "Evaluación crítica escrita por tool: qué funcionó, qué fue frágil, qué requiere rework"
+  ],
+  "criteria_status": [
+    {
+      "criterion": "87 tools con fila en matriz",
+      "status": "in_progress",
+      "evidence": "7/87 met (oleada 0 completa)"
+    },
+    {
+      "criterion": "OBS→ACT→VERIFY accionables",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "criterion": "Tools observación invocadas",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "criterion": "Detección UWP+Win32",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "criterion": "Patterns por rol",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "criterion": "Eficiencia sin slow sin waiver",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "criterion": "Evaluación crítica",
+      "status": "pending",
+      "evidence": null
+    }
+  ],
+  "tool_validation_matrix": {
+    "apply_probe_tool": {
+      "tool": "apply_probe_tool",
+      "status": "pending",
+      "wave": "wave_9_discovery",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "ascii_ui_view": {
+      "tool": "ascii_ui_view",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "batch_actions": {
+      "tool": "batch_actions",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "build_detection_context": {
+      "tool": "build_detection_context",
+      "status": "pending",
+      "wave": "wave_9_discovery",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "check_java_bridge": {
+      "tool": "check_java_bridge",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "check_session_status": {
+      "tool": "check_session_status",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "Calculadora",
+      "scenario": "Health con target Calculadora previamente seteado",
+      "timing_ms": 52,
+      "verdict": "fast",
+      "critical_notes": "target_alive=false (Calculadora cerrada) — correctamente deshabilita uia_find/click/type_text pero permite screenshot. Util como sentinel antes de oleada 1.",
+      "evidence": "target_set=true target_alive=false operations_available uia_find=false screenshot=true"
+    },
+    "check_version": {
+      "tool": "check_version",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "ninguna",
+      "scenario": "Consulta version instalada vs GitHub (cache)",
+      "timing_ms": 45,
+      "verdict": "fast",
+      "critical_notes": "Respuesta util: v0.2.1 up to date + URL release. Sin red si cache vigente.",
+      "evidence": "current: v0.2.1 | latest: v0.2.1 (release) | status: up to date"
+    },
+    "clear_highlight": {
+      "tool": "clear_highlight",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "click": {
+      "tool": "click",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "click_element": {
+      "tool": "click_element",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "click_text": {
+      "tool": "click_text",
+      "status": "pending",
+      "wave": "wave_6_ocr",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "clipboard": {
+      "tool": "clipboard",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "configure_uac": {
+      "tool": "configure_uac",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "detect_framework": {
+      "tool": "detect_framework",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "detect_visual_regions": {
+      "tool": "detect_visual_regions",
+      "status": "pending",
+      "wave": "wave_6_ocr",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "detection_health": {
+      "tool": "detection_health",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "discover_control_interaction": {
+      "tool": "discover_control_interaction",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "discover_target_tool": {
+      "tool": "discover_target_tool",
+      "status": "pending",
+      "wave": "wave_9_discovery",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "drag": {
+      "tool": "drag",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "element_at_point": {
+      "tool": "element_at_point",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "element_exists": {
+      "tool": "element_exists",
+      "status": "pending",
+      "wave": "wave_3_wait",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "expand_element": {
+      "tool": "expand_element",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "fill_form": {
+      "tool": "fill_form",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "find_all_elements": {
+      "tool": "find_all_elements",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "find_by_template_tool": {
+      "tool": "find_by_template_tool",
+      "status": "pending",
+      "wave": "wave_6_ocr",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "find_element": {
+      "tool": "find_element",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "find_item_by_property": {
+      "tool": "find_item_by_property",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "find_text": {
+      "tool": "find_text",
+      "status": "pending",
+      "wave": "wave_6_ocr",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "focus_window": {
+      "tool": "focus_window",
+      "status": "pending",
+      "wave": "wave_1_windows",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_all_values": {
+      "tool": "get_all_values",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_element_properties": {
+      "tool": "get_element_properties",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_event_log": {
+      "tool": "get_event_log",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_focused_element": {
+      "tool": "get_focused_element",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_grid_item": {
+      "tool": "get_grid_item",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_mouse_position": {
+      "tool": "get_mouse_position",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_notifications": {
+      "tool": "get_notifications",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_screen_size": {
+      "tool": "get_screen_size",
+      "status": "pending",
+      "wave": "wave_7_screenshots",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_server_info": {
+      "tool": "get_server_info",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "ninguna",
+      "scenario": "JSON introspection servidor MCP",
+      "timing_ms": 28,
+      "verdict": "fast",
+      "critical_notes": "JSON rico: version, Python, installPath, releaseNotes, flags update. Mejor que check_version para diagnostico completo.",
+      "evidence": "mcpServerVersion 0.2.1; pythonVersion 3.14.5; installPath C:\\mcps\\AwdUI-MCP; updateAvailable false"
+    },
+    "get_snapshot": {
+      "tool": "get_snapshot",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "get_target_window": {
+      "tool": "get_target_window",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "ninguna",
+      "scenario": "Leer target antes y despues de set_target_window",
+      "timing_ms": 12,
+      "verdict": "fast",
+      "critical_notes": "Antes: No target + focus_policy=minimal. Despues: Calculadora (background) — confirma minimal no roba foco.",
+      "evidence": "No target window set. focus_policy=minimal | Target window: Calculadora focus_policy=minimal (background)"
+    },
+    "highlight_element": {
+      "tool": "highlight_element",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "hover": {
+      "tool": "hover",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "invalidate_cache": {
+      "tool": "invalidate_cache",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "ninguna",
+      "scenario": "Limpiar caches UIA post-release",
+      "timing_ms": 15,
+      "verdict": "fast",
+      "critical_notes": "Reporta conteos cache (0/0); prerequisito tras relaunch o stale reads documentado en MCP_TOOLS_REFERENCE.",
+      "evidence": "OK invalidated=all list_elements_cache=0 uia_descendants=0"
+    },
+    "invoke_element": {
+      "tool": "invoke_element",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "launch_app": {
+      "tool": "launch_app",
+      "status": "pending",
+      "wave": "wave_1_windows",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "list_control_items": {
+      "tool": "list_control_items",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "list_elements": {
+      "tool": "list_elements",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "list_windows": {
+      "tool": "list_windows",
+      "status": "pending",
+      "wave": "wave_1_windows",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "manage_screenshots": {
+      "tool": "manage_screenshots",
+      "status": "pending",
+      "wave": "wave_7_screenshots",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "observe_ui_tool": {
+      "tool": "observe_ui_tool",
+      "status": "pending",
+      "wave": "wave_9_discovery",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "plan_probes_tool": {
+      "tool": "plan_probes_tool",
+      "status": "pending",
+      "wave": "wave_9_discovery",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "read_element": {
+      "tool": "read_element",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "read_element_by_index": {
+      "tool": "read_element_by_index",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "read_table": {
+      "tool": "read_table",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "realize_virtualized_item": {
+      "tool": "realize_virtualized_item",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "release_all": {
+      "tool": "release_all",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "ninguna",
+      "scenario": "Liberar target, caches, highlights, event monitors",
+      "timing_ms": 18,
+      "verdict": "fast",
+      "critical_notes": "Respuesta minima OK; complementa set_target_window('') para cierre de sesion.",
+      "evidence": "OK released session resources"
+    },
+    "repo_action": {
+      "tool": "repo_action",
+      "status": "pending",
+      "wave": "wave_8_repo",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "repo_capture": {
+      "tool": "repo_capture",
+      "status": "pending",
+      "wave": "wave_8_repo",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "repo_find": {
+      "tool": "repo_find",
+      "status": "pending",
+      "wave": "wave_8_repo",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "repo_hints": {
+      "tool": "repo_hints",
+      "status": "pending",
+      "wave": "wave_8_repo",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "repo_list": {
+      "tool": "repo_list",
+      "status": "pending",
+      "wave": "wave_8_repo",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "restore_window": {
+      "tool": "restore_window",
+      "status": "pending",
+      "wave": "wave_1_windows",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "screenshot": {
+      "tool": "screenshot",
+      "status": "pending",
+      "wave": "wave_7_screenshots",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "screenshot_baseline": {
+      "tool": "screenshot_baseline",
+      "status": "pending",
+      "wave": "wave_7_screenshots",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "screenshot_diff": {
+      "tool": "screenshot_diff",
+      "status": "pending",
+      "wave": "wave_7_screenshots",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "scroll": {
+      "tool": "scroll",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "scroll_element": {
+      "tool": "scroll_element",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "scroll_into_view": {
+      "tool": "scroll_into_view",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "select_control_item": {
+      "tool": "select_control_item",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "send_keys": {
+      "tool": "send_keys",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "set_element_value": {
+      "tool": "set_element_value",
+      "status": "pending",
+      "wave": "wave_4_action",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "set_target_window": {
+      "tool": "set_target_window",
+      "status": "met",
+      "wave": "wave_0_session",
+      "app": "Calculadora",
+      "scenario": "set_target_window(Calculadora, focus_policy=minimal)",
+      "timing_ms": 38,
+      "verdict": "fast",
+      "critical_notes": "Resuelve HWND por titulo parcial; mensaje explicito sobre UIA sin foreground y recordatorio de limpiar target.",
+      "evidence": "Target window set to Calculadora (focus_policy=minimal). UIA tools work without foreground."
+    },
+    "smart_find": {
+      "tool": "smart_find",
+      "status": "pending",
+      "wave": "wave_6_ocr",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "spy_inspect": {
+      "tool": "spy_inspect",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "spy_tree": {
+      "tool": "spy_tree",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "spy_walk_visible_tool": {
+      "tool": "spy_walk_visible_tool",
+      "status": "pending",
+      "wave": "wave_9_discovery",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "start_event_monitor": {
+      "tool": "start_event_monitor",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "start_watcher": {
+      "tool": "start_watcher",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "stop_event_monitor": {
+      "tool": "stop_event_monitor",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "stop_watcher": {
+      "tool": "stop_watcher",
+      "status": "pending",
+      "wave": "wave_10_events",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "type_text": {
+      "tool": "type_text",
+      "status": "pending",
+      "wave": "wave_5_input",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "ui_fingerprint": {
+      "tool": "ui_fingerprint",
+      "status": "pending",
+      "wave": "wave_2_exploration",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "virtual_desktop": {
+      "tool": "virtual_desktop",
+      "status": "pending",
+      "wave": "wave_1_windows",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "wait_for_change": {
+      "tool": "wait_for_change",
+      "status": "pending",
+      "wave": "wave_7_screenshots",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "wait_for_condition": {
+      "tool": "wait_for_condition",
+      "status": "pending",
+      "wave": "wave_3_wait",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "wait_for_element": {
+      "tool": "wait_for_element",
+      "status": "pending",
+      "wave": "wave_3_wait",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    },
+    "wait_for_input_idle": {
+      "tool": "wait_for_input_idle",
+      "status": "pending",
+      "wave": "wave_3_wait",
+      "app": null,
+      "scenario": null,
+      "timing_ms": null,
+      "verdict": null,
+      "critical_notes": null,
+      "evidence": null
+    }
+  },
+  "tool_validation_evidence": [
+    {
+      "ts": "2026-09-06T13:02:52Z",
+      "wave": "wave_0_session",
+      "tools": [
+        "check_version",
+        "get_target_window",
+        "set_target_window"
+      ],
+      "observe": "state.json reescrito; AST skill consultada (no ejecutar)",
+      "act": "check_version; get_target_window x2; set_target_window Calculadora minimal",
+      "verify": "3 tools met; target Calculadora background; focus_policy=minimal",
+      "timings_ms": {
+        "check_version": 45,
+        "get_target_window": 12,
+        "set_target_window": 38
+      }
+    },
+    {
+      "ts": "2026-09-06T13:03:45Z",
+      "wave": "wave_0_session",
+      "tools": [
+        "get_server_info",
+        "check_session_status",
+        "release_all",
+        "invalidate_cache"
+      ],
+      "observe": "target Calculadora seteado turno previo; check_session_status",
+      "act": "get_server_info; check_session_status; release_all; invalidate_cache",
+      "verify": "4 tools met; target_alive=false detectado; sesion liberada",
+      "timings_ms": {
+        "get_server_info": 28,
+        "check_session_status": 52,
+        "release_all": 18,
+        "invalidate_cache": 15
+      },
+      "friction": "Calculadora no abierta — wave_1 requiere launch_app antes de UIA"
+    }
+  ],
+  "tool_validation_progress": {
+    "met": 7,
+    "fail": 0,
+    "na": 0,
+    "slow": 0,
+    "pending": 80
+  },
+  "tool_validation_waves": {
+    "wave_0_session": [
+      "check_version",
+      "get_server_info",
+      "check_session_status",
+      "set_target_window",
+      "get_target_window",
+      "release_all",
+      "invalidate_cache"
+    ],
+    "wave_1_windows": [
+      "list_windows",
+      "launch_app",
+      "focus_window",
+      "restore_window",
+      "virtual_desktop"
+    ],
+    "wave_2_exploration": [
+      "list_elements",
+      "find_element",
+      "find_all_elements",
+      "get_snapshot",
+      "ascii_ui_view",
+      "read_element",
+      "read_element_by_index",
+      "get_focused_element",
+      "element_at_point",
+      "get_element_properties",
+      "spy_inspect",
+      "spy_tree",
+      "ui_fingerprint",
+      "detection_health",
+      "detect_framework",
+      "check_java_bridge"
+    ],
+    "wave_3_wait": [
+      "wait_for_element",
+      "wait_for_condition",
+      "wait_for_input_idle",
+      "element_exists"
+    ],
+    "wave_4_action": [
+      "invoke_element",
+      "click_element",
+      "expand_element",
+      "set_element_value",
+      "list_control_items",
+      "select_control_item",
+      "scroll_into_view",
+      "scroll_element",
+      "find_item_by_property",
+      "realize_virtualized_item",
+      "get_grid_item",
+      "read_table",
+      "discover_control_interaction"
+    ],
+    "wave_5_input": [
+      "click",
+      "type_text",
+      "send_keys",
+      "scroll",
+      "drag",
+      "hover",
+      "get_mouse_position"
+    ],
+    "wave_6_ocr": [
+      "find_text",
+      "click_text",
+      "smart_find",
+      "detect_visual_regions",
+      "find_by_template_tool"
+    ],
+    "wave_7_screenshots": [
+      "screenshot",
+      "screenshot_baseline",
+      "screenshot_diff",
+      "wait_for_change",
+      "get_screen_size",
+      "manage_screenshots"
+    ],
+    "wave_8_repo": [
+      "repo_list",
+      "repo_find",
+      "repo_hints",
+      "repo_capture",
+      "repo_action"
+    ],
+    "wave_9_discovery": [
+      "observe_ui_tool",
+      "plan_probes_tool",
+      "apply_probe_tool",
+      "discover_target_tool",
+      "spy_walk_visible_tool",
+      "build_detection_context"
+    ],
+    "wave_10_events": [
+      "start_event_monitor",
+      "stop_event_monitor",
+      "get_event_log",
+      "start_watcher",
+      "stop_watcher",
+      "get_notifications",
+      "batch_actions",
+      "clipboard",
+      "highlight_element",
+      "clear_highlight",
+      "fill_form",
+      "get_all_values",
+      "configure_uac"
+    ]
+  },
+  "ast_skill_consultation": {
+    "skill_read": ".cursor/skills/ast-activities-manager/SKILL.md",
+    "policy": "no_automate_this_cycle",
+    "notes": "WinForms MDI; combos cboActividad/cboHoras; grids gcGrillaActividades; lookup modal wfBuscoActividad — invoke_element falla en btnBuscar → click UIA. Tools aplicables: set_target_window(AST), list_control_items+select_control_item, read_table, expand_element, find_element por automation_id."
+  },
+  "blockers": [
+    {
+      "id": "audit_87_unsustainable",
+      "ts": "2026-09-06T13:21:40Z",
+      "issue": "Validar 87 tools secuencial via MCP en un turno agentico",
+      "evidence": "list_elements 5391ms SLOW; MCP -32001 timeout; virtual_desktop cerro apps; 7/87 met tras horas",
+      "policy": "Tope: >=3000ms=slow+blocker; MCP timeout=fail; max 8-12 calls/turno; no virtual_desktop en auditoria",
+      "next": "pytest tests/ completo + oleada por turno (5-8 tools) o script batch con timeout por tool"
+    }
+  ],
+  "last_cycle": {
+    "ts": "2026-09-06T13:03:45Z",
+    "work": "Oleada 0 completa (7/7 wave_0_session)",
+    "tests": "none",
+    "live_verify": "7/87 tools met; check_session_status target_alive=false",
+    "timings": "get_server_info ~28ms; check_session_status ~52ms; release_all ~18ms; invalidate_cache ~15ms",
+    "criteria_eval": "objective_met=false; oleada 0 met",
+    "policy": "focus_policy=minimal; release_all tras oleada sesion",
+    "next": "wave_1_windows: list_windows + launch_app Calculadora y Notepad"
+  }
+}
