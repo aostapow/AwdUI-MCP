@@ -14,9 +14,10 @@
   "calculator_perfect": true,
   "notepad_perfect": true,
   "mcp_quality_status": "partial",
-  "current_focus": "find_element automation_id: comtypes FindFirst + UIA-first orchestrator; local 314ms; MCP live verify pending reconnect",
+  "current_focus": "checkpoint plan Fases 2-5 commiteadas; smoke MCP OK; Teams live TE-02/06/08/10 revalidación pendiente",
   "blockers": [
-    "MCP awdui desconectado tras restart -KillOrphans; toggle Settings > MCP awdui off/on"
+    "teams_perfect false: revalidación live OBS→ACT→VERIFY TE-02/06/08/10 post-perf wave (ancestor scope, scroll cascade, act_on_control)",
+    "list_elements cold WebView/Electron puede seguir >3s en Teams"
   ],
   "calculator_run": {
     "run_id": "calc-2026-09-06-restart",
@@ -1052,10 +1053,10 @@
     "total": 30
   },
   "last_cycle": {
-    "ts": "2026-09-07T02:02:00Z",
-    "work": "find_element perf: _find_raw_by_automation_id_comtypes FindFirst; find_elements skip spy+ladder when automation_id; orchestrator UIA-first for automation_id queries",
-    "live_verify": "local do_find_element num7Button 314ms; MCP cold 4013ms then warm 557ms pre-fix-process; KillOrphans restart -> MCP timeout; TE harness deferred",
-    "next": "Toggle awdui MCP reconnect; live cold find_element <3s; TE-00..02+TE-05 regression",
+    "ts": "2026-09-08T01:55:00Z",
+    "work": "checkpoint plan Fases 2-5: dc1b200 perf(electron) ancestor scope+scroll+selection poll; 4a39409 act_on_control; 67564bd refactor hints/cache; d4ef5bc CI smoke+state split",
+    "live_verify": "pytest 909 passed; validate_tools_reference 113 OK; restart-awdui-mcp AWDUI_RESTART; check_version v0.4.0 OK; get_target_window OK",
+    "next": "Teams harness TE-02 discovery (element-map), TE-06/08/10 flows; mensajes TE-07 solo Nicolás Awamori",
     "calculator_perfect": true,
     "notepad_perfect": true,
     "teams_perfect": false,
