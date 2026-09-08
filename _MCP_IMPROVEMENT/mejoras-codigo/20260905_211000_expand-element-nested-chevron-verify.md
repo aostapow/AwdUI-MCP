@@ -166,3 +166,17 @@ Reassess gate mantiene **About legal links** como bloqueador explícito en
 con workaround chevron interno; **calculator_perfect=false** hasta `verify_children` en
 `AboutExpander` exponga hyperlinks o propuesta aplicada. Prioridad gate G3 en skill
 `20260905_211201_calculator-perfect-gate-checklist.md`.
+
+## Evidencia adicional — turno CAL-20 retest (2026-09-06 20:14)
+
+**Parcialmente implementado** en v0.4.0:
+
+- `_try_expand_via_interactive_child`, ChevronClick bbox visible, `_expander_contains_role`
+  con banda vertical, verify sin falso negativo — CAL-20 **met** live.
+- `calculator_perfect=true`, `objective_met=true`.
+
+**Pendiente de esta propuesta:**
+
+- Parámetro `verify_children: list[str]` y código `children_not_revealed` (no en código).
+- Performance verify: 16664 ms SLOW — ver propuesta complementaria
+  `20260906_201430_expand-element-verify-role-scan-performance.md`.
