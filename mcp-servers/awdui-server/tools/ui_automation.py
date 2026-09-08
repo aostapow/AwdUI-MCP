@@ -233,6 +233,7 @@ def do_list_elements(
     window_handle: Optional[int] = None,
     adaptive_cluster: bool = True,
     view_scope: bool = False,
+    ancestor_automation_id: Optional[str] = None,
 ) -> dict:
     import time
     from detection.tree_depth import resolve_list_depth
@@ -259,6 +260,7 @@ def do_list_elements(
         window_handle=window_handle,
         adaptive_cluster=adaptive_cluster,
         view_scope=view_scope,
+        ancestor_automation_id=ancestor_automation_id,
     )
     out["max_depth_requested"] = requested
     out["max_depth_effective"] = effective
@@ -326,7 +328,11 @@ def do_discover_control_interaction(
     include_children: bool = True,
 ) -> dict:
     """Inspect control and return generic interaction strategies (no app-specific rules)."""
+    import time
     from detection.control_interaction import discover_from_element, format_discovery_report
+
+    discovery_t0 = time.perf_counter()
+    DISCOVERY_LIST_BUDGET_MS = 8000
 
     if sys.platform != "win32":
         return {
@@ -379,8 +385,12 @@ def do_discover_control_interaction(
         "Document",
         "Tab",
     }:
-        listing = do_list_elements(window_title=window_title, max_depth=5)
-        children = _elements_inside_parent(element, listing.get("elements") or [])
+        elapsed_ms = int((time.perf_counter() - discovery_t0) * 1000)
+        if elapsed_ms < DISCOVERY_LIST_BUDGET_MS:
+            listing = do_list_elements(window_title=window_title, max_depth=5)
+            children = _elements_inside_parent(element, listing.get("elements") or [])
+        else:
+            children = []
 
     repo_hints = ""
     aid = (element.get("automation_id") or "").strip()
@@ -1606,7 +1616,6 @@ def do_click_element(
         idx = pick_element_index(index, len(result["elements"]))
         elem = result["elements"][idx]
         from detection.hint_consume import apply_hint_click_mode, attach_hints_to_result, resolve_object_hints
-        from tools.input_tools import do_click
 
         hints_ctx = resolve_object_hints(
             repo_path=repo_path or result.get("repo_path"),
@@ -1617,7 +1626,9 @@ def do_click_element(
 
         def _invoke_act():
             inv = _try_invoke_click(elem, window_title)
-            return inv if inv else {"success": False}
+            if inv and inv.get("success"):
+                return inv
+            return {"success": False}
 
         def _click_act():
             center_x, center_y = _click_coords(elem, window_title)
@@ -2570,6 +2581,7 @@ def register(server) -> int:
         window_handle: int = 0,
         adaptive_cluster: bool = True,
         view_scope: bool = False,
+        ancestor_automation_id: str = "",
     ) -> str:
         """List accessible UI elements in a window.
 
@@ -2577,6 +2589,7 @@ def register(server) -> int:
         Use max_depth=-1 for unlimited, or N>0 for an explicit cap.
         adaptive_cluster=true (default) drops spatial outliers outside the dominant control band.
         view_scope=true restricts walk to the widest content Pane/Document (Electron section views).
+        ancestor_automation_id limits results to descendants inside that subtree bbox.
         include_offscreen=true includes collapsed/offscreen nodes.
         """
         try:
@@ -2595,6 +2608,7 @@ def register(server) -> int:
                     window_handle=window_handle or None,
                     adaptive_cluster=adaptive_cluster,
                     view_scope=view_scope,
+                    ancestor_automation_id=ancestor_automation_id or None,
                 ),
                 timeout=list_timeout,
             )
@@ -2844,6 +2858,51 @@ def register(server) -> int:
         if hint:
             msg += f" — {hint}"
         return msg
+
+    @server.tool()
+    def act_on_control(
+        action: str = "",
+        automation_id: str = "",
+        name: str = "",
+        repo_path: str = "",
+        value: str = "",
+        window_title: str = "",
+        title: str = "",
+        verify_automation_id: str = "",
+        verify_contains: str = "",
+        verify: bool = False,
+        window_handle: int = 0,
+    ) -> str:
+        """Resolve a control and act (invoke|click|set|select) with optional verify.
+
+        Orchestrates find → hints → act → verify in one call.
+        """
+        from tools.act_tools import do_act_on_control
+        from tools.action_timing import format_timing_suffix, format_verify_suffix
+
+        try:
+            result = with_timeout(
+                lambda: do_act_on_control(
+                    action=action,
+                    automation_id=automation_id or None,
+                    name=name or None,
+                    repo_path=repo_path or None,
+                    value=value,
+                    window_title=_wt(window_title, title) or None,
+                    verify_automation_id=verify_automation_id or None,
+                    verify_contains=verify_contains or None,
+                    verify=verify,
+                    window_handle=window_handle or None,
+                ),
+                timeout=15.0,
+            )
+        except ActionTimeoutError:
+            return "Timed out."
+        timing = format_timing_suffix(result)
+        verify_suffix = format_verify_suffix(result)
+        if result.get("success"):
+            return f"OK via {result.get('acted_via', action)}{timing}{verify_suffix}"
+        return f"Failed: {result.get('error', 'unknown')}{timing}"
 
     @server.tool()
     def expand_element(

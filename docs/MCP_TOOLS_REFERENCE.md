@@ -20,7 +20,7 @@ Referencia canónica para agentes de IA. Describe **cada tool** del servidor `aw
 | **Sesión / caché** | `check_session_status`, `invalidate_cache`, `release_all`, `release_keyboard` |
 | **Formularios** | `fill_form`, `get_all_values`, `set_element_value`, `set_value_hwnd`, `type_into_element` |
 | **Eventos UIA** | `start_event_monitor`, `stop_event_monitor`, `get_event_log` |
-| **Acción UIA** | `click_element`, `click_element_hwnd`, `double_click_element`, `right_click_element`, `drag_element`, `invoke_element`, `expand_element`, `expand_collapse_element`, `set_element_value`, `list_control_items`, `select_control_item`, `select_option`, `get_grid_item`, `read_table`, `scroll_into_view`, `realize_virtualized_item`, `find_item_by_property`, `scroll_element` |
+| **Acción UIA** | `click_element`, `click_element_hwnd`, `double_click_element`, `right_click_element`, `drag_element`, `invoke_element`, `act_on_control`, `expand_element`, `expand_collapse_element`, `set_element_value`, `list_control_items`, `select_control_item`, `select_option`, `get_grid_item`, `read_table`, `scroll_into_view`, `realize_virtualized_item`, `find_item_by_property`, `scroll_element` |
 | **Input coordenadas** | `click`, `type_text`, `send_keys`, `press_key`, `press_key_combo`, `scroll`, `drag`, `hover`, `get_mouse_position` |
 | **OCR / visual** | `find_text`, `click_text`, `smart_find`, `detect_visual_regions`, `find_by_template_tool` |
 | **Screenshots** | `screenshot`, `take_screenshot_optimized`, `annotate_screenshot`, `compare_screenshot_files`, `wait_for_change`, `get_screen_size`, `screenshot_baseline`, `screenshot_diff` |
@@ -45,6 +45,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 | `ascii_ui_view` | `ascii_view` | `mcp-servers/awdui-server/tools/ascii_view.py` |
 | `attach_to_app` | `session_tools` | `mcp-servers/awdui-server/tools/session_tools.py` |
 | `attach_to_pid` | `session_tools` | `mcp-servers/awdui-server/tools/session_tools.py` |
+| `act_on_control` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `batch_actions` | `batch` | `mcp-servers/awdui-server/tools/batch.py` |
 | `build_detection_context` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `check_java_bridge` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
@@ -332,6 +333,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Ejemplo:** `find_element(automation_id="btnGuardar", window_title="AST")`
 **Relacionadas:** `list_elements`, `discover_control_interaction`, `spy_inspect`
 **Timing:** respuesta incluye `find_ms` / `total_ms` (ej. `find 120ms`). UIA: `child_window` directo antes de walk; profundidades progresivas 6→24 (sin depth-100).
+**Scope:** con `set_target_window` activo, rechaza matches fuera del HWND/PID objetivo. Metadata: `scope_mode`, `rejected_foreign`, `target_hwnd`.
 
 ### `find_all_elements`
 
@@ -374,7 +376,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Lista elementos accesibles en una ventana con filtro opcional por `role`.
 **Cuándo usarla:** Mapear pantalla; filtrar con `role="ComboBox"` antes de OCR.
-**Parámetros clave:** `max_depth` (default **0** = auto/framework), `role`, `tree_mode`, `include_offscreen`, `adaptive_cluster` (default `true` — recorta outliers fuera del cluster dominante de controles), `view_scope` (default `false` — si `true`, walk solo del Pane/Document más ancho; Electron/vistas seccionadas; **ignorado** con `role=TreeItem|ListItem|TabItem` porque el listado vive en nav/list, no en el content pane), `window_title`/`title`, `window_handle`.
+**Parámetros clave:** `max_depth` (default **0** = auto/framework), `role`, `tree_mode`, `include_offscreen`, `adaptive_cluster` (default `true` — recorta outliers fuera del cluster dominante de controles), `view_scope` (default `false` — si `true`, walk solo del Pane/Document más ancho; Electron/vistas seccionadas; **ignorado** con `role=TreeItem|ListItem|TabItem` porque el listado vive en nav/list, no en el content pane), `ancestor_automation_id` (filtra al subárbol dentro del bbox del ancestro), `window_title`/`title`, `window_handle`.
 **Inteligencia espacial:** tras listar, infiere la banda donde se concentran los controles (`content_region` en header) y elimina nodos fuera de ese rango (sin reglas por app).
 **Profundidad auto (max_depth=0):** uwp/winui 32 · wpf 24 · winforms 16 · qt 20 · electron/chromium 28 · java_swing 24 · win32 12 · unknown 20. Con `role=MenuItem`/`Menu`: cap **≤6** (fast path MenuBar/popup, sin walk depth-100).
 **Evitar:** ventanas enormes sin `role` si hay timeout — bajar con `max_depth=8`. Menús Win32: preferir `role="MenuItem"` + `max_depth=4` (auto cap 6).
@@ -803,6 +805,17 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Verify display:** si el botón actuado no es el display, pasar `verify_automation_id` explícito o `agent_hints` en repo.
 **SelectionItem verify (NavView / chat list):** poll `Header.changed`, `SelectionItem.is_selected`, `WindowTitle.contact` / `WindowTitle.stable` (TreeItem chat — poll título HWND sin UIA), o `ChatContext.compose_ready`. También corre tras `InvokePattern` en `TreeItem`/`ListItem` sin `verify_*` explícito.
 **Timing:** `total_ms` en respuesta = suma `find_ms`+`act_ms`+`verify_ms` (`operational_ms`); no incluye spy preflight. Electron/Teams: omitido `spy_verify_live` stale probe (UIA-first).
+
+### `act_on_control`
+
+**Módulo:** `ui_automation` (`mcp-servers/awdui-server/tools/ui_automation.py`)
+
+**Qué hace:** Orquesta resolve → hints → act → verify en una sola llamada (`invoke`|`click`|`set`|`select`).
+**Cuándo usarla:** Flujos repetibles con `repo_path` o cuando querés verify integrado sin encadenar tools.
+**Parámetros clave:** `action` (req), `automation_id`, `name`, `repo_path`, `value` (set/select), `verify_automation_id`, `verify_contains`, `verify` (bool), `window_title`/`title`, `window_handle`.
+**Evitar:** Exploración inicial — usar `discover_control_interaction` o `find_element` primero.
+**Ejemplo:** `act_on_control(action="invoke", repo_path="teams/chat/send", verify_contains="Enviado")`
+**Relacionadas:** `repo_action`, `invoke_element`, `click_element`, `repo_hints_set`
 
 ### `expand_element`
 
