@@ -1,0 +1,14 @@
+{
+  "ts": "2026-09-08T12:00:00Z",
+  "tool": "click_element",
+  "flow_id": "F-03",
+  "mode": "execute_flow",
+  "uia_role": "Button",
+  "uia_control": "Button",
+  "uia_pattern": "Invoke",
+  "act_method": "map_invoke",
+  "interacted": true,
+  "outcome": "ok",
+  "timing_ms": 450,
+  "notes": ""
+}

@@ -1,0 +1,6 @@
+id: notepad
+display_name: Bloc de notas
+launch: notepad.exe
+target_window: Bloc de notas
+framework: win32
+locale_default: es-AR

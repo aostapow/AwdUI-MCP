@@ -1,0 +1,6 @@
+# Overrides opcionales — solo si autodetección falla
+# Por defecto el agente solo necesita el NOMBRE de la app (ver evaluacion-lab.md).
+
+app_name: Nombre que dijo el usuario
+# launch_hint: ruta o protocolo — solo si launch_app por nombre falló
+# window_title_hint: substring — solo si list_windows es ambiguo

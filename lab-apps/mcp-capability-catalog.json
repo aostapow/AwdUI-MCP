@@ -1,0 +1,2520 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-08T00:34:59.520231+00:00",
+  "mcp_tools": {
+    "total": 112,
+    "tools": {
+      "annotate_screenshot": {
+        "module": "screenshot",
+        "summary": "Screenshot with red boxes around specified elements."
+      },
+      "apply_probe_tool": {
+        "module": "discovery",
+        "summary": "Apply one revelation probe (expand menu, scroll, access key, etc.)."
+      },
+      "ascii_ui_view": {
+        "module": "ascii_view",
+        "summary": "Render the target window as a simplified ASCII map (UI 'eye' for agents)."
+      },
+      "attach_to_app": {
+        "module": "session_tools",
+        "summary": "Attach to a running process by name. Returns app_id for scoped tools."
+      },
+      "attach_to_pid": {
+        "module": "session_tools",
+        "summary": "Attach to a running process by PID. Returns app_id."
+      },
+      "batch_actions": {
+        "module": "batch",
+        "summary": "Execute a sequence of input actions and optionally return one screenshot."
+      },
+      "build_detection_context": {
+        "module": "ui_automation",
+        "summary": "Rich agentic context: screenshot, tree, OCR dual, visual regions, suggestions."
+      },
+      "check_java_bridge": {
+        "module": "ui_automation",
+        "summary": "Check Java Access Bridge prerequisites for Swing/AWT automation."
+      },
+      "check_session_status": {
+        "module": "session_tools",
+        "summary": "Report session health: target alive, locked desktop, minimized, operations."
+      },
+      "check_version": {
+        "module": "version",
+        "summary": "Check whether a newer AwdUI version is available on GitHub."
+      },
+      "clear_highlight": {
+        "module": "ui_automation",
+        "summary": "Remove on-screen highlight overlays."
+      },
+      "click": {
+        "module": "input_tools",
+        "summary": "Click at a screen position."
+      },
+      "click_element": {
+        "module": "ui_automation",
+        "summary": "Find a UI element and click its center (or clickable point)."
+      },
+      "click_element_hwnd": {
+        "module": "ui_automation",
+        "summary": "Click element scoped to a specific HWND."
+      },
+      "click_text": {
+        "module": "ocr",
+        "summary": "Find text on screen using OCR and click it. Fallback when accessibility can't find the element."
+      },
+      "clipboard": {
+        "module": "manage",
+        "summary": "Read from or write to the system clipboard."
+      },
+      "close_app": {
+        "module": "session_tools",
+        "summary": "Close application registered under app_id and remove session."
+      },
+      "compare_screenshot_files": {
+        "module": "visual_diff",
+        "summary": "Pixel diff between two screenshot files ."
+      },
+      "configure_uac": {
+        "module": "uac",
+        "summary": "Manage Windows UAC consent prompts. Requires user permission upfront."
+      },
+      "detect_framework": {
+        "module": "framework_detect",
+        "summary": "Detect the UI framework of a window and get automation hints."
+      },
+      "detect_visual_regions": {
+        "module": "ui_automation",
+        "summary": "Detect clickable UI regions via OpenCV + OCR (for opaque apps)."
+      },
+      "detection_health": {
+        "module": "ui_automation",
+        "summary": "Report which detection backends are available and element counts."
+      },
+      "discover_control_interaction": {
+        "module": "ui_automation",
+        "summary": "Recommend MCP tools and steps from UIA role/patterns (generic, any app)."
+      },
+      "discover_target_tool": {
+        "module": "discovery",
+        "summary": "Methodical discovery loop: observe → resolve → plan → apply probes until found."
+      },
+      "double_click_element": {
+        "module": "ui_automation",
+        "summary": "Double-click a UIA element by automation_id or name."
+      },
+      "drag": {
+        "module": "input_tools",
+        "summary": "Drag from one position to another."
+      },
+      "drag_element": {
+        "module": "ui_automation",
+        "summary": "Drag from source element to target element (center to center)."
+      },
+      "element_at_point": {
+        "module": "ui_automation",
+        "summary": "Get the UI element at screen coordinates (like Automation Spy pick)."
+      },
+      "element_exists": {
+        "module": "wait_tools",
+        "summary": "Single-shot check whether a control exists (no polling)."
+      },
+      "expand_collapse_element": {
+        "module": "ui_automation",
+        "summary": "Expand, collapse, or toggle an ExpandCollapse control."
+      },
+      "expand_element": {
+        "module": "ui_automation",
+        "summary": "Expand or collapse via ExpandCollapsePattern; fallback_click for UWP SettingsExpander."
+      },
+      "fill_form": {
+        "module": "form_tools",
+        "summary": "Fill multiple form fields in one call (AutomationId or Name per field)."
+      },
+      "find_all_elements": {
+        "module": "element_read_tools",
+        "summary": "List all matching elements with index (for disambiguating duplicates)."
+      },
+      "find_by_template_tool": {
+        "module": "discovery",
+        "summary": "Find UI element by template image (icon/button screenshot)."
+      },
+      "find_element": {
+        "module": "ui_automation",
+        "summary": "Find a UI element by name, role, automation_id, or class_name."
+      },
+      "find_elements": {
+        "module": "ui_automation",
+        "summary": "Search UIA elements with substring filters (Extended UIA)."
+      },
+      "find_elements_fuzzy": {
+        "module": "ui_automation",
+        "summary": "Fuzzy UIA search tolerating typos and partial names."
+      },
+      "find_item_by_property": {
+        "module": "ui_automation",
+        "summary": "Find a child item in a list/tree via ItemContainer.FindItemByProperty (subtree fallback)."
+      },
+      "find_text": {
+        "module": "ocr",
+        "summary": "Find text on screen using OCR. Use when accessibility targeting can't find an element."
+      },
+      "focus_window": {
+        "module": "windows",
+        "summary": "Find a window by partial title and focus, minimize, maximize, or restore it."
+      },
+      "get_all_values": {
+        "module": "form_tools",
+        "summary": "Read all editable fields (Edit, ComboBox, CheckBox, etc.) in the window."
+      },
+      "get_element_bounds": {
+        "module": "ui_automation",
+        "summary": "Return bounding box of a UIA element."
+      },
+      "get_element_properties": {
+        "module": "ui_automation",
+        "summary": "Get full UIA properties for an element (Automation Spy style inspector)."
+      },
+      "get_event_log": {
+        "module": "event_monitor",
+        "summary": "Return captured UIA monitor events for a session."
+      },
+      "get_focused_element": {
+        "module": "ui_automation",
+        "summary": "Get the currently focused UI element."
+      },
+      "get_grid_item": {
+        "module": "ui_automation",
+        "summary": "Get a grid/table cell by row and column index (UIA GridPattern or DevExpress cells)."
+      },
+      "get_mouse_position": {
+        "module": "input_tools",
+        "summary": "Get the current mouse cursor position."
+      },
+      "get_notifications": {
+        "module": "watcher",
+        "summary": "Get new windows/dialogs/toasts detected since the watcher started."
+      },
+      "get_screen_size": {
+        "module": "screenshot",
+        "summary": "Get the dimensions of all connected monitors."
+      },
+      "get_server_info": {
+        "module": "version",
+        "summary": "Returns MCP server version, runtime info, and whether a newer release is available on GitHub."
+      },
+      "get_snapshot": {
+        "module": "element_read_tools",
+        "summary": "Compact UI tree snapshot (like browser DOM) for a window or HWND modal."
+      },
+      "get_snapshot_hwnd": {
+        "module": "element_read_tools",
+        "summary": "Compact UIA snapshot scoped to HWND."
+      },
+      "get_target_window": {
+        "module": "target_window",
+        "summary": "Get the current target window and focus policy."
+      },
+      "get_tree_hash": {
+        "module": "ui_automation",
+        "summary": "Hash of visible UIA tree for change detection."
+      },
+      "highlight_element": {
+        "module": "ui_automation",
+        "summary": "Highlight an element on screen with a red border (Automation Spy style)."
+      },
+      "hover": {
+        "module": "input_tools",
+        "summary": "Move the mouse cursor to a position without clicking. Useful for revealing tooltips."
+      },
+      "invalidate_cache": {
+        "module": "wait_tools",
+        "summary": "Clear UIA caches after relaunch, Calculator mode switch, or stale element reads."
+      },
+      "invoke_element": {
+        "module": "ui_automation",
+        "summary": "Invoke a button/menu via UIA patterns (Invoke, SelectionItem, Toggle, Expand)."
+      },
+      "launch_app": {
+        "module": "windows",
+        "summary": "Launch an application (reuses existing instance by default)."
+      },
+      "list_apps": {
+        "module": "session_tools",
+        "summary": "List app_id sessions created by attach_to_app / attach_to_pid."
+      },
+      "list_control_items": {
+        "module": "ui_automation",
+        "summary": "List items under a ComboBox, List, or grid (paginated, scoped subtree)."
+      },
+      "list_desktop_windows": {
+        "module": "windows",
+        "summary": "List top-level windows with HWND, title, PID, and geometry."
+      },
+      "list_elements": {
+        "module": "ui_automation",
+        "summary": "List accessible UI elements in a window."
+      },
+      "list_windows": {
+        "module": "windows",
+        "summary": "List visible windows; optional app_id filters to that session's process."
+      },
+      "manage_screenshots": {
+        "module": "manage",
+        "summary": "Manage saved screenshots: list, cleanup, or change the rolling cap."
+      },
+      "observe_ui_tool": {
+        "module": "discovery",
+        "summary": "Structured UI observation snapshot (framework, tree, modals, fingerprint)."
+      },
+      "plan_probes_tool": {
+        "module": "discovery",
+        "summary": "Ranked list of revelation probes with reasons (methodical, not random)."
+      },
+      "press_key": {
+        "module": "input_tools",
+        "summary": "Press a single key (RETURN, TAB, ESCAPE, F5, etc.)."
+      },
+      "press_key_combo": {
+        "module": "input_tools",
+        "summary": "Press a keyboard shortcut (e.g. ['ctrl','s'])."
+      },
+      "read_element": {
+        "module": "element_read_tools",
+        "summary": "Read properties of a UI element (by automation_id/name; optional index)."
+      },
+      "read_element_by_index": {
+        "module": "element_read_tools",
+        "summary": "Read element properties by index from find_all_elements results."
+      },
+      "read_table": {
+        "module": "ui_automation",
+        "summary": "Read a grid/table as JSON {headers, rows} (UIA Grid/Table + DevExpress fallback)."
+      },
+      "realize_virtualized_item": {
+        "module": "ui_automation",
+        "summary": "Materialize a virtualized list item via VirtualizedItemPattern.Realize."
+      },
+      "release_all": {
+        "module": "session_tools",
+        "summary": "Release target window, caches, highlights, and active event monitors."
+      },
+      "release_keyboard": {
+        "module": "session_tools",
+        "summary": "Release stuck modifier keys (shift/ctrl/alt/win)."
+      },
+      "repo_action": {
+        "module": "ui_automation",
+        "summary": "Execute a QTP/UFT-style Swf* method on a repository object (e.g. Click, Set, Select)."
+      },
+      "repo_capture": {
+        "module": "ui_automation",
+        "summary": "Capture a control into the repository with Swf* class and Smart ID properties (Object Spy style)."
+      },
+      "repo_find": {
+        "module": "ui_automation",
+        "summary": "Resolve a logical object from the UFT-style repository (e.g. frmMain/btnSave)."
+      },
+      "repo_hints": {
+        "module": "ui_automation",
+        "summary": "Get agent hints for a repository object or list hints for the active app."
+      },
+      "repo_hints_set": {
+        "module": "ui_automation",
+        "summary": "Store or update agent_hints on a repository object (memory for next runs)."
+      },
+      "repo_list": {
+        "module": "ui_automation",
+        "summary": "List objects stored in the repository for the active application."
+      },
+      "restore_window": {
+        "module": "windows",
+        "summary": "Restore (un-minimize) the target window before UIA interaction."
+      },
+      "right_click_element": {
+        "module": "ui_automation",
+        "summary": "Right-click a UIA element by automation_id or name."
+      },
+      "screenshot": {
+        "module": "screenshot",
+        "summary": "Capture a screenshot of the screen or a region."
+      },
+      "screenshot_baseline": {
+        "module": "visual_diff",
+        "summary": "Capture a baseline screenshot for later visual comparison."
+      },
+      "screenshot_diff": {
+        "module": "visual_diff",
+        "summary": "Compare the current screen against the stored baseline."
+      },
+      "scroll": {
+        "module": "input_tools",
+        "summary": "Scroll the mouse wheel at a screen position."
+      },
+      "scroll_element": {
+        "module": "ui_automation",
+        "summary": "Scroll a scrollable container via ScrollPattern (direction/amount or SetScrollPercent)."
+      },
+      "scroll_into_view": {
+        "module": "ui_automation",
+        "summary": "Scroll a list/grid item into view via ScrollItemPattern.ScrollIntoView."
+      },
+      "select_control_item": {
+        "module": "ui_automation",
+        "summary": "Select a list/combo/grid item by substring match (never set_value on dropdown combos)."
+      },
+      "select_option": {
+        "module": "ui_automation",
+        "summary": "Select ComboBox option by visible text (one-shot)."
+      },
+      "send_keys": {
+        "module": "input_tools",
+        "summary": "Send a key or key-combination (e.g. 'enter', 'ctrl+s', 'ctrl+shift+p')."
+      },
+      "set_element_value": {
+        "module": "ui_automation",
+        "summary": "Set text field value via UIA ValuePattern."
+      },
+      "set_target_window": {
+        "module": "target_window",
+        "summary": "Set or clear the target window for session scope and optional focus policy."
+      },
+      "set_value_hwnd": {
+        "module": "ui_automation",
+        "summary": "Set value on element scoped to HWND."
+      },
+      "smart_find": {
+        "module": "ui_automation",
+        "summary": "Find element via layered cascade: repo -> native -> OCR dual -> visual -> agentic."
+      },
+      "spy_inspect": {
+        "module": "ui_automation",
+        "summary": "Spy-grade full UIA property inspection (40+ fields)."
+      },
+      "spy_tree": {
+        "module": "ui_automation",
+        "summary": "Walk UIA tree with Spy-grade detail."
+      },
+      "spy_walk_visible_tool": {
+        "module": "discovery",
+        "summary": "Walk visible elements highlighting each (Spy-style), paginated."
+      },
+      "start_event_monitor": {
+        "module": "event_monitor",
+        "summary": "Start monitoring UIA events (focus, structurechanged, propertychanged)."
+      },
+      "start_watcher": {
+        "module": "watcher",
+        "summary": "Start watching for new windows, dialogs, and toasts."
+      },
+      "stop_event_monitor": {
+        "module": "event_monitor",
+        "summary": "Stop one event monitor session (or all if session_id omitted)."
+      },
+      "stop_watcher": {
+        "module": "watcher",
+        "summary": "Stop the notification watcher."
+      },
+      "take_screenshot_optimized": {
+        "module": "screenshot",
+        "summary": "Screenshot resized to fit an approximate LLM token budget."
+      },
+      "type_into_element": {
+        "module": "ui_automation",
+        "summary": "Type text into a field found by automation_id or name ."
+      },
+      "type_text": {
+        "module": "input_tools",
+        "summary": "Type text character by character. For key combos use send_keys instead."
+      },
+      "ui_fingerprint": {
+        "module": "ui_automation",
+        "summary": "Quick hash of the current UI layout for change detection."
+      },
+      "virtual_desktop": {
+        "module": "desktop",
+        "summary": "Create an isolated virtual desktop so Claude can work without"
+      },
+      "wait_for_change": {
+        "module": "screenshot",
+        "summary": "Wait until the screen content changes or timeout elapses."
+      },
+      "wait_for_condition": {
+        "module": "wait_tools",
+        "summary": "Wait until an element property reaches expected_value (semantic verify)."
+      },
+      "wait_for_element": {
+        "module": "wait_tools",
+        "summary": "Wait until a UI element appears (UIA poll). Use after navigation or dialog open."
+      },
+      "wait_for_input_idle": {
+        "module": "wait_tools",
+        "summary": "Wait until the target window is idle and ready for input (Windows)."
+      }
+    }
+  },
+  "uia_controls": {
+    "total": 41,
+    "controls": {
+      "AppBar": {
+        "read_tools": [
+          "spy_inspect",
+          "list_elements"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "ExpandCollapse",
+            "Toggle"
+          ],
+          "conditional": [],
+          "not": [
+            "Invoke"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_appbar_toggle",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Toggle"
+            ],
+            "steps": [
+              "invoke_element toggles AppBar visibility"
+            ]
+          },
+          {
+            "id": "map_appbar_expand",
+            "tools": [
+              "expand_element"
+            ],
+            "patterns": [
+              "ExpandCollapse"
+            ],
+            "steps": [
+              "expand_element on AppBar sections"
+            ]
+          }
+        ]
+      },
+      "Button": {
+        "read_tools": [
+          "spy_inspect",
+          "get_element_properties"
+        ],
+        "fallback": [
+          "click_element",
+          "click",
+          "send_keys"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "ExpandCollapse",
+            "Invoke",
+            "Toggle",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_invoke",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Invoke"
+            ],
+            "steps": [
+              "invoke_element — InvokePattern (MS conditional)"
+            ]
+          },
+          {
+            "id": "map_toggle",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Toggle"
+            ],
+            "steps": [
+              "invoke_element — TogglePattern"
+            ]
+          },
+          {
+            "id": "map_expand",
+            "tools": [
+              "expand_element"
+            ],
+            "patterns": [
+              "ExpandCollapse"
+            ],
+            "steps": [
+              "expand_element — drop-down portion"
+            ]
+          },
+          {
+            "id": "map_value",
+            "tools": [
+              "set_element_value"
+            ],
+            "patterns": [
+              "Value"
+            ],
+            "steps": [
+              "set_element_value if Value exposed on Button"
+            ]
+          }
+        ]
+      },
+      "Calendar": {
+        "read_tools": [
+          "list_control_items",
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Grid",
+            "Table"
+          ],
+          "conditional": [
+            "Scroll",
+            "Selection",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_grid_select",
+            "tools": [
+              "list_control_items",
+              "select_control_item",
+              "click_element"
+            ],
+            "patterns": [
+              "Grid",
+              "Table"
+            ],
+            "steps": [
+              "list_control_items for date cells",
+              "select_control_item or click_element on day"
+            ]
+          },
+          {
+            "id": "map_scroll",
+            "tools": [
+              "scroll"
+            ],
+            "patterns": [
+              "Scroll"
+            ],
+            "steps": [
+              "scroll calendar view"
+            ]
+          }
+        ]
+      },
+      "CheckBox": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Toggle"
+          ],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_toggle",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Toggle"
+            ],
+            "steps": [
+              "invoke_element toggles CheckBox"
+            ]
+          }
+        ]
+      },
+      "ComboBox": {
+        "read_tools": [
+          "list_control_items",
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element",
+          "type_text"
+        ],
+        "patterns_ms": {
+          "must": [
+            "ExpandCollapse"
+          ],
+          "conditional": [
+            "Selection",
+            "Value"
+          ],
+          "not": [
+            "Scroll"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_combo_list",
+            "tools": [
+              "expand_element",
+              "list_control_items",
+              "select_control_item"
+            ],
+            "patterns": [
+              "ExpandCollapse",
+              "Selection"
+            ],
+            "steps": [
+              "expand_element",
+              "list_control_items",
+              "select_control_item"
+            ]
+          },
+          {
+            "id": "map_combo_value",
+            "tools": [
+              "set_element_value"
+            ],
+            "patterns": [
+              "Value"
+            ],
+            "steps": [
+              "set_element_value on editable combo only"
+            ]
+          }
+        ]
+      },
+      "DataGrid": {
+        "read_tools": [
+          "list_control_items",
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Grid"
+          ],
+          "conditional": [
+            "Scroll",
+            "Selection",
+            "Table"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_grid",
+            "tools": [
+              "list_control_items",
+              "select_control_item"
+            ],
+            "patterns": [
+              "Grid",
+              "Table"
+            ],
+            "steps": [
+              "list_control_items rows",
+              "select_control_item on row"
+            ]
+          },
+          {
+            "id": "map_scroll",
+            "tools": [
+              "scroll"
+            ],
+            "patterns": [
+              "Scroll"
+            ],
+            "steps": [
+              "scroll virtualized grid"
+            ]
+          }
+        ]
+      },
+      "DataItem": {
+        "read_tools": [
+          "spy_inspect",
+          "get_element_properties"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "SelectionItem"
+          ],
+          "conditional": [
+            "GridItem",
+            "TableItem",
+            "Value",
+            "Toggle",
+            "ExpandCollapse",
+            "ScrollItem"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_selection",
+            "tools": [
+              "select_control_item",
+              "invoke_element"
+            ],
+            "patterns": [
+              "SelectionItem"
+            ],
+            "steps": [
+              "select under parent grid",
+              "read Value not only name"
+            ]
+          }
+        ]
+      },
+      "Document": {
+        "read_tools": [
+          "get_element_properties",
+          "spy_inspect"
+        ],
+        "fallback": [
+          "type_text",
+          "clipboard"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Text"
+          ],
+          "conditional": [
+            "Scroll",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_text",
+            "tools": [
+              "set_element_value"
+            ],
+            "patterns": [
+              "Text",
+              "Value"
+            ],
+            "steps": [
+              "set_element_value or clipboard paste"
+            ]
+          }
+        ]
+      },
+      "Edit": {
+        "read_tools": [
+          "get_element_properties"
+        ],
+        "fallback": [
+          "click_element",
+          "type_text"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Text",
+            "RangeValue",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_value",
+            "tools": [
+              "set_element_value"
+            ],
+            "patterns": [
+              "Value"
+            ],
+            "steps": [
+              "set_element_value"
+            ]
+          },
+          {
+            "id": "map_text",
+            "tools": [
+              "set_element_value"
+            ],
+            "patterns": [
+              "Text"
+            ],
+            "steps": [
+              "set_element_value via Text pattern"
+            ]
+          }
+        ]
+      },
+      "Group": {
+        "read_tools": [
+          "list_elements",
+          "discover_control_interaction"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "ExpandCollapse"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_expand",
+            "tools": [
+              "expand_element"
+            ],
+            "patterns": [
+              "ExpandCollapse"
+            ],
+            "steps": [
+              "expand_element on group header"
+            ]
+          },
+          {
+            "id": "map_children",
+            "tools": [
+              "list_elements",
+              "discover_control_interaction"
+            ],
+            "patterns": [],
+            "steps": [
+              "act on children not Group shell"
+            ]
+          }
+        ]
+      },
+      "Header": {
+        "read_tools": [
+          "list_elements",
+          "spy_inspect"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Transform"
+          ],
+          "not": []
+        },
+        "act_methods": []
+      },
+      "HeaderItem": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Transform",
+            "Invoke"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_invoke",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Invoke"
+            ],
+            "steps": [
+              "invoke_element on sortable column header"
+            ]
+          }
+        ]
+      },
+      "Hyperlink": {
+        "read_tools": [
+          "spy_inspect",
+          "get_element_properties"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Invoke"
+          ],
+          "conditional": [
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_invoke",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Invoke"
+            ],
+            "steps": [
+              "invoke_element opens link"
+            ]
+          }
+        ]
+      },
+      "Image": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "smart_find",
+          "find_text"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "GridItem",
+            "TableItem"
+          ],
+          "not": [
+            "Invoke",
+            "SelectionItem"
+          ]
+        },
+        "act_methods": []
+      },
+      "List": {
+        "read_tools": [
+          "list_control_items"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Grid",
+            "MultipleView",
+            "Scroll",
+            "Selection"
+          ],
+          "not": [
+            "Table"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_list_select",
+            "tools": [
+              "list_control_items",
+              "select_control_item"
+            ],
+            "patterns": [
+              "Selection"
+            ],
+            "steps": [
+              "list_control_items",
+              "select_control_item"
+            ]
+          },
+          {
+            "id": "map_scroll",
+            "tools": [
+              "scroll"
+            ],
+            "patterns": [
+              "Scroll"
+            ],
+            "steps": [
+              "scroll list"
+            ]
+          }
+        ]
+      },
+      "ListItem": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "SelectionItem"
+          ],
+          "conditional": [
+            "Invoke",
+            "ExpandCollapse",
+            "Toggle",
+            "Value",
+            "GridItem",
+            "ScrollItem"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_selection",
+            "tools": [
+              "select_control_item",
+              "invoke_element"
+            ],
+            "patterns": [
+              "SelectionItem"
+            ],
+            "steps": [
+              "select_control_item or invoke_element"
+            ]
+          },
+          {
+            "id": "map_invoke",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Invoke"
+            ],
+            "steps": [
+              "invoke_element if button-like item"
+            ]
+          }
+        ]
+      },
+      "Menu": {
+        "read_tools": [
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_menu_children",
+            "tools": [
+              "list_elements"
+            ],
+            "patterns": [],
+            "steps": [
+              "list_elements(role=MenuItem)"
+            ]
+          }
+        ]
+      },
+      "MenuBar": {
+        "read_tools": [
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "ExpandCollapse",
+            "Dock",
+            "Transform"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_menubar",
+            "tools": [
+              "list_elements",
+              "invoke_element"
+            ],
+            "patterns": [],
+            "steps": [
+              "list_elements MenuItem children"
+            ]
+          }
+        ]
+      },
+      "MenuItem": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Invoke",
+            "ExpandCollapse",
+            "SelectionItem",
+            "Toggle"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_invoke",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Invoke"
+            ],
+            "steps": [
+              "invoke_element executes command"
+            ]
+          },
+          {
+            "id": "map_expand",
+            "tools": [
+              "expand_element",
+              "list_elements"
+            ],
+            "patterns": [
+              "ExpandCollapse"
+            ],
+            "steps": [
+              "expand submenu"
+            ]
+          },
+          {
+            "id": "map_toggle",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Toggle"
+            ],
+            "steps": [
+              "toggle checked menu item"
+            ]
+          }
+        ]
+      },
+      "Pane": {
+        "read_tools": [
+          "list_elements",
+          "discover_control_interaction"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Dock",
+            "Scroll",
+            "Transform"
+          ],
+          "not": [
+            "Window"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_children",
+            "tools": [
+              "discover_control_interaction",
+              "list_elements"
+            ],
+            "patterns": [],
+            "steps": [
+              "discover children — do not click Pane shell"
+            ]
+          }
+        ]
+      },
+      "ProgressBar": {
+        "read_tools": [
+          "get_element_properties",
+          "spy_inspect"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "RangeValue",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": []
+      },
+      "RadioButton": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "SelectionItem"
+          ],
+          "conditional": [],
+          "not": [
+            "Toggle"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_selection",
+            "tools": [
+              "select_control_item",
+              "invoke_element"
+            ],
+            "patterns": [
+              "SelectionItem"
+            ],
+            "steps": [
+              "select_control_item in radio group"
+            ]
+          }
+        ]
+      },
+      "ScrollBar": {
+        "read_tools": [
+          "get_element_properties"
+        ],
+        "fallback": [
+          "click"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "RangeValue"
+          ],
+          "not": [
+            "Scroll"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_range",
+            "tools": [
+              "send_keys",
+              "scroll"
+            ],
+            "patterns": [
+              "RangeValue"
+            ],
+            "steps": [
+              "send_keys PageUp/Down or drag thumb"
+            ]
+          }
+        ]
+      },
+      "Separator": {
+        "read_tools": [],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": []
+      },
+      "Slider": {
+        "read_tools": [
+          "get_element_properties"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "RangeValue",
+            "Selection",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_range",
+            "tools": [
+              "set_element_value",
+              "send_keys"
+            ],
+            "patterns": [
+              "RangeValue",
+              "Value"
+            ],
+            "steps": [
+              "set_element_value or arrow keys"
+            ]
+          }
+        ]
+      },
+      "Spinner": {
+        "read_tools": [
+          "get_element_properties"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "RangeValue",
+            "Selection",
+            "Value"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_range",
+            "tools": [
+              "set_element_value",
+              "send_keys"
+            ],
+            "patterns": [
+              "RangeValue",
+              "Value"
+            ],
+            "steps": [
+              "set_element_value or up/down keys"
+            ]
+          }
+        ]
+      },
+      "SplitButton": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Invoke",
+            "ExpandCollapse"
+          ],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_split",
+            "tools": [
+              "invoke_element",
+              "expand_element",
+              "list_control_items"
+            ],
+            "patterns": [
+              "Invoke",
+              "ExpandCollapse"
+            ],
+            "steps": [
+              "invoke main area",
+              "expand_element for menu"
+            ]
+          }
+        ]
+      },
+      "StatusBar": {
+        "read_tools": [
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Grid"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_status_read",
+            "tools": [
+              "list_elements"
+            ],
+            "patterns": [
+              "Grid"
+            ],
+            "steps": [
+              "read status panes from children"
+            ]
+          }
+        ]
+      },
+      "Tab": {
+        "read_tools": [
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [
+            "Selection"
+          ],
+          "conditional": [
+            "Scroll"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_tab_items",
+            "tools": [
+              "list_elements"
+            ],
+            "patterns": [],
+            "steps": [
+              "list_elements TabItem children"
+            ]
+          }
+        ]
+      },
+      "TabItem": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "SelectionItem"
+          ],
+          "conditional": [],
+          "not": [
+            "Invoke"
+          ]
+        },
+        "act_methods": [
+          {
+            "id": "map_selection",
+            "tools": [
+              "select_control_item",
+              "invoke_element"
+            ],
+            "patterns": [
+              "SelectionItem"
+            ],
+            "steps": [
+              "select_control_item switches tab"
+            ]
+          }
+        ]
+      },
+      "Table": {
+        "read_tools": [
+          "list_control_items",
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "Grid",
+            "GridItem",
+            "Table",
+            "TableItem"
+          ],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_grid",
+            "tools": [
+              "list_control_items",
+              "select_control_item"
+            ],
+            "patterns": [
+              "Grid",
+              "Table"
+            ],
+            "steps": [
+              "list_control_items DataItem rows",
+              "select_control_item; double_click for lookup"
+            ]
+          }
+        ]
+      },
+      "Text": {
+        "read_tools": [
+          "spy_inspect",
+          "get_element_properties"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "GridItem",
+            "TableItem",
+            "Text"
+          ],
+          "not": [
+            "Value"
+          ]
+        },
+        "act_methods": []
+      },
+      "Thumb": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [
+            "Transform"
+          ],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_drag",
+            "tools": [
+              "drag"
+            ],
+            "patterns": [
+              "Transform"
+            ],
+            "steps": [
+              "drag Thumb to scroll"
+            ]
+          }
+        ]
+      },
+      "TitleBar": {
+        "read_tools": [],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [],
+          "not": []
+        },
+        "act_methods": []
+      },
+      "ToolBar": {
+        "read_tools": [
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Dock",
+            "ExpandCollapse",
+            "Transform"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_toolbar",
+            "tools": [
+              "list_elements",
+              "invoke_element"
+            ],
+            "patterns": [],
+            "steps": [
+              "invoke_element on Button children"
+            ]
+          }
+        ]
+      },
+      "ToolTip": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Text",
+            "Window"
+          ],
+          "not": []
+        },
+        "act_methods": []
+      },
+      "Tree": {
+        "read_tools": [
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Scroll",
+            "Selection"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_tree_items",
+            "tools": [
+              "list_elements"
+            ],
+            "patterns": [],
+            "steps": [
+              "list_elements TreeItem after expand"
+            ]
+          },
+          {
+            "id": "map_scroll",
+            "tools": [
+              "scroll"
+            ],
+            "patterns": [
+              "Scroll"
+            ],
+            "steps": [
+              "scroll tree"
+            ]
+          }
+        ]
+      },
+      "TreeItem": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [
+            "ExpandCollapse"
+          ],
+          "conditional": [
+            "Invoke",
+            "SelectionItem",
+            "Toggle",
+            "ScrollItem"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_expand",
+            "tools": [
+              "expand_element",
+              "list_elements"
+            ],
+            "patterns": [
+              "ExpandCollapse"
+            ],
+            "steps": [
+              "expand_element then list children"
+            ]
+          },
+          {
+            "id": "map_selection",
+            "tools": [
+              "select_control_item",
+              "invoke_element"
+            ],
+            "patterns": [
+              "SelectionItem",
+              "Invoke"
+            ],
+            "steps": [
+              "select or invoke leaf node"
+            ]
+          }
+        ]
+      },
+      "Window": {
+        "read_tools": [
+          "set_target_window",
+          "list_elements"
+        ],
+        "fallback": [],
+        "patterns_ms": {
+          "must": [
+            "Transform",
+            "Window"
+          ],
+          "conditional": [
+            "Dock"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_window_scope",
+            "tools": [
+              "set_target_window",
+              "focus_window"
+            ],
+            "patterns": [],
+            "steps": [
+              "set_target_window for scope; act on children"
+            ]
+          }
+        ]
+      },
+      "SemanticZoom": {
+        "read_tools": [
+          "spy_inspect"
+        ],
+        "fallback": [
+          "click_element"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [
+            "Toggle",
+            "Scroll"
+          ],
+          "not": []
+        },
+        "act_methods": [
+          {
+            "id": "map_semzoom_toggle",
+            "tools": [
+              "invoke_element"
+            ],
+            "patterns": [
+              "Toggle"
+            ],
+            "steps": [
+              "invoke_element toggles zoomed view"
+            ]
+          },
+          {
+            "id": "map_scroll",
+            "tools": [
+              "scroll"
+            ],
+            "patterns": [
+              "Scroll"
+            ],
+            "steps": [
+              "scroll between zoom levels"
+            ]
+          }
+        ]
+      },
+      "Custom": {
+        "read_tools": [
+          "spy_inspect",
+          "discover_control_interaction"
+        ],
+        "fallback": [
+          "smart_find",
+          "find_text"
+        ],
+        "patterns_ms": {
+          "must": [],
+          "conditional": [],
+          "not": [],
+          "note": "Not an MS control type — runtime patterns only"
+        },
+        "act_methods": [
+          {
+            "id": "map_custom_inspect",
+            "tools": [
+              "spy_inspect",
+              "discover_control_interaction"
+            ],
+            "patterns": [],
+            "steps": [
+              "inspect patterns; discover children"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "uia_patterns_ms": [
+    "Dock",
+    "ExpandCollapse",
+    "Grid",
+    "GridItem",
+    "Invoke",
+    "MultipleView",
+    "RangeValue",
+    "Scroll",
+    "ScrollItem",
+    "Selection",
+    "SelectionItem",
+    "Table",
+    "TableItem",
+    "Text",
+    "Toggle",
+    "Transform",
+    "Value",
+    "Window"
+  ],
+  "act_methods": {
+    "total": 27,
+    "ids": [
+      "map_appbar_expand",
+      "map_appbar_toggle",
+      "map_children",
+      "map_combo_list",
+      "map_combo_value",
+      "map_custom_inspect",
+      "map_drag",
+      "map_expand",
+      "map_grid",
+      "map_grid_select",
+      "map_invoke",
+      "map_list_select",
+      "map_menu_children",
+      "map_menubar",
+      "map_range",
+      "map_scroll",
+      "map_selection",
+      "map_semzoom_toggle",
+      "map_split",
+      "map_status_read",
+      "map_tab_items",
+      "map_text",
+      "map_toggle",
+      "map_toolbar",
+      "map_tree_items",
+      "map_value",
+      "map_window_scope"
+    ]
+  },
+  "act_bindings": {
+    "total": 75,
+    "items": [
+      {
+        "control": "AppBar",
+        "act_method": "map_appbar_toggle",
+        "tool": "invoke_element",
+        "patterns": [
+          "Toggle"
+        ]
+      },
+      {
+        "control": "AppBar",
+        "act_method": "map_appbar_expand",
+        "tool": "expand_element",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "Button",
+        "act_method": "map_invoke",
+        "tool": "invoke_element",
+        "patterns": [
+          "Invoke"
+        ]
+      },
+      {
+        "control": "Button",
+        "act_method": "map_toggle",
+        "tool": "invoke_element",
+        "patterns": [
+          "Toggle"
+        ]
+      },
+      {
+        "control": "Button",
+        "act_method": "map_expand",
+        "tool": "expand_element",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "Button",
+        "act_method": "map_value",
+        "tool": "set_element_value",
+        "patterns": [
+          "Value"
+        ]
+      },
+      {
+        "control": "Calendar",
+        "act_method": "map_grid_select",
+        "tool": "list_control_items",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "Calendar",
+        "act_method": "map_grid_select",
+        "tool": "select_control_item",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "Calendar",
+        "act_method": "map_grid_select",
+        "tool": "click_element",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "Calendar",
+        "act_method": "map_scroll",
+        "tool": "scroll",
+        "patterns": [
+          "Scroll"
+        ]
+      },
+      {
+        "control": "CheckBox",
+        "act_method": "map_toggle",
+        "tool": "invoke_element",
+        "patterns": [
+          "Toggle"
+        ]
+      },
+      {
+        "control": "ComboBox",
+        "act_method": "map_combo_list",
+        "tool": "expand_element",
+        "patterns": [
+          "ExpandCollapse",
+          "Selection"
+        ]
+      },
+      {
+        "control": "ComboBox",
+        "act_method": "map_combo_list",
+        "tool": "list_control_items",
+        "patterns": [
+          "ExpandCollapse",
+          "Selection"
+        ]
+      },
+      {
+        "control": "ComboBox",
+        "act_method": "map_combo_list",
+        "tool": "select_control_item",
+        "patterns": [
+          "ExpandCollapse",
+          "Selection"
+        ]
+      },
+      {
+        "control": "ComboBox",
+        "act_method": "map_combo_value",
+        "tool": "set_element_value",
+        "patterns": [
+          "Value"
+        ]
+      },
+      {
+        "control": "DataGrid",
+        "act_method": "map_grid",
+        "tool": "list_control_items",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "DataGrid",
+        "act_method": "map_grid",
+        "tool": "select_control_item",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "DataGrid",
+        "act_method": "map_scroll",
+        "tool": "scroll",
+        "patterns": [
+          "Scroll"
+        ]
+      },
+      {
+        "control": "DataItem",
+        "act_method": "map_selection",
+        "tool": "select_control_item",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "DataItem",
+        "act_method": "map_selection",
+        "tool": "invoke_element",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "Document",
+        "act_method": "map_text",
+        "tool": "set_element_value",
+        "patterns": [
+          "Text",
+          "Value"
+        ]
+      },
+      {
+        "control": "Edit",
+        "act_method": "map_value",
+        "tool": "set_element_value",
+        "patterns": [
+          "Value"
+        ]
+      },
+      {
+        "control": "Edit",
+        "act_method": "map_text",
+        "tool": "set_element_value",
+        "patterns": [
+          "Text"
+        ]
+      },
+      {
+        "control": "Group",
+        "act_method": "map_expand",
+        "tool": "expand_element",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "Group",
+        "act_method": "map_children",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "Group",
+        "act_method": "map_children",
+        "tool": "discover_control_interaction",
+        "patterns": []
+      },
+      {
+        "control": "HeaderItem",
+        "act_method": "map_invoke",
+        "tool": "invoke_element",
+        "patterns": [
+          "Invoke"
+        ]
+      },
+      {
+        "control": "Hyperlink",
+        "act_method": "map_invoke",
+        "tool": "invoke_element",
+        "patterns": [
+          "Invoke"
+        ]
+      },
+      {
+        "control": "List",
+        "act_method": "map_list_select",
+        "tool": "list_control_items",
+        "patterns": [
+          "Selection"
+        ]
+      },
+      {
+        "control": "List",
+        "act_method": "map_list_select",
+        "tool": "select_control_item",
+        "patterns": [
+          "Selection"
+        ]
+      },
+      {
+        "control": "List",
+        "act_method": "map_scroll",
+        "tool": "scroll",
+        "patterns": [
+          "Scroll"
+        ]
+      },
+      {
+        "control": "ListItem",
+        "act_method": "map_selection",
+        "tool": "select_control_item",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "ListItem",
+        "act_method": "map_selection",
+        "tool": "invoke_element",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "ListItem",
+        "act_method": "map_invoke",
+        "tool": "invoke_element",
+        "patterns": [
+          "Invoke"
+        ]
+      },
+      {
+        "control": "Menu",
+        "act_method": "map_menu_children",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "MenuBar",
+        "act_method": "map_menubar",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "MenuBar",
+        "act_method": "map_menubar",
+        "tool": "invoke_element",
+        "patterns": []
+      },
+      {
+        "control": "MenuItem",
+        "act_method": "map_invoke",
+        "tool": "invoke_element",
+        "patterns": [
+          "Invoke"
+        ]
+      },
+      {
+        "control": "MenuItem",
+        "act_method": "map_expand",
+        "tool": "expand_element",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "MenuItem",
+        "act_method": "map_expand",
+        "tool": "list_elements",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "MenuItem",
+        "act_method": "map_toggle",
+        "tool": "invoke_element",
+        "patterns": [
+          "Toggle"
+        ]
+      },
+      {
+        "control": "Pane",
+        "act_method": "map_children",
+        "tool": "discover_control_interaction",
+        "patterns": []
+      },
+      {
+        "control": "Pane",
+        "act_method": "map_children",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "RadioButton",
+        "act_method": "map_selection",
+        "tool": "select_control_item",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "RadioButton",
+        "act_method": "map_selection",
+        "tool": "invoke_element",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "ScrollBar",
+        "act_method": "map_range",
+        "tool": "send_keys",
+        "patterns": [
+          "RangeValue"
+        ]
+      },
+      {
+        "control": "ScrollBar",
+        "act_method": "map_range",
+        "tool": "scroll",
+        "patterns": [
+          "RangeValue"
+        ]
+      },
+      {
+        "control": "Slider",
+        "act_method": "map_range",
+        "tool": "set_element_value",
+        "patterns": [
+          "RangeValue",
+          "Value"
+        ]
+      },
+      {
+        "control": "Slider",
+        "act_method": "map_range",
+        "tool": "send_keys",
+        "patterns": [
+          "RangeValue",
+          "Value"
+        ]
+      },
+      {
+        "control": "Spinner",
+        "act_method": "map_range",
+        "tool": "set_element_value",
+        "patterns": [
+          "RangeValue",
+          "Value"
+        ]
+      },
+      {
+        "control": "Spinner",
+        "act_method": "map_range",
+        "tool": "send_keys",
+        "patterns": [
+          "RangeValue",
+          "Value"
+        ]
+      },
+      {
+        "control": "SplitButton",
+        "act_method": "map_split",
+        "tool": "invoke_element",
+        "patterns": [
+          "Invoke",
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "SplitButton",
+        "act_method": "map_split",
+        "tool": "expand_element",
+        "patterns": [
+          "Invoke",
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "SplitButton",
+        "act_method": "map_split",
+        "tool": "list_control_items",
+        "patterns": [
+          "Invoke",
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "StatusBar",
+        "act_method": "map_status_read",
+        "tool": "list_elements",
+        "patterns": [
+          "Grid"
+        ]
+      },
+      {
+        "control": "Tab",
+        "act_method": "map_tab_items",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "TabItem",
+        "act_method": "map_selection",
+        "tool": "select_control_item",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "TabItem",
+        "act_method": "map_selection",
+        "tool": "invoke_element",
+        "patterns": [
+          "SelectionItem"
+        ]
+      },
+      {
+        "control": "Table",
+        "act_method": "map_grid",
+        "tool": "list_control_items",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "Table",
+        "act_method": "map_grid",
+        "tool": "select_control_item",
+        "patterns": [
+          "Grid",
+          "Table"
+        ]
+      },
+      {
+        "control": "Thumb",
+        "act_method": "map_drag",
+        "tool": "drag",
+        "patterns": [
+          "Transform"
+        ]
+      },
+      {
+        "control": "ToolBar",
+        "act_method": "map_toolbar",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "ToolBar",
+        "act_method": "map_toolbar",
+        "tool": "invoke_element",
+        "patterns": []
+      },
+      {
+        "control": "Tree",
+        "act_method": "map_tree_items",
+        "tool": "list_elements",
+        "patterns": []
+      },
+      {
+        "control": "Tree",
+        "act_method": "map_scroll",
+        "tool": "scroll",
+        "patterns": [
+          "Scroll"
+        ]
+      },
+      {
+        "control": "TreeItem",
+        "act_method": "map_expand",
+        "tool": "expand_element",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "TreeItem",
+        "act_method": "map_expand",
+        "tool": "list_elements",
+        "patterns": [
+          "ExpandCollapse"
+        ]
+      },
+      {
+        "control": "TreeItem",
+        "act_method": "map_selection",
+        "tool": "select_control_item",
+        "patterns": [
+          "SelectionItem",
+          "Invoke"
+        ]
+      },
+      {
+        "control": "TreeItem",
+        "act_method": "map_selection",
+        "tool": "invoke_element",
+        "patterns": [
+          "SelectionItem",
+          "Invoke"
+        ]
+      },
+      {
+        "control": "Window",
+        "act_method": "map_window_scope",
+        "tool": "set_target_window",
+        "patterns": []
+      },
+      {
+        "control": "Window",
+        "act_method": "map_window_scope",
+        "tool": "focus_window",
+        "patterns": []
+      },
+      {
+        "control": "SemanticZoom",
+        "act_method": "map_semzoom_toggle",
+        "tool": "invoke_element",
+        "patterns": [
+          "Toggle"
+        ]
+      },
+      {
+        "control": "SemanticZoom",
+        "act_method": "map_scroll",
+        "tool": "scroll",
+        "patterns": [
+          "Scroll"
+        ]
+      },
+      {
+        "control": "Custom",
+        "act_method": "map_custom_inspect",
+        "tool": "spy_inspect",
+        "patterns": []
+      },
+      {
+        "control": "Custom",
+        "act_method": "map_custom_inspect",
+        "tool": "discover_control_interaction",
+        "patterns": []
+      }
+    ]
+  },
+  "read_tools_catalog": [
+    "click_element",
+    "discover_control_interaction",
+    "drag",
+    "expand_element",
+    "focus_window",
+    "get_element_properties",
+    "invoke_element",
+    "list_control_items",
+    "list_elements",
+    "scroll",
+    "select_control_item",
+    "send_keys",
+    "set_element_value",
+    "set_target_window",
+    "spy_inspect"
+  ],
+  "frameworks_known": [
+    "uwp",
+    "win32",
+    "winforms",
+    "wpf",
+    "electron",
+    "java_swing",
+    "gtk",
+    "unknown"
+  ]
+}

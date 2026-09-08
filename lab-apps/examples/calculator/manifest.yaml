@@ -1,0 +1,6 @@
+id: calculator
+display_name: Windows Calculator (UWP)
+launch: calc.exe
+target_window: Calculadora
+framework: uwp
+locale_default: es-AR

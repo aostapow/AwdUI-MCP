@@ -1,0 +1,10 @@
+id: teams
+display_name: Microsoft Teams
+launch: "ms-teams:"
+target_window: Microsoft Teams
+framework: electron
+locale_default: es-AR
+safety:
+  message_allowlist:
+    - Nicolás Awamori
+  message_prefix: "[AwdUI-MCP-TE]"

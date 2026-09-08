@@ -1,0 +1,12 @@
+{
+  "ts": "2026-09-08T12:30:00Z",
+  "kind": "mcp_code",
+  "summary": "find_element: skip depth ladder cuando automation_id exacto",
+  "files": ["mcp-servers/awdui-server/detection/orchestrator.py"],
+  "tests": ["tests/test_uia_find_performance.py"],
+  "benefit": "find_element 4013ms -> 314ms en Calculadora",
+  "evidence": "pytest tests/test_uia_find_performance.py -q",
+  "mcp_improvement_ref": "_MCP_IMPROVEMENT/mejoras-codigo/....md",
+  "flow_id": "F-01",
+  "blocker_resolved": null
+}
