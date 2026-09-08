@@ -100,3 +100,44 @@ def apply_hints_to_discovery_report(report: dict[str, Any], hints: str) -> dict[
     report["recommended"] = promoted
     report["hint_applied"] = "recommended_strategy"
     return report
+
+
+def apply_hint_click_mode(
+    *,
+    elem: dict,
+    click_mode: str,
+    invoke_fn,
+    click_fn,
+    identifiable_by_properties_fn=None,
+) -> dict[str, Any]:
+    """Choose invoke vs coordinate click per repo hint (shared with repo_action)."""
+    mode = (click_mode or "auto").strip().lower()
+    if mode == "click":
+        out = click_fn()
+        if out.get("success"):
+            out["hint_applied"] = "click_mode=click"
+        return out
+
+    inv = invoke_fn()
+    if inv.get("success"):
+        out = dict(inv)
+        if mode == "invoke":
+            out["hint_applied"] = "invoke_mode=invoke"
+        return out
+
+    if mode == "invoke":
+        return {
+            "success": False,
+            "error": "InvokePattern failed; repo hint requests invoke only (no coordinate click)",
+            "hint_applied": "invoke_mode=invoke",
+        }
+
+    if identifiable_by_properties_fn and identifiable_by_properties_fn(elem):
+        return {
+            "success": False,
+            "error": (
+                "Element resolved by properties but InvokePattern failed; "
+                "coordinate click skipped"
+            ),
+        }
+    return click_fn()

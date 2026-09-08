@@ -585,6 +585,7 @@ def do_invoke_element(
     verify_poll_ms: int = 100,
     scope_mode: str = "auto",
     window_handle: Optional[int] = None,
+    repo_path: Optional[str] = None,
 ) -> dict:
     from tools.action_timing import ActionTimer
 
@@ -610,6 +611,14 @@ def do_invoke_element(
     )
 
     if element:
+        from detection.hint_consume import apply_hint_click_mode, attach_hints_to_result, resolve_object_hints
+        from tools.input_tools import do_click
+
+        hints_ctx = resolve_object_hints(
+            repo_path=repo_path,
+            automation_id=(element or {}).get("automation_id") or automation_id,
+        )
+        click_mode = hints_ctx.get("hint_click_mode") or "auto"
         timer.start("act")
         pre_header = ""
         pre_window_title = ""
@@ -619,13 +628,40 @@ def do_invoke_element(
             prestate = snapshot_selection_prestate(window_title)
             pre_header = prestate.get("header_name") or ""
             pre_window_title = prestate.get("window_title") or ""
-        result = do_invoke_on_element(element, window_title=window_title)
+
+        def _invoke_act():
+            return do_invoke_on_element(element, window_title=window_title)
+
+        def _click_act():
+            cx, cy = _click_coords(element, window_title)
+            do_click(cx, cy)
+            return {
+                "success": True,
+                "method": "click",
+                "clicked_at": {"x": cx, "y": cy},
+            }
+
+        if click_mode == "click":
+            result = _click_act()
+        else:
+            result = apply_hint_click_mode(
+                elem=element,
+                click_mode=click_mode,
+                invoke_fn=_invoke_act,
+                click_fn=_click_act,
+                identifiable_by_properties_fn=_identifiable_by_properties,
+            )
         timer.end()
         result["element"] = element
         if pre_header:
             result["pre_header_name"] = pre_header
         if pre_window_title:
             result["pre_window_title"] = pre_window_title
+        attach_hints_to_result(
+            result,
+            repo_path=repo_path,
+            automation_id=(element or {}).get("automation_id") or automation_id,
+        )
         if not result.get("success") and _is_menuitem(element):
             return _menuitem_bbox_click(
                 element,
@@ -1519,6 +1555,7 @@ def do_click_element(
     verify_poll_ms: int = 100,
     fuzzy_match: bool = False,
     scope_mode: str = "auto",
+    repo_path: Optional[str] = None,
 ) -> dict:
     from tools.action_timing import ActionTimer
     from tools.app_session import normalize_index
@@ -1568,20 +1605,56 @@ def do_click_element(
         from tools.app_session import pick_element_index
         idx = pick_element_index(index, len(result["elements"]))
         elem = result["elements"][idx]
+        from detection.hint_consume import apply_hint_click_mode, attach_hints_to_result, resolve_object_hints
+        from tools.input_tools import do_click
+
+        hints_ctx = resolve_object_hints(
+            repo_path=repo_path or result.get("repo_path"),
+            automation_id=automation_id or elem.get("automation_id"),
+        )
+        click_mode = hints_ctx.get("hint_click_mode") or "auto"
         timer.start("act")
-        inv = _try_invoke_click(elem, window_title)
+
+        def _invoke_act():
+            inv = _try_invoke_click(elem, window_title)
+            return inv if inv else {"success": False}
+
+        def _click_act():
+            center_x, center_y = _click_coords(elem, window_title)
+            click_result = do_click(center_x, center_y)
+            out = {
+                "success": True,
+                "clicked_at": {"x": center_x, "y": center_y},
+                "method": "click",
+            }
+            if "navigation_warning" in click_result:
+                out["navigation_warning"] = click_result["navigation_warning"]
+            return out
+
+        act = apply_hint_click_mode(
+            elem=elem,
+            click_mode=click_mode,
+            invoke_fn=_invoke_act,
+            click_fn=_click_act,
+            identifiable_by_properties_fn=_identifiable_by_properties,
+        )
         timer.end()
-        if inv:
+        if act.get("success"):
             out = {
                 "success": True,
                 "element": elem,
-                "method": inv.get("method", "InvokePattern"),
                 "backend_used": result.get("backend_used", "uia"),
+                **{k: v for k, v in act.items() if k != "success"},
             }
             if result.get("repo_path"):
                 out["repo_path"] = result["repo_path"]
             if result.get("method"):
                 out["resolved_via"] = result["method"]
+            attach_hints_to_result(
+                out,
+                repo_path=repo_path or result.get("repo_path"),
+                automation_id=automation_id or elem.get("automation_id"),
+            )
             return _finish_action_with_verify(
                 timer,
                 out,

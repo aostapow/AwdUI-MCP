@@ -9,7 +9,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "mcp-servers", 
 
 from detection.agent_hints import hint_click_mode, hint_preferred_tool, parse_agent_hints
 from detection.control_interaction import discover_from_element
-from detection.hint_consume import apply_hints_to_discovery_report, attach_hints_to_result
+from detection.hint_consume import (
+    apply_hint_click_mode,
+    apply_hints_to_discovery_report,
+    attach_hints_to_result,
+)
 
 
 class TestHintPreferredTool:
@@ -65,3 +69,34 @@ class TestAttachHintsToResult:
         assert "verify_automation_id" in out["agent_hints"]
         assert out["hint_preferred_tool"] == "invoke_element"
         assert out["hint_verify_automation_id"] == "Display1"
+
+
+class TestApplyHintClickMode:
+    def test_invoke_only_on_failure(self):
+        elem = {"automation_id": "btn", "name": "OK"}
+        out = apply_hint_click_mode(
+            elem=elem,
+            click_mode="invoke",
+            invoke_fn=lambda: {"success": False},
+            click_fn=lambda: {"success": True, "method": "click"},
+        )
+        assert out["success"] is False
+        assert out.get("hint_applied") == "invoke_mode=invoke"
+
+    def test_click_mode_skips_invoke(self):
+        elem = {"automation_id": "btn"}
+        invoked = {"flag": False}
+
+        def invoke_fn():
+            invoked["flag"] = True
+            return {"success": True, "method": "InvokePattern"}
+
+        out = apply_hint_click_mode(
+            elem=elem,
+            click_mode="click",
+            invoke_fn=invoke_fn,
+            click_fn=lambda: {"success": True, "method": "click"},
+        )
+        assert out["success"] is True
+        assert invoked["flag"] is False
+        assert out.get("hint_applied") == "click_mode=click"
