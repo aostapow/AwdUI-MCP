@@ -142,6 +142,19 @@ def do_find_element(
     except Exception:
         pass
     if repo_result and repo_result.get("found"):
+        from detection.element_scope import filter_dict_elements_to_scope
+
+        scoped, scope_meta = filter_dict_elements_to_scope(
+            repo_result.get("elements") or [],
+            window_title,
+            automation_id=automation_id,
+        )
+        if not scoped:
+            repo_result = None
+        else:
+            repo_result["elements"] = scoped
+            repo_result.update(scope_meta)
+    if repo_result and repo_result.get("found"):
         if remember and repo_result.get("elements"):
             try:
                 from detection.auto_repo import maybe_remember_element
@@ -198,6 +211,7 @@ def do_find_element(
         "found": True,
         "elements": elements,
         "backend_used": backend,
+        **({k: result[k] for k in ("scope_mode", "rejected_foreign", "target_hwnd") if k in result}),
         **({"repo_path": result["repo_path"]} if result.get("repo_path") else {}),
     }
     from detection.hint_consume import attach_hints_to_result

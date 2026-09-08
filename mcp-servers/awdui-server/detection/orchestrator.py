@@ -274,10 +274,32 @@ class DetectionOrchestrator:
         else:
             selected = all_matches
 
+        legacy = [dict_to_legacy_element(e.to_dict()) for e in selected]
+        from detection.element_scope import filter_dict_elements_to_scope
+
+        scoped, scope_meta = filter_dict_elements_to_scope(
+            legacy,
+            window_title,
+            automation_id=automation_id,
+        )
+        if not scoped:
+            return {
+                "found": False,
+                "elements": [],
+                "backend_used": backend_used,
+                **scope_meta,
+                "error": "no elements in target window scope",
+            }
+
+        if index > 0:
+            idx = min(index, len(scoped) - 1)
+            scoped = [scoped[idx]]
+
         return {
             "found": True,
-            "elements": [dict_to_legacy_element(e.to_dict()) for e in selected],
+            "elements": scoped,
             "backend_used": backend_used,
+            **scope_meta,
         }
 
     def element_at_point(self, x: int, y: int, window_title: Optional[str] = None) -> dict:

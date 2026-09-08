@@ -210,3 +210,71 @@ def filter_elements_to_scope(
         kept, scope, enabled=adaptive_cluster,
     )
     return kept, scoped_out, cluster_out, region
+
+
+def filter_dict_elements_to_scope(
+    elements: list[dict],
+    window_title: Optional[str] = None,
+    *,
+    automation_id: Optional[str] = None,
+) -> tuple[list[dict], dict]:
+    """Filter find/wait results to the target window (client rect + optional automation_id)."""
+    meta: dict = {
+        "scope_mode": "no_target",
+        "rejected_foreign": 0,
+        "target_hwnd": None,
+    }
+    if not elements:
+        return [], meta
+
+    scope = resolve_window_scope(window_title)
+    if not scope:
+        return list(elements), meta
+
+    meta["scope_mode"] = "client_rect"
+    try:
+        from tools.framework_detect import _get_hwnd_for_window
+
+        hwnd = int(_get_hwnd_for_window(scope.get("window_title") or window_title or "") or 0)
+        if hwnd:
+            meta["target_hwnd"] = hwnd
+    except Exception:
+        pass
+
+    aid = (automation_id or "").strip()
+    kept: list[dict] = []
+    rejected = 0
+    for elem in elements:
+        if not element_in_window_scope(elem, scope):
+            rejected += 1
+            continue
+        if aid and (elem.get("automation_id") or "").strip() != aid:
+            rejected += 1
+            continue
+        kept.append(elem)
+    meta["rejected_foreign"] = rejected
+    return kept, meta
+
+
+def scope_metadata_for_find(
+    window_title: Optional[str] = None,
+    *,
+    rejected_foreign: int = 0,
+) -> dict:
+    """Build scope fields to attach to find/wait responses."""
+    scope = resolve_window_scope(window_title)
+    meta: dict = {
+        "scope_mode": "client_rect" if scope else "no_target",
+        "rejected_foreign": rejected_foreign,
+        "target_hwnd": None,
+    }
+    if scope:
+        try:
+            from tools.framework_detect import _get_hwnd_for_window
+
+            hwnd = int(_get_hwnd_for_window(scope.get("window_title") or window_title or "") or 0)
+            if hwnd:
+                meta["target_hwnd"] = hwnd
+        except Exception:
+            pass
+    return meta
