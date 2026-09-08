@@ -24,7 +24,7 @@ Use this priority order when interacting with a GUI:
 4. Call `list_elements` to see what's accessible
 5. If few elements found, try `list_elements(role="Button")` to search deeper
 6. Check framework hints for tips (e.g., Electron may need accessibility flag)
-7. For each control: match **role** + **patterns** to the [control catalog](../.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md) (ComboBox → list items first; Table → grid row tools; Button → invoke)
+7. For each control: match **role** + **patterns** to the [control catalog](../.cursor/skills/awdui-mcp-automejora/references/patterns/control-catalog.md) (ComboBox → list items first; Table → grid row tools; Button → invoke)
 
 ## Focus Management
 

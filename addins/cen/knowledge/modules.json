@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "shell": {
+    "process_names": ["COBISExplorer.exe", "COBISExplorer"],
+    "title_patterns": ["COBIS", "C.O.B.I.S"],
+    "base_view": "COBISFuncionalityView"
+  },
+  "products": [
+    {"code": "ADM", "prefix": "ADMIN", "dll": "COBISCorp.tCOBIS.ADMIN", "db": ["cobis"]},
+    {"code": "TAD", "prefix": "TADMIN", "dll": "COBISCorp.tCOBIS.TADMIN", "alias": "TAD", "db": ["cob_ahorros", "cob_cuentas"]},
+    {"code": "REC", "prefix": "REC", "dll": "COBISCorp.tCOBIS.REC", "db": ["cob_reca"]},
+    {"code": "CRE", "prefix": "CRE", "dll": "COBISCorp.tCOBIS.CRE", "db": ["cob_credito"]},
+    {"code": "PFI", "prefix": "PFI", "dll": "COBISCorp.tCOBIS.PFI", "db": ["cob_pfijo"]},
+    {"code": "CON", "prefix": "CON", "dll": "COBISCorp.tCOBIS.CON", "db": ["cob_conta"]},
+    {"code": "CTR", "prefix": "CTR", "dll": "COBISCorp.tCOBIS.CTR", "db": ["cob_concent"]}
+  ],
+  "form_naming": {
+    "transaction": ["^FTRAN\\d+", "^FTRA\\d+", "^FTra\\d+"],
+    "functional": ["^F[A-Z][a-zA-Z]+$"],
+    "lookup": ["grid_valores", "FBUSCLI", "FBUSCONV", "FHELPG"]
+  },
+  "shared_forms": [
+    {"id": "grid_valores", "class": "grid_valoresClass", "grid": "gr_SQL", "path_hint": "SharedLibrary/Views/FHELPG"},
+    {"id": "buscar_cliente", "class": "FBuscarClienteClass", "path_hint": "REC.SharedLibrary/Views/FBUSCLI"},
+    {"id": "buscar_convenio", "class": "FbuscarconvenioClass", "path_hint": "TADMIN.SharedLibrary/Views/FBUSCONV"}
+  ]
+}

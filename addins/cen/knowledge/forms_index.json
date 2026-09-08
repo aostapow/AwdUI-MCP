@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "forms": [
+    {
+      "id": "FTRANSAC",
+      "product": "REC",
+      "title_hints": ["transaccion", "recauda", "contabilizacion"],
+      "grids": ["grdRegistros", "grdTotales"],
+      "key_fields": ["txtconvenio", "txtmoneda", "mskFecha_0", "mskFecha_1", "cboTipoConta"],
+      "toolbar": {
+        "0": {"text": "&Buscar", "tag": "19004", "handler": "PLBuscar"},
+        "1": {"text": "Sig&tes.", "tag": "19004", "handler": "PLBuscar siguiente"},
+        "2": {"text": "&Limpiar", "handler": "PLLimpiar"},
+        "3": {"text": "&Salir", "handler": "PLSalir"},
+        "4": {"text": "&Imprimir", "handler": "PLImprimir"},
+        "5": {"text": "T&xt", "handler": "export"},
+        "6": {"text": "&Marcar", "handler": "PLMarcar", "admin_only": true},
+        "7": {"text": "&Reversar", "handler": "PLReversar", "admin_only": true}
+      },
+      "f5_fields": ["txtconvenio", "txtmoneda", "txtgrupocontable"],
+      "notes": "cmdBoton array index != visual order; always match by caption"
+    },
+    {
+      "id": "FUSUAROL",
+      "product": "ADM",
+      "title_hints": ["usuario", "rol"],
+      "grids": ["grdValores", "_grdValores_0", "_grdValores_1"],
+      "key_fields": ["txtCampo_0"],
+      "toolbar": {
+        "0": {"text": "Buscar"},
+        "1": {"text": "Siguiente"},
+        "2": {"text": "Actualizar"},
+        "3": {"text": "Eliminar"},
+        "4": {"text": "Transmitir"},
+        "5": {"text": "Limpiar"},
+        "6": {"text": "Salir"}
+      },
+      "f5_fields": ["txtCampo_0"]
+    },
+    {
+      "id": "FTRAN024",
+      "product": "TAD",
+      "title_hints": ["calificacion", "cuenta"],
+      "grids": ["grdResultados"],
+      "key_fields": ["txtCampo_0", "txtCampo_1"],
+      "toolbar": {
+        "0": {"text": "Crear"},
+        "1": {"text": "Limpiar"},
+        "2": {"text": "Salir"},
+        "4": {"text": "Borrar"},
+        "5": {"text": "Siguiente"},
+        "6": {"text": "Buscar"}
+      },
+      "selection": "picVisto checkbox column via double-click",
+      "notes": "Maintenance pattern with grid row toggle"
+    },
+    {
+      "id": "FTRAN292",
+      "product": "TAD",
+      "title_hints": ["calificacion", "cuenta corriente"],
+      "grids": ["grdResultados"],
+      "key_fields": ["mskCuenta"],
+      "toolbar": {
+        "0": {"text": "Transmitir"},
+        "1": {"text": "Limpiar"},
+        "2": {"text": "Salir"},
+        "3": {"text": "Propiet"},
+        "4": {"text": "Cancelar"},
+        "6": {"text": "Buscar"},
+        "7": {"text": "Escoger"}
+      }
+    },
+    {
+      "id": "FROLES",
+      "product": "ADM",
+      "title_hints": ["roles"],
+      "key_fields": ["txtCampo_0", "txtCampo_1", "txtCampo_2"],
+      "radios": ["optVigente_0", "optVigente_1"],
+      "toolbar": {
+        "0": {"text": "Transmitir"},
+        "1": {"text": "Limpiar"},
+        "2": {"text": "Salir"},
+        "4": {"text": "Productos"}
+      },
+      "f5_fields": ["txtCampo_0", "txtCampo_1", "txtCampo_2"]
+    },
+    {
+      "id": "FTRA2514",
+      "product": "ADM",
+      "title_hints": ["oficial", "jerarquia"],
+      "outline": ["otlOficiales"],
+      "toolbar": {
+        "0": {"text": "Crear"},
+        "1": {"text": "Actualizar"},
+        "2": {"text": "Eliminar"},
+        "3": {"text": "Escoger"},
+        "4": {"text": "Limpiar"},
+        "5": {"text": "Salir"}
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "validation": [
+    "es mandatorio",
+    "es obligatorio",
+    "Control Ingreso de Datos",
+    "Error en la fecha",
+    "Fuera de Rango"
+  ],
+  "confirm_destructive": [
+    "Está seguro",
+    "Esta seguro",
+    "Desea continuar",
+    "Desea eliminar",
+    "Desea imprimir"
+  ],
+  "success": [
+    "Archivo generado",
+    "Proceso terminado",
+    "Impresión Terminada",
+    "Impresión de consulta exitosa"
+  ],
+  "empty_data": [
+    "No existen datos",
+    "No existen datos para Imprimir",
+    "No existen Transacciones"
+  ],
+  "actions": {
+    "ok": ["OK", "Aceptar", "Sí", "Si"],
+    "cancel": ["Cancelar", "No"],
+    "yes": ["Sí", "Si", "Yes"],
+    "no": ["No"]
+  }
+}

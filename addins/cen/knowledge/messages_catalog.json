@@ -1,0 +1,488 @@
+{
+  "version": 1,
+  "unique_count": 6393,
+  "top_messages": [
+    {
+      "text": "Formato de Fecha Invlido, se debe usar ",
+      "count": 125
+    },
+    {
+      "text": "El dgito verificador de la cuenta corriente est incorrecto",
+      "count": 111
+    },
+    {
+      "text": "El nmero de Cuenta Corriente es mandatorio",
+      "count": 54
+    },
+    {
+      "text": "Error en la Generacin del TXT",
+      "count": 53
+    },
+    {
+      "text": "Archivo generado",
+      "count": 53
+    },
+    {
+      "text": "La Fecha Ingresada no es correcta",
+      "count": 53
+    },
+    {
+      "text": "Informe al rea de Desarrollo. Error en la Impresin: ",
+      "count": 47
+    },
+    {
+      "text": "El dgito verificador de la caja de ahorros est incorrecto",
+      "count": 46
+    },
+    {
+      "text": "Esta seguro de imprimir la pantalla?",
+      "count": 33
+    },
+    {
+      "text": "El Cdigo del Producto es Mandatorio",
+      "count": 30
+    },
+    {
+      "text": "Lmite de Consulta excedido ",
+      "count": 29
+    },
+    {
+      "text": "Fall la Bsqueda",
+      "count": 28
+    },
+    {
+      "text": "Desea eliminar este registro?",
+      "count": 27
+    },
+    {
+      "text": "El cdigo de la filial es mandatorio",
+      "count": 27
+    },
+    {
+      "text": "No existen datos",
+      "count": 26
+    },
+    {
+      "text": "El Cdigo del Producto es mandatorio",
+      "count": 25
+    },
+    {
+      "text": "Desea enviar el listado a la impresora?",
+      "count": 23
+    },
+    {
+      "text": "Impresin Terminada",
+      "count": 23
+    },
+    {
+      "text": "NO SE ENCUENTRA EL DATO SELECCIONADO",
+      "count": 23
+    },
+    {
+      "text": "Hubo problemas al imprimir.",
+      "count": 22
+    },
+    {
+      "text": "El Campo Descripcin es Mandatorio",
+      "count": 22
+    },
+    {
+      "text": "Formato de Fecha Invlido o Fecha Ingresada Invlida",
+      "count": 20
+    },
+    {
+      "text": "Es Necesario el Nmero del Depsito",
+      "count": 19
+    },
+    {
+      "text": "Error en la impresin",
+      "count": 18
+    },
+    {
+      "text": "Impresin Cancelada",
+      "count": 18
+    },
+    {
+      "text": "El cdigo de la oficina es mandatorio",
+      "count": 18
+    },
+    {
+      "text": "No existe Descripcin del Cliente",
+      "count": 18
+    },
+    {
+      "text": "CUENTA EMPLEADO, CONSULTA NO AUTORIZADA",
+      "count": 18
+    },
+    {
+      "text": "El cdigo de la caja de ahorros es mandatorio",
+      "count": 18
+    },
+    {
+      "text": "Operacin exitosa",
+      "count": 17
+    },
+    {
+      "text": "Fecha desde mayor a fecha hasta",
+      "count": 17
+    },
+    {
+      "text": "El cdigo de la Oficina es mandatorio",
+      "count": 17
+    },
+    {
+      "text": "El Campo Estado es Mandatorio",
+      "count": 16
+    },
+    {
+      "text": "El Cdigo de la Filial es obligatorio",
+      "count": 16
+    },
+    {
+      "text": "El cdigo de la Filial es mandatorio",
+      "count": 16
+    },
+    {
+      "text": "El Cdigo del Subproducto es mandatorio",
+      "count": 15
+    },
+    {
+      "text": "El Subproducto es mandatorio",
+      "count": 15
+    },
+    {
+      "text": "El Cdigo de la Oficina es obligatorio",
+      "count": 15
+    },
+    {
+      "text": "Fecha mayor a la fecha proceso",
+      "count": 15
+    },
+    {
+      "text": "Se ha omitido el nmero de cuenta",
+      "count": 13
+    },
+    {
+      "text": "La Fecha ingresada es Feriado ",
+      "count": 13
+    },
+    {
+      "text": "Fecha incorrecta",
+      "count": 12
+    },
+    {
+      "text": "No existen datos. ",
+      "count": 12
+    },
+    {
+      "text": "El Cdigo del Nodo es obligatorio",
+      "count": 12
+    },
+    {
+      "text": "Registro/s Autorizado/s con xito",
+      "count": 11
+    },
+    {
+      "text": "Mximo valor permitido = 255",
+      "count": 11
+    },
+    {
+      "text": "Formato de Fecha Invlido",
+      "count": 11
+    },
+    {
+      "text": "Desea insertar el registro?",
+      "count": 10
+    },
+    {
+      "text": "Seleccione un registro ",
+      "count": 10
+    },
+    {
+      "text": "Mximo valor permitido para Producto es 255",
+      "count": 10
+    },
+    {
+      "text": "Cliente no tiene Documento Tributario",
+      "count": 10
+    },
+    {
+      "text": "No se pudo transmitir",
+      "count": 10
+    },
+    {
+      "text": "El centro de canje es mandatorio",
+      "count": 10
+    },
+    {
+      "text": "Actualizacin exitosa .....",
+      "count": 10
+    },
+    {
+      "text": "Error en la Actualizacin .....",
+      "count": 10
+    },
+    {
+      "text": "Impresion cancelada",
+      "count": 9
+    },
+    {
+      "text": "EL ESTADO PUEDE SER: VIGENTE (V) O CANCELADO (C).",
+      "count": 9
+    },
+    {
+      "text": "El registro no ha sido eliminado",
+      "count": 9
+    },
+    {
+      "text": "Debe seleccionar un registro ",
+      "count": 9
+    },
+    {
+      "text": "El Tipo de Operacin es mandatorio",
+      "count": 9
+    },
+    {
+      "text": "Tipo de Dato invlido",
+      "count": 9
+    },
+    {
+      "text": "La fecha de inicio es mandatorio",
+      "count": 9
+    },
+    {
+      "text": "La fecha de fin es mandatorio",
+      "count": 9
+    },
+    {
+      "text": "Desea eliminar el registro?",
+      "count": 9
+    },
+    {
+      "text": "El Producto es mandatorio",
+      "count": 9
+    },
+    {
+      "text": "Nmero de Sucursal fuera de Rango",
+      "count": 9
+    },
+    {
+      "text": "El Valor del Cheque es un campo mandatorio",
+      "count": 9
+    },
+    {
+      "text": "Eliminacin exitosa .....",
+      "count": 9
+    },
+    {
+      "text": "Error en la eliminacin .....",
+      "count": 9
+    },
+    {
+      "text": "Mximo valor permitido = 32767",
+      "count": 8
+    },
+    {
+      "text": "Desea realizar la actualizacin del registro?",
+      "count": 8
+    },
+    {
+      "text": "Error en la Impresin.",
+      "count": 8
+    },
+    {
+      "text": "El Valor de la Transferencia es mandatorio",
+      "count": 8
+    },
+    {
+      "text": "Debe ingresar la Marca",
+      "count": 8
+    },
+    {
+      "text": "Valor Fuera del Rango Permitido",
+      "count": 8
+    },
+    {
+      "text": "El Campo Tipo es Mandatorio",
+      "count": 8
+    },
+    {
+      "text": "El Estado es mandatorio",
+      "count": 8
+    },
+    {
+      "text": "No existen datos para Imprimir",
+      "count": 8
+    },
+    {
+      "text": "Seleccione registro ",
+      "count": 8
+    },
+    {
+      "text": "Fecha debe ser menor a 07/06/2079, reintente",
+      "count": 8
+    }
+  ],
+  "by_category": {
+    "other": [
+      "Formato de Fecha Invlido, se debe usar ",
+      "La Fecha Ingresada no es correcta",
+      "Lmite de Consulta excedido ",
+      "Fall la Bsqueda",
+      "Impresin Terminada",
+      "NO SE ENCUENTRA EL DATO SELECCIONADO",
+      "Hubo problemas al imprimir.",
+      "Formato de Fecha Invlido o Fecha Ingresada Invlida",
+      "Es Necesario el Nmero del Depsito",
+      "Impresin Cancelada",
+      "No existe Descripcin del Cliente",
+      "Fecha desde mayor a fecha hasta",
+      "Fecha mayor a la fecha proceso",
+      "Se ha omitido el nmero de cuenta",
+      "La Fecha ingresada es Feriado ",
+      "Fecha incorrecta",
+      "Registro/s Autorizado/s con xito",
+      "Mximo valor permitido = 255",
+      "Formato de Fecha Invlido",
+      "Seleccione un registro ",
+      "Mximo valor permitido para Producto es 255",
+      "Cliente no tiene Documento Tributario",
+      "No se pudo transmitir",
+      "Impresion cancelada",
+      "EL ESTADO PUEDE SER: VIGENTE (V) O CANCELADO (C).",
+      "El registro no ha sido eliminado",
+      "Debe seleccionar un registro ",
+      "Tipo de Dato invlido",
+      "Mximo valor permitido = 32767",
+      "Debe ingresar la Marca",
+      "Valor Fuera del Rango Permitido",
+      "Seleccione registro ",
+      "Fecha debe ser menor a 07/06/2079, reintente",
+      "Ingrese el papel para imprimir los datos de los cheques",
+      "ACUERDO ",
+      "El valor ingresado no es correcto, reingrese.",
+      "Producto no existe",
+      "Registro eliminado con xito",
+      "La Moneda es mandatoria",
+      "Debe ingresar la Marca para Buscar"
+    ],
+    "validation": [
+      "El dgito verificador de la cuenta corriente est incorrecto",
+      "El nmero de Cuenta Corriente es mandatorio",
+      "Error en la Generacin del TXT",
+      "Informe al rea de Desarrollo. Error en la Impresin: ",
+      "El dgito verificador de la caja de ahorros est incorrecto",
+      "El Cdigo del Producto es Mandatorio",
+      "El cdigo de la filial es mandatorio",
+      "El Cdigo del Producto es mandatorio",
+      "El Campo Descripcin es Mandatorio",
+      "Error en la impresin",
+      "El cdigo de la oficina es mandatorio",
+      "El cdigo de la caja de ahorros es mandatorio",
+      "El cdigo de la Oficina es mandatorio",
+      "El Campo Estado es Mandatorio",
+      "El Cdigo de la Filial es obligatorio",
+      "El cdigo de la Filial es mandatorio",
+      "El Cdigo del Subproducto es mandatorio",
+      "El Subproducto es mandatorio",
+      "El Cdigo de la Oficina es obligatorio",
+      "El Cdigo del Nodo es obligatorio",
+      "El centro de canje es mandatorio",
+      "Error en la Actualizacin .....",
+      "El Tipo de Operacin es mandatorio",
+      "La fecha de inicio es mandatorio",
+      "La fecha de fin es mandatorio",
+      "El Producto es mandatorio",
+      "Nmero de Sucursal fuera de Rango",
+      "El Valor del Cheque es un campo mandatorio",
+      "Error en la eliminacin .....",
+      "Error en la Impresin.",
+      "El Valor de la Transferencia es mandatorio",
+      "El Campo Tipo es Mandatorio",
+      "El Estado es mandatorio",
+      "El cdigo del rol del cliente es mandatorio",
+      "El tipo de cliente es mandatorio",
+      "El nombre del cliente es mandatorio",
+      "El cdigo del cliente es mandatorio",
+      "La direccin del resumen de cuenta es mandatorio",
+      "El tipo de Envio es Mandatorio",
+      "El cdigo del ciclo de la cuenta es mandatorio"
+    ],
+    "success": [
+      "Archivo generado",
+      "Operacin exitosa",
+      "Actualizacin exitosa .....",
+      "Eliminacin exitosa .....",
+      "La Transaccin fue dada de Alta Exitosamente",
+      "El Registro fue Modificado Exitosamente",
+      "Anulacin exitosa",
+      "El registro se modifico correctamente"
+    ],
+    "confirm": [
+      "Esta seguro de imprimir la pantalla?",
+      "Desea eliminar este registro?",
+      "Desea enviar el listado a la impresora?",
+      "Desea insertar el registro?",
+      "Desea eliminar el registro?",
+      "Desea realizar la actualizacin del registro?",
+      "ESTA SEGURO QUE DESEA CANCELAR EL REGISTRO NRO: ",
+      "Est seguro que desea salir de la forma ?",
+      "F.Alta <> F.Hoy, no se puede eliminar",
+      "Debe seleccionar sexo del cliente para poder continuar",
+      "El Nro ID Tributaria debe tener 11 caracteres. Verificar datos para continuar",
+      "Est seguro de imprimir la pantalla?",
+      "ESTA SEGURO QUE DESEA APROBAR LA SOLICITUD? ",
+      "ESTA SEGURO QUE DESEA RECHAZAR LA SOLICITUD?",
+      "No hay registros para eliminar",
+      "Est seguro que desea Limpiar la Forma ?",
+      "Est seguro que desea salir de la Forma ?",
+      "Desea eliminar los siguientes elementos: ",
+      "Esta seguro de eliminar el lmite de la lnea No. ",
+      "Slo se puede eliminar un Lmite Cancelado",
+      "Desea eliminar el Medio?",
+      "No se puede eliminar el titular de la caja de ahorros",
+      "Desea protestar el CHEQUE: ",
+      "Est seguro de Aprobar la Solicitud ",
+      "Est seguro de Rechazar la Solicitud ",
+      "Est seguro que desea eliminar: ",
+      "Est seguro que desea ingresar para eliminacin: ",
+      "Desea eliminar la Ayuda?",
+      "DESEA DETENER LA EJECUCIÓN DE LA CONSULTA ?"
+    ],
+    "empty": [
+      "No existen datos",
+      "No existen datos. ",
+      "No existen datos para Imprimir",
+      "No hay datos para imprimir",
+      "No Existen Cheques Para Esta Busqueda",
+      "No existen chequeras a entregar",
+      "No existen datos para imprimir",
+      "No Existen Registros Para Esta Bsqueda",
+      "No Existen Registros para Escoger",
+      "No existen Datos para imprimir",
+      "NO EXISTEN CLIENTES VINCULADOS",
+      "No existen registros para esta bsqueda",
+      "No hay registros para Actualizar",
+      "Debera primero hacer la bsqueda de datos ya que no existen datos para imprimir",
+      "No existen Datos para generar el TXT",
+      "No hay datos a la Fecha desde ingresada. La Fecha inicial encontrada es mayor a la Fecha Hasta",
+      "No Existen Movimientos para el Rango de Fechas Solicitado, del: ",
+      "NO HAY REGISTROS SELECCIONADOS PARA ",
+      "No hay datos para generar un archivo.",
+      "No hay datos para imprimir el reporte ",
+      "No Existen Datos Para Graficar",
+      "No existen Acuerdos para mostrar Garantias Asociadas",
+      "No existen propietarios de la cuenta",
+      "No existen cuentas",
+      "No existen cheques a procesar",
+      "No existen datos ha ser procesados",
+      "No existen datos ha ser transmitidos",
+      "No existen cheques de cmara a procesar",
+      "No Existen Registros Para La Bsqueda Realizada"
+    ],
+    "security": [
+      "CUENTA EMPLEADO, CONSULTA NO AUTORIZADA",
+      "CUENTA EMPLEADO - CONSULTA NO AUTORIZADA"
+    ]
+  }
+}

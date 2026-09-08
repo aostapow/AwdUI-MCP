@@ -3,8 +3,8 @@
 Referencia canónica para agentes de IA. Describe **cada tool** del servidor `awdui`, cuándo usarla y cómo.
 
 - **Estrategia general:** [AGENT_GUIDE.md](AGENT_GUIDE.md)
-- **Patrones por tipo de control:** [.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md](../.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md)
-- **Última revisión:** 2026-09-06 (111 tools + índice por módulo)
+- **Patrones por tipo de control:** [.cursor/skills/awdui-mcp-automejora/references/patterns/control-catalog.md](../.cursor/skills/awdui-mcp-automejora/references/patterns/control-catalog.md)
+- **Addins:** [ADDIN_CEN_TOOLS.md](ADDIN_CEN_TOOLS.md) — tools `cen_*` (COBIS CEN, v0.6.0, 48 tools, 6393 messages)
 - **Mantener actualizado:** ver [.cursor/rules/awdui-tools-catalog.mdc](../.cursor/rules/awdui-tools-catalog.mdc)
 
 ---
@@ -24,7 +24,7 @@ Referencia canónica para agentes de IA. Describe **cada tool** del servidor `aw
 | **Input coordenadas** | `click`, `type_text`, `send_keys`, `press_key`, `press_key_combo`, `scroll`, `drag`, `hover`, `get_mouse_position` |
 | **OCR / visual** | `find_text`, `click_text`, `smart_find`, `detect_visual_regions`, `find_by_template_tool` |
 | **Screenshots** | `screenshot`, `take_screenshot_optimized`, `annotate_screenshot`, `compare_screenshot_files`, `wait_for_change`, `get_screen_size`, `screenshot_baseline`, `screenshot_diff` |
-| **Repositorio QTP** | `repo_find`, `repo_list`, `repo_hints`, `repo_action`, `repo_capture` |
+| **Repositorio QTP** | `repo_find`, `repo_list`, `repo_hints`, `repo_hints_set`, `repo_action`, `repo_capture` |
 | **Descubrimiento** | `observe_ui_tool`, `plan_probes_tool`, `apply_probe_tool`, `discover_target_tool`, `spy_walk_visible_tool`, `build_detection_context` |
 | **Batch / utilidades** | `batch_actions`, `clipboard`, `manage_screenshots`, `highlight_element`, `clear_highlight` |
 | **Watcher** | `start_watcher`, `stop_watcher`, `get_notifications` |
@@ -119,6 +119,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 | `repo_capture` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `repo_find` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `repo_hints` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
+| `repo_hints_set` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `repo_list` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `restore_window` | `windows` | `mcp-servers/awdui-server/tools/windows.py` |
 | `right_click_element` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
@@ -179,9 +180,9 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Fija la ventana objetivo de la sesión (scope UIA/input). `focus_policy` controla si se roba el foco del escritorio.
 **Cuándo usarla:** Al iniciar automatización de una app (`set_target_window("AST")`).
-**Parámetros clave:** `title` / `window_title` (parcial). Cadena vacía = limpiar target. `focus_policy`: **minimal** (default) | always | never — minimal observa/actúa por UIA sin foreground; solo enfoca para pointer/teclado si el target no está ya al frente.
-**Evitar:** Dejar el target activo al terminar — `set_target_window("")` devuelve foco al terminal.
-**Ejemplo:** `set_target_window("Calculadora", focus_policy="minimal")`
+**Parámetros clave:** `title` / `window_title` (parcial). Cadena vacía = limpiar target. `window_handle` — fijar HWND concreto (multi-instancia Win32). `disambiguate`: **error** (default) | foreground | last_set — si ≥2 ventanas del mismo proceso matchean. `focus_policy`: **minimal** (default) | always | never — minimal observa/actúa por UIA sin foreground; solo enfoca para pointer/teclado si el target no está ya al frente.
+**Evitar:** Dejar el target activo al terminar — `set_target_window("")` devuelve foco al terminal. Títulos dirty Win32 (`*doc.txt: Bloc de notas`) matchean sin el asterisco; multi-instancia requiere `window_handle` o título exacto distinto.
+**Ejemplo:** `set_target_window("Calculadora", focus_policy="minimal")` · multi-instancia: `set_target_window(window_handle=12345678)`
 **Relacionadas:** `get_target_window`, `focus_window`, `check_session_status`
 **Scope:** Con target activo, bloquea clics y acciones UIA fuera del proceso de la app objetivo.
 
@@ -330,7 +331,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Evitar:** Saltar a OCR/coords sin probar `automation_id` — la respuesta incluye `find_ms`/`total_ms` para diagnosticar lentitud.
 **Ejemplo:** `find_element(automation_id="btnGuardar", window_title="AST")`
 **Relacionadas:** `list_elements`, `discover_control_interaction`, `spy_inspect`
-**Timing:** respuesta incluye `find_ms` / `total_ms` (ej. `find 120ms`).
+**Timing:** respuesta incluye `find_ms` / `total_ms` (ej. `find 120ms`). UIA: `child_window` directo antes de walk; profundidades progresivas 6→24 (sin depth-100).
 
 ### `find_all_elements`
 
@@ -373,13 +374,13 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Lista elementos accesibles en una ventana con filtro opcional por `role`.
 **Cuándo usarla:** Mapear pantalla; filtrar con `role="ComboBox"` antes de OCR.
-**Parámetros clave:** `max_depth` (default **0** = auto/framework), `role`, `tree_mode`, `include_offscreen`, `adaptive_cluster` (default `true` — recorta outliers fuera del cluster dominante de controles), `window_title`/`title`, `window_handle`.
+**Parámetros clave:** `max_depth` (default **0** = auto/framework), `role`, `tree_mode`, `include_offscreen`, `adaptive_cluster` (default `true` — recorta outliers fuera del cluster dominante de controles), `view_scope` (default `false` — si `true`, walk solo del Pane/Document más ancho; Electron/vistas seccionadas; **ignorado** con `role=TreeItem|ListItem|TabItem` porque el listado vive en nav/list, no en el content pane), `window_title`/`title`, `window_handle`.
 **Inteligencia espacial:** tras listar, infiere la banda donde se concentran los controles (`content_region` en header) y elimina nodos fuera de ese rango (sin reglas por app).
-**Profundidad auto (max_depth=0):** uwp/winui 32 · wpf 24 · winforms 16 · qt 20 · electron/chromium 28 · java_swing 24 · win32 12 · unknown 20.
-**Evitar:** ventanas enormes sin `role` si hay timeout — bajar con `max_depth=8`.
+**Profundidad auto (max_depth=0):** uwp/winui 32 · wpf 24 · winforms 16 · qt 20 · electron/chromium 28 · java_swing 24 · win32 12 · unknown 20. Con `role=MenuItem`/`Menu`: cap **≤6** (fast path MenuBar/popup, sin walk depth-100).
+**Evitar:** ventanas enormes sin `role` si hay timeout — bajar con `max_depth=8`. Menús Win32: preferir `role="MenuItem"` + `max_depth=4` (auto cap 6).
 **Default:** header `depth=auto/uwp→32` (ejemplo).
 **Exploración acotada:** `list_elements(max_depth=8)` · **árbol completo:** `max_depth=-1`.
-**Ejemplo:** `list_elements(window_title="Calculadora", role="Button", max_depth=4)`
+**Ejemplo:** `list_elements(window_title="Teams", role="Button", max_depth=6, view_scope=true)`
 **Relacionadas:** `find_element`, `get_snapshot`, `spy_tree`, `ascii_ui_view`
 **Notas:** dedupe por `automation_id` en overlays UWP; filtra nodos fuera de la ventana objetivo (PID + client rect). Header puede reportar `out-of-scope removed` (scope genérico, no por producto).
 
@@ -683,9 +684,9 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Rellena varios campos en una llamada (`fields_json` array u objeto `{id: value}`).
 **Cuándo usarla:** Formularios WinForms largos (Time Report, AST) — más rápido que N `set_element_value`.
-**Parámetros clave:** `fields_json` / `fields` (req), `window_title`/`title`, `window_handle` (modal hijo).
+**Parámetros clave:** `fields_json` / `fields` (req), `window_title`/`title`, `window_handle` (modal hijo), `scope_mode` (`auto`|`target`|`foreground`; default `auto` acota a modal `#32770` foreground mismo PID).
 **Evitar:** Combos dropdown — usar `select_control_item`; `fill_form` no verifica read-back en combos.
-**Ejemplo:** `fill_form(fields_json='[{"automation_id":"txtHoras","value":"8"}]', window_title="AST")`
+**Ejemplo:** `fill_form(fields_json='[{"automation_id":"1001","value":"file.txt"}]', window_title="Bloc de notas", scope_mode="auto")`
 **Relacionadas:** `get_all_values`, `set_element_value`, `select_control_item`
 
 ### `get_all_values`
@@ -694,9 +695,9 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Lee todos los campos editables visibles (Edit, ComboBox, CheckBox…) como JSON.
 **Cuándo usarla:** Verify de formulario completo sin N lecturas puntuales.
-**Parámetros clave:** `window_title`/`title`, `window_handle`, `max_depth` (12).
-**Evitar:** Asumir que incluye celdas de grilla — solo campos de formulario editables.
-**Ejemplo:** `get_all_values(window_title="AST")`
+**Parámetros clave:** `window_title`/`title`, `window_handle`, `max_depth` (12), `scope_mode` (`auto`|`target`|`foreground`; default `auto` usa modal `#32770` foreground del mismo PID si está abierto).
+**Evitar:** Asumir que incluye celdas de grilla — solo campos de formulario editables; con modal abierto preferir `scope_mode=auto` o `window_title="Imprimir"`.
+**Ejemplo:** `get_all_values(window_title="Bloc de notas", scope_mode="auto")` → JSON incluye `"scope":"foreground_modal"` si hay diálogo.
 **Relacionadas:** `fill_form`, `read_element`, `wait_for_condition`
 
 ### `set_element_value`
@@ -782,11 +783,11 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Busca y activa el control (Invoke → SelectionItem → Toggle → click UIA → coords según config).
 **Cuándo usarla:** Cuando `invoke_element` no alcanza o se necesita clic físico en el bbox.
-**Parámetros clave:** `automation_id`, `name`, `role`, `window_title`/`title`, `index`, `window_handle`, `app_id`, `fuzzy_match`, `capture`, `capture_full`, `verify_automation_id`, `verify_name_contains`, `verify_timeout_ms` (5000), `verify_poll_ms` (100).
-**Evitar:** Clic por coords si el control tiene `InvokePattern` — más lento y frágil.
-**Ejemplo:** `click_element(automation_id="num7Button", verify_automation_id="CalculatorResults", verify_name_contains="7")`
+**Parámetros clave:** `automation_id`, `name`, `role`, `window_title`/`title`, `index`, `window_handle`, `app_id`, `fuzzy_match`, `capture`, `capture_full`, `scope_mode` (`auto`|`target`|`foreground`; default `auto` acota a modal `#32770` foreground mismo PID), `verify_automation_id`, `verify_name_contains`, `verify_modal_dismissed` (false), `modal_title`, `verify_timeout_ms` (5000), `verify_poll_ms` (100).
+**Evitar:** Clic por coords si el control tiene `InvokePattern` — más lento y frágil. **Excepción:** `MenuItem` popup Win32 — tras Invoke fail usa `MenuItem_bbox_fallback` automático.
+**Ejemplo:** `click_element(name="Cancelar", scope_mode="auto", verify_modal_dismissed=true)`
 **Relacionadas:** `invoke_element`, `find_element`, `wait_for_condition`
-**Verify:** con `verify_*` hace poll UIA hasta match. **Timing:** `total_ms` con `find_ms` + `act_ms` + `verify_ms`; `>=3000ms` -> SLOW.
+**Verify:** con `verify_*` hace poll UIA hasta match; con `verify_modal_dismissed=true` poll `list_windows` hasta ausencia del modal. **Timing:** `total_ms` con `find_ms` + `act_ms` + `verify_ms`; `>=3000ms` -> SLOW.
 
 ### `invoke_element`
 
@@ -794,11 +795,14 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Qué hace:** Activa controles UIA: `InvokePattern`, `SelectionItemPattern`, `TogglePattern`, `ExpandCollapse.Expand`.
 **Cuándo usarla:** Botones, NavView, flyouts, toggles; verify integrado con `verify_*`.
-**Parámetros clave:** `automation_id`, `name`, `window_title`/`title`, `verify_automation_id`, `verify_name_contains`, `verify_timeout_ms`, `verify_poll_ms`.
+**Parámetros clave:** `automation_id`, `name`, `window_title`/`title`, `window_handle`, `scope_mode` (`auto`|`target`|`foreground`; default `auto` acota a modal `#32770` foreground mismo PID), `verify_automation_id`, `verify_name_contains`, `verify_modal_dismissed` (false), `modal_title`, `verify_timeout_ms`, `verify_poll_ms`.
 **Evitar:** Verify en el botón actuado cuando el display es otro control — pasar `verify_automation_id` explícito.
-**Ejemplo:** `invoke_element(automation_id="equalButton", verify_automation_id="CalculatorResults", verify_name_contains="Se muestra 7")`
+**MenuItem Win32:** si Invoke falla, fallback bbox center (`method=MenuItem_bbox_fallback`).
+**Ejemplo:** `invoke_element(name="Cancelar", scope_mode="auto", verify_modal_dismissed=true)`
 **Relacionadas:** `click_element`, `expand_element`, `wait_for_condition`
 **Verify display:** si el botón actuado no es el display, pasar `verify_automation_id` explícito o `agent_hints` en repo.
+**SelectionItem verify (NavView / chat list):** poll `Header.changed`, `SelectionItem.is_selected`, `WindowTitle.contact` / `WindowTitle.stable` (TreeItem chat — poll título HWND sin UIA), o `ChatContext.compose_ready`. También corre tras `InvokePattern` en `TreeItem`/`ListItem` sin `verify_*` explícito.
+**Timing:** `total_ms` en respuesta = suma `find_ms`+`act_ms`+`verify_ms` (`operational_ms`); no incluye spy preflight. Electron/Teams: omitido `spy_verify_live` stale probe (UIA-first).
 
 ### `expand_element`
 
@@ -810,7 +814,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Evitar:** `fallback_click` en ítems de lista/combo — solo headers tipo `SettingsExpander`.
 **Ejemplo:** `expand_element(automation_id="AppThemeExpander", window_title="Calculadora", fallback_click=true)`
 **Relacionadas:** `list_control_items`, `select_control_item`, `invoke_element`
-**Settings:** `fallback_click=true` — fast-path HeaderClick directo (~<1s), salta cadena ExpandCollapse.
+**Settings:** `fallback_click=true` — fast-path HeaderClick directo (~<1s bajo `focus_policy=minimal`), salta cadena ExpandCollapse e interactive-child tree walk. Si radios/hijos ya visibles → `AlreadyExpanded` sin click. Dimensión vía spy en UWP (altura ≥120 = abierto).
 
 ### `list_control_items`
 
@@ -898,8 +902,8 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 
 **Módulo:** `ui_automation` (`mcp-servers/awdui-server/tools/ui_automation.py`)
 
-**Qué hace:** Desplaza contenedor con scroll vía `ScrollPattern.Scroll` o `SetScrollPercent`.
-**Cuándo usarla:** Pane/List/Tree/DataGrid con barras de scroll UIA.
+**Qué hace:** Desplaza contenedor con scroll vía `ScrollPattern.Scroll` o `SetScrollPercent`. Si el nodo objetivo no tiene ScrollPattern, sube por ancestros UIA scrollables antes del fallback coords.
+**Cuándo usarla:** Pane/List/Tree/DataGrid con barras de scroll UIA; Electron message panes (`message-pane-layout-a11y`).
 **Parámetros clave:** `automation_id` o `name`+`role`, `index` (-1 = primero), `direction` (up/down/left/right), `amount` (large/small), `repeat`, `clicks`, `horizontal_percent`/`vertical_percent`, `window_title`/`title`, `window_handle`, `app_id`.
 **Evitar:** Confundir con `scroll` (rueda en coords) — esta tool usa pattern UIA.
 **Ejemplo:** `scroll_element(automation_id="HistoryList", direction="down", amount="large", repeat=2)`
@@ -1007,12 +1011,12 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 
 **Módulo:** `input_tools` (`mcp-servers/awdui-server/tools/input_tools.py`)
 
-**Qué hace:** Envía atajos y teclas especiales (`enter`, `ctrl+s`, `alt+down`).
+**Qué hace:** Envía atajos y teclas especiales (`enter`, `ctrl+s`, `alt+down`). Con target Win32 activo, auto-enfoca `Document`/`Edit` vía `ensure_client_focus` antes de enviar teclas.
 **Cuándo usarla:** Navegación por teclado, confirmar diálogos, abrir combos con Alt+Down.
 **Parámetros clave:** `keys` (req) — nombre de tecla o combo unido con `+`.
-**Evitar:** Sustituir `invoke_element` en botones con UIA estable.
-**Ejemplo:** `send_keys(keys="alt+down")`
-**Relacionadas:** `type_text`, `click_element`, `select_control_item`
+**Evitar:** Atajos US genéricos sin consultar skill producto (ej. Ctrl+A en Notepad Win11 ES abre Abrir).
+**Ejemplo:** `send_keys(keys="ctrl+e")` — seleccionar todo Notepad ES
+**Relacionadas:** `type_text`, `click_element`, `get_focused_element`, `set_target_window`
 
 ### `scroll`
 
@@ -1267,18 +1271,29 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 
 **Módulo:** `ui_automation` (`mcp-servers/awdui-server/tools/ui_automation.py`)
 
-**Qué hace:** Devuelve `agent_hints` de un objeto repo o lista hints de toda la app.
-**Cuándo usarla:** Verify post-act con `verify_automation_id` documentado en repo (ej. display Calculadora).
+**Qué hace:** Devuelve `agent_hints` de un objeto repo o lista hints de toda la app. **No es obligatorio** antes de actuar: `find_element`, `repo_find`, `discover_control_interaction` y `repo_action` ya cargan hints automáticamente cuando resuelven el objeto.
+**Cuándo usarla:** Inventario de hints de la app, o lectura explícita sin resolver el control.
 **Parámetros clave:** `repo_path` (vacío = listar todos con hints), `window_title`/`title`.
 **Evitar:** Ignorar hints de verify — evitan verify en control equivocado tras tecla.
 **Ejemplo:** `repo_hints(repo_path="Calculadora/equalButton")`
-**Relacionadas:** `invoke_element`, `discover_control_interaction`, `repo_find`
+**Relacionadas:** `invoke_element`, `discover_control_interaction`, `repo_find`, `repo_hints_set`
+
+### `repo_hints_set`
+
+**Módulo:** `ui_automation` (`mcp-servers/awdui-server/tools/ui_automation.py`)
+
+**Qué hace:** Guarda o actualiza `agent_hints` en un objeto del repositorio (memoria entre corridas). Claves consumidas por el servidor: `verify_automation_id`, `metodo_preferido`/`preferred_tool`, `avoid_invoke`.
+**Cuándo usarla:** Tras fricción estable — el próximo `find_element`/`repo_action`/`discover_control_interaction` aplica la clave sin llamada extra.
+**Parámetros clave:** `repo_path` (req), `hints` (req), `append` (default false).
+**Evitar:** Sobrescribir hints largos sin `append=true` si solo agregás una línea nueva.
+**Ejemplo:** `repo_hints_set(repo_path="Calculadora/equalButton", hints="verify_automation_id: CalculatorResults", append=true)`
+**Relacionadas:** `repo_hints`, `repo_capture`, `repo_find`
 
 ### `repo_action`
 
 **Módulo:** `ui_automation` (`mcp-servers/awdui-server/tools/ui_automation.py`)
 
-**Qué hace:** Ejecuta métodos Swf* (`Click`, `Set`, `Select`, `Expand`, `GetItem`, etc.) sobre objeto repo.
+**Qué hace:** Ejecuta métodos Swf* (`Click`, `Set`, `Select`, `Expand`, `GetItem`, etc.) sobre objeto repo. En `Click`, lee hints: `metodo_preferido: click_element` → coords sin invoke; `invoke_element` → solo invoke.
 **Cuándo usarla:** Flujos con objetos capturados; abstrae patterns por clase Swf.
 **Parámetros clave:** `repo_path` (req), `method` (req), `value`, `property_name`, `window_title`/`title`, `highlight`.
 **Evitar:** Método no permitido para la clase Swf — revisar `allowed_methods` en error.
@@ -1291,7 +1306,7 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 
 **Qué hace:** Captura control al repositorio con clase Swf* y Smart ID (estilo Object Spy).
 **Cuándo usarla:** Fase de mapeo — persistir localizador estable para flujos repetibles.
-**Parámetros clave:** `repo_path` (req), `window_title`/`title`, `x`/`y`, `name`, `automation_id`, `parent`.
+**Parámetros clave:** `repo_path` (req), `window_title`/`title`, `x`/`y`, `name`, `automation_id`, `parent`, `agent_hints` (opcional al capturar).
 **Evitar:** Capturar overlay/transitorio (flyout cerrado) — el repo queda stale.
 **Ejemplo:** `repo_capture(repo_path="Calculadora/sinButton", automation_id="sinButton", window_title="Calculadora")`
 **Relacionadas:** `repo_find`, `spy_inspect`, `highlight_element`
@@ -1546,7 +1561,9 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 | 2026-09-05 | `wait_for_element`, `wait_for_condition`, `wait_for_input_idle` — espera semántica UIA (preferir sobre `wait_for_change`). |
 | 2026-09-05 | `list_control_items` + `select_control_item` (combo/list/grid scoped; Win32 fallback; verify read-back). |
 | 2026-09-05 | Nueva `discover_control_interaction` (role/patterns → tools genéricas); verify post-act usa `agent_hints` del repo en lugar de reglas por app. |
+| 2026-09-07 | `focus_policy=minimal`: `ensure_focus_for_input` omite `ensure_client_focus` por defecto (~19s UWP); `expand_element` AppThemeExpander ChevronClick <3s. |
+| 2026-09-07 | `expand_element` `fallback_click=true`: skip interactive-child tree walk; `AlreadyExpanded` si radios visibles; SettingsExpander ~<1s. |
 | 2026-09-05 | `expand_element`: fast-path con `fallback_click=true` (spy_inspect + HeaderClick, sin cadena ExpandCollapse). |
 | 2026-09-05 | Nueva tool `expand_element` (ExpandCollapse); `invoke_element` incluye Expand en cadena. |
 | 2026-09-05 | Sync índice con **59** tools reales; removidas entradas no implementadas; `invoke_element` SelectionItem/Toggle + `elapsed_ms`; gap ExpandCollapse documentado. |
-| 2026-07-07 | `click_element` usa bbox de `highlight_element`; scope enforcement en `set_target_window`. |
+| 2026-09-06 | Addin **cen** v0.6.0: analyze_form, toolbar intent, messages catalog (6393), popups, wait RPC, moneda UC — [ADDIN_CEN_TOOLS.md](ADDIN_CEN_TOOLS.md). |

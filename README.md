@@ -122,7 +122,7 @@ Full reference: [docs/MCP_TOOLS_REFERENCE.md](docs/MCP_TOOLS_REFERENCE.md) (per-
 | Text visible but no accessibility node | `find_text` / `click_text` |
 | Browser **page** content (not chrome) | Tab, clipboard, `find_text` — not `find_element` |
 
-Exploration workflow (generic): [.cursor/skills/awdui-flow-exploration/SKILL.md](.cursor/skills/awdui-flow-exploration/SKILL.md)
+Exploration workflow: [.cursor/skills/awdui-mcp-automejora/references/metodologia-ui.md](.cursor/skills/awdui-mcp-automejora/references/metodologia-ui.md)
 
 Product-specific skills (object maps, flows): e.g. [.cursor/skills/ast-activities-manager/SKILL.md](.cursor/skills/ast-activities-manager/SKILL.md)
 

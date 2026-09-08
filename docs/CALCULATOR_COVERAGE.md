@@ -1,33 +1,9 @@
-# Calculator — cobertura agentica (sin scripts)
+# Cobertura lab — histórico
 
-> **Fuente de verdad:** `.cursor/skills/calculator-mcp-harness/SKILL.md`  
-> **Estado:** `.cursor/mcp-improvement-cycle/state.json` (`calculator_matrix`, `calculator_evidence`)
+> **Deprecado como doc de producto.** La skill no está ligada a Calculadora ni a ninguna app fija.
 
-## Objetivo
+- Protocolo genérico: [evaluacion-lab.md](../.cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md) — solo nombre de app; autodetect en `runs/.../discovered.yaml`
+- Ejemplo histórico UWP: [lab-apps/examples/calculator/manifest.yaml](../lab-apps/examples/calculator/manifest.yaml) (no obligatorio)
+- Estado histórico: `state.json` → `calculator_matrix`, `calculator_evidence`
 
-Cubrir **toda** la Calculadora UWP con el **agente** y tools MCP — no con scripts Python.
-
-## Evaluación
-
-| Permitido | Prohibido como prueba de la app |
-|-----------|----------------------------------|
-| Tools MCP paso a paso | `explore_calculator_modes.py` |
-| `screenshot` en hitos | `run_calculator_coverage.py` |
-| `calculator_evidence` en state.json | pytest integration como gate de cierre |
-| pytest **unitario** del servidor MCP | Scripts batch con `pyautogui` |
-
-## Mapa UIA (referencia)
-
-### NavView (`TogglePaneButton`)
-
-`Standard`, `Scientific`, `Graphing`, `Programmer`, `Date`, `Currency`, `Volume`, `Length`, `SettingsItem`
-
-### Chrome
-
-`HistoryButton`, `MemoryButton`, `MemPlus`, `MemRecall`, `ClearMemoryButton`, `Header`, `CalculatorResults`
-
-## Matriz y evidencia
-
-El agente mantiene progreso en `state.json` — no en JSON generado por scripts.
-
-Ver skill para criterios de `calculator_perfect` y protocolo OBS→ACT→VERIFY.
+Para nuevas corridas: indicar nombre de app; evidencia en `runs/{run_id}/`.

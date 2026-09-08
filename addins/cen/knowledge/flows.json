@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "flows": {
+    "consulta_estandar": {
+      "description": "Filter → Buscar → Siguiente → read grid → Salir",
+      "toolbar_captions": ["Buscar", "Siguiente", "Limpiar", "Salir"],
+      "sequence": [
+        "cen_set_field / fill filter txt* or msk*",
+        "cen_click_toolbar caption=Buscar",
+        "cen_read_grid name=grd*",
+        "optional: cen_click_toolbar caption=Siguiente if enabled",
+        "cen_click_toolbar caption=Salir"
+      ]
+    },
+    "mantenimiento_tadmin": {
+      "description": "Crear/Borrar maintenance with grid checkbox select",
+      "toolbar_captions": ["Crear", "Limpiar", "Salir", "Borrar", "Siguiente", "Buscar"],
+      "sequence": [
+        "fill txtCampo filters",
+        "cen_click_toolbar caption=Buscar",
+        "cen_select_grid_row or double-click row",
+        "cen_click_toolbar caption=Crear or Borrar",
+        "cen_handle_dialog if confirm"
+      ]
+    },
+    "f5_catalog_lookup": {
+      "description": "F5 on txt* → grid_valores modal → select row",
+      "sequence": [
+        "click_element field",
+        "cen_trigger_f5 automation_id=txt*",
+        "cen_detect_lookup_modal",
+        "cen_search_lookup if wildcard needed",
+        "cen_read_grid name=gr_SQL",
+        "cen_select_lookup_row or bb_escoger",
+        "cen_read_field lbl* to verify description"
+      ]
+    },
+    "cuenta_operacion": {
+      "description": "Account mask validate → Buscar → Escoger → Transmitir",
+      "toolbar_captions": ["Transmitir", "Limpiar", "Salir", "Buscar", "Escoger", "Cancelar"],
+      "sequence": [
+        "cen_set_field mskCuenta",
+        "wait Leave validation (buttons enable)",
+        "cen_click_toolbar caption=Buscar",
+        "cen_select_grid_row",
+        "cen_click_toolbar caption=Escoger",
+        "cen_click_toolbar caption=Transmitir"
+      ]
+    },
+    "seguridad_permisos": {
+      "description": "ADM TriStateTreeView assign transaction permissions",
+      "toolbar_captions": ["Transmitir", "Limpiar", "Salir"],
+      "sequence": [
+        "cen_match_form_profile",
+        "cen_tristate_list_nodes name=TVTransaccion",
+        "cen_tristate_toggle text_contains=<permission>",
+        "cen_click_toolbar caption=Transmitir",
+        "cen_handle_dialog if confirm"
+      ]
+    },
+    "mantenimiento_picvisto": {
+      "description": "FTRAN024 select rows via picVisto column double-click",
+      "sequence": [
+        "cen_set_field txtCampo filters",
+        "cen_click_toolbar caption=Buscar",
+        "cen_read_grid name=grdResultados",
+        "cen_toggle_row_visto row=N visto_column=1",
+        "cen_click_toolbar caption=Crear or Borrar"
+      ]
+    },
+    "spread_export": {
+      "description": "COBISSpread context menu export/sort via FGrdOpciones",
+      "sequence": [
+        "cen_open_grid_context name=grd*",
+        "cen_grid_context_action action=Exportar",
+        "cen_handle_dialog if path prompt"
+      ]
+    }
+  }
+}

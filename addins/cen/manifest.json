@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "cen",
+  "name": "COBIS CEN Frontend",
+  "version": "0.3.0",
+  "description": "Automation support for COBIS CEN WinForms (COBISGrid, COBISSpread, F5 lookup)",
+  "entry_module": "cen_addin:CenAddin",
+  "enabled_by_default": false,
+  "match": {
+    "process_names": ["COBISExplorer.exe"],
+    "window_title_patterns": ["COBIS", "CEN"]
+  },
+  "tools": {
+    "namespace": "cen_"
+  },
+  "skills": [
+    "skills/SKILL.md"
+  ]
+}

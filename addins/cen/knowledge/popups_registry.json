@@ -1,0 +1,3848 @@
+{
+  "version": 1,
+  "unique_popups": 276,
+  "top_popups": [
+    {
+      "class": "grid_valoresClass",
+      "count": 452
+    },
+    {
+      "class": "FCatalogoClass",
+      "count": 168
+    },
+    {
+      "class": "FRegistrosClass",
+      "count": 150
+    },
+    {
+      "class": "FBuscarClienteClass",
+      "count": 130
+    },
+    {
+      "class": "FMuestraClass",
+      "count": 67
+    },
+    {
+      "class": "Grid_valoresClass",
+      "count": 47
+    },
+    {
+      "class": "FBuscarDepositoClass",
+      "count": 33
+    },
+    {
+      "class": "FbuscarconvenioClass",
+      "count": 32
+    },
+    {
+      "class": "FGFuncionariosClass",
+      "count": 17
+    },
+    {
+      "class": "FImagenesClass",
+      "count": 17
+    },
+    {
+      "class": "FAyudaTipoGarClass",
+      "count": 17
+    },
+    {
+      "class": "FConsClieClass",
+      "count": 17
+    },
+    {
+      "class": "grid_valoresFClass",
+      "count": 16
+    },
+    {
+      "class": "FAutorizacionClass",
+      "count": 14
+    },
+    {
+      "class": "FHelpOficialClass",
+      "count": 13
+    },
+    {
+      "class": "FbusquedClass",
+      "count": 12
+    },
+    {
+      "class": "FGenFirmasClass",
+      "count": 11
+    },
+    {
+      "class": "FTran2807Class",
+      "count": 9
+    },
+    {
+      "class": "FBuscarClientePasivasClass",
+      "count": 9
+    },
+    {
+      "class": "FBusquedaAbonadoClass",
+      "count": 7
+    },
+    {
+      "class": "FBusGarantiasClass",
+      "count": 7
+    },
+    {
+      "class": "FmercadoClass",
+      "count": 6
+    },
+    {
+      "class": "FDetalleOperacionMepClass",
+      "count": 6
+    },
+    {
+      "class": "FControlAccionesClass",
+      "count": 6
+    },
+    {
+      "class": "FDetalleOperacionClass",
+      "count": 6
+    },
+    {
+      "class": "FPreimpresoClass",
+      "count": 5
+    },
+    {
+      "class": "FImprimirCompClass",
+      "count": 5
+    },
+    {
+      "class": "FBusCarpetaClass",
+      "count": 5
+    },
+    {
+      "class": "FImpresionNewClass",
+      "count": 5
+    },
+    {
+      "class": "FREGISTRClass",
+      "count": 5
+    },
+    {
+      "class": "FBusOpeClass",
+      "count": 4
+    },
+    {
+      "class": "FBusAprobClass",
+      "count": 4
+    },
+    {
+      "class": "FBuscarSolClass",
+      "count": 4
+    },
+    {
+      "class": "FDetalleOperacionMep",
+      "count": 4
+    },
+    {
+      "class": "FTPBuscaCuentaClass",
+      "count": 4
+    },
+    {
+      "class": "FGARREQClass",
+      "count": 4
+    },
+    {
+      "class": "FDatosAdicClass",
+      "count": 4
+    },
+    {
+      "class": "FGTransaccionesClass",
+      "count": 4
+    },
+    {
+      "class": "FPermisoClass",
+      "count": 4
+    },
+    {
+      "class": "Ftran30079Class",
+      "count": 4
+    },
+    {
+      "class": "FMensajeClass",
+      "count": 4
+    },
+    {
+      "class": "FBuscarMepClass",
+      "count": 3
+    },
+    {
+      "class": "FBuscarMep4Class",
+      "count": 3
+    },
+    {
+      "class": "FJuicios1JuzClass",
+      "count": 3
+    },
+    {
+      "class": "FbuscarJuzgadoClass",
+      "count": 3
+    },
+    {
+      "class": "FBuscarTarjetaClass",
+      "count": 3
+    },
+    {
+      "class": "FDetComisionClass",
+      "count": 3
+    },
+    {
+      "class": "FGridValoresClass",
+      "count": 3
+    },
+    {
+      "class": "FBuscarGrupoClass",
+      "count": 3
+    },
+    {
+      "class": "FCGOperacionesClass",
+      "count": 3
+    },
+    {
+      "class": "FBusquedaGeneralClass",
+      "count": 3
+    },
+    {
+      "class": "FDetalleAprRechClass",
+      "count": 3
+    },
+    {
+      "class": "FGNodosClass",
+      "count": 3
+    },
+    {
+      "class": "FMensajesClass",
+      "count": 3
+    },
+    {
+      "class": "FAsignaCategoriasFirmaClass",
+      "count": 3
+    },
+    {
+      "class": "FMsgCauClass",
+      "count": 3
+    },
+    {
+      "class": "FVistaarbolClass",
+      "count": 3
+    },
+    {
+      "class": "FHelpJerFunClass",
+      "count": 2
+    },
+    {
+      "class": "FUsuarioLoginModClass",
+      "count": 2
+    },
+    {
+      "class": "fhelppostalClass",
+      "count": 2
+    }
+  ],
+  "by_host_form": {
+    "ABMESett": [
+      "FBusquedaAbonadoClass",
+      "FCatalogoClass"
+    ],
+    "F2813CInformes": [
+      "grid_valoresClass"
+    ],
+    "F2813COpePas": [
+      "grid_valoresClass"
+    ],
+    "F2813IPartidas": [
+      "grid_valoresClass"
+    ],
+    "F2813MColumnas": [
+      "grid_valoresClass"
+    ],
+    "F2813MInformes": [
+      "grid_valoresClass"
+    ],
+    "FABMBancosClaves": [
+      "FCatalogoClass"
+    ],
+    "FABMCOMRAN": [
+      "FCatalogoClass"
+    ],
+    "FABMCTABONIFICADA": [
+      "FCatalogoClass"
+    ],
+    "FABMCausalesDebCre": [
+      "FBUSCAUSClass",
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FABMEsquemasComision": [
+      "FCatalogoClass",
+      "FBUSEsquemasComisionClass"
+    ],
+    "FABMFuncionarios": [
+      "FGFuncionariosClass",
+      "grid_valoresClass",
+      "FHelpJerFunClass",
+      "FUsuarioLoginModClass"
+    ],
+    "FABMTipoOperacion": [
+      "FCatalogoClass"
+    ],
+    "FABMTrxExclRefresh": [
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FABMTrxRefresh": [
+      "FCatalogoClass"
+    ],
+    "FABM_Adhesiones": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FACTINM_CPartComp": [
+      "grid_valoresClass"
+    ],
+    "FACTINM_CPartCompDet": [
+      "grid_valoresClass"
+    ],
+    "FACTINM_Plano": [
+      "grid_valoresClass"
+    ],
+    "FAContac": [
+      "FConsComercialesClass",
+      "grid_valoresClass"
+    ],
+    "FADMSOL": [
+      "Grid_valoresClass"
+    ],
+    "FADMSOLCAN": [
+      "grid_valoresClass"
+    ],
+    "FAbonadosClaves": [
+      "FBusquedaAbonadoClass"
+    ],
+    "FAbonadosCuentas": [
+      "FBusquedaAbonadoClass",
+      "FCatalogoClass"
+    ],
+    "FAcredCheque": [
+      "grid_valoresClass"
+    ],
+    "FActClienteSector": [
+      "grid_valoresClass"
+    ],
+    "FActCostosPrd": [
+      "FRegistrosClass"
+    ],
+    "FActExcluida": [
+      "grid_valoresClass"
+    ],
+    "FActTasa": [
+      "Grid_valoresClass"
+    ],
+    "FActivaDeposito": [
+      "FPreimpresoClass",
+      "FImprimirCompClass",
+      "FBuscarDepositoClass"
+    ],
+    "FActivaTarjeta_Masiva": [
+      "FbuscarconvenioClass",
+      "FRegistrosClass"
+    ],
+    "FActividadLimActivo": [
+      "grid_valoresClass"
+    ],
+    "FAdmCamp": [
+      "Grid_valoresClass"
+    ],
+    "FAdmConsultaCamp": [
+      "Grid_valoresClass"
+    ],
+    "FAdmConsultaInteg": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FAdmInteg": [
+      "FBuscarClienteClass",
+      "Grid_valoresClass"
+    ],
+    "FAdmMep": [
+      "grid_valoresClass"
+    ],
+    "FAdmSolicCamp": [
+      "Grid_valoresClass"
+    ],
+    "FAdmSolicInteg": [
+      "FBuscarClienteClass",
+      "Grid_valoresClass"
+    ],
+    "FAdminChqReca": [
+      "grid_valoresClass",
+      "FDiferirChqClass",
+      "FRescateChqClass",
+      "FExtraerChqClass",
+      "FDatChqClass"
+    ],
+    "FAdminProductos": [
+      "Grid_valoresClass"
+    ],
+    "FAforoTitulosCredito": [
+      "grid_valoresClass"
+    ],
+    "FAgreClientSect": [
+      "FBuscarClienteClass"
+    ],
+    "FAjustes": [
+      "grid_valoresClass"
+    ],
+    "FAltaBajaLeyendas": [
+      "FMuestraClass"
+    ],
+    "FAltaCliDebAut": [
+      "FBuscarClienteClass",
+      "FbuscarconvenioClass",
+      "grid_valoresClass",
+      "FBusOpeClass"
+    ],
+    "FAltaConvenio": [
+      "FBusOpeClass",
+      "grid_valoresClass",
+      "FBuscarClienteClass",
+      "FBuscarCodRetencionClass"
+    ],
+    "FAltaMasProducto": [
+      "grid_valoresClass"
+    ],
+    "FAltaSolPreca": [
+      "FBuscarClienteClass",
+      "Grid_valoresClass"
+    ],
+    "FAltaSolicitud": [
+      "FBuscarClienteClass"
+    ],
+    "FAltaSubProd": [
+      "FRegistrosClass"
+    ],
+    "FAltatrans": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarJuiciosClass",
+      "FBuscarJuzgadoClass",
+      "FBuscarClienteClass",
+      "fhelppostalClass"
+    ],
+    "FAltatransca": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FAltatransmep": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FAltatransmep2": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FAltatransmep5": [
+      "FRegistrosClass",
+      "grid_valoresClass"
+    ],
+    "FAmortizacionManual": [
+      "FAutorizacionClass"
+    ],
+    "FAnses": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass"
+    ],
+    "FAnuApr": [
+      "FRegistrosClass",
+      "FBusAprobClass"
+    ],
+    "FAnuAprCA": [
+      "FRegistrosClass",
+      "FBusAprobClass"
+    ],
+    "FAnulAprobMep": [
+      "FRegistrosClass",
+      "FBuscarMepClass",
+      "FBuscarMep4Class"
+    ],
+    "FAnulMep": [
+      "FRegistrosClass",
+      "FBuscarMepClass",
+      "FBuscarMep4Class"
+    ],
+    "FAnulaActi": [
+      "grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FAnulaCancelacion": [
+      "grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FAnulaRenov": [
+      "FBuscarDepositoClass"
+    ],
+    "FAnulacion": [
+      "FBuscarDepositoClass"
+    ],
+    "FAnulacionCobranzas": [
+      "grid_valoresClass"
+    ],
+    "FAnusol": [
+      "FRegistrosClass",
+      "FBuscarSolClass"
+    ],
+    "FApRecOrdPag": [
+      "FOrdPagAlimApRecClass",
+      "FOrdPagJuiciosApRecClass",
+      "FOrdPagHonorariosApRecClass"
+    ],
+    "FApertura": [
+      "FGenFirmasClass",
+      "FPreimpresoClass",
+      "FInfoAperturaClass",
+      "Grid_valoresClass",
+      "FBuscarClienteClass",
+      "FJuicios1JuzClass",
+      "FbuscarJuzgadoClass",
+      "FImpSellosClass"
+    ],
+    "FApiFechaVen": [
+      "grid_valoresClass"
+    ],
+    "FAplicExt": [
+      "grid_valoresClass"
+    ],
+    "FAprobTDeb": [
+      "grid_valoresClass"
+    ],
+    "FAprobarSolicitud": [
+      "FGenFirmasClass",
+      "FComentarioClass",
+      "FTxnoperCuentaClass",
+      "FBuscarSolicitudClass",
+      "FbuscarconvenioClass"
+    ],
+    "FArchLecto": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FAsiCargos": [
+      "grid_valoresClass"
+    ],
+    "FAsigCupos": [
+      "FHelpOficialClass"
+    ],
+    "FAsigRolesFunc": [
+      "grid_valoresClass"
+    ],
+    "FAtrasos": [
+      "grid_valoresClass"
+    ],
+    "FAtribuciones": [
+      "grid_valoresClass"
+    ],
+    "FAutorizacionBuzon": [
+      "FmercadoClass"
+    ],
+    "FAutormep": [
+      "FDetalleOperacionMep",
+      "FDetalleOperacionMepClass",
+      "FRegistrosClass"
+    ],
+    "FAutormep4": [
+      "FDetalleOperacionMep",
+      "FDetalleOperacionMepClass",
+      "grid_valoresClass",
+      "FRegistrosClass"
+    ],
+    "FAyudaContexto": [
+      "grid_valoresClass"
+    ],
+    "FAyudaFuncionalidad": [
+      "grid_valoresClass"
+    ],
+    "FAyudaHerramienta": [
+      "grid_valoresClass"
+    ],
+    "FBOLSEC": [
+      "grid_valoresClass"
+    ],
+    "FBUSEsquemasComision": [
+      "FABMEsquemasComisionClass"
+    ],
+    "FBUSSEC": [
+      "grid_valoresClass"
+    ],
+    "FBajaRapiChqra": [
+      "FImagenesClass"
+    ],
+    "FBajaSolPreca": [
+      "FBuscarClienteClass"
+    ],
+    "FBaseDatos": [
+      "grid_valoresClass"
+    ],
+    "FBlanqueoPin": [
+      "FBuscarTarjetaClass",
+      "grid_valoresClass"
+    ],
+    "FBloqope": [
+      "FDetComisionClass",
+      "FRegistrosClass"
+    ],
+    "FBoniAutMovim_det": [
+      "FMuestraClass"
+    ],
+    "FBoniConsult": [
+      "FRegistrosClass"
+    ],
+    "FBonifAutomaticaCargo": [
+      "grid_valoresClass"
+    ],
+    "FBonifPaq": [
+      "FRegistrosClass"
+    ],
+    "FBonifPaq2": [
+      "FRegistrosClass"
+    ],
+    "FBusGarAsignadas": [
+      "FBuscarClienteClass"
+    ],
+    "FBusGarantias": [
+      "FAyudaTipoGarClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FBusGarantiasCompartidas": [
+      "FBusGarantiasClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FBusInspecciones": [
+      "FAyudaTipoGarClass",
+      "FBuscarClienteClass"
+    ],
+    "FBusItem": [
+      "FBusCarpetaClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FBusOperaciones": [
+      "FBuscarClienteClass"
+    ],
+    "FBusSaldos": [
+      "FSaldosAbmClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FBuscaComClie": [
+      "grid_valoresClass"
+    ],
+    "FBuscaComPro": [
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FBuscarCliente": [
+      "FGridValoresClass"
+    ],
+    "FBuscarClienteOpe": [
+      "grid_valoresClass"
+    ],
+    "FBuscarClientesNoCobis": [
+      "grid_valoresClass"
+    ],
+    "FBuscarJuicios": [
+      "FJuiciosClass",
+      "FProdJuiJuzClass",
+      "grid_valoresClass",
+      "FHelpCiudadClass"
+    ],
+    "FBuscarLinea": [
+      "FBuscarClienteClass",
+      "FBuscarGrupoClass",
+      "FGrupoBuscarClass",
+      "grid_valoresClass"
+    ],
+    "FBusquedaGeneral": [
+      "FAyudaTipoGarClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FCALLCOM": [
+      "grid_valoresClass"
+    ],
+    "FCAPMIN_RepOper": [
+      "grid_valoresFClass"
+    ],
+    "FCAcredita": [
+      "grid_valoresClass",
+      "FbuscarconvenioClass"
+    ],
+    "FCCONTAR": [
+      "FDetalleTarjetaClass",
+      "FmuestraConvClass",
+      "FConsTransferClass",
+      "FRegistrosClass"
+    ],
+    "FCGOperaciones": [
+      "FGraciaMoraClass",
+      "FAplicacionClass"
+    ],
+    "FCHQSEC": [
+      "grid_valoresClass"
+    ],
+    "FCONClave": [
+      "FBusquedaAbonadoClass"
+    ],
+    "FCONHistorico": [
+      "FBusquedaAbonadoClass",
+      "FHISTransClass"
+    ],
+    "FCONSPAGOSI": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FCONSRENLIQ": [
+      "FBuscaOficinaClass",
+      "FbuscaConvClass"
+    ],
+    "FCONSTrans": [
+      "FCatalogoClass"
+    ],
+    "FCONTransferencia": [
+      "FENVTransferenciaClass"
+    ],
+    "FCOSFINCON": [
+      "FRegistrosClass"
+    ],
+    "FCPAGOSAR": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FCPANoCobis": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FCPIAUTRECH": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FCUtilizacion": [
+      "FBuscarLineaClass"
+    ],
+    "FCVtoOperaciones": [
+      "grid_valoresClass"
+    ],
+    "FCajeroInterno": [
+      "FCatalogoClass"
+    ],
+    "FCalendario": [
+      "grid_valoresClass"
+    ],
+    "FCalificacion": [
+      "grid_valoresClass"
+    ],
+    "FCambSucDest": [
+      "FRegistrosClass",
+      "FBuscarSolClass"
+    ],
+    "FCambio": [
+      "grid_valoresClass"
+    ],
+    "FCambioBonif": [
+      "grid_valoresClass"
+    ],
+    "FCambioSeguro": [
+      "grid_valoresClass"
+    ],
+    "FCambioTasaDFIVA": [
+      "grid_valoresClass"
+    ],
+    "FCambiosucursal": [
+      "grid_valoresClass"
+    ],
+    "FCanales": [
+      "grid_valoresClass"
+    ],
+    "FCancelacionAntEspecial": [
+      "FGenFirmasClass",
+      "Grid_valoresClass",
+      "FBuscarClienteClass",
+      "FBuscarDepositoClass"
+    ],
+    "FCancelacionAnticipada": [
+      "FGenFirmasClass",
+      "Grid_valoresClass",
+      "FBuscarClienteClass",
+      "FBuscarDepositoClass"
+    ],
+    "FCancelacionNormal": [
+      "FGenFirmasClass",
+      "FImprimirCompClass",
+      "Grid_valoresClass",
+      "FBuscarClienteClass",
+      "FBuscarDepositoClass",
+      "FSMSClass"
+    ],
+    "FCarRev": [
+      "FRegistrosClass",
+      "FBusAprobClass",
+      "grid_valoresClass"
+    ],
+    "FCarRevMep": [
+      "FRegistrosClass",
+      "FBusAprobClass",
+      "grid_valoresClass"
+    ],
+    "FCarga": [
+      "FAuxEstacionClass"
+    ],
+    "FCargaBonifGrupoPaquete": [
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FCargaOficina": [
+      "FCatalogoClass"
+    ],
+    "FCartaInspector": [
+      "FAyudaTipoGarClass"
+    ],
+    "FCatalogo": [
+      "Grid_valoresClass"
+    ],
+    "FCatalogoNodos": [
+      "grid_valoresClass"
+    ],
+    "FCausaLev": [
+      "FCatalogoClass"
+    ],
+    "FCausalTratamDiferImp": [
+      "FMuestraClass"
+    ],
+    "FCausalesDebin_ABM": [
+      "grid_valoresClass"
+    ],
+    "FCausalesGenerales_ABM": [
+      "grid_valoresClass"
+    ],
+    "FCausalesPEI_ABM": [
+      "grid_valoresClass"
+    ],
+    "FCausalesRend": [
+      "grid_valoresClass"
+    ],
+    "FCausalesTRF_ABM": [
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FCausalesTran_SP_ABM": [
+      "grid_valoresClass"
+    ],
+    "FCausalesTrnProd": [
+      "grid_valoresClass"
+    ],
+    "FCentros": [
+      "FRegistrosClass"
+    ],
+    "FClasParcial": [
+      "FBuscarClienteClass"
+    ],
+    "FClasifAutRec": [
+      "FBuscarClienteClass",
+      "FDetalleAutorizacionesClass",
+      "FGrdOpcionesClass"
+    ],
+    "FClasificacion": [
+      "FBuscarClienteClass"
+    ],
+    "FClasificacionCedidas": [
+      "FBuscarClienteClass"
+    ],
+    "FClave_Adhes": [
+      "grid_valoresClass"
+    ],
+    "FCliMisTit": [
+      "FCatalogoClass"
+    ],
+    "FCliente": [
+      "grid_valoresClass"
+    ],
+    "FCmbProdmercsub": [
+      "FAutorizacionClass",
+      "grid_valoresClass"
+    ],
+    "FCobranzasMes": [
+      "grid_valoresClass"
+    ],
+    "FCombClientes": [
+      "grid_valoresClass"
+    ],
+    "FCombProductos": [
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FComicli": [
+      "FDetComisionClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FComisMinMen": [
+      "grid_valoresClass"
+    ],
+    "FComisiones": [
+      "FMuestraClass",
+      "FBuscarClienteClass"
+    ],
+    "FComisuc": [
+      "FDetComisionClass",
+      "FRegistrosClass"
+    ],
+    "FConCabArch": [
+      "FRegistrosClass"
+    ],
+    "FConCliDebAut": [
+      "FBuscarClienteClass",
+      "FbuscarconvenioClass",
+      "FBusOpeClass",
+      "grid_valoresClass"
+    ],
+    "FConCuadCam": [
+      "FRegistrosClass"
+    ],
+    "FConDDs": [
+      "FImpresionNewClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FConRieAnt": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConSitActual": [
+      "FConsConsolidadaClass",
+      "grid_valoresClass",
+      "FGestCobranzaClass",
+      "FBusCarpetaClass",
+      "FTran079Class",
+      "Ftran220Class",
+      "FCGOperacionesClass",
+      "FConsultaOpClass",
+      "FDetFciClass",
+      "FDetTitClass",
+      "FConsNCOClass",
+      "FBuscarClienteClass"
+    ],
+    "FConSitActualGrupo": [
+      "FBusCarpetaClass",
+      "FCGOperacionesClass",
+      "FDetalleSaldosClass"
+    ],
+    "FConSol": [
+      "Grid_valoresClass"
+    ],
+    "FConSolCan": [
+      "Grid_valoresClass"
+    ],
+    "FConSolDet": [
+      "FRegistrosClass"
+    ],
+    "FConSolicPaquetes": [
+      "grid_valoresClass"
+    ],
+    "FConSolicRevisar": [
+      "FConsSol_DetClass",
+      "FbuscarconvenioClass",
+      "FRegistrosClass"
+    ],
+    "FConTaVi": [
+      "grid_valoresClass"
+    ],
+    "FConTaViOp": [
+      "Grid_valoresClass"
+    ],
+    "FConTavi": [
+      "Grid_valoresClass"
+    ],
+    "FConTotAp": [
+      "FRegistrosClass"
+    ],
+    "FConTotOperAct": [
+      "FRegistrosClass"
+    ],
+    "FConcenOperPas": [
+      "FTPBuscaCuentaClass",
+      "FBuscarClienteClass",
+      "FConcenOperPasEntesClass",
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FConcenOperPasEntes": [
+      "grid_valoresClass"
+    ],
+    "FConceptos": [
+      "grid_valoresClass"
+    ],
+    "FCondMiPyme": [
+      "grid_valoresClass"
+    ],
+    "FCondiciones": [
+      "grid_valoresClass"
+    ],
+    "FConfCalif": [
+      "FBuscarClienteClass"
+    ],
+    "FConfiguracion": [
+      "FRutasDirectasClass",
+      "grid_valoresClass"
+    ],
+    "FConfiguracionTCP": [
+      "FRutasDirectasClass",
+      "grid_valoresClass"
+    ],
+    "FConfirmaElaboracion": [
+      "FRegistrosClass",
+      "FbuscarconvenioClass"
+    ],
+    "FConsAcredita": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass"
+    ],
+    "FConsAdhesiones": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FConsAprobGruposLimites": [
+      "FGARREQClass",
+      "FBuscarGrupoClass",
+      "grid_valoresClass"
+    ],
+    "FConsAprobLimites": [
+      "FGARREQClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FConsCPA": [
+      "FBuscarClienteClass",
+      "FBuscarClienteOpeClass",
+      "grid_valoresClass"
+    ],
+    "FConsCompensables": [
+      "Grid_valoresClass"
+    ],
+    "FConsConcenOpePas": [
+      "FTPBuscaCuentaClass",
+      "FBuscarClienteClass",
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FConsConfigNodos": [
+      "grid_valoresClass"
+    ],
+    "FConsConvEsquema": [
+      "grid_valoresClass"
+    ],
+    "FConsCtaTar": [
+      "FBuscarClienteClass"
+    ],
+    "FConsDatos": [
+      "FAyudaConsultaClass",
+      "FBuscarClienteClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FConsDepartamentos": [
+      "grid_valoresClass"
+    ],
+    "FConsDetAcred": [
+      "FbuscarconvenioClass"
+    ],
+    "FConsEsquema": [
+      "grid_valoresClass"
+    ],
+    "FConsGenProductos": [
+      "grid_valoresClass"
+    ],
+    "FConsGestRenov": [
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsGtiaFechaValor": [
+      "FBusquedaGeneralClass"
+    ],
+    "FConsHorUsu": [
+      "grid_valoresClass"
+    ],
+    "FConsInstruc": [
+      "Grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsInterfases": [
+      "grid_valoresClass"
+    ],
+    "FConsInvChqCustodia": [
+      "grid_valoresClass"
+    ],
+    "FConsJerDep": [
+      "grid_valoresClass"
+    ],
+    "FConsMep": [
+      "FDetalleOperacionMepClass",
+      "FRegistrosClass"
+    ],
+    "FConsMovimAH": [
+      "FConsClieClass",
+      "FTran636Class",
+      "FTran2807Class",
+      "FDatosAdicClass"
+    ],
+    "FConsMovimCtaCte": [
+      "FImagenesClass",
+      "FTran2807Class",
+      "FTran636Class",
+      "FControlAccionesClass",
+      "FConsClieClass",
+      "FDatosAdicClass"
+    ],
+    "FConsNominas": [
+      "FBuscarNominaClass",
+      "grid_valoresClass"
+    ],
+    "FConsOficinas": [
+      "grid_valoresClass"
+    ],
+    "FConsPorEnte": [
+      "FBuscarClienteClass"
+    ],
+    "FConsProdServidor": [
+      "grid_valoresClass"
+    ],
+    "FConsProdTransaccion": [
+      "FGTransaccionesClass"
+    ],
+    "FConsProductosRol": [
+      "grid_valoresClass"
+    ],
+    "FConsRelaciones": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FConsRend": [
+      "grid_valoresClass"
+    ],
+    "FConsRevDeb": [
+      "FRegistrosClass"
+    ],
+    "FConsRolTran": [
+      "grid_valoresClass"
+    ],
+    "FConsRolTranR": [
+      "grid_valoresClass"
+    ],
+    "FConsRolUsu": [
+      "grid_valoresClass"
+    ],
+    "FConsRutasNodos": [
+      "grid_valoresClass"
+    ],
+    "FConsSaldos": [
+      "FConsDetSalClass",
+      "grid_valoresClass"
+    ],
+    "FConsSerProducto": [
+      "grid_valoresClass"
+    ],
+    "FConsSolPreca": [
+      "Grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsTarj_Cli": [
+      "FBuscarClienteClass",
+      "FRegistrosClass"
+    ],
+    "FConsTarj_Cta_Ope": [
+      "FBuscarClienteClass"
+    ],
+    "FConsTarj_Retenidas": [
+      "FDetalleTarjetaClass"
+    ],
+    "FConsTasPref": [
+      "FBuscarClienteClass"
+    ],
+    "FConsTitulosCredito": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FConsTraProcedimiento": [
+      "grid_valoresClass"
+    ],
+    "FConsTraProducto": [
+      "grid_valoresClass"
+    ],
+    "FConsTranAut": [
+      "grid_valoresClass"
+    ],
+    "FConsTransFunc": [
+      "grid_valoresClass"
+    ],
+    "FConsUsuNodos": [
+      "grid_valoresClass"
+    ],
+    "FConsUsuRol": [
+      "grid_valoresClass"
+    ],
+    "FConsolidadoCredito": [
+      "FBusCarpetaClass",
+      "FBuscarClienteClass",
+      "FCGOperacionesClass",
+      "FDetalleSaldosClass"
+    ],
+    "FConstransca": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsultaAut": [
+      "Grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsultaCedip": [
+      "Grid_valoresClass"
+    ],
+    "FConsultaCobranzaDPPP": [
+      "FDetalleCobranzaDPPPClass",
+      "grid_valoresClass"
+    ],
+    "FConsultaCobranzaRendidasPorSuc": [
+      "FbuscarconvenioClass"
+    ],
+    "FConsultaCta": [
+      "FRegistrosClass"
+    ],
+    "FConsultaCuentas": [
+      "FDetalleAdhesionesClass",
+      "grid_valoresClass"
+    ],
+    "FConsultaGe": [
+      "FGFuncionariosClass",
+      "Grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsultaGeneralRequisitos": [
+      "FBuscaComClieClass",
+      "grid_valoresClass",
+      "FBuscaComProClass"
+    ],
+    "FConsultaGeneralTramites": [
+      "grid_valoresClass",
+      "FGFuncionariosClass"
+    ],
+    "FConsultaGrupoBonificaciones": [
+      "grid_valoresClass"
+    ],
+    "FConsultaGrupoPaquete": [
+      "grid_valoresClass"
+    ],
+    "FConsultaIntInhabilitados": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsultaMovimSueldos": [
+      "grid_valoresClass"
+    ],
+    "FConsultaNeg": [
+      "FDetallesClass",
+      "Grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FConsultaNomChq": [
+      "grid_valoresClass"
+    ],
+    "FConsultaOpClientes": [
+      "FBuscarClienteClass"
+    ],
+    "FConsultaOpClientesC5640": [
+      "FBuscarClienteClass"
+    ],
+    "FConsultaPer": [
+      "FRegistrosClass"
+    ],
+    "FConsultaSaldos": [
+      "FDetalleSdoClass",
+      "grid_valoresClass"
+    ],
+    "FConsultaTCB": [
+      "grid_valoresClass"
+    ],
+    "FConsultaTablasParametria": [
+      "FGFuncionariosClass"
+    ],
+    "FConsultaTramiteEvolucion": [
+      "FProductoClass"
+    ],
+    "FConsultaTransacciones": [
+      "FDETTRANClass",
+      "FBuscarDepositoClass",
+      "Grid_valoresClass"
+    ],
+    "FConsultadeEliminaciones": [
+      "FTPBuscaCuentaClass",
+      "FBuscarClienteClass",
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FConsumoTarjeta": [
+      "FBuscarTarjetaClass"
+    ],
+    "FContextosFunc": [
+      "grid_valoresClass"
+    ],
+    "FControlDebAut": [
+      "grid_valoresClass"
+    ],
+    "FControlLimCtaExcep": [
+      "FConsClieClass"
+    ],
+    "FConvHabSuc": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass",
+      "FTrConHabSucClass"
+    ],
+    "FConvPro": [
+      "grid_valoresClass"
+    ],
+    "FConvSuc": [
+      "grid_valoresClass"
+    ],
+    "FConvSucTarj": [
+      "grid_valoresClass"
+    ],
+    "FConvenioAcepCanal": [
+      "FbuscarconvenioClass"
+    ],
+    "FConveniosDC": [
+      "FbuscarconvenioClass"
+    ],
+    "FCopFede": [
+      "grid_valoresClass"
+    ],
+    "FCopProv": [
+      "grid_valoresClass"
+    ],
+    "FCopiaGrupo": [
+      "grid_valoresClass"
+    ],
+    "FCosFinNO": [
+      "FRegistrosClass"
+    ],
+    "FCosFinNOAR": [
+      "FRegistrosClass",
+      "FDetalleAprRechClass"
+    ],
+    "FCotizacion": [
+      "grid_valoresClass"
+    ],
+    "FCreaGrupRequi": [
+      "FParamReqGrupoClass",
+      "grid_valoresClass"
+    ],
+    "FCreaRequisitos": [
+      "grid_valoresClass"
+    ],
+    "FCredAutoSuc": [
+      "FReporteClass",
+      "grid_valoresClass",
+      "FbuscarconvenioClass"
+    ],
+    "FCtaExcl": [
+      "grid_valoresClass"
+    ],
+    "FCtasHab": [
+      "grid_valoresClass"
+    ],
+    "FCtasSecundarias": [
+      "grid_valoresClass",
+      "FAutorizacionClass"
+    ],
+    "FCuadre": [
+      "grid_valoresClass"
+    ],
+    "FCuentasOC": [
+      "FMuestraClass"
+    ],
+    "FCustodia": [
+      "FPolizaClass",
+      "FValItemClass",
+      "FBuscarClienteClass",
+      "FAyudaTipoGarClass",
+      "grid_valoresClass"
+    ],
+    "FDDs": [
+      "FImpresionNewClass"
+    ],
+    "FDESVIN": [
+      "grid_valoresClass",
+      "FbuscarconvenioClass"
+    ],
+    "FDETSEC": [
+      "FBOLSECClass",
+      "grid_valoresClass"
+    ],
+    "FDRevDeb": [
+      "FDetalleOperacionClass",
+      "FRegistrosClass",
+      "FBusRevClass"
+    ],
+    "FDatosTOperacion": [
+      "grid_valoresClass"
+    ],
+    "FDebCreLineaConsulta": [
+      "grid_valoresClass"
+    ],
+    "FDebCreLineaIngreso": [
+      "grid_valoresClass",
+      "FCatalogoClass"
+    ],
+    "FDefHorarios": [
+      "grid_valoresClass"
+    ],
+    "FDefProd": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FCatalogoClass",
+      "FbuscarconvenioClass"
+    ],
+    "FDefaults": [
+      "grid_valoresClass"
+    ],
+    "FDepositario": [
+      "grid_valoresClass"
+    ],
+    "FDepulog": [
+      "FDepuLogDetClass"
+    ],
+    "FDescuentosTarjeta": [
+      "FRegistrosClass"
+    ],
+    "FDestini": [
+      "grid_valoresClass"
+    ],
+    "FDetComision": [
+      "FRegistrosClass"
+    ],
+    "FDetModifTal": [
+      "grid_valoresClass"
+    ],
+    "FDetSolic": [
+      "FGrillaAutorizClass"
+    ],
+    "FDetSolicVisa": [
+      "FGrillaAutorizClass"
+    ],
+    "FDevIvaJub": [
+      "FCatalogoClass"
+    ],
+    "FDocumentosImprimir": [
+      "grid_valoresClass"
+    ],
+    "FDuplicados": [
+      "FImprimirCompClass",
+      "FPreimpresoClass",
+      "FBuscarDepositoClass"
+    ],
+    "FEcheq_con_sol_emi_mas_det": [
+      "FEcheq_con_sol_emi_mas_firClass",
+      "FEcheq_con_sol_emi_mas_refClass",
+      "FEcheq_con_sol_emi_mas_coelsaClass",
+      "FMuestraClass"
+    ],
+    "FEfminCargos": [
+      "grid_valoresClass"
+    ],
+    "FEfminConExtAtm": [
+      "grid_valoresClass"
+    ],
+    "FEfminConOpMiPymes": [
+      "grid_valoresClass"
+    ],
+    "FEfminConsCuadros": [
+      "grid_valoresClass"
+    ],
+    "FEfminConsExigencias": [
+      "grid_valoresClass"
+    ],
+    "FEfminEstModulos": [
+      "grid_valoresClass"
+    ],
+    "FEfminFranqDet": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FEfminFranqMan": [
+      "grid_valoresClass",
+      "FEfminFranqDetClass"
+    ],
+    "FEfminPPAcredANSES": [
+      "grid_valoresClass"
+    ],
+    "FEfminPosDiaria": [
+      "grid_valoresClass"
+    ],
+    "FEfminPosPeriodo": [
+      "grid_valoresClass"
+    ],
+    "FEfminRelSucCat": [
+      "grid_valoresClass"
+    ],
+    "FEfminRelacCtasInf": [
+      "grid_valoresClass"
+    ],
+    "FEfminReplicExig": [
+      "grid_valoresClass"
+    ],
+    "FEfminSaldos": [
+      "grid_valoresClass"
+    ],
+    "FEfminTraslados": [
+      "grid_valoresClass"
+    ],
+    "FEmpExcl": [
+      "grid_valoresClass"
+    ],
+    "FEmpopdd": [
+      "FRegistrosClass",
+      "FbuscarconvenioClass",
+      "grid_valoresClass"
+    ],
+    "FEnteProducto": [
+      "FREGISTRClass",
+      "grid_valoresClass"
+    ],
+    "FEnteVinculado": [
+      "FPendAsigClass",
+      "grid_valoresClass"
+    ],
+    "FEntidadesFusionadas": [
+      "grid_valoresClass"
+    ],
+    "FEquivError": [
+      "FRegistrosClass"
+    ],
+    "FEsquemaComis": [
+      "grid_valoresClass"
+    ],
+    "FEstaciones": [
+      "grid_valoresClass"
+    ],
+    "FEstadoActualOp": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FEstcobertura": [
+      "grid_valoresClass"
+    ],
+    "FEtapa_Estacion": [
+      "grid_valoresClass"
+    ],
+    "FEtiquetaFuncionalidad": [
+      "grid_valoresClass"
+    ],
+    "FExcepCtrlSaldo": [
+      "grid_valoresClass"
+    ],
+    "FExcepcion": [
+      "grid_valoresClass"
+    ],
+    "FExclusionReintento": [
+      "grid_valoresClass",
+      "grid_ayudaClass"
+    ],
+    "FExtDatoSuc": [
+      "FRegistrosClass"
+    ],
+    "FExtraerChq": [
+      "grid_valoresClass"
+    ],
+    "FFDForm_Secc": [
+      "grid_valoresClass"
+    ],
+    "FFDForm_Secc_Plant": [
+      "grid_valoresClass"
+    ],
+    "FFDFormularios": [
+      "grid_valoresClass"
+    ],
+    "FFDPlantillas": [
+      "grid_valoresClass"
+    ],
+    "FFDSecciones": [
+      "grid_valoresClass"
+    ],
+    "FFDSimulacion": [
+      "grid_valoresClass"
+    ],
+    "FFUT_ABM_Centro_Costo": [
+      "FMuestraClass"
+    ],
+    "FFUT_ABM_Login_Centro": [
+      "FMuestraClass"
+    ],
+    "FFUT_ABM_Login_Nivel": [
+      "FMuestraClass"
+    ],
+    "FFUT_C_Login_Nivel": [
+      "FMuestraClass"
+    ],
+    "FFUT_C_Lotes_Transacciones": [
+      "FMuestraClass"
+    ],
+    "FFUT_Ingreso_Manual": [
+      "FMuestraClass"
+    ],
+    "FFaculRol": [
+      "grid_valoresClass",
+      "FGTransaccionesClass"
+    ],
+    "FFacultades": [
+      "grid_valoresClass",
+      "FGTransaccionesClass"
+    ],
+    "FFeriados": [
+      "FRegistrosClass"
+    ],
+    "FFomularios": [
+      "grid_valoresClass"
+    ],
+    "FFormaCobroCheque": [
+      "grid_valoresClass"
+    ],
+    "FFormaPago": [
+      "FRegistrosClass"
+    ],
+    "FFranja": [
+      "FRegistrosClass"
+    ],
+    "FFuncionalidad": [
+      "FTransaccionFuncClass",
+      "FPrereqFuncClass",
+      "FContextosFuncClass",
+      "FAyudaFuncionalidadClass",
+      "FEtiquetaFuncionalidadClass",
+      "FAsigRolesFuncClass",
+      "FHelpFunClass",
+      "grid_valoresClass",
+      "FGestionMenuCENClass"
+    ],
+    "FFuncionalidadRol": [
+      "grid_valoresClass"
+    ],
+    "FFuncionarios": [
+      "FRolesUsuarioClass",
+      "FMediosFuncioClass",
+      "grid_valoresClass",
+      "FHelpJerFunClass"
+    ],
+    "FFusion": [
+      "grid_valoresClass"
+    ],
+    "FGACbioVal": [
+      "grid_valoresClass"
+    ],
+    "FGAROPERA": [
+      "FAyudaTipoGarClass",
+      "grid_valoresClass"
+    ],
+    "FGAfin": [
+      "grid_valoresClass"
+    ],
+    "FGDepartamentos": [
+      "FDepartamentosClass"
+    ],
+    "FGFilial": [
+      "FFilialClass"
+    ],
+    "FGFusion": [
+      "grid_valoresClass"
+    ],
+    "FGInterfases": [
+      "grid_valoresClass"
+    ],
+    "FGMenError": [
+      "FMenErrorClass"
+    ],
+    "FGOficina": [
+      "FOficinaClass"
+    ],
+    "FGServidoresDistribucion": [
+      "FServerDistribucionClass",
+      "grid_valoresClass"
+    ],
+    "FGTablas": [
+      "FTablasClass"
+    ],
+    "FGUsuApl": [
+      "grid_valoresClass"
+    ],
+    "FGVigenciaTablas": [
+      "FVigenciaTablasClass"
+    ],
+    "FGarOperacion": [
+      "FOperacionesClass"
+    ],
+    "FGarTasa": [
+      "Grid_valoresClass"
+    ],
+    "FGarantiasFechaValor": [
+      "FBusquedaGeneralClass"
+    ],
+    "FGastos": [
+      "FAyudaTipoGarClass"
+    ],
+    "FGenAmorAjuste": [
+      "FAutoDesTasasClass",
+      "FAutorizacionClass",
+      "FRIntOperacionClass",
+      "FAmortizacionManualClass",
+      "FAmorSemiAutomClass"
+    ],
+    "FGenAmortizacion": [
+      "FAutorizacionClass",
+      "FAmortizacionManualClass",
+      "FAmorSemiAutomClass",
+      "FCuotasAdicionalesClass",
+      "FTasaEscalonadaClass",
+      "grid_valoresClass",
+      "FAutoDesTasasClass"
+    ],
+    "FGestionMenuCEN": [
+      "grid_valoresClass"
+    ],
+    "FGestionMora": [
+      "grid_valoresClass"
+    ],
+    "FGruCausal": [
+      "grid_valoresClass"
+    ],
+    "FGrupTrn": [
+      "FCatalogoClass"
+    ],
+    "FGrupoBusqEnteNoEnte": [
+      "grid_valoresClass"
+    ],
+    "FGruposEsquemas": [
+      "grid_valoresClass"
+    ],
+    "FGtiasFechaValor": [
+      "FBuscarClienteClass"
+    ],
+    "FHerramRol": [
+      "grid_valoresClass"
+    ],
+    "FHistoricoAM": [
+      "FCatalogoClass"
+    ],
+    "FHistoricoAS": [
+      "FCatalogoClass"
+    ],
+    "FHistoricoCM": [
+      "FCatalogoClass"
+    ],
+    "FHistoricoCS": [
+      "FCatalogoClass"
+    ],
+    "FHistoricoCajas": [
+      "grid_valoresClass"
+    ],
+    "FINGSEC": [
+      "grid_valoresClass",
+      "FCHQSECClass",
+      "FBOLSECClass"
+    ],
+    "FINGSOLIC": [
+      "Grid_valoresClass"
+    ],
+    "FINGSOLICCAN": [
+      "Grid_valoresClass"
+    ],
+    "FIcono": [
+      "grid_valoresClass"
+    ],
+    "FImpAMasivas": [
+      "FBuscarClienteClass"
+    ],
+    "FImpEnte": [
+      "FBuscarCliente",
+      "FGridValoresClass"
+    ],
+    "FImpuesto": [
+      "grid_valoresClass"
+    ],
+    "FInfRelacCta": [
+      "grid_valoresClass"
+    ],
+    "FInfo2816": [
+      "grid_valoresClass"
+    ],
+    "FInfoRiesgoVinc": [
+      "grid_valoresClass",
+      "FGrdOpcionesClass"
+    ],
+    "FIngED_AG": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass"
+    ],
+    "FIngFONAVI": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass"
+    ],
+    "FIngTransaccion": [
+      "FPermisoClass",
+      "FBusGarantiasClass",
+      "FAyudaTipoGarClass",
+      "grid_valoresClass"
+    ],
+    "FIng_DGR": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass",
+      "FBuscarLoteClass"
+    ],
+    "FIngresoFV": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FIngresoLimites": [
+      "FLineasLimiteClass",
+      "grid_valoresClass"
+    ],
+    "FIngresoLimitesGrupos": [
+      "grid_valoresClass"
+    ],
+    "FIngreso_Rechazo": [
+      "FCatalogoClass"
+    ],
+    "FIngreso_denuncia": [
+      "FCatalogoClass"
+    ],
+    "FIngreso_standard": [
+      "FbuscarconvenioClass",
+      "FBuscarLoteClass",
+      "grid_valoresClass"
+    ],
+    "FIniCobranza": [
+      "FBusOperacionesClass",
+      "grid_valoresClass",
+      "FGFuncionariosClass"
+    ],
+    "FInmoLiqComercio": [
+      "grid_valoresClass"
+    ],
+    "FInspector": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FInstruccion": [
+      "grid_valoresClass"
+    ],
+    "FInterfases": [
+      "FConfiguracionClass",
+      "FGNodosClass",
+      "grid_valoresClass"
+    ],
+    "FJerarquiaNodos": [
+      "grid_valoresClass"
+    ],
+    "FLegal": [
+      "FGridValoresClass"
+    ],
+    "FLevPignoracion": [
+      "FBuscarDepositoClass"
+    ],
+    "FLevRetencion": [
+      "FAutorizacionClass",
+      "FBuscarDepositoClass"
+    ],
+    "FLeyenda": [
+      "FREGISTRClass"
+    ],
+    "FLiberacion": [
+      "FBusGarantiasClass"
+    ],
+    "FLibroImp": [
+      "grid_valoresClass"
+    ],
+    "FLimiteCobroCanal": [
+      "grid_valoresClass"
+    ],
+    "FLimiteTrfSuc": [
+      "FMuestraClass"
+    ],
+    "FLimrol": [
+      "grid_valoresClass"
+    ],
+    "FLineasLimite": [
+      "FGARREQClass",
+      "grid_valoresClass"
+    ],
+    "FLineasLimiteGrupos": [
+      "FGARREQClass",
+      "grid_valoresClass",
+      "FAyudaClass"
+    ],
+    "FLinkExtractCuentas": [
+      "FCatalogoClass",
+      "grid_valoresClass"
+    ],
+    "FLinks": [
+      "grid_valoresClass"
+    ],
+    "FLoteMep": [
+      "FdetlotrmepClass"
+    ],
+    "FLotesCheques": [
+      "grid_valoresClass"
+    ],
+    "FMANMERTAS": [
+      "grid_valoresClass"
+    ],
+    "FMANPARAM": [
+      "grid_valoresClass"
+    ],
+    "FMASCARA": [
+      "grid_valoresClass",
+      "FREGISTRClass"
+    ],
+    "FMEstructura": [
+      "FMEstructuraListadoClass",
+      "FMEstructuraAMClass"
+    ],
+    "FMEstructuraListado": [
+      "grid_valoresClass"
+    ],
+    "FManofi": [
+      "Grid_valoresClass"
+    ],
+    "FMantCarg": [
+      "FCatalogoClass",
+      "FCatServRubClass",
+      "FRegistrosClass"
+    ],
+    "FMantDepreciacion": [
+      "grid_valoresClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FMantSets": [
+      "grid_valoresClass"
+    ],
+    "FMantTipCheqProv": [
+      "FCatalogoClass"
+    ],
+    "FManten": [
+      "FCatalogoClass",
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FMantenLinea2": [
+      "FRegistrosClass"
+    ],
+    "FMantenOficiales": [
+      "FGFuncionariosClass"
+    ],
+    "FMantenimiento": [
+      "FRegistrosClass"
+    ],
+    "FMarRejCam": [
+      "FRegistrosClass",
+      "grid_valoresClass",
+      "FRegistrosClassClass"
+    ],
+    "FMarRejCamMas": [
+      "FRegistrosClass"
+    ],
+    "FMasCta": [
+      "FRegistrosClass"
+    ],
+    "FMediosFuncio": [
+      "grid_valoresClass"
+    ],
+    "FMejora": [
+      "grid_valoresClass"
+    ],
+    "FMiPymeActualCondicion": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FMiemComite": [
+      "grid_valoresClass"
+    ],
+    "FMigracion": [
+      "FBusGarantiasClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FModCotitulares": [
+      "FBuscarClienteClass",
+      "FBuscarDepositoClass"
+    ],
+    "FModifEsquema": [
+      "grid_valoresClass"
+    ],
+    "FModificaGana": [
+      "FBuscarDepositoClass"
+    ],
+    "FModrepre": [
+      "FBuscarClienteClass",
+      "FBuscarDepositoClass"
+    ],
+    "FModtrans": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass",
+      "fhelppostalClass"
+    ],
+    "FModtransmep": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FModtransmep2": [
+      "grid_valoresClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FModtransmep5": [
+      "grid_valoresClass",
+      "FRegistrosClass"
+    ],
+    "FMoneda": [
+      "FRegistrosClass"
+    ],
+    "FMontoPymes": [
+      "grid_valoresClass"
+    ],
+    "FMotivosRescate": [
+      "grid_valoresClass"
+    ],
+    "FNCODesa": [
+      "FPermisoClass",
+      "FBuscarClienteClass"
+    ],
+    "FNIVELESTIPOBIEN": [
+      "grid_valoresClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FNegEsp": [
+      "FNegEsp2Class",
+      "grid_valoresClass",
+      "FMuestraClass",
+      "FbuscarconvenioClass"
+    ],
+    "FNegEsp2": [
+      "grid_valoresClass"
+    ],
+    "FNegociacionReajuste": [
+      "FAutorizacionClass",
+      "FCronogramaReajusteClass"
+    ],
+    "FNivelIcono": [
+      "grid_valoresClass"
+    ],
+    "FNivelMapa": [
+      "grid_valoresClass"
+    ],
+    "FNoCobis": [
+      "FPermisoClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FNoCobisD": [
+      "FPermisoClass",
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FNodoNivel": [
+      "grid_valoresClass"
+    ],
+    "FNodos": [
+      "FTerminalesClass",
+      "FBaseDatosClass",
+      "FLinksClass",
+      "grid_valoresClass"
+    ],
+    "FNombreContexto": [
+      "grid_valoresClass"
+    ],
+    "FNombreHerramienta": [
+      "grid_valoresClass"
+    ],
+    "FNovedades": [
+      "cp_masivosClass",
+      "grid_valoresClass"
+    ],
+    "FNovedadesUsuario": [
+      "FGFuncionariosClass",
+      "grid_valoresClass"
+    ],
+    "FNuevRelacion": [
+      "grid_valoresClass"
+    ],
+    "FObservacion": [
+      "grid_valoresClass"
+    ],
+    "FOpGarantia": [
+      "FBusquedaGeneralClass"
+    ],
+    "FOpSubsidio": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FOpcRuteo": [
+      "FCoPasswClass"
+    ],
+    "FOperacion": [
+      "FAutorizacionClass",
+      "FCodigosPostalesExtClass",
+      "FClienteClass",
+      "FGenAmortizacionClass",
+      "FRubrosOperacionClass",
+      "FFormaPagoClass",
+      "FImpresionNewClass",
+      "FParametrosGeneralesClass",
+      "FGarantiasClass",
+      "FrenovacionClass",
+      "FPorcentajesClass",
+      "FCtasSecundariasClass",
+      "FGenAmorAjusteClass",
+      "grid_valoresClass",
+      "FBuscarClienteClass",
+      "FAutorPDClass"
+    ],
+    "FOpstepup": [
+      "grid_valoresClass"
+    ],
+    "FOrdPagAlimApRec": [
+      "Ftran30079Class"
+    ],
+    "FOrdPagHonorariosApRec": [
+      "Ftran30079Class"
+    ],
+    "FOrdPagJuiciosApRec": [
+      "Ftran30079Class"
+    ],
+    "FOrdenDescent": [
+      "grid_valoresClass",
+      "FbuscarconvenioClass"
+    ],
+    "FOrden_autom": [
+      "FbuscarconvenioClass"
+    ],
+    "FOriginal": [
+      "FImprimirCompClass",
+      "FPreimpresoClass",
+      "FBuscarDepositoClass"
+    ],
+    "FOtrosCargos": [
+      "FAutorizacionClass",
+      "grid_valoresClass"
+    ],
+    "FOtrosCodigos": [
+      "grid_valoresClass"
+    ],
+    "FPARMULPRE": [
+      "grid_valoresClass"
+    ],
+    "FPGCAPC": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FPGCAPD": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FPGCAPD_IntCE": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FPGCAPD_IntConta": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FPGN_AjusteSaldos": [
+      "grid_valoresClass"
+    ],
+    "FPGN_RPCRPL": [
+      "grid_valoresClass"
+    ],
+    "FPPERGRA": [
+      "grid_valoresClass"
+    ],
+    "FPROFINCON": [
+      "FRegistrosClass"
+    ],
+    "FPROTEFOfic": [
+      "FBusquedaAbonadoClass"
+    ],
+    "FPROTransferencias": [
+      "FBusquedaAbonadoClass"
+    ],
+    "FPaParam": [
+      "FCatalogoClass"
+    ],
+    "FPagExtraordinario": [
+      "FValoresClass",
+      "FGenFirmasClass",
+      "FBuscarClienteClass",
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FPagVencido": [
+      "FGenFirmasClass",
+      "FBuscarClienteClass",
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FPagoIntereses": [
+      "FGenFirmasClass",
+      "FBuscarClienteClass",
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FPagosCancelarPre": [
+      "FAutorizacionClass",
+      "FCondonacionesClass",
+      "FImpresionNewClass",
+      "FDetallePagosClass",
+      "grid_valoresClass"
+    ],
+    "FPagosParcialRub": [
+      "FAutorizacionClass",
+      "FCondonacionesClass",
+      "FImpresionNewClass",
+      "FDetallePagosClass",
+      "grid_valoresClass"
+    ],
+    "FParCombos": [
+      "FRegistrosClass"
+    ],
+    "FParComiTransf": [
+      "grid_valoresClass"
+    ],
+    "FParDebAutBandsud": [
+      "grid_valoresClass"
+    ],
+    "FParEfMi": [
+      "FEfminReplicExigClass",
+      "FEfminReprocClass",
+      "grid_valoresClass",
+      "grid_valoresFClass"
+    ],
+    "FParEntesDismExANSES": [
+      "grid_valoresClass"
+    ],
+    "FParGen": [
+      "FRegistrosClass"
+    ],
+    "FParGenerales": [
+      "FParametrosClass"
+    ],
+    "FParRefSigaf": [
+      "FCatalogoClass"
+    ],
+    "FParSolTDeb": [
+      "grid_valoresClass"
+    ],
+    "FParaPymes": [
+      "grid_valoresClass"
+    ],
+    "FParam5402": [
+      "grid_valoresClass"
+    ],
+    "FParamCausales": [
+      "FMuestraClass"
+    ],
+    "FParamContable": [
+      "grid_valoresClass"
+    ],
+    "FParamCostosSimu": [
+      "FParamCostosSimu_DetClass"
+    ],
+    "FParamElimporCliente": [
+      "FBuscarClienteClass",
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FParamEntesDevolucion": [
+      "FMuestraClass"
+    ],
+    "FParamIose": [
+      "grid_valoresClass"
+    ],
+    "FParamLibreDispo": [
+      "FMuestraClass"
+    ],
+    "FParamLimitesCargo": [
+      "FCatalogoClass",
+      "grid_valoresClass"
+    ],
+    "FParamPases": [
+      "FCatalogoClass"
+    ],
+    "FParamPrevLav": [
+      "grid_valoresClass"
+    ],
+    "FParamRejCam": [
+      "FMuestraClass"
+    ],
+    "FParamReqGrupo": [
+      "grid_valoresClass"
+    ],
+    "FParamTCB": [
+      "grid_valoresClass"
+    ],
+    "FParam_Cod_Transac": [
+      "FRegistrosClass"
+    ],
+    "FParametrizacion": [
+      "grid_valoresClass"
+    ],
+    "FParametrosStepUp": [
+      "grid_valoresClass"
+    ],
+    "FPartRelac": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FPendAsig": [
+      "grid_valoresClass"
+    ],
+    "FPersoCuenta": [
+      "FConsultaCtaClass",
+      "FBuscarLaborClass",
+      "FBuscarClienteClass",
+      "FBuscarGrupoClass"
+    ],
+    "FPignoracion": [
+      "FBuscarDepositoClass",
+      "FMensajesClass",
+      "FBusOpeClass"
+    ],
+    "FPorInspeccionar": [
+      "FBusCarpetaClass",
+      "FBusGarantiasClass",
+      "FAyudaTipoGarClass"
+    ],
+    "FPorcentajesCOPACO": [
+      "grid_valoresClass"
+    ],
+    "FPosEnteVinc": [
+      "grid_valoresClass"
+    ],
+    "FPostergacionLiq": [
+      "FbuscarconvenioClass",
+      "grid_valoresClass"
+    ],
+    "FPostergacionVtosAPP": [
+      "grid_valoresClass"
+    ],
+    "FPreCancelacion": [
+      "FGenFirmasClass",
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FPreCancelacionD": [
+      "FGenFirmasClass",
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FPrefTri": [
+      "grid_valoresClass"
+    ],
+    "FPreimpreso": [
+      "fclasifClass"
+    ],
+    "FPrereqFunc": [
+      "grid_valoresClass"
+    ],
+    "FPrestAprobAlta": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FPrestAprobLiq": [
+      "FBuscarClienteClass"
+    ],
+    "FProFin": [
+      "FRegistrosClass"
+    ],
+    "FProFinNO": [
+      "FRegistrosClass"
+    ],
+    "FProFinNOAR": [
+      "FDetalleAprRechClass",
+      "FRegistrosClass"
+    ],
+    "FProdBanca": [
+      "FMuestraClass"
+    ],
+    "FProdCompensables": [
+      "Grid_valoresClass"
+    ],
+    "FProdRuta": [
+      "FOpcionClass",
+      "grid_valoresClass"
+    ],
+    "FProdbCat": [
+      "FRegistrosClass"
+    ],
+    "FProductoTransaccion": [
+      "grid_valoresClass",
+      "FGTransaccionesClass"
+    ],
+    "FProductosMoneda": [
+      "FProductoTransaccionClass",
+      "grid_valoresClass"
+    ],
+    "FProductosOficina": [
+      "grid_valoresClass"
+    ],
+    "FProductosRol": [
+      "grid_valoresClass"
+    ],
+    "FProrrateoComis": [
+      "grid_valoresClass"
+    ],
+    "FRCodBco": [
+      "FbusquedClass"
+    ],
+    "FRED": [
+      "FREGISTRClass"
+    ],
+    "FRIntOperacion": [
+      "FAutorizacionClass",
+      "grid_valoresClass"
+    ],
+    "FRango": [
+      "FRegistrosClass"
+    ],
+    "FReAproCostos": [
+      "FRegistrosClass",
+      "FDetalleAprRechClass"
+    ],
+    "FRecInfOperac": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FRechCedip": [
+      "FBuscarClienteClass",
+      "Grid_valoresClass"
+    ],
+    "FRechazo": [
+      "grid_valoresClass"
+    ],
+    "FRechazoCobranzas": [
+      "grid_valoresClass"
+    ],
+    "FRecuperacion": [
+      "FBusGarantiasClass"
+    ],
+    "FRedescuento": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FRegAbogados": [
+      "FHelpCiudadClass",
+      "FHelpCiudadOpeClass"
+    ],
+    "FReglas": [
+      "grid_valoresClass"
+    ],
+    "FRegularizacion": [
+      "FCoPasswClass"
+    ],
+    "FReiMep": [
+      "FRegistrosClass",
+      "FBuscarMepClass",
+      "FBuscarMep4Class"
+    ],
+    "FReicom": [
+      "FRegistrosClass",
+      "FBuscarSolClass"
+    ],
+    "FReicomca": [
+      "FRegistrosClass",
+      "FBuscarSolClass"
+    ],
+    "FReimdet": [
+      "FBuscarDepositoClass"
+    ],
+    "FReintentos": [
+      "grid_valoresClass"
+    ],
+    "FRelConfianza": [
+      "grid_valoresClass",
+      "FGUsuariosExtClass"
+    ],
+    "FRelaSector": [
+      "FAgreClientSectClass"
+    ],
+    "FRelaciones": [
+      "grid_valoresClass",
+      "FGFuncionariosClass"
+    ],
+    "FRendicionRec": [
+      "FbuscarconvenioClass"
+    ],
+    "FRenovaOp": [
+      "FImprimirCompClass",
+      "FGenFirmasClass",
+      "FPreimpresoClass",
+      "FMensajesClass",
+      "FSMSClass",
+      "FBuscarDepositoClass",
+      "FBuscarClienteClass",
+      "Grid_valoresClass",
+      "FImpSellosClass"
+    ],
+    "FReporte": [
+      "grid_valoresClass"
+    ],
+    "FReqdeclientes": [
+      "grid_valoresClass",
+      "FBuscaComClieClass"
+    ],
+    "FReqxCombinacion": [
+      "grid_valoresClass"
+    ],
+    "FReqxEtapa": [
+      "grid_valoresClass"
+    ],
+    "FReqxSubsegmentoTitular": [
+      "grid_valoresClass"
+    ],
+    "FRescateChq": [
+      "grid_valoresClass"
+    ],
+    "FResultadoInspeccion": [
+      "FBusInspeccionesClass"
+    ],
+    "FRetenFo": [
+      "grid_valoresClass"
+    ],
+    "FRetencion": [
+      "FBuscarDepositoClass",
+      "FMensajesClass"
+    ],
+    "FRevActCanc": [
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FRevOpPag": [
+      "FOrdPagAlimApRecClass",
+      "FOrdPagJuiciosApRecClass",
+      "FOrdPagHonorariosApRecClass"
+    ],
+    "FReversaOp": [
+      "FDetalleOperacionClass",
+      "FRegistrosClass"
+    ],
+    "FReversoCancelacion": [
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FReversoPagoIntPer": [
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FReversoPreCancelacion": [
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FReversoPreCancelacionD": [
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FReversoRenovacion": [
+      "Grid_valoresClass",
+      "FBuscarDepositoClass"
+    ],
+    "FRolSecMep": [
+      "grid_valoresClass"
+    ],
+    "FRoles": [
+      "FProductosRolClass",
+      "grid_valoresClass"
+    ],
+    "FRolesUsuario": [
+      "grid_valoresClass"
+    ],
+    "FRubAsocia": [
+      "grid_valoresClass"
+    ],
+    "FRubDef": [
+      "grid_valoresClass"
+    ],
+    "FRubPrecancelatorio": [
+      "grid_valoresClass"
+    ],
+    "FRubros": [
+      "FAyudaSubservClass",
+      "FRegistrosClass"
+    ],
+    "FRubrosOperacion": [
+      "FAutorizacionClass",
+      "FCorreccionTasaClass",
+      "grid_valoresClass"
+    ],
+    "FRutas": [
+      "grid_valoresClass"
+    ],
+    "FRutasDirectas": [
+      "FGNodosClass",
+      "grid_valoresClass"
+    ],
+    "FRutasIndirectas": [
+      "FGNodosClass",
+      "FTipoRutaClass",
+      "grid_valoresClass"
+    ],
+    "FSaldosAbm": [
+      "FBuscarClienteClass",
+      "grid_valoresClass"
+    ],
+    "FSecOpMep": [
+      "grid_valoresClass"
+    ],
+    "FServerLogico": [
+      "grid_valoresClass"
+    ],
+    "FSetComision": [
+      "FRegistrosClass"
+    ],
+    "FSitImpo": [
+      "grid_valoresClass"
+    ],
+    "FSolicitudLog": [
+      "FCatalogoClass",
+      "FConsSol_DetClass"
+    ],
+    "FSubCanales": [
+      "grid_valoresClass"
+    ],
+    "FSucHab": [
+      "grid_valoresClass"
+    ],
+    "FTAcMasCC": [
+      "FRegistrosClass"
+    ],
+    "FTBLConvert": [
+      "grid_valoresClass"
+    ],
+    "FTChqAcr": [
+      "frmimptotClass"
+    ],
+    "FTCiuRem": [
+      "FRCodBcoClass"
+    ],
+    "FTColTru": [
+      "FCatalogoClass"
+    ],
+    "FTConChq": [
+      "FCatalogoClass",
+      "FRegistrosClass"
+    ],
+    "FTConErrU": [
+      "FRegistrosClass"
+    ],
+    "FTInstruccion": [
+      "grid_valoresClass"
+    ],
+    "FTIntCheques": [
+      "FTIntErroresClass",
+      "FbusquedClass",
+      "FRegistrosClass"
+    ],
+    "FTIntErrores": [
+      "FbusquedClass",
+      "FRegistrosClass"
+    ],
+    "FTLISRECH": [
+      "FRegistrosClass"
+    ],
+    "FTMPDEP": [
+      "FImprimirDepuClass"
+    ],
+    "FTMotRech": [
+      "FbusquedClass",
+      "FRegistrosClass"
+    ],
+    "FTPBuscaCuenta": [
+      "grid_valoresClass"
+    ],
+    "FTR23780": [
+      "FBuscarClienteClass",
+      "FCatalogoClass"
+    ],
+    "FTR23781": [
+      "FBuscarClienteClass",
+      "FCatalogoClass"
+    ],
+    "FTR23783": [
+      "FBuscarClienteClass",
+      "FCatalogoClass"
+    ],
+    "FTRA30561": [
+      "FGFuncionariosClass"
+    ],
+    "FTRA685": [
+      "grid_valoresClass"
+    ],
+    "FTRAN30172": [
+      "FBuscarClienteClass"
+    ],
+    "FTRANCON": [
+      "FREGISTRClass",
+      "grid_valoresClass"
+    ],
+    "FTabProducto": [
+      "grid_valoresClass"
+    ],
+    "FTabbcra": [
+      "FTablasbcraClass"
+    ],
+    "FTablasBCRA": [
+      "FRegistrosClass"
+    ],
+    "FTarRetenida": [
+      "FBuscarTarjetaClass",
+      "FRegistrosClass"
+    ],
+    "FTendencia": [
+      "FRegistrosClass"
+    ],
+    "FTerminales": [
+      "grid_valoresClass"
+    ],
+    "FTiMonto": [
+      "FAdmTMontoClass",
+      "Grid_valoresClass"
+    ],
+    "FTipRango": [
+      "FRegistrosClass"
+    ],
+    "FTipoCustodia": [
+      "FItemClass",
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FTipoDepositos": [
+      "Grid_valoresClass",
+      "FGFuncionariosClass"
+    ],
+    "FTipoDepositosDual": [
+      "Grid_valoresClass",
+      "FGFuncionariosClass"
+    ],
+    "FTipoOficina": [
+      "FRegistrosClass"
+    ],
+    "FTipoSuperior": [
+      "grid_valoresClass"
+    ],
+    "FTipoTarjeta": [
+      "FPerfil_TarjClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "FTitulos_Consulta_Val": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FTitulos_Interfaces": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FTopesLim": [
+      "grid_valoresClass"
+    ],
+    "FTotCaj": [
+      "FCatalogoClass",
+      "FRegistrosClass"
+    ],
+    "FTotalesCobranzas": [
+      "grid_valoresClass"
+    ],
+    "FTrConHabSuc": [
+      "grid_valoresClass"
+    ],
+    "FTra10016": [
+      "FCatalogoClass"
+    ],
+    "FTra10020": [
+      "FRegistrosClass"
+    ],
+    "FTra10023": [
+      "FCatalogoClass"
+    ],
+    "FTra10027": [
+      "FTIntErroresClass",
+      "FbusquedClass",
+      "FRegistrosClass",
+      "FTIntChequesClass"
+    ],
+    "FTra10030": [
+      "FRegistrosClass"
+    ],
+    "FTra2685": [
+      "FCatalogoClass"
+    ],
+    "FTra2737": [
+      "grid_valoresClass"
+    ],
+    "FTra2773": [
+      "FCatalogoClass"
+    ],
+    "FTra2774": [
+      "FCatalogoClass"
+    ],
+    "FTra2781": [
+      "FTra2783Class",
+      "FCatalogoClass",
+      "FcontranClass",
+      "grid_valoresClass"
+    ],
+    "FTra2783": [
+      "grid_valoresClass",
+      "FCatalogoClass",
+      "FRegistrosClass"
+    ],
+    "FTra2879": [
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "FDetalleChqClass"
+    ],
+    "FTra2888": [
+      "FMuestraClass"
+    ],
+    "FTra2997": [
+      "FCatalogoClass"
+    ],
+    "FTra30417": [
+      "FtranAprPaqClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass"
+    ],
+    "FTramites": [
+      "FProductoClass",
+      "grid_valoresClass",
+      "FGFuncionariosClass"
+    ],
+    "FTran000": [
+      "FBuscarClienteClass",
+      "FCatalogoClass"
+    ],
+    "FTran001": [
+      "FBuscarClienteClass",
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "FRegistrosClass",
+      "grid_valoresClass"
+    ],
+    "FTran002": [
+      "FBuscarClienteClass",
+      "FBuscarClientePasivasClass",
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "FRegistrosClass",
+      "grid_valoresClass"
+    ],
+    "FTran003": [
+      "FImagenesClass",
+      "FCatalogoClass"
+    ],
+    "FTran004": [
+      "FTran2807Class",
+      "FCatalogoClass"
+    ],
+    "FTran009": [
+      "FCatalogoClass"
+    ],
+    "FTran010": [
+      "FCausaLevClass"
+    ],
+    "FTran011": [
+      "FCatalogoClass"
+    ],
+    "FTran012": [
+      "FCatalogoClass"
+    ],
+    "FTran020": [
+      "FMuestraClass",
+      "grid_valoresClass"
+    ],
+    "FTran021": [
+      "FMuestraClass"
+    ],
+    "FTran023": [
+      "FMuestraClass"
+    ],
+    "FTran028": [
+      "FAsignaCategoriasFirmaClass",
+      "FCatalogoClass"
+    ],
+    "FTran029": [
+      "FCatalogoClass"
+    ],
+    "FTran030": [
+      "FCatalogoClass",
+      "FMuestraClass"
+    ],
+    "FTran033": [
+      "FbusquedClass"
+    ],
+    "FTran036": [
+      "FCatalogoClass"
+    ],
+    "FTran037": [
+      "FImagenesClass"
+    ],
+    "FTran072": [
+      "FConsClieClass"
+    ],
+    "FTran073": [
+      "FCatalogoClass"
+    ],
+    "FTran075": [
+      "FImagenesClass"
+    ],
+    "FTran076": [
+      "FImagenesClass",
+      "FConsClieClass",
+      "FDatosAdicClass"
+    ],
+    "FTran079": [
+      "FImagenesClass",
+      "FTran2807Class",
+      "FConsClieClass",
+      "FMuestraClass"
+    ],
+    "FTran080": [
+      "FCatalogoClass"
+    ],
+    "FTran090": [
+      "FCatalogoClass"
+    ],
+    "FTran099": [
+      "FMuestraClass"
+    ],
+    "FTran10029": [
+      "FCatalogoClass"
+    ],
+    "FTran10035": [
+      "FRegistrosClass",
+      "FCatalogoClass",
+      "Ftran10035bClass"
+    ],
+    "FTran201": [
+      "FBuscarClientePasivasClass",
+      "FBuscarClienteClass",
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "grid_valoresClass"
+    ],
+    "FTran202": [
+      "FBuscarClienteClass",
+      "FBuscarClientePasivasClass",
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "grid_valoresClass"
+    ],
+    "FTran204": [
+      "FCatalogoClass"
+    ],
+    "FTran205": [
+      "FTran2807Class",
+      "FCatalogoClass"
+    ],
+    "FTran206": [
+      "FbuscarJuzgadoClass",
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "FJuicios1JuzClass"
+    ],
+    "FTran207": [
+      "FConsClieClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass",
+      "FClientesEncontrados"
+    ],
+    "FTran208": [
+      "FConsClieClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass"
+    ],
+    "FTran211": [
+      "FCatalogoClass"
+    ],
+    "FTran212": [
+      "FCatalogoClass"
+    ],
+    "FTran217": [
+      "FCatalogoClass"
+    ],
+    "FTran218": [
+      "FCausaLevClass"
+    ],
+    "FTran232": [
+      "FImagenesClass",
+      "FTran2807Class",
+      "FConsClieClass",
+      "FDatosAdicClass"
+    ],
+    "FTran234": [
+      "FImagenesClass"
+    ],
+    "FTran235": [
+      "FConsClieClass"
+    ],
+    "FTran238": [
+      "FbuscarconvenioClass",
+      "FCatalogoClass"
+    ],
+    "FTran244": [
+      "FCatalogoClass",
+      "FbuscarconvenioClass"
+    ],
+    "FTran247": [
+      "FTran2807Class"
+    ],
+    "FTran2501": [
+      "FChequeInicialClass"
+    ],
+    "FTran2507": [
+      "FImagenesClass",
+      "FCatalogoClass"
+    ],
+    "FTran251": [
+      "FConsClieClass",
+      "FBuscarClientePasivasClass"
+    ],
+    "FTran2511": [
+      "FImagenesClass",
+      "FTran2807Class",
+      "FMuestraClass"
+    ],
+    "FTran2512": [
+      "FImagenesClass",
+      "FMuestraClass"
+    ],
+    "FTran2514": [
+      "FGFuncionariosClass"
+    ],
+    "FTran2517": [
+      "FGFuncionariosClass"
+    ],
+    "FTran2518": [
+      "FGFuncionariosClass"
+    ],
+    "FTran255": [
+      "FbuscarJuzgadoClass",
+      "FCatalogoClass",
+      "FHelpOficialClass",
+      "FJuicios1JuzClass"
+    ],
+    "FTran2558": [
+      "FCatalogoClass"
+    ],
+    "FTran2562": [
+      "FCatalogoClass"
+    ],
+    "FTran2569": [
+      "FCatalogoClass"
+    ],
+    "FTran2581": [
+      "FMuestraClass"
+    ],
+    "FTran2585": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran2586": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran2589": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran2597": [
+      "FCatalogoClass",
+      "FBuscarClienteClass"
+    ],
+    "FTran2638": [
+      "FImagenesClass"
+    ],
+    "FTran265": [
+      "FBuscarClienteClass",
+      "FCatalogoClass"
+    ],
+    "FTran2679": [
+      "FMuestraClass"
+    ],
+    "FTran2693": [
+      "FMotivoClass"
+    ],
+    "FTran2696": [
+      "FbuscarconvenioClass",
+      "FCatalogoClass"
+    ],
+    "FTran2700": [
+      "FCatalogoClass"
+    ],
+    "FTran2719": [
+      "FBuscarClientePasivasClass",
+      "FBuscarClienteClass",
+      "FCatalogoClass"
+    ],
+    "FTran2721": [
+      "FMuestraClass"
+    ],
+    "FTran2724": [
+      "FCatalogoClass",
+      "FHelpOficialClass"
+    ],
+    "FTran2749": [
+      "FMuestraClass"
+    ],
+    "FTran2752": [
+      "FMuestraClass"
+    ],
+    "FTran2779": [
+      "FBuscarClienteClass",
+      "FBuscarClientePasivasClass",
+      "FCatalogoClass"
+    ],
+    "FTran2792": [
+      "FTran2797Class",
+      "Ftran2813Class",
+      "FCatalogoClass",
+      "FBuscarClienteClass",
+      "FBuscarClientePasivasClass",
+      "FHelpOficialClass"
+    ],
+    "FTran2795": [
+      "FHelpOficialClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass",
+      "FBuscarClientePasivasClass",
+      "grid_valoresClass",
+      "FGFuncionariosClass",
+      "FDefProdClass"
+    ],
+    "FTran2805": [
+      "FTran2788Class",
+      "FTRAN30626Class",
+      "FCatalogoClass",
+      "FBuscarClienteClass",
+      "FBoniPaqClass"
+    ],
+    "FTran2828": [
+      "grid_valoresClass"
+    ],
+    "FTran2829": [
+      "grid_valoresClass"
+    ],
+    "FTran2830": [
+      "grid_valoresClass"
+    ],
+    "FTran2831": [
+      "grid_valoresClass"
+    ],
+    "FTran2860": [
+      "FImagenesClass",
+      "FMuestraClass"
+    ],
+    "FTran2861": [
+      "FImagenesClass",
+      "FMuestraClass"
+    ],
+    "FTran2864": [
+      "FCatalogoClass"
+    ],
+    "FTran2865": [
+      "FMuestraClass"
+    ],
+    "FTran2866": [
+      "FCatalogoClass",
+      "FHelpOficialClass"
+    ],
+    "FTran2871": [
+      "FCatalogoClass"
+    ],
+    "FTran2872": [
+      "FRegistrosClass"
+    ],
+    "FTran2877": [
+      "FCatalogoClass"
+    ],
+    "FTran2880": [
+      "FCatalogoClass"
+    ],
+    "FTran2881": [
+      "FCatalogoClass"
+    ],
+    "FTran2892": [
+      "FCatalogoClass"
+    ],
+    "FTran2893": [
+      "FCatalogoClass"
+    ],
+    "FTran2895": [
+      "FCatalogoClass"
+    ],
+    "FTran2902": [
+      "FCatalogoClass"
+    ],
+    "FTran292": [
+      "FbusquedClass"
+    ],
+    "FTran2963": [
+      "FMuestraClass"
+    ],
+    "FTran2965": [
+      "FCatalogoClass",
+      "FTran2967Class"
+    ],
+    "FTran2966": [
+      "FCatalogoClass",
+      "FTran2972Class"
+    ],
+    "FTran2971": [
+      "FCatalogoClass",
+      "FMuestraClass",
+      "grid_valoresClass"
+    ],
+    "FTran2973": [
+      "FCatalogoClass",
+      "FMuestraClass",
+      "grid_valoresClass"
+    ],
+    "FTran2974": [
+      "FCatalogoClass"
+    ],
+    "FTran2975": [
+      "FCatalogoClass"
+    ],
+    "FTran2976": [
+      "FCatalogoClass"
+    ],
+    "FTran30009": [
+      "FCatalogoClass"
+    ],
+    "FTran30073": [
+      "FMuestraClass"
+    ],
+    "FTran30078": [
+      "FCatalogoClass",
+      "Ftran30079Class"
+    ],
+    "FTran30156": [
+      "FCatalogoClass"
+    ],
+    "FTran30157": [
+      "grid_valoresClass"
+    ],
+    "FTran30174": [
+      "FConsClieClass"
+    ],
+    "FTran30404": [
+      "FCatalogoClass"
+    ],
+    "FTran30405": [
+      "FCatalogoClass"
+    ],
+    "FTran30407": [
+      "FCatalogoClass"
+    ],
+    "FTran30408": [
+      "FMuestraClass"
+    ],
+    "FTran30409": [
+      "FCatalogoClass"
+    ],
+    "FTran30410": [
+      "FMuestraClass",
+      "FCatalogoClass"
+    ],
+    "FTran30411": [
+      "FMuestraClass"
+    ],
+    "FTran30412": [
+      "grid_valoresClass"
+    ],
+    "FTran30414": [
+      "FMuestraClass"
+    ],
+    "FTran30454": [
+      "FMuestraClass",
+      "FMsgCauClass"
+    ],
+    "FTran30457": [
+      "FMuestraClass"
+    ],
+    "FTran30463": [
+      "FCatalogoClass"
+    ],
+    "FTran30476": [
+      "FMuestraClass"
+    ],
+    "FTran30510": [
+      "FMuestraClass"
+    ],
+    "FTran30527": [
+      "FMuestraClass"
+    ],
+    "FTran30539": [
+      "FCatalogoClass"
+    ],
+    "FTran30543": [
+      "FDetalleFirmantesClass"
+    ],
+    "FTran30593": [
+      "FControlAccionesClass",
+      "FMuestraClass",
+      "FVistaarbolClass",
+      "FConsClieClass",
+      "FCatalogoClass",
+      "FmercadoClass",
+      "FBuscarClienteClass",
+      "FTran30594Class"
+    ],
+    "FTran30594": [
+      "FControlAccionesClass",
+      "FmercadoClass",
+      "FTran31436Class"
+    ],
+    "FTran30595": [
+      "FMuestraClass"
+    ],
+    "FTran30627": [
+      "grid_valoresClass"
+    ],
+    "FTran31411": [
+      "FTran31436Class",
+      "FTran31431Class"
+    ],
+    "FTran31432": [
+      "FMuestraClass",
+      "grid_valoresClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass"
+    ],
+    "FTran407": [
+      "FbusquedClass",
+      "FRegistrosClass"
+    ],
+    "FTran410": [
+      "FTran432Class",
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran411": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran412": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran421": [
+      "FMensajeClass"
+    ],
+    "FTran425": [
+      "FMensajeClass",
+      "FOficialesClass"
+    ],
+    "FTran426": [
+      "FMensajeClass"
+    ],
+    "FTran428": [
+      "FMensajeClass",
+      "FOficialesClass"
+    ],
+    "FTran429": [
+      "FRegistrosClass"
+    ],
+    "FTran480": [
+      "grid_valoresClass"
+    ],
+    "FTran4802": [
+      "grid_valoresClass"
+    ],
+    "FTran4803": [
+      "grid_valoresClass",
+      "FCamaraImagenClass"
+    ],
+    "FTran493": [
+      "FCatalogoClass"
+    ],
+    "FTran494": [
+      "FCatalogoClass"
+    ],
+    "FTran603": [
+      "FCatalogoClass"
+    ],
+    "FTran604": [
+      "FCatalogoClass"
+    ],
+    "FTran605": [
+      "FCatalogoClass"
+    ],
+    "FTran607": [
+      "FRegistrosClass"
+    ],
+    "FTran608": [
+      "FRegistrosClass"
+    ],
+    "FTran609": [
+      "FCatalogoClass"
+    ],
+    "FTran619": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran637": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "FTran638": [
+      "FRegistrosClass"
+    ],
+    "FTran639": [
+      "FRegistrosClass"
+    ],
+    "FTran640": [
+      "FRegistrosClass",
+      "FbusquedClass",
+      "FTran641Class"
+    ],
+    "FTran641": [
+      "FRegistrosClass",
+      "FbusquedClass"
+    ],
+    "FTran643": [
+      "FCatalogoClass"
+    ],
+    "FTran646": [
+      "FRegistrosClass",
+      "FCatalogoClass",
+      "ftran646aClass"
+    ],
+    "FTran647": [
+      "FRegistrosClass",
+      "ftran647aClass"
+    ],
+    "FTran651": [
+      "FbusquedClass"
+    ],
+    "FTran666": [
+      "FRegistrosClass",
+      "FbusquedClass"
+    ],
+    "FTran690": [
+      "FRegistrosClass"
+    ],
+    "FTran691": [
+      "FRegistrosClass",
+      "ftran692Class"
+    ],
+    "FTran693": [
+      "FRegistrosClass",
+      "ftran692Class"
+    ],
+    "FTranAdi": [
+      "grid_valoresClass"
+    ],
+    "FTranBCRA": [
+      "FCatalogoClass"
+    ],
+    "FTranCaj": [
+      "FCatalogoClass",
+      "FRegistrosClass"
+    ],
+    "FTranFon": [
+      "grid_valoresClass"
+    ],
+    "FTranReversar": [
+      "FBuscarDepositoClass"
+    ],
+    "FTransaccion": [
+      "FAyudaTipoGarClass",
+      "FBuscarClienteClass"
+    ],
+    "FTransaccionFunc": [
+      "grid_valoresClass"
+    ],
+    "FTransferencia": [
+      "FMuestraClass"
+    ],
+    "FTrfInmediata": [
+      "FMuestraClass"
+    ],
+    "FTrprobaen": [
+      "FRegistrosClass"
+    ],
+    "FUsuarioAuto": [
+      "grid_valoresClass"
+    ],
+    "FUsuarioExt": [
+      "grid_valoresClass"
+    ],
+    "FUsuarioLogin": [
+      "FUsuarioLoginModClass",
+      "grid_valoresClass"
+    ],
+    "FUsuarioLoginMod": [
+      "grid_valoresClass"
+    ],
+    "FVGRUREN": [
+      "grid_valoresClass"
+    ],
+    "FVarCalculo": [
+      "grid_valoresClass"
+    ],
+    "FVarServ": [
+      "FRegistrosClass"
+    ],
+    "FVencSegmento": [
+      "grid_valoresClass"
+    ],
+    "FVencimientos": [
+      "FBusGarantiasClass",
+      "FAyudaTipoGarClass",
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FVendedores": [
+      "grid_valoresClass"
+    ],
+    "FVerifTal": [
+      "FDetModifTalClass",
+      "grid_valoresClass"
+    ],
+    "FVigDocumentos": [
+      "grid_valoresClass"
+    ],
+    "FcVaCon": [
+      "grid_valoresClass"
+    ],
+    "Fclasificacion2": [
+      "grid_valoresClass",
+      "FBuscarClienteClass"
+    ],
+    "FcmoSisCen0002": [
+      "grid_valoresClass"
+    ],
+    "FcmoSisCen0004": [
+      "grid_valoresClass"
+    ],
+    "FcmoSisCen0005": [
+      "grid_valoresClass"
+    ],
+    "FcmoSisCen0018": [
+      "grid_valoresClass"
+    ],
+    "Fconcsaldos": [
+      "grid_valoresClass"
+    ],
+    "Fcopclivin": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "Fgrupos": [
+      "FRegistrosClass"
+    ],
+    "Fgrupos_Restricciones": [
+      "FbuscarconvenioClass",
+      "FRegistrosClass"
+    ],
+    "FgtabForm": [
+      "FTablasFormClass"
+    ],
+    "Flogdat": [
+      "FlogparamClass",
+      "FlogmsgClass"
+    ],
+    "Flogger": [
+      "FlogdatClass"
+    ],
+    "Flogmsg": [
+      "FlogmsgdatClass"
+    ],
+    "Flogparam": [
+      "FlogpardatClass"
+    ],
+    "Fmercado": [
+      "FMuestraClass"
+    ],
+    "Fnivel": [
+      "grid_valoresClass"
+    ],
+    "FparamBCRA": [
+      "FCatalogoClass"
+    ],
+    "FparamElimContables": [
+      "FTPBuscaCuentaClass",
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "FparamRelsucsubsprov": [
+      "grid_valoresClass"
+    ],
+    "Freentry": [
+      "FrendatClass",
+      "FcambiosClass"
+    ],
+    "Frendat": [
+      "FrenparamClass",
+      "FrenserClass"
+    ],
+    "Frenovacion": [
+      "FBuscarClienteClass",
+      "FAutorizacionClass"
+    ],
+    "Frenparam": [
+      "FrenpardatClass"
+    ],
+    "Frenser": [
+      "FrenserdatClass"
+    ],
+    "Frm9991": [
+      "FGFuncionariosClass"
+    ],
+    "Frm9993": [
+      "FMuestraClass"
+    ],
+    "Fsec_suc": [
+      "grid_valoresClass"
+    ],
+    "Fsuccentro": [
+      "FRegistrosClass"
+    ],
+    "Ftitulares": [
+      "FBuscarDepositoClass",
+      "FBuscarClienteClass"
+    ],
+    "Ftra10018": [
+      "FBusTarjClass"
+    ],
+    "Ftra10019": [
+      "FBusTarjClass"
+    ],
+    "Ftra2663": [
+      "FMsgCauClass",
+      "FAsignaCategoriasFirmaClass"
+    ],
+    "Ftra2824": [
+      "FCatalogoClass"
+    ],
+    "Ftra2825": [
+      "FCatalogoClass"
+    ],
+    "Ftra2826": [
+      "FCatalogoClass"
+    ],
+    "Ftra2827": [
+      "FCoProBaClass",
+      "FCatalogoClass"
+    ],
+    "Ftra2889": [
+      "FCatalogoClass"
+    ],
+    "Ftra2935": [
+      "FCatalogoClass"
+    ],
+    "Ftra2996": [
+      "FMsgCauClass"
+    ],
+    "Ftran013": [
+      "FCatalogoClass"
+    ],
+    "Ftran10036": [
+      "FRegistrosClass"
+    ],
+    "Ftran10037": [
+      "FCatalogoClass"
+    ],
+    "Ftran10055": [
+      "FRegistrosClass",
+      "FTran10055aClass",
+      "FTran10055bClass"
+    ],
+    "Ftran10056": [
+      "FRegistrosClass",
+      "FTran10056aClass"
+    ],
+    "Ftran220": [
+      "FImagenesClass",
+      "FTran2807Class",
+      "FConsClieClass"
+    ],
+    "Ftran2810": [
+      "FCatalogoClass"
+    ],
+    "Ftran2979": [
+      "FMuestraClass"
+    ],
+    "Ftran30074": [
+      "FCatalogoClass",
+      "FMuestraClass"
+    ],
+    "Ftran30460": [
+      "grid_valoresClass",
+      "FCatalogoClass",
+      "FbuscarconvenioClass"
+    ],
+    "Ftran30472": [
+      "FMuestraClass",
+      "FCatalogoClass"
+    ],
+    "Ftran30485": [
+      "FMuestraClass",
+      "Ftran30487Class"
+    ],
+    "Ftran30487": [
+      "FMuestraClass"
+    ],
+    "Ftran30489": [
+      "FMuestraClass"
+    ],
+    "Ftran30503": [
+      "FCatalogoClass",
+      "FMuestraClass"
+    ],
+    "Ftran30505": [
+      "FMuestraClass"
+    ],
+    "Ftran30513": [
+      "FControlAccionesClass",
+      "FMuestraClass",
+      "FVistaarbolClass",
+      "FConsClieClass",
+      "FCatalogoClass",
+      "FmercadoClass",
+      "FVinculadosRescateClass",
+      "FBuscarClienteClass",
+      "Ftran30514Class"
+    ],
+    "Ftran30514": [
+      "FControlAccionesClass",
+      "FmercadoClass"
+    ],
+    "Ftran30520": [
+      "FMuestraClass",
+      "FCatalogoClass",
+      "FConsClieClass",
+      "FBuscarClienteClass",
+      "FTranObservacionesClass"
+    ],
+    "Ftran30522": [
+      "FControlAccionesClass",
+      "FMuestraClass",
+      "FVistaarbolClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass",
+      "FBuscarClientePasivasClass",
+      "FConsClieClass",
+      "FmercadoClass",
+      "FTranObservacionesClass"
+    ],
+    "Ftran30537": [
+      "FImagenesClass",
+      "FAsignaCategoriasFirmaClass"
+    ],
+    "FtranAprPaq": [
+      "FMensajeChequeraClass",
+      "FHelpOficialClass",
+      "FCatalogoClass",
+      "FBuscarClienteClass"
+    ],
+    "FtranCEchqConc": [
+      "FRegistrosClass"
+    ],
+    "fActtransmep2": [
+      "FDetalleOperacionMepClass",
+      "FRegistrosClass"
+    ],
+    "fDiseno2105": [
+      "grid_valoresFClass",
+      "grid_valoresClass"
+    ],
+    "faprobop": [
+      "FDetalleOperacionClass",
+      "FRegistrosClass"
+    ],
+    "faprobopmep": [
+      "FDetalleOperacionMep",
+      "FDetalleOperacionMepClass",
+      "FRegistrosClass"
+    ],
+    "faprobopmep4": [
+      "FDetalleOperacionMep",
+      "FDetalleOperacionMepClass",
+      "FRegistrosClass",
+      "grid_valoresClass"
+    ],
+    "fclasif": [
+      "grid_valoresClass"
+    ],
+    "fconDnov": [
+      "FDetalleOperacionClass",
+      "FRegistrosClass",
+      "FBusnovClass"
+    ],
+    "fconGnov": [
+      "fconDnovClass",
+      "FRegistrosClass"
+    ],
+    "fconsolorig": [
+      "FDetalleOperacionClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "fconsolrcc": [
+      "FDetalleOperacionClass",
+      "FRegistrosClass",
+      "FBuscarClienteClass"
+    ],
+    "fmodcon": [
+      "FCatalogoClass"
+    ],
+    "frmctrfpen": [
+      "FRegistrosClass"
+    ],
+    "frmlevrec": [
+      "FRegistrosClass",
+      "fconDLevClass"
+    ],
+    "frmlistados": [
+      "FRegistrosClass"
+    ],
+    "ftra10009": [
+      "FRegistrosClass",
+      "FCatalogoClass"
+    ],
+    "ftra10010": [
+      "FRegistrosClass"
+    ],
+    "ftra10026": [
+      "FCatalogoClass"
+    ],
+    "ftran672": [
+      "FRegistrosClass"
+    ],
+    "ftran694": [
+      "FCatalogoClass"
+    ]
+  }
+}

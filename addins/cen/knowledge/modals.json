@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "modals": [
+    {
+      "id": "grid_valores",
+      "class_hints": ["grid_valores", "FHELPG", "Listado de Registros"],
+      "controls": ["gr_SQL", "bb_buscar", "bb_escoger", "bb_cancelar", "txt_comodin", "dl_sp"],
+      "confirm": "bb_escoger",
+      "cancel": "bb_cancelar",
+      "grid": "gr_SQL",
+      "flow": "f5_catalog_lookup"
+    },
+    {
+      "id": "buscar_cliente",
+      "class_hints": ["FBUSCLI", "Buscar Cliente", "Busqueda de Cliente"],
+      "controls": ["GrdResultados", "GrdCliente", "cmdBuscar", "optCliente"],
+      "confirm": "cmdEscoger",
+      "cancel": "cmdSalir",
+      "grid": "GrdResultados",
+      "flow": "modal_client_search"
+    },
+    {
+      "id": "buscar_convenio",
+      "class_hints": ["FBUSCONV", "buscarconvenio", "Convenio"],
+      "controls": ["grdResultados", "txtconvenio"],
+      "grid": "grdResultados",
+      "flow": "modal_convenio_search"
+    },
+    {
+      "id": "detalle_transaccion",
+      "class_hints": ["FDETTRAN", "Detalle"],
+      "controls": ["grdDetalleTran"],
+      "flow": "detail_view_only"
+    },
+    {
+      "id": "grid_opciones",
+      "class_hints": ["FGrdOpciones", "Opciones de Grilla"],
+      "controls": [],
+      "flow": "spread_context_menu",
+      "notes": "Right-click COBISSpread context menu"
+    },
+    {
+      "id": "cobis_message",
+      "class_hints": ["COBISMessageBox", "#32770"],
+      "controls": [],
+      "buttons": ["OK", "Cancelar", "Sí", "No", "Si"],
+      "flow": "cen_handle_dialog"
+    }
+  ]
+}

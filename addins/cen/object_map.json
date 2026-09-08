@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "grid_prefixes": ["grd", "gr_", "Grd"],
+  "field_prefixes": {
+    "code": ["txt", "txtCampo"],
+    "masked_date": ["mskFecha", "msk"],
+    "account": ["mskCuenta"],
+    "description": ["lbl", "dl_"],
+    "combo": ["cbo", "cb_"]
+  },
+  "toolbar": {
+    "pattern": "cmdBoton",
+    "resolve_by": "caption",
+    "common_captions": {
+      "search": ["Buscar", "&Buscar"],
+      "next": ["Siguiente", "Si&guiente", "Siguientes"],
+      "clear": ["Limpiar", "&Limpiar"],
+      "exit": ["Salir", "&Salir"],
+      "transmit": ["Transmitir", "&Transmitir"],
+      "create": ["Crear", "&Crear"],
+      "delete": ["Borrar", "&Borrar", "Eliminar"],
+      "choose": ["Escoger", "&Escoger"],
+      "print": ["Imprimir", "&Imprimir"],
+      "export": ["Exportar", "&Exportar", "Txt", "T&xt"]
+    }
+  },
+  "lookup_modal": {
+    "form_hints": ["grid_valores", "Listado de Registros", "FHELPG"],
+    "controls": {
+      "grid": "gr_SQL",
+      "search": "txt_comodin",
+      "buscar": "bb_buscar",
+      "siguiente": "bb_siguiente",
+      "escoger": "bb_escoger",
+      "cancelar": "bb_cancelar",
+      "sp_label": "dl_sp"
+    }
+  },
+  "shared_modals": [
+    {"id": "buscar_cliente", "form": "FBUSCLI", "grid": "GrdResultados"},
+    {"id": "buscar_convenio", "form": "FBUSCONV", "grid": "grdResultados"}
+  ],
+  "constants": {
+    "f5_keycode": 116,
+    "maximo_rows": 19,
+    "pagination_threshold": 20
+  }
+}

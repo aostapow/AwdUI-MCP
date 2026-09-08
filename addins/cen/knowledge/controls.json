@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "controls": [
+    {
+      "id": "cobis_valid_text",
+      "classes": ["COBISValidTextBox"],
+      "name_patterns": ["^txt", "^txtCampo"],
+      "read": "Text property",
+      "write": "Text property",
+      "f5": true,
+      "mcp_tools": ["cen_set_field", "cen_read_field", "cen_trigger_f5"],
+      "notes": "Code fields; pair with lbl* COBISPanel for description"
+    },
+    {
+      "id": "cobis_masked_inbox",
+      "classes": ["COBISMaskedInBox"],
+      "name_patterns": ["^msk", "^_msk_"],
+      "read": "ClipText preferred over Text",
+      "write": "Text or ClipText",
+      "f5": "sometimes",
+      "mcp_tools": ["cen_set_field", "cen_read_field"],
+      "notes": "Dates dd/mm/yyyy; amounts with mask literals"
+    },
+    {
+      "id": "cobis_masked_text",
+      "classes": ["COBISMaskedTextBox"],
+      "name_patterns": ["^msk"],
+      "read": "ClipText, Text",
+      "write": "Text",
+      "f5": false,
+      "mcp_tools": ["cen_set_field", "cen_read_field"],
+      "notes": "Accounts mskCuenta; validate on Leave via RPC"
+    },
+    {
+      "id": "cobis_grid",
+      "classes": ["COBISGrid"],
+      "name_patterns": ["^grd", "^gr_", "^Grd", "^gr_SQL"],
+      "read": "Row/Col/CtlText; Tag=pagination count",
+      "write": "PMMapeaGrid via app only",
+      "f5": "is_lookup_result",
+      "mcp_tools": ["cen_read_grid", "cen_select_grid_row"],
+      "index_base": 1
+    },
+    {
+      "id": "cobis_spread",
+      "classes": ["COBISSpread", "FpSpread"],
+      "name_patterns": ["^grd", "^_grd_"],
+      "read": "GetText(col,row) 1-based; PMGetCellData",
+      "write": "Value, ActionInsertRow",
+      "f5": false,
+      "mcp_tools": ["cen_read_grid", "cen_read_grid_cell", "cen_select_grid_row"],
+      "index_base": 1
+    },
+    {
+      "id": "cobis_tab",
+      "classes": ["COBISTabControl"],
+      "name_patterns": ["^MhTab", "^Tab", "^mht", "^tbPar"],
+      "mcp_tools": ["cen_select_tab"],
+      "notes": "SelectedIndex; scope list_elements to active tab"
+    },
+    {
+      "id": "cobis_outline",
+      "classes": ["COBISMSOutline"],
+      "name_patterns": ["^otl", "^Out"],
+      "read": "CtlText",
+      "mcp_tools": ["cen_outline_expand", "cen_outline_select"],
+      "notes": "Hierarchy picker; parse code - name - NIVEL"
+    },
+    {
+      "id": "cobis_panel",
+      "classes": ["COBISPanel"],
+      "name_patterns": ["^lbl", "^dl_"],
+      "read": "Text",
+      "write": "read-only description",
+      "mcp_tools": ["cen_read_field"],
+      "notes": "Not System.Windows.Forms.Label"
+    },
+    {
+      "id": "cobis_combo",
+      "classes": ["COBISComboBox"],
+      "name_patterns": ["^cbo", "^_Combo_", "^cb_"],
+      "mcp_tools": ["list_control_items", "select_control_item"]
+    },
+    {
+      "id": "cobis_mh3d_list",
+      "classes": ["COBISMh3dList"],
+      "name_patterns": ["^_Lista_", "^Lst"],
+      "mcp_tools": ["list_control_items", "click_element"]
+    },
+    {
+      "id": "cobis_spin",
+      "classes": ["COBISSpin"],
+      "name_patterns": ["^spn", "^spin"],
+      "read": "Value",
+      "mcp_tools": ["cen_set_field", "cen_read_field"]
+    },
+    {
+      "id": "toolbar_cmdboton",
+      "classes": ["ToolStripButton"],
+      "name_patterns": ["cmdBoton", "_cmdBoton_"],
+      "mcp_tools": ["cen_list_toolbar", "cen_click_toolbar"],
+      "notes": "Indices NOT global — resolve by caption"
+    },
+    {
+      "id": "ultra_groupbox",
+      "classes": ["UltraGroupBox"],
+      "name_patterns": ["^PForma", "^fra", "^Frame"],
+      "mcp_tools": [],
+      "notes": "Scope container only"
+    },
+    {
+      "id": "winforms_radio",
+      "classes": ["RadioButton"],
+      "name_patterns": ["^opt", "^_opt"],
+      "mcp_tools": ["cen_select_radio"]
+    },
+    {
+      "id": "cobis_tristate_tree",
+      "classes": ["TriStateTreeView"],
+      "name_patterns": ["^trv", "^tree", "permiso"],
+      "mcp_tools": ["expand_element", "click_element", "spy_inspect"],
+      "notes": "ADM seguridad permisos; tri-state checkboxes on nodes"
+    },
+    {
+      "id": "cobis_user_control",
+      "classes": ["UserControl"],
+      "name_patterns": ["^cmdMoneda", "^ucTextBox", "^uc"],
+      "mcp_tools": ["list_elements", "cen_set_field", "list_control_items"],
+      "notes": "Composite controls; drill into children (cmbMoneda inside cmdMoneda_UserControl)"
+    },
+    {
+      "id": "cobis_grid_checkbox",
+      "classes": ["PictureBox"],
+      "name_patterns": ["^picVisto", "^pic"],
+      "mcp_tools": ["cen_select_grid_row"],
+      "notes": "FTRAN024 row selection via double-click on picVisto column"
+    },
+    {
+      "id": "winforms_checkbox",
+      "classes": ["CheckBox"],
+      "name_patterns": ["^chk", "^Check"],
+      "mcp_tools": ["click_element", "set_element_value"]
+    }
+  ],
+  "lookup_modal": {
+    "form_hints": ["grid_valores", "Listado de Registros", "FHELPG"],
+    "controls": {
+      "grid": "gr_SQL",
+      "search": "txt_comodin",
+      "buscar": "bb_buscar",
+      "siguiente": "bb_siguiente",
+      "escoger": "bb_escoger",
+      "cancelar": "bb_cancelar",
+      "sp_label": "dl_sp"
+    }
+  },
+  "constants": {
+    "f5_keycode": 116,
+    "maximo_rows": 19,
+    "pagination_threshold": 20
+  }
+}
