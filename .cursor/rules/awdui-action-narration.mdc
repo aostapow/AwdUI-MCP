@@ -1,0 +1,44 @@
+---
+description: Narrar en chat cada acción GUI antes de ejecutarla (observador supervisado)
+alwaysApply: true
+---
+
+# Narración obligatoria — acciones GUI (AwdUI MCP)
+
+Cuando el agente use tools MCP de escritorio (`user-awdui` / `user-winapp`) para **observar o modificar** una aplicación Windows:
+
+## Obligatorio
+
+1. **En el mismo mensaje del agente**, texto **antes** de la tool:
+   - **Voy a:** qué se hará en la app (castellano claro para el observador).
+   - Contexto (ventana, modal, flujo).
+   - Tool y parámetros esenciales.
+   - Resultado esperado en pantalla.
+
+2. **Después de la tool** (siguiente mensaje o continuación del hilo):
+   - `Resultado: OK | FAIL | DUDOSO`
+   - Evidencia breve (ms, título, value).
+
+3. **Un turno = un bloque «Voy a» + una tool GUI** — no paralelizar tools GUI; no actuar sin narrar.
+
+## Narrar ≠ pedir permiso
+
+Compatible con hooks «ejecutar sin pedir permiso»: el agente **anuncia** y actúa; no espera confirmación del usuario salvo que lo pida explícitamente.
+
+## Exentas (sin plantilla completa)
+
+Solo meta-servidor en turno sin GUI: `check_version`, `get_server_info`, `check_session_status`, `invalidate_cache`, `release_all`. Si el turno toca la app → narrar cada tool GUI.
+
+## Referencia
+
+Plantillas, ejemplos y lista de tools: `.cursor/skills/awdui-mcp-automejora/references/patterns/action-narration.md`
+
+## Exclusión
+
+Mensaje del usuario con **sin narrar** / **skip narration** (case-insensitive).
+
+## Prohibido
+
+- Mensaje con varias tools GUI sin bloque «Voy a» encima de cada una.
+- `click_element`, `list_elements`, `type_text`, etc. sin «Voy a» previo en el mismo mensaje.
+- Scripts Python con pyautogui/click directo (ver `awdui-gui-safety.mdc`).

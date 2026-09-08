@@ -1,58 +1,29 @@
 ---
-description: Al automatizar AST, leer skill genérica + skill de producto antes de actuar
+description: Al automatizar AST, leer awdui-mcp-automejora + ast-activities-manager
 alwaysApply: true
 ---
 
-# Skills AwdUI — routing genérica + producto
+# Skills AwdUI — routing
 
-## Cuándo aplica
+## AST / Activities Manager / Time Report
 
-Si el turno involucra **AST**, **Activities Manager**, **Time Report**, **carga de horas**, o la ventana/proceso objetivo es AST:
+1. [awdui-mcp-automejora/SKILL.md](../skills/awdui-mcp-automejora/SKILL.md) — metodología en `references/metodologia-ui.md`
+2. [ast-activities-manager/SKILL.md](../skills/ast-activities-manager/SKILL.md) — producto
 
-1. Leer **ambas** skills **antes** de la primera tool `user-awdui` de exploración o ejecución.
-2. No mezclar IDs de AST en la skill genérica ni improvisar localizadores si ya están documentados.
+Time Report: `ast-activities-manager/flows/time-report-hours.md`
 
-## Skills obligatorias (AST)
+WinForms: `awdui-mcp-automejora/references/patterns/winforms.md`  
+Control catalog: `awdui-mcp-automejora/references/patterns/control-catalog.md`  
+Narración GUI: `awdui-mcp-automejora/references/patterns/action-narration.md` (obligatorio antes de cada tool)  
+Tools: `docs/MCP_TOOLS_REFERENCE.md`
 
-| Orden | Skill | Ruta |
-|-------|-------|------|
-| 1 | Metodología (fases 0–6) | `.cursor/skills/awdui-flow-exploration/SKILL.md` |
-| 2 | Producto AST (mapa, flujos, quirks) | `.cursor/skills/ast-activities-manager/SKILL.md` |
+## Secuencia AST
 
-Si el flujo es Time Report / carga de horas, leer también:
+1. Leer referencias arriba (incl. action-narration.md)
+2. Narrar → `set_target_window("AST")` (ventana objetivo)
+3. IDs y flujos de ast-activities-manager — **cada paso: Voy a → una tool → resultado**
+4. Narrar → `set_target_window("")` al terminar
 
-- `.cursor/skills/ast-activities-manager/flows/time-report-hours.md`
+## Mejora MCP (este repo)
 
-Patrones WinForms (lookup, combos, MDI) — solo si aplica:
-
-- `.cursor/skills/awdui-flow-exploration/patterns/winforms.md`
-
-**Catálogo de controles** (role → leer valores → interactuar) — consultar en Fase 3:
-
-- `.cursor/skills/awdui-flow-exploration/patterns/control-catalog.md`
-
-**Catálogo de tools MCP** (qué hace cada tool, parámetros, ejemplos) — antes de ejecutar:
-
-- `docs/MCP_TOOLS_REFERENCE.md`
-
-## Secuencia mínima al detectar AST
-
-1. Leer skills (tabla arriba).
-2. `set_target_window("AST")` al iniciar interacción GUI.
-3. Usar `automation_id` y flujos de la skill de producto; seguir fases de la genérica.
-4. `set_target_window("")` al terminar.
-
-## Señales de detección
-
-- Usuario menciona AST, Activities Manager, Time Report, carga de horas.
-- `list_windows` / `detect_framework` muestra proceso o título con `AST`.
-- `set_target_window` ya apunta a `AST`.
-- Flujo en curso usa IDs documentados (`cboActividad`, `btnBuscar`, `gcGrillaActividades`, etc.).
-
-## Nuevos productos
-
-Si se agrega otra app bajo `.cursor/skills/{producto}/`, aplicar el mismo patrón: **genérica + skill del producto** cuando ese producto sea el objetivo.
-
-## Advisor
-
-En el prompt del improvement advisor, indicar si se leyeron `awdui-flow-exploration` y `ast-activities-manager`.
+Solo `awdui-mcp-automejora` + `state.json`. Lab opcional con `active_lab`.

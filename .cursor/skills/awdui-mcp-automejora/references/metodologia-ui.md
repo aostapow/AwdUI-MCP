@@ -1,15 +1,6 @@
----
-name: awdui-flow-exploration
-description: >-
-  Reproduce GUI flows methodically by first mapping programmatic object
-  identification with AwdUI MCP: window, parent containers, then child
-  controls. Use when automating desktop apps, replaying user flows, building
-  test scripts, or when the user asks to explore UI objects before clicking.
----
+# Metodología UI — exploración de flujos (AwdUI)
 
-# Exploración metódica de flujos UI (AwdUI)
-
-Antes de ejecutar un flujo, **mapear e identificar objetos de forma programática**.
+Parte de [awdui-mcp-automejora](../SKILL.md). Antes de ejecutar un flujo, **mapear objetos de forma programática**.
 No clicar por coordenadas ni adivinar hasta tener un mapa estable ventana → padres → hijos.
 
 ## Reglas
@@ -22,6 +13,9 @@ No clicar por coordenadas ni adivinar hasta tener un mapa estable ventana → pa
 5. **Verificar antes de usar** — `highlight_element` o `smart_find` con `highlight=true` para confirmar el objeto correcto.
 6. **Una tool a la vez** en Windows — no paralelizar llamadas AwdUI (COM/UIA).
 7. **Bloqueado → entender, no reintentar** — si una acción no produce el efecto esperado, `list_windows` + screenshot para diagnosticar **qué ventana está activa** y qué falta cerrar o completar; no repetir el mismo click en el padre.
+8. **Narrar antes de actuar** — cada tool MCP GUI requiere un bloque en chat («Voy a: …») **antes** de ejecutarla. Ver [patterns/action-narration.md](patterns/action-narration.md).
+9. **Depositar aprendizaje en repo** — control estable o workaround → `repo_capture` / `repo_hints_set`. Ver [patterns/object-repository.md](patterns/object-repository.md).
+10. **Lab / harness** — verify empírica + `evidence.jsonl`; ver [evaluacion-lab.md](evaluacion-lab.md).
 
 ## Fases del workflow
 
@@ -165,18 +159,21 @@ Si un hijo no aparece en el árbol:
 |-----------|------------|
 | **Roles UIA → leer / interactuar** | [patterns/control-catalog.md](patterns/control-catalog.md) (40 tipos) + [control-patterns-reference.md](patterns/control-patterns-reference.md) |
 | WinForms (combos, lookup, MDI) | [patterns/winforms.md](patterns/winforms.md) |
+| Win32 (menu bar cascada) | [patterns/win32-menubar.md](patterns/win32-menubar.md) |
 
 Al identificar un control en Fase 3: consultar **control-catalog** por `role` y `patterns` de `spy_inspect` antes de elegir tool.
 
 No documentar `automation_id` de un producto concreto aquí — usar la skill del producto (ver abajo).
 
-### Skills por producto
+### Lab y productos
 
-| Producto | Skill |
-|----------|-------|
-| AST — Activities Manager | [ast-activities-manager](../ast-activities-manager/SKILL.md) |
+| Contexto | Referencia |
+|----------|------------|
+| Evaluar MCP con una app | [evaluacion-lab.md](evaluacion-lab.md) — solo nombre; autodetect → `runs/.../discovered.yaml` |
+| AST — Activities Manager | [ast-activities-manager](../../ast-activities-manager/SKILL.md) |
 
-Al automatizar un producto conocido, leer **ambas**: esta skill (metodología) + la skill del producto (mapa de objetos y flujos).
+Al automatizar un **producto** conocido: metodología + skill de producto.  
+Al **evaluar el MCP** con una app: metodología + evaluacion-lab + manifest de esa corrida.
 
 ---
 
@@ -210,6 +207,8 @@ Por cada objeto del mapa, en orden padre → hijo:
 ## Fase 6 — Reproducción del flujo
 
 Solo ahora ejecutar acciones, usando los localizadores validados.
+
+**Narración obligatoria:** antes de **cada** tool de la tabla siguiente, publicar en chat el bloque «Voy a» (ver [action-narration.md](patterns/action-narration.md)). El observador debe poder seguir intención → acción en pantalla.
 
 **Al abrir un diálogo:** el paso actual es la ventana nueva hasta que cierre. Scope `window_title` al diálogo; al salir, `list_windows` para confirmar que desapareció; recién entonces el siguiente paso es el formulario padre.
 
@@ -262,4 +261,4 @@ Patrones WinForms (lookup, combos, MDI): ver [patterns/winforms.md](patterns/win
 - Catálogo roles UIA (40 tipos): [patterns/control-catalog.md](patterns/control-catalog.md)
 - Referencia patterns UIA: [patterns/control-patterns-reference.md](patterns/control-patterns-reference.md)
 - Guía general AwdUI: `docs/AGENT_GUIDE.md`
-- Productos: [ast-activities-manager](../ast-activities-manager/SKILL.md)
+- Productos: [ast-activities-manager](../../ast-activities-manager/SKILL.md)

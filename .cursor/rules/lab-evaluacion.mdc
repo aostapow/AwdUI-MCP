@@ -1,0 +1,42 @@
+---
+description: Evaluación lab opcional — solo nombre de app; autodetect con MCP
+globs:
+  - lab-apps/**
+  - .cursor/mcp-improvement-cycle/runs/**
+---
+
+# Evaluación lab (opcional)
+
+Probar el MCP contra **la app que indique el usuario** (solo el nombre en `active_lab`).
+
+**Skill:** `.cursor/skills/awdui-mcp-automejora/SKILL.md` (v2.1.0)  
+**Protocolo:** `references/evaluacion-lab.md` — autodetect + `flows.json` (execute_flow ↔ discover_flows)  
+**Narración:** `references/patterns/action-narration.md` — decir en chat «Voy a…» antes de cada tool GUI  
+**Repo:** `references/patterns/object-repository.md` — `repo_hints` antes de actuar; `repo_hints_set` tras fricción
+
+Sin `active_lab` ni pedido explícito → **no** arrancar lab.
+
+## Artefactos por corrida
+
+| Archivo | Rol |
+|---------|-----|
+| `discovered.yaml` | Autodetect (una vez) |
+| `flows.json` | Árbol entry → action; cola funcional |
+| `mcp-usage.jsonl` | Append cada invocación MCP |
+| `improvements.jsonl` | Append cada fix en `mcp-servers/` |
+| `coverage.json` / `lab-summary.md` | Regenerados cada turno (hook incremental) |
+| `coverage-diff.md` | Δ vs corrida anterior misma app |
+| `coverage-sync.json` | Espejo coverage + flows_progress (sidecar) |
+| `evidence.jsonl` | OBS / ACT / VERIFY por paso |
+| `repo-snapshot.json` | Export SQLite repo + discovered (hook incremental; gate G8) |
+
+## Validación y cobertura
+
+- Tras editar `flows.json`: `python scripts/validate_flows.py` (avisos OK para seeds encolados; `--strict` para CI).
+- Cobertura: `python scripts/lab_coverage_report.py` o hook `check_mcp_objective.py`.
+- Gate `perfect`: `python scripts/validate_perfect_gate.py` (G1–G8) → `--apply` solo si elegible.
+- El hook sincroniza `lab_apps.{app}.coverage` y `flows_progress` en `state.json`.
+
+## Gate `perfect`
+
+Seeds en `met`, `validate_flows` sin errores, cobertura actualizada, `repo-snapshot.json` si hay `discovered.yaml`, cierre honesto MCP (ver `test-closure-evaluation.md`).

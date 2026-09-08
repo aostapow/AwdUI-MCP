@@ -32,11 +32,11 @@ después de revisar el backlog.
 
 | Skill | Contenido | Ejemplo |
 |-------|-----------|---------|
-| `awdui-flow-exploration` | Metodología fases 0–6, reglas, anti-patrones genéricos | «Explorar antes de clicar» |
-| `awdui-flow-exploration/patterns/` | Patrones por framework (WinForms, etc.) cross-app | «Lookup grid: seleccionar por valor» |
+| `awdui-mcp-automejora` | Metodología + automejora MCP | «Explorar antes de clicar» |
+| `awdui-mcp-automejora/references/patterns/` | Patrones por framework cross-app | «Lookup grid: seleccionar por valor» |
 | `{producto}/` ej. `ast-activities-manager` | IDs, ventanas, flujos y quirks de **un** producto | `cboActividad`, menú Time Report |
 
-**No** mezclar IDs de producto en la skill genérica. Si el gap es L1–L2 (solo aplica a un cliente), proponer skill de producto o `sintoma_app` — no `awdui-flow-exploration`.
+**No** mezclar IDs de producto en la skill genérica. Si el gap es L1–L2 (solo aplica a un cliente), proponer skill de producto o `sintoma_app` — no `awdui-mcp-automejora`.
 
 Este advisor evalúa *qué falló* y *qué cambiar* en el producto MCP o en la documentación correcta.
 
@@ -70,7 +70,7 @@ o entorno (focus/COM) — no gap en MCP ni skills.
 
 1. Verificar ausencia de exclusión.
 2. Reconstruir cronología: tools invocadas, errores, timeouts, fallbacks (OCR vs UIA).
-3. **Leer** `awdui-flow-exploration/SKILL.md`, skill del producto si aplica (ej. `ast-activities-manager`), y `manifest.md`.
+3. **Leer** `awdui-mcp-automejora/references/metodologia-ui.md`, skill del producto si aplica (ej. `ast-activities-manager`), y `manifest.md`.
 4. **Clasificar** cada fricción con `tipo_gap` (ver manifest).
 5. **Asignar dueño** del concern (skill / tool / módulo código).
 6. **Buscar deduplicación** en `_MCP_IMPROVEMENT/`.
@@ -147,7 +147,7 @@ nombre.apellido
 [proceso, framework detectado, ventanas]
 
 ## Skills leídas
-- awdui-flow-exploration: sí/no
+- awdui-mcp-automejora: sí/no
 - skill producto (ej. ast-activities-manager): sí/no
 
 ## Evidencia del turno
@@ -181,7 +181,7 @@ nombre.apellido
   "friccion": "Agente usó OCR antes de list_elements con role ComboBox",
   "tipo_gap": "routing_tool",
   "nivel_abstraccion": "L4",
-  "dueno": "awdui-flow-exploration/patterns/winforms.md",
+  "dueno": "awdui-mcp-automejora/references/patterns/winforms.md",
   "es_propuesta": true,
   "motivo": "Fase 3 exige UIA antes de OCR; no se siguió",
   "tool_involucrada": "list_elements",
@@ -218,8 +218,8 @@ Si el agente no consultó `control-catalog` y usó OCR en un control con pattern
 
 - Dueños y tools: [manifest.md](manifest.md)
 - Plantillas y ejemplo de sesión: [examples.md](examples.md)
-- Skill genérica: [../awdui-flow-exploration/SKILL.md](../awdui-flow-exploration/SKILL.md)
-- Patrones WinForms: [../awdui-flow-exploration/patterns/winforms.md](../awdui-flow-exploration/patterns/winforms.md)
-- Catálogo controles UIA: [../awdui-flow-exploration/patterns/control-catalog.md](../awdui-flow-exploration/patterns/control-catalog.md)
+- Skill genérica: [../awdui-mcp-automejora/references/metodologia-ui.md](../awdui-mcp-automejora/references/metodologia-ui.md)
+- Patrones WinForms: [../awdui-mcp-automejora/references/patterns/winforms.md](../awdui-mcp-automejora/references/patterns/winforms.md)
+- Catálogo controles UIA: [../awdui-mcp-automejora/references/patterns/control-catalog.md](../awdui-mcp-automejora/references/patterns/control-catalog.md)
 - Skill producto AST: [../ast-activities-manager/SKILL.md](../ast-activities-manager/SKILL.md)
 - Guía agente: [../../../docs/AGENT_GUIDE.md](../../../docs/AGENT_GUIDE.md)

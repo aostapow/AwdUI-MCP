@@ -42,7 +42,7 @@ No parchear por app en el servidor. Opciones en orden:
 ## Dónde va el conocimiento de producto
 
 - **Skills de producto:** `.cursor/skills/{producto}/` (IDs, flujos, quirks)
-- **Patrones de exploración:** `.cursor/skills/awdui-flow-exploration/patterns/`
+- **Patrones de exploración:** `.cursor/skills/awdui-mcp-automejora/references/patterns/`
 - **Scripts de laboratorio** (fuera del servidor): `scripts/`, `tests/integration/` — nunca importados por el MCP en runtime
 
 

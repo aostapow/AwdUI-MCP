@@ -1,0 +1,39 @@
+---
+description: Al cerrar tareas de prueba harness, entregar evaluación honesta harness vs MCP perfecto (workarounds, backlog P1).
+alwaysApply: true
+---
+
+# Cierre honesto de pruebas harness
+
+## Obligatorio al finalizar pruebas
+
+Cuando el agente **da por finalizadas** tareas de prueba (lote de flujos NP, sesión Notepad,
+matriz de lab, o marca `objective_met` en `state.json`):
+
+1. Leer [test-closure-evaluation.md](../skills/awdui-mcp-automejora/references/patterns/test-closure-evaluation.md).
+2. Entregar al usuario la plantilla **Evaluación honesta MCP** (nivel harness vs nivel calidad MCP).
+3. **No** afirmar «MCP perfecto» solo porque la matriz está `met` o `objective_met` es `true`.
+
+## Tres niveles (no mezclar en el chat)
+
+| Nivel | Flag típico | ¿Decir «perfecto» al usuario? |
+|-------|-------------|----------------------------------|
+| Flujo `met` | `notepad_matrix.NP-XX` | No |
+| Harness lab completo | `lab_apps.{id}.perfect` | Solo «harness cumplido» |
+| MCP calidad operativa | sin workarounds obligatorios | Sí — «MCP listo» |
+
+Si la sesión usó coords manuales, verify duplicado (`list_windows` tras cada modal), click previo
+al editor para teclado, o atajos solo en skill producto → **nivel 3 = NO**; documentar tabla
+workarounds + backlog `_MCP_IMPROVEMENT/`.
+
+## Prohibido
+
+- Cerrar con solo «30/30 met» o «objective_met true» sin evaluación de workarounds.
+- Ocultar que quedan fixes P1 por implementar y re-probar.
+- Equiparar `*_perfect` en JSON con «no hay nada que modificar en el MCP».
+
+## Dónde actualizar
+
+- Chat: plantilla de cierre (obligatorio).
+- `state.json`: `blockers`, `last_cycle.notes`; opcional `mcp_quality_status`.
+- Skill producto: quirks/workarounds temporales marcados como tal hasta fix MCP.

@@ -1,36 +1,44 @@
 ---
-description: Ciclo continuo de mejora MCP — lanzar controlador al cierre del turno
+description: Ciclo de automejora MCP — skill única awdui-mcp-automejora
 globs:
   - mcp-servers/awdui-server/**
   - .cursor/mcp-improvement-cycle/**
-  - .cursor/skills/mcp-improvement-cycle/**
-alwaysApply: false
+  - .cursor/skills/awdui-mcp-automejora/**
 ---
 
-# Ciclo de mejora MCP
+# Ciclo de automejora MCP
 
-## Cuándo aplica
+## Skill canónica
 
-Turno con cambios o diagnóstico en `mcp-servers/awdui-server/**` o exploración agentica de Calculadora como laboratorio MCP.
+`.cursor/skills/awdui-mcp-automejora/SKILL.md` (v2) + `CHANGELOG.md`  
+Protocolo lab: `references/evaluacion-lab.md`
 
 ## Estado durable
 
-`.cursor/mcp-improvement-cycle/state.json` — **no** usar el chat como memoria del objetivo.
+`.cursor/mcp-improvement-cycle/state.json` — memoria del ciclo; actualizar `last_cycle` cada turno.
 
-## Al cerrar el turno
+## Agente principal
 
-Lanzar en background **solo si** `cycle_control.paused` es false y no existe `.cursor/mcp-improvement-cycle/PAUSED`:
+1. Leer SKILL + state.json (árbol de decisión §2).
+2. Sin `active_lab` → foco `completion_criteria` / `current_focus`.
+3. Con `active_lab` → evaluacion-lab.md; cobertura incremental; `validate_flows.py` tras editar flows.
+4. Con GUI (lab, AST, producto): narrar cada acción — `action-narration.md`; **repo** — `object-repository.md` (`repo_hints_set` tras fricción).
+5. Cerrar turno: §5.3 SKILL (`last_cycle`, mcp-usage, improvements si hubo diff servidor).
 
+## Al cerrar el turno (background)
+
+Solo si `cycle_control.paused` es false y no existe `PAUSED`:
+
+- Lanzar `mcp-cycle-controller` (actualiza `cycle.log`, refina `last_cycle` / gaps).
+- El hook `stop` regenera `coverage.json`, `repo-snapshot.json` y `lab_apps.*.coverage` si hay lab activo.
+
+## Scripts de soporte
+
+```powershell
+python scripts/validate_flows.py
+python scripts/validate_perfect_gate.py
+python scripts/build_mcp_capability_catalog.py
+python scripts/lab_coverage_report.py
 ```
-Task(description="MCP Cycle Controller", subagent_type=generalPurpose, run_in_background=true, ...)
-```
 
-Prompt: leer `.cursor/skills/mcp-improvement-cycle/SKILL.md` y `.cursor/agents/mcp-cycle-controller.md`; evaluar criterios; actualizar state + cycle.log.
-
-## Agente principal — siguiente turno
-
-Si `state.json` → `status` != `complete`, **continuar** con `current_focus` sin pedir permiso para retomar el ciclo.
-
-## Objetivo (resumen)
-
-MCP que observe → actúe (patterns) → verifique en apps Windows; Calculadora = laboratorio.
+**Repo:** `repo_hints_set` tras aprendizaje; `repo_hints` antes de actuar; ver `references/patterns/object-repository.md`.

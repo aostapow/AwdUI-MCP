@@ -18,9 +18,9 @@ Referencia para el subagente `awdui-mcp-improvement-advisor`.
 
 | Concern | Dueño primario | Secundario |
 |---------|----------------|------------|
-| Metodología exploración → acción | `awdui-flow-exploration` | `docs/AGENT_GUIDE.md` |
+| Metodología exploración → acción | `awdui-mcp-automejora/references/metodologia-ui.md` | `docs/AGENT_GUIDE.md` |
 | **Role → leer / interactuar (catálogo)** | `patterns/control-catalog.md` (40 control types MS) | `patterns/control-patterns-reference.md` |
-| Patrones WinForms cross-app | `awdui-flow-exploration/patterns/winforms.md` | AGENT_GUIDE |
+| Patrones WinForms cross-app | `awdui-mcp-automejora/references/patterns/winforms.md` | AGENT_GUIDE |
 | Mapa de objetos / flujos de un producto | `{producto}/` ej. `ast-activities-manager` | — |
 | Orden anti-OCR prematuro | `patterns/winforms.md` o skill producto | flow-exploration Fase 3 |
 | `list_elements` profundidad, roles, offscreen | `list_elements` tool | `uia_backend.py` |
@@ -31,7 +31,7 @@ Referencia para el subagente `awdui-mcp-improvement-advisor`.
 | OCR usado con celdas UIA visibles | **tool_gap L4** — `grid_rows`, leer Value/LegacyIAccessible | skill anti-OCR |
 | Lentitud / timeouts | `observe_ui_tool`, `ui_fingerprint` | `perf.py`, fast mode defaults |
 | OCR scope incorrecto | `find_text`, `click_text` | `ocr.py` |
-| Focus terminal roba ventana | `set_target_window` | `awdui-flow-exploration` Fase 0 |
+| Focus terminal roba ventana | `set_target_window` | `awdui-mcp-automejora` Fase 0 |
 | Object repository | `repo_find`, `repo_capture` | `repo_store.py` |
 | Batch / secuencias | `batch_actions` | `input_tools.py` |
 

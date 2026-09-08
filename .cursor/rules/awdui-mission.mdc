@@ -9,9 +9,9 @@ alwaysApply: true
 
 Construir un MCP que automatice aplicaciones Windows **de forma programática** (UIA, patterns, discovery, skills, código). Screenshot y coordenadas solo en **casos extremos**.
 
-Las tareas del usuario (ej. cargar horas en AST) y **apps de referencia** (ej. Calculadora UWP) son **vehículos de aprendizaje**, no el entregable cuando hay fricción. Si la tarea falla pero se aprendió y se generalizó → avance válido.
+Las tareas del usuario (ej. cargar horas en AST) y **apps de lab** que elijan para probar son **vehículos de aprendizaje**, no el entregable cuando hay fricción.
 
-**Calculadora:** laboratorio para observación UIA, patterns y pasos seguros. Cada control probado debe producir una mejora MCP o un gap documentado — nunca un script batch que mueva el mouse sin agente.
+**Lab:** cualquier app Windows usada solo para validar/mejorar el MCP. Cada control probado debe producir mejora MCP o gap documentado — nunca script batch sin agente.
 
 ## Ante cualquier tarea de automatización
 
@@ -19,6 +19,7 @@ Las tareas del usuario (ej. cargar horas en AST) y **apps de referencia** (ej. C
 2. **Generalizar** — skill genérica, skill de producto, tool MCP, o cambio en `mcp-servers/awdui-server/`.
 3. **No insistir** en completar la tarea a ciegas (reintentos OCR/coords) si no se entiende la causa.
 4. **Bloqueado → entender** — `list_windows`, `get_focused_element`, screenshot para diagnóstico; conclusión antes del siguiente intento.
+5. **Narrar antes de cada acción GUI** — bloque «Voy a» en chat para el observador; ver `awdui-action-narration.mdc` y `patterns/action-narration.md`.
 
 ## Jerarquía de interacción
 
@@ -32,7 +33,7 @@ Las tareas del usuario (ej. cargar horas en AST) y **apps de referencia** (ej. C
 
 ## Entregables válidos (además de “tarea hecha”)
 
-- Patrón en `.cursor/skills/awdui-flow-exploration/` (ej. `active-window.md`)
+- Patrón en `.cursor/skills/awdui-mcp-automejora/references/patterns/` (ej. `active-window.md`)
 - Tool o mejora en código MCP + tests + `docs/MCP_TOOLS_REFERENCE.md`
 - Propuesta en `_MCP_IMPROVEMENT/` (advisor) con fricción y gap tipificado
 - Skill de producto actualizada solo con IDs/flujos **estables** de esa app
@@ -43,10 +44,11 @@ Las tareas del usuario (ej. cargar horas en AST) y **apps de referencia** (ej. C
 - Hardcodear reglas de un producto en código genérico — ver `.cursor/rules/awdui-app-agnostic.mdc`
 - Abrir modales y seguir en el padre sin cerrar el sub-flujo
 - Escalar a coords/OCR sin agotar discovery y sin documentar por qué UIA no alcanza
+- Acción GUI sin narrar «Voy a» previa en chat (salvo `sin narrar` del usuario)
 
 ## Referencias
 
-- Metodología: `.cursor/skills/awdui-flow-exploration/SKILL.md`
+- Metodología: `.cursor/skills/awdui-mcp-automejora/references/metodologia-ui.md`
 - Ventana activa: `patterns/active-window.md`
 - Catálogo tools: `docs/MCP_TOOLS_REFERENCE.md`
 - Agnóstico de app: `.cursor/rules/awdui-app-agnostic.mdc`

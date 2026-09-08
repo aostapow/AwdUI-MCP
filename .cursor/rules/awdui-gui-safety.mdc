@@ -17,7 +17,7 @@ Scripts como `explore_calculator_full.py` importaban `do_click`/`pyautogui` **di
 
 1. **Nunca** ejecutar scripts GUI (`explore_calculator*`, `smoke_calculator`, `calculator_orchestrator`) en **background** (`block_until_ms: 0` o proceso huérfano).
 2. **Nunca** usar `do_click` con coordenadas hardcodeadas sin `gui_session.guarded_click()` y ventana objetivo viva.
-3. **Preferir MCP tools** (`click_element`, `list_elements`) — una acción por turno agentico con observación del resultado.
+3. **Preferir MCP tools** (`click_element`, `list_elements`) — una acción por turno agentico con **narración previa en chat** y observación del resultado (ver `awdui-action-narration.mdc`).
 4. Scripts batch solo con `AWDUI_GUI_SESSION=1` en foreground y `gui_session.begin()`; sin eso deben **abortar**.
 5. **No** crear reglas/skills que manden "correr orchestrator hasta verde" sin supervisión humana en fase de aprendizaje.
 6. **`launch_app` con `reuse=true` (default):** no abrir duplicados — si la app ya está abierta, enfocar. Recovery stale: `replace=true` (cierra todas y abre una), nunca `launch_app` en bucle sin `replace`.
@@ -25,7 +25,10 @@ Scripts como `explore_calculator_full.py` importaban `do_click`/`pyautogui` **di
 ## Patrón correcto (aprendizaje)
 
 ```
-Agente → MCP click_element → leer resultado → MCP find_element → siguiente paso
+Chat: Voy a seleccionar el combo Horas…
+Agente → MCP select_control_item → chat: Resultado OK + evidencia
+Agente → chat: Voy a leer el valor para verificar…
+Agente → MCP read_element → …
 ```
 
 ## Patrón prohibido (aprendizaje)

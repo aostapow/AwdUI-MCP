@@ -8,7 +8,7 @@ description: >-
 
 # AST — Activities Manager
 
-Skill **específica del producto**. La metodología genérica (fases 0–6, reglas, anti-patrones) está en [awdui-flow-exploration](../awdui-flow-exploration/SKILL.md). Los patrones WinForms reutilizables en [winforms.md](../awdui-flow-exploration/patterns/winforms.md).
+Skill **específica del producto**. Metodología: [metodologia-ui.md](../awdui-mcp-automejora/references/metodologia-ui.md). WinForms: [winforms.md](../awdui-mcp-automejora/references/patterns/winforms.md). Narración: [action-narration.md](../awdui-mcp-automejora/references/patterns/action-narration.md). **Repo:** tras mapear un control estable (`cboActividad`, `btnGuardar`, …) → `repo_capture` + `repo_hints_set` con quirks (ej. invoke falla → click). Antes de repetir → `repo_hints`. Ver [object-repository.md](../awdui-mcp-automejora/references/patterns/object-repository.md).
 
 ## Contexto de la app
 
@@ -68,4 +68,4 @@ Diálogo **Buscar** (`window_title="Buscar"`):
 
 Descubrimientos **solo de AST** (IDs, menús, flujos, quirks) → esta skill o `flows/`.
 
-Mejoras **cross-app** (tools MCP, patrones WinForms genéricos, performance) → `awdui-flow-exploration` o `_MCP_IMPROVEMENT/`.
+Mejoras **cross-app** (tools MCP, patrones WinForms genéricos, performance) → `awdui-mcp-automejora` o `_MCP_IMPROVEMENT/`.

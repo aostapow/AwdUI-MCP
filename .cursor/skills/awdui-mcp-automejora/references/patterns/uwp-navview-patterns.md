@@ -1,8 +1,6 @@
-# Calculadora UWP — patrones descubiertos (laboratorio)
+# UWP / NavView — patrones de lab
 
-
-
-Patrones reutilizables para **cualquier** app WinUI/NavView; la Calculadora es solo el medio actual.
+Patrones reutilizables para apps WinUI con NavView (observados en corridas; no atados a un producto).
 
 
 
