@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Narración obligatoria — acciones GUI (AwdUI MCP)
 
-Cuando el agente use tools MCP de escritorio (`user-awdui` / `user-winapp`) para **observar o modificar** una aplicación Windows:
+Cuando el agente use tools MCP de escritorio (`user-awdui`) para **observar o modificar** una aplicación Windows:
 
 ## Obligatorio
 

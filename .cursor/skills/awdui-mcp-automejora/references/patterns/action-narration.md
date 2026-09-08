@@ -1,6 +1,6 @@
 # Narración de acciones — observador en chat
 
-> **Obligatorio** en todo turno con tools MCP sobre GUI Windows (`user-awdui`, `user-winapp`).
+> **Obligatorio** en todo turno con tools MCP sobre GUI Windows (`user-awdui`).
 > El observador debe leer en el chat **qué se pretende hacer** antes de verlo en la aplicación.
 
 Complementa OBS→ACT→VERIFY de [metodologia-ui.md](../metodologia-ui.md) y [evaluacion-lab.md](../evaluacion-lab.md).
