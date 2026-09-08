@@ -1,9 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-08T00:34:59.520231+00:00",
+  "generated_at": "2026-09-08T01:43:46.610834+00:00",
   "mcp_tools": {
-    "total": 112,
+    "total": 113,
     "tools": {
+      "act_on_control": {
+        "module": "ui_automation",
+        "summary": "Resolve a control and act (invoke|click|set|select) with optional verify."
+      },
       "annotate_screenshot": {
         "module": "screenshot",
         "summary": "Screenshot with red boxes around specified elements."

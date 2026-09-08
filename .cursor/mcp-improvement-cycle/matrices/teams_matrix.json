@@ -1,0 +1,150 @@
+{
+  "TE-00": {
+    "status": "met",
+    "name": "Hooks + sesión MCP",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-00-hooks-session.md",
+    "timing_ms": 120,
+    "evidence": "2026-09-07 turn10: check_version v0.4.0; check_session_status target_alive hwnd=460854 ops OK"
+  },
+  "TE-01": {
+    "status": "met",
+    "name": "Launch Teams limpio",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-01-launch.md",
+    "timing_ms": 150,
+    "evidence": "2026-09-07 turn10: target pre-set Awamori chat; detect_framework electron ms-teams.exe hwnd=460854"
+  },
+  "TE-02": {
+    "status": "met",
+    "name": "Discovery + mapa UIA",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-02-discovery.md",
+    "timing_ms": 475,
+    "evidence": "2026-09-07 turn10: invalidate cold 49 TreeItems@475ms incl menur1g4 Reyes menur1eu; screenshot awdui_1788746143881_4"
+  },
+  "TE-03": {
+    "status": "met",
+    "name": "Nav rail",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-03-nav-rail.md",
+    "timing_ms": 1912,
+    "evidence": "2026-09-07 turn6: invoke Calendario ef56c0de 1912ms verify; Llamadas 20c3440d 1402ms find_text OK; Chat 3b64df9d 1753ms; menur1r re-select FAIL 12783ms SLOW but Awamori OCR+screenshot awdui_1788745457768_2 OK; no llamada"
+  },
+  "TE-04": {
+    "status": "met",
+    "name": "Buscar Nicolás Awamori",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-04-search-awamori.md",
+    "timing_ms": 600,
+    "evidence": "2026-09-07 turn10: ctrl+e ComboBox Busca rápidamente focus; type_into_element Nicolas Awamori 15 chars; screenshot awdui_1788746171565_5 dropdown Awamori Nicolas SUBGERENTE; escape dismiss; no abrir chat"
+  },
+  "TE-05": {
+    "status": "met",
+    "name": "Chat 1:1 lectura",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-05-chat-readonly.md",
+    "timing_ms": 1453,
+    "evidence": "2026-09-07 turn7: invoke menur1fa Argentina 1453ms verify OK; menur1eu Awamori 1163ms verify OK; find_text Awamori x4; screenshot awdui_1788745788470_2; no TE-07 re-send"
+  },
+  "TE-06": {
+    "status": "met",
+    "name": "Compose sin enviar",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-06-compose-no-send.md",
+    "timing_ms": 950,
+    "evidence": "partial resuelto TE-07: type_text+screenshot _14.png verify compose; ValuePattern stale OK con screenshot"
+  },
+  "TE-07": {
+    "status": "met",
+    "name": "Enviar a Awamori",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-07-send-awamori.md",
+    "message_policy": "solo nicolas.awamori; prefijo [AwdUI-MCP-TE]",
+    "timing_ms": 2368,
+    "evidence": "CP-0 ListItem Awamori OK; type_text 97 chars; screenshot _14 pre-send; invoke Enviar 2368ms; find_text+find_element historial AwdUI-MCP-TE; screenshot _16 post-send 20:36 Hoy"
+  },
+  "TE-08": {
+    "status": "met",
+    "name": "Scroll historial",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-08-scroll-history.md",
+    "timing_ms": 400,
+    "evidence": "2026-09-07 turn9: scroll pages up x2 down x2 at 950,450 chat area; get_target Awamori hwnd=460854 retained; screenshots scroll capture; TE-07 no re-send"
+  },
+  "TE-09": {
+    "status": "met",
+    "name": "Equipos/canales lectura",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-09-teams-channels.md",
+    "timing_ms": 1463,
+    "evidence": "invoke Equipos y canales; invoke menurhl General channel SelectionItem verify OK; find_text General; NO compose Escribe un mensaje; NO Publicar; nav Chat TogglePattern; scroll_into_view menurfp; back Awamori ListItem+AwdUI-MCP-TE; screenshots _25 _26 _30"
+  },
+  "TE-10": {
+    "status": "met",
+    "name": "Calendario",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-10-calendar.md",
+    "timing_ms": 1406,
+    "evidence": "invoke Calendario ef56c0de TogglePattern verify OK; list_elements 81 Button calendar controls 4637ms SLOW; find_text Calendario; window Calendar|Microsoft Teams; screenshot _33 day view 6 Sept 2026; nav Chat back; find_text AwdUI-MCP-TE; screenshot _35 Awamori"
+  },
+  "TE-11": {
+    "status": "met",
+    "name": "Llamadas UI",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-11-calls-ui.md",
+    "timing_ms": 1457,
+    "evidence": "invoke Llamadas 20c3440d TogglePattern verify; list_elements 70 Button 6383ms SLOW; window Llamadas|Teams; click ComboBox Llamadas dial; type_text Nicolas Awamori; Llamar enabled NOT clicked; escape cancel; nav Chat back; find_text AwdUI-MCP-TE; screenshots _38 _40 _43"
+  },
+  "TE-12": {
+    "status": "met",
+    "name": "Configuración",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-12-settings.md",
+    "timing_ms": 2398,
+    "evidence": "avatar idna-me-control-avatar-trigger profile flyout; more-options-header Configuración MenuItem invoke 2398ms; settings General+Notificaciones TabItem 8594ms SLOW; menur7o Volver; nav Chat+escape; find_text AwdUI-MCP-TE; screenshots _45 _46 _47 _48 _51"
+  },
+  "TE-13": {
+    "status": "met",
+    "name": "Actividad",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-13-activity.md",
+    "timing_ms": 5333,
+    "evidence": "nav Activity 14d6962d 1450ms; feed-header+activity-feed-item-title-*; auto-open Testing Argentina; click feed item FAIL InvokePattern; menur7o Volver 1232ms; nav Chat 1275ms; UIA content-1788737785148; screenshots _52 _53 _54"
+  },
+  "TE-14": {
+    "status": "met",
+    "name": "Nuevo chat cancel",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-14-new-chat-cancel.md",
+    "timing_ms": 3597,
+    "evidence": "menur30a Nuevos elementos Expand; MenuItem Nuevo mensaje invoke 2863ms; Para sin destinatario; Escape no cierra; menur31g Awamori SelectionItem verify FAIL pero OK; element_exists TE-07; screenshots _57 _58 _59 _60"
+  },
+  "TE-15": {
+    "status": "met",
+    "name": "Adjuntar cancel",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-15-attach-cancel.md",
+    "timing_ms": 14339,
+    "evidence": "Adjuntar archivos Expand 2386ms; MenuItem Cargar dispositivo 2292ms; Abrir #32770 msedgewebview2; click Cancel scope_mode=auto verify_modal_dismissed 1660ms OK post-fix; sin set_target manual; Quitar adjunto stale; list_windows sin Abrir; TE-07 OK; screenshots _61-_66 regression _1"
+  },
+  "TE-16": {
+    "status": "met",
+    "name": "Emoji dismiss",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-16-emoji-dismiss.md",
+    "timing_ms": 2334,
+    "evidence": "Button Emoji GIF adhesivos Expand 2334ms; panel Todo/Emoji/GIF/Adhesivos+Encuentra algo divertido; press_key Escape; element_exists search NOT FOUND; TE-07 content OK; screenshots _67 _68 _69"
+  },
+  "TE-17": {
+    "status": "met",
+    "name": "Atajos teclado",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-17-keyboard-shortcuts.md",
+    "timing_ms": 400,
+    "evidence": "press_key_combo ctrl+e; get_focused ComboBox Busca rápidamente personas mensajes archivos; overlay tabs Mensajes/Archivos/Canales screenshot _71; press_key Escape; focus Document Chat Awamori; TE-07 content OK; screenshots _70 _71 _72"
+  },
+  "TE-18": {
+    "status": "met",
+    "name": "Recovery stale",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-18-stale-recovery.md",
+    "timing_ms": 10576,
+    "evidence": "invalidate_cache all; launch_app WindowsApps ms-teams.exe replace PID 28660; wait_for_input_idle FAIL pid; set_target Chat|Microsoft Teams hwnd=263750; detect_framework unknown TeamsWebView; find Awamori menur20 10576ms SLOW; invoke SelectionItem verify FAIL; set_target Awamori; find_text AwdUI-MCP-TE OK; tree_hash 37bb7ac5609ece91; screenshots _73 _74 _76"
+  },
+  "TE-19": {
+    "status": "met",
+    "name": "Session health",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-19-session-health.md",
+    "timing_ms": 400,
+    "evidence": "check_session_status success target_alive hwnd=263750 ops uia_find/click/type/screenshot; get_tree_hash 37bb7ac5609ece91 elements=26 depth=6 estable vs TE-18; detection_health uia/msaa/win32/jab/flaui OK framework unknown; check_version v0.4.0; find_text AwdUI-MCP-TE; screenshot _77"
+  },
+  "TE-20": {
+    "status": "met",
+    "name": "Cierre sesión",
+    "flow": ".cursor/mcp-improvement-cycle/runs/archive/legacy-skills/teams/flows/TE-20-session-close.md",
+    "timing_ms": 200,
+    "evidence": "screenshot _79 Awamori+TE-07; find_text AwdUI-MCP-TE; set_target_window('') cleared; get_target_window no target; check_session_status target_set=false mcp_server=true"
+  }
+}

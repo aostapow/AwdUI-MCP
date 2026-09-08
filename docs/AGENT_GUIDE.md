@@ -167,3 +167,14 @@ list_elements(role="ComboBox")  → all dropdowns
 - OCR automatically retries with image inversion for dark backgrounds
 - The accessibility tree is DPI-aware — coordinates are always screen-absolute
 
+## Tool tiers (reliability order)
+
+| Tier | Tools | When |
+|------|-------|------|
+| **1 — UIA / patterns** | `find_element`, `invoke_element`, `click_element`, `set_element_value`, `select_control_item`, `read_element`, `wait_for_element` | Default for standard controls |
+| **2 — Repository** | `repo_find`, `repo_action`, `repo_hints`, `repo_hints_set`, `act_on_control` | Stable flows with institutional hints |
+| **3 — OCR / fuzzy** | `find_text`, `click_text`, `smart_find`, `find_elements_fuzzy` | Custom paint, canvas, missing automation_id |
+| **4 — Coordinates (escape hatch)** | `click`, `screenshot` + manual coords, `click_at_coordinates` | Last resort; document why UIA failed |
+
+Prefer tier 1→2 before 3→4. Use `discover_control_interaction` when unsure which tier applies.
+
