@@ -2,7 +2,7 @@
 """Orchestrator — runs Calculator coverage until state.json says complete.
 
 Pattern: durable state file + explicit completion criteria (not LLM self-report).
-See .cursor/skills/calculator-mcp-harness/SKILL.md
+See .cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md
 """
 from __future__ import annotations
 
