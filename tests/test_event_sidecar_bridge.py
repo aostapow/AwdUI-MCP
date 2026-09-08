@@ -80,3 +80,19 @@ def test_stop_event_monitor_native():
             _sessions.pop("sess2", None)
     assert out["success"]
     native_stop.assert_called_with("sess2")
+
+
+def test_ensure_server_ping_without_deadlock():
+    """_ensure_server must not call _call while holding _io_lock (non-reentrant deadlock)."""
+    import tools.event_sidecar_bridge as bridge
+
+    bridge.shutdown_sidecar()
+    fake_proc = mock.MagicMock()
+    fake_proc.poll.return_value = None
+    fake_proc.stdin = mock.MagicMock()
+    fake_proc.stdout = iter(['{"id": 1, "success": true, "backend": "flaui_native"}\n'])
+    with mock.patch.object(bridge, "sidecar_available", return_value=True):
+        with mock.patch.object(bridge.subprocess, "Popen", return_value=fake_proc):
+            ok = bridge._ensure_server()
+    assert ok is True
+    bridge.shutdown_sidecar()

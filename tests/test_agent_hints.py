@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "mcp-servers", "awdui-server"))
 
-from detection.agent_hints import hint_verify_automation_id, parse_agent_hints
+from detection.agent_hints import hint_preferred_tool, hint_verify_automation_id, parse_agent_hints
 
 
 class TestAgentHints:
@@ -22,3 +22,6 @@ class TestAgentHints:
 
     def test_hint_verify_automation_id(self):
         assert hint_verify_automation_id("verify_target: Bar\n") == "Bar"
+
+    def test_hint_preferred_tool_aliases(self):
+        assert hint_preferred_tool("preferred_tool: select_control_item") == "select_control_item"

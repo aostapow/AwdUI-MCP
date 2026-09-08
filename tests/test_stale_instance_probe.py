@@ -36,6 +36,28 @@ def test_invoke_element_returns_stale_instance_when_disabled():
     mock_invoke.assert_not_called()
 
 
+def test_stale_probe_skipped_for_electron():
+    from tools.ui_automation import _stale_instance_probe
+
+    with patch(
+        "detection.backends.uia_backend._prefer_uia_find_before_spy",
+        return_value=True,
+    ), patch("tools.spy_bridge.spy_verify_live") as mock_verify:
+        assert _stale_instance_probe("menur1oc", "Teams") is None
+    mock_verify.assert_not_called()
+
+
+def test_stale_probe_ignored_when_spy_not_found():
+    from tools.ui_automation import _stale_instance_probe
+
+    with patch("tools.spy_bridge.spy_available", return_value=True), patch(
+        "tools.spy_bridge.spy_verify_live",
+        return_value={"live": False, "reason": "not_found", "code": "stale_instance"},
+    ), patch("detection.orchestrator.invalidate_tree_cache") as inv:
+        assert _stale_instance_probe("SettingsItem", "Calculadora") is None
+    inv.assert_not_called()
+
+
 def test_launch_app_invalidates_tree_cache():
     from detection.orchestrator import _tree_cache, invalidate_tree_cache
 

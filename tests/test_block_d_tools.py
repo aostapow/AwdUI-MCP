@@ -29,6 +29,39 @@ def test_get_all_values_collect():
     assert payload["values"]["txtA"]["value"] == "hello"
 
 
+def test_get_all_values_document_ignores_name_as_value():
+    from detection.form_read import collect_all_values
+
+    payload = collect_all_values(
+        [
+            {
+                "role": "Document",
+                "automation_id": "15",
+                "name": "Editor de texto",
+                "value": "Editor de texto",
+                "patterns": {"Value": {"value": "Harness MCP Notepad"}},
+            },
+        ]
+    )
+    assert payload["values"]["15"]["value"] == "Harness MCP Notepad"
+
+
+def test_get_all_values_document_stale_name_not_used():
+    from detection.form_read import collect_all_values
+
+    payload = collect_all_values(
+        [
+            {
+                "role": "Edit",
+                "automation_id": "15",
+                "name": "Editor de texto",
+                "value": "Editor de texto",
+            },
+        ]
+    )
+    assert payload["values"]["15"]["value"] == ""
+
+
 def test_find_all_elements_indexes():
     with mock.patch("tools.ui_automation.do_find_element") as mock_find:
         mock_find.return_value = {

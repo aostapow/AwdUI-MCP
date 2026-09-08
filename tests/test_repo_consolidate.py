@@ -61,8 +61,8 @@ class TestRepoConsolidate:
         apps = {a["app_name"]: a for a in repo_db.list_applications()}
         assert "ApplicationFrameHost.exe" not in apps
         assert "foreground" not in apps
-        assert "CalculatorApp.exe" in apps
-        assert "Notepad.exe" in apps
+        assert "Calculadora" in apps
+        assert "Notepad" in apps
         assert repo_db.get_object_by_path("Calculadora/num6Button") is not None
         assert repo_db.get_object_by_path("Notepad/File") is not None
 

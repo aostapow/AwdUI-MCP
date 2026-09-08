@@ -136,3 +136,63 @@ def test_do_scroll_element_clicks_alias(monkeypatch):
     out = do_scroll_element("listPane", clicks=4)
     assert out["success"] is True
     assert captured["repeat"] == 4
+
+
+def test_do_scroll_element_fallback_on_pattern_failure(monkeypatch):
+    from tools.uia_pattern_tools import do_scroll_element
+
+    monkeypatch.setattr(
+        "tools.uia_pattern_tools._resolve_raw_control",
+        lambda **kwargs: (object(), {}, "docPane", {}),
+    )
+    monkeypatch.setattr(
+        "detection.uia_patterns.apply_scroll_pattern",
+        lambda *_a, **_k: {"success": False, "error": "COM ScrollPattern failed"},
+    )
+    monkeypatch.setattr(
+        "detection.uia_patterns._element_dict",
+        lambda _r: {"x": 100, "y": 50, "width": 200, "height": 400},
+    )
+    monkeypatch.setattr(
+        "tools.input_tools.do_scroll",
+        lambda x, y, direction, pages=None, amount=None: {
+            "action": "scroll",
+            "verified": True,
+        },
+    )
+
+    out = do_scroll_element("docPane", direction="down", amount="large")
+    assert out["success"] is True
+    assert out["method"] == "scroll_fallback_coords"
+    assert out["fallback_reason"] == "COM ScrollPattern failed"
+
+
+def test_do_scroll_element_uses_scrollable_ancestor(monkeypatch):
+    from tools.uia_pattern_tools import do_scroll_element
+
+    leaf = object()
+    ancestor = object()
+    monkeypatch.setattr(
+        "tools.uia_pattern_tools._resolve_raw_control",
+        lambda **kwargs: (leaf, {}, "message-pane", {}),
+    )
+    monkeypatch.setattr(
+        "detection.uia_patterns._has_pattern",
+        lambda raw, name: raw is ancestor and name == "Scroll",
+    )
+    monkeypatch.setattr(
+        "detection.uia_patterns.find_scrollable_ancestor",
+        lambda raw: ancestor if raw is leaf else None,
+    )
+    captured = {}
+
+    def fake_scroll(raw, **kwargs):
+        captured["raw"] = raw
+        return {"success": True, "method": "Scroll.Scroll", "direction": "up"}
+
+    monkeypatch.setattr("detection.uia_patterns.apply_scroll_pattern", fake_scroll)
+
+    out = do_scroll_element("message-pane", direction="up", amount="large")
+    assert out["success"] is True
+    assert captured["raw"] is ancestor
+    assert out.get("scroll_via") == "ancestor"

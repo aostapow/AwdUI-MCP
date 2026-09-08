@@ -18,10 +18,11 @@ class TestActionTimer:
         timer.mark("find_ms", 120)
         timer.mark("act_ms", 80)
         result = timer.attach({"success": True})
-        assert result["elapsed_ms"] == result["timing"]["total_ms"]
+        assert result["elapsed_ms"] == 200
+        assert result["timing"]["operational_ms"] == 200
         assert result["timing"]["find_ms"] == 120
         assert result["timing"]["act_ms"] == 80
-        assert result["performance"] in ("fast", "ok", "slow")
+        assert result["performance"] == "fast"
 
 
 class TestClassifyPerformance:

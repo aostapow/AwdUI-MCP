@@ -26,6 +26,7 @@ class TestTargetState:
         """Reset state between tests."""
         from tools import target_window
         target_window._target_window = None
+        target_window._target_hwnd = None
         target_window._focus_policy = "minimal"
 
     def test_set_and_get_target(self):
@@ -64,6 +65,7 @@ class TestEnsureFocus:
     def setup_method(self):
         from tools import target_window
         target_window._target_window = None
+        target_window._target_hwnd = None
         target_window._focus_policy = "minimal"
 
     @mock.patch("tools.windows.do_focus_window")
@@ -74,22 +76,25 @@ class TestEnsureFocus:
         assert ensure_focus(force=False) is False
         mock_focus.assert_not_called()
 
+    @mock.patch("tools.client_focus.ensure_client_focus", return_value={"success": True})
     @mock.patch("tools.windows.do_focus_window")
     @mock.patch("tools.target_window.is_target_foreground", return_value=False)
-    def test_minimal_force_focuses_for_input(self, _fg, mock_focus):
+    def test_minimal_force_focuses_for_input(self, _fg, mock_focus, _client):
         from tools.target_window import set_target, ensure_focus_for_input
         mock_focus.return_value = {"success": True, "window": "Browser", "action": "focus"}
         set_target("Browser")
         ensure_focus_for_input()
         mock_focus.assert_called_once_with("Browser", action="focus")
 
+    @mock.patch("tools.client_focus.ensure_client_focus", return_value={"success": True})
     @mock.patch("tools.windows.do_focus_window")
     @mock.patch("tools.target_window.is_target_foreground", return_value=True)
-    def test_minimal_skips_when_already_foreground(self, _fg, mock_focus):
+    def test_minimal_skips_when_already_foreground(self, _fg, mock_focus, mock_client):
         from tools.target_window import set_target, ensure_focus_for_input
         set_target("Browser")
         ensure_focus_for_input()
         mock_focus.assert_not_called()
+        mock_client.assert_not_called()
 
     @mock.patch("tools.windows.do_focus_window")
     @mock.patch("tools.target_window.is_target_foreground", return_value=False)
@@ -173,6 +178,32 @@ class TestInputToolsCallEnsureFocus:
         from tools.input_tools import do_hover
         do_hover(50, 60)
         mock_ef.assert_called_once()
+
+
+class TestMinimalFocusSkipsClientFocus:
+    @mock.patch("tools.client_focus.ensure_client_focus")
+    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.is_target_foreground", return_value=False)
+    def test_minimal_policy_skips_client_focus(self, _fg, mock_focus, mock_client):
+        from tools.target_window import ensure_focus_for_input, set_focus_policy, set_target
+
+        mock_focus.return_value = {"success": True, "window": "Calculadora", "action": "focus"}
+        set_target("Calculadora")
+        set_focus_policy("minimal")
+        ensure_focus_for_input()
+        mock_client.assert_not_called()
+
+    @mock.patch("tools.client_focus.ensure_client_focus")
+    @mock.patch("tools.target_window.ensure_focus")
+    @mock.patch("tools.target_window.is_target_foreground", return_value=False)
+    def test_always_policy_uses_client_focus(self, _fg, mock_focus, mock_client):
+        from tools.target_window import ensure_focus_for_input, set_focus_policy, set_target
+
+        mock_focus.return_value = {"success": True, "window": "Calculadora", "action": "focus"}
+        set_target("Calculadora")
+        set_focus_policy("always")
+        ensure_focus_for_input()
+        mock_client.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

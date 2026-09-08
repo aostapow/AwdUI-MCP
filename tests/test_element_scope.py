@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from detection.element_model import DetectedElement
 from detection.element_scope import (
+    _drop_electron_compact_tree_rows,
     element_in_window_scope,
     filter_elements_to_scope,
 )
@@ -35,6 +36,26 @@ def test_element_in_scope_allows_xaml_pid_mismatch():
         assert element_in_window_scope(xaml, scope) is True
 
 
+def test_element_in_scope_electron_renderer_pid_in_client():
+    scope = _scope()
+    scope["window_title"] = "Chat | Microsoft Teams"
+    scope["allow_renderer_pid"] = True
+    scope["process_ids"] = {28660}
+    webview_item = DetectedElement(
+        name="Chat Awamori, Nicolas",
+        role="TreeItem",
+        automation_id="menur1oc",
+        framework_id="",
+        x=150,
+        y=300,
+        width=200,
+        height=32,
+        process_id=99999,
+    )
+    with patch("detection.element_coords.to_screen_coords", side_effect=lambda e, _t: e):
+        assert element_in_window_scope(webview_item, scope) is True
+
+
 def test_element_in_scope_rejects_non_xaml_foreign_pid():
     scope = _scope()
     foreign = DetectedElement(
@@ -49,6 +70,52 @@ def test_element_in_scope_rejects_non_xaml_foreign_pid():
         process_id=99999,
     )
     assert element_in_window_scope(foreign, scope) is False
+
+
+def test_drop_electron_compact_tree_rows():
+    scope = _scope()
+    scope["allow_renderer_pid"] = True
+    chat = DetectedElement(
+        name="Chat Awamori",
+        role="TreeItem",
+        automation_id="menur1oc",
+        x=185,
+        y=511,
+        width=291,
+        height=33,
+        process_id=99999,
+    )
+    file_row = DetectedElement(
+        name="docs",
+        role="TreeItem",
+        automation_id="list_id_1_8",
+        x=128,
+        y=172,
+        width=236,
+        height=22,
+        process_id=99999,
+    )
+    kept = _drop_electron_compact_tree_rows([chat, file_row], scope)
+    assert len(kept) == 1
+    assert kept[0].automation_id == "menur1oc"
+
+
+def test_element_in_scope_rejects_electron_foreign_outside_client():
+    scope = _scope()
+    scope["allow_renderer_pid"] = True
+    scope["process_ids"] = {28660}
+    outside = DetectedElement(
+        name="Foreign",
+        role="TreeItem",
+        automation_id="ext",
+        x=0,
+        y=0,
+        width=40,
+        height=40,
+        process_id=99999,
+    )
+    with patch("detection.element_coords.to_screen_coords", side_effect=lambda e, _t: e):
+        assert element_in_window_scope(outside, scope) is False
 
 
 def test_element_in_scope_accepts_calculator_pid_in_client():
@@ -204,3 +271,57 @@ def test_filter_elements_to_scope_counts_removed():
     assert removed == 1
     assert cluster_out == 0
     assert kept[0].automation_id == "num1Button"
+
+
+def test_filter_keeps_sidebar_treeitem_when_include_offscreen():
+    """Virtualized Teams sidebar TreeItems below client rect must not be scoped out."""
+    scope = {
+        "visual": {"x": 126, "y": 16, "w": 1719, "h": 939},
+        "client": {"x": 126, "y": 16, "w": 1719, "h": 939},
+        "process_ids": {28660},
+        "window_title": "Chat | Microsoft Teams",
+        "allow_renderer_pid": True,
+    }
+    visible = DetectedElement(
+        name="Chat Awamori",
+        role="TreeItem",
+        automation_id="menur1eu",
+        x=231,
+        y=511,
+        width=364,
+        height=40,
+        process_id=99999,
+    )
+    offscreen = DetectedElement(
+        name="Chat Reyes",
+        role="TreeItem",
+        automation_id="menur31",
+        x=231,
+        y=999,
+        width=364,
+        height=40,
+        process_id=99999,
+    )
+    foreign = DetectedElement(
+        name="Foreign",
+        role="TreeItem",
+        automation_id="ext",
+        x=1600,
+        y=999,
+        width=100,
+        height=40,
+        process_id=99999,
+    )
+
+    with patch("detection.element_scope.resolve_window_scope", lambda _t=None: scope), patch(
+        "detection.element_coords.to_screen_coords", side_effect=lambda e, _t: e,
+    ):
+        kept, removed, cluster_out, _region = filter_elements_to_scope(
+            [visible, offscreen, foreign],
+            "Chat | Microsoft Teams",
+            include_offscreen=True,
+        )
+
+    assert cluster_out == 0
+    assert removed == 1
+    assert {e.automation_id for e in kept} == {"menur1eu", "menur31"}

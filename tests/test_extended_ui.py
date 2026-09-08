@@ -77,17 +77,18 @@ class TestUiAutomationExtras:
             assert a["tree_hash"] == b["tree_hash"]
             assert a["element_count"] == 2
 
-    @mock.patch("tools.ui_automation.do_find_elements_fuzzy")
+    @mock.patch("tools.ui_automation.resolve_scope", return_value=("", 0, None))
+    @mock.patch("tools.ui_automation.find_element_for_action")
     @mock.patch("tools.ui_automation._click_coords", return_value=(10, 20))
     @mock.patch("tools.input_tools.do_click")
-    def test_right_click_element(self, mock_click, _coords, mock_fuzzy):
+    def test_right_click_element(self, mock_click, _coords, mock_find, _scope):
         from tools.ui_automation import do_right_click_element
 
-        mock_fuzzy.return_value = {
-            "success": True,
-            "elements": [{"name": "Item", "automation_id": "i1"}],
-        }
-        result = do_right_click_element(name="Item", fuzzy_match=True)
+        mock_find.return_value = (
+            {"name": "Item", "automation_id": "i1", "x": 10, "y": 20},
+            None,
+        )
+        result = do_right_click_element(name="Item")
         assert result["success"]
         mock_click.assert_called_once_with(10, 20, button="right")
 

@@ -26,24 +26,24 @@ def _run(mode: str) -> tuple[int, str]:
 def test_status_incomplete_when_objective_not_met():
     if not STATE.is_file():
         return
-    state = json.loads(STATE.read_text(encoding="utf-8"))
+    state = json.loads(STATE.read_text(encoding="utf-8-sig"))
     if state.get("objective_met"):
         return
     paused = ROOT / ".cursor" / "mcp-improvement-cycle" / "PAUSED"
     had_paused = paused.is_file()
-    saved_state = STATE.read_text(encoding="utf-8") if STATE.is_file() else ""
+    saved_state = STATE.read_text(encoding="utf-8-sig") if STATE.is_file() else ""
     try:
         if paused.is_file():
             paused.unlink()
         if STATE.is_file():
-            data = json.loads(STATE.read_text(encoding="utf-8"))
+            data = json.loads(STATE.read_text(encoding="utf-8-sig"))
             ctrl = data.get("cycle_control") or {}
             ctrl["paused"] = False
             data["cycle_control"] = ctrl
             data["status"] = "running"
             data["objective_met"] = False
             data["calculator_perfect"] = False
-            STATE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            STATE.write_text(json.dumps(data, indent=2), encoding="utf-8-sig")
         code, out = _run("status")
         if code == 0 and "cycle_paused" in out:
             pytest.skip("cycle paused in environment")
@@ -52,9 +52,9 @@ def test_status_incomplete_when_objective_not_met():
     finally:
         if had_paused:
             paused.parent.mkdir(parents=True, exist_ok=True)
-            paused.write_text("paused\n", encoding="utf-8")
+            paused.write_text("paused\n", encoding="utf-8-sig")
         if saved_state:
-            STATE.write_text(saved_state, encoding="utf-8")
+            STATE.write_text(saved_state, encoding="utf-8-sig")
 
 
 def test_stop_emits_empty_when_paused(tmp_path):
@@ -62,14 +62,14 @@ def test_stop_emits_empty_when_paused(tmp_path):
     had_paused = paused.is_file()
     try:
         paused.parent.mkdir(parents=True, exist_ok=True)
-        paused.write_text("paused\n", encoding="utf-8")
+        paused.write_text("paused\n", encoding="utf-8-sig")
         code, out = _run("stop")
         assert code == 0
         data = json.loads(out) if out else {}
         assert "followup_message" not in data
     finally:
         if had_paused:
-            paused.write_text("paused\n", encoding="utf-8")
+            paused.write_text("paused\n", encoding="utf-8-sig")
         elif paused.is_file():
             paused.unlink()
 
@@ -77,24 +77,24 @@ def test_stop_emits_empty_when_paused(tmp_path):
 def test_stop_emits_followup_when_incomplete():
     if not STATE.is_file():
         return
-    state = json.loads(STATE.read_text(encoding="utf-8"))
+    state = json.loads(STATE.read_text(encoding="utf-8-sig"))
     if state.get("objective_met"):
         return
     paused = ROOT / ".cursor" / "mcp-improvement-cycle" / "PAUSED"
     had_paused = paused.is_file()
-    saved_state = STATE.read_text(encoding="utf-8") if STATE.is_file() else ""
+    saved_state = STATE.read_text(encoding="utf-8-sig") if STATE.is_file() else ""
     try:
         if paused.is_file():
             paused.unlink()
         if STATE.is_file():
-            data = json.loads(STATE.read_text(encoding="utf-8"))
+            data = json.loads(STATE.read_text(encoding="utf-8-sig"))
             ctrl = data.get("cycle_control") or {}
             ctrl["paused"] = False
             data["cycle_control"] = ctrl
             data["status"] = "running"
             data["objective_met"] = False
             data["calculator_perfect"] = False
-            STATE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            STATE.write_text(json.dumps(data, indent=2), encoding="utf-8-sig")
         code, out = _run("stop")
         if not out:
             pytest.skip("hook emitted empty output (cycle paused or complete)")
@@ -105,6 +105,6 @@ def test_stop_emits_followup_when_incomplete():
     finally:
         if had_paused:
             paused.parent.mkdir(parents=True, exist_ok=True)
-            paused.write_text("paused\n", encoding="utf-8")
+            paused.write_text("paused\n", encoding="utf-8-sig")
         if saved_state:
-            STATE.write_text(saved_state, encoding="utf-8")
+            STATE.write_text(saved_state, encoding="utf-8-sig")

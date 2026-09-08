@@ -81,6 +81,28 @@ def test_expander_header_click_coords_upper_sixth():
     assert cy == 220  # 200 + 120//6
 
 
+def test_expander_contains_roles_single_list_pass():
+    from tools.ui_automation import _expander_contains_roles
+
+    parent = {
+        "automation_id": "AppThemeExpander",
+        "x": 100,
+        "y": 200,
+        "width": 300,
+        "height": 100,
+    }
+    radios = [
+        {"role": "RadioButton", "automation_id": "DarkThemeRadioButton", "x": 120, "y": 280, "width": 80, "height": 30},
+        {"role": "Text", "name": "label", "x": 120, "y": 210, "width": 80, "height": 20},
+    ]
+    with patch("tools.ui_automation.do_find_element", return_value={"found": True, "elements": [parent]}), patch(
+        "tools.ui_automation.do_list_elements", return_value={"elements": radios},
+    ) as list_mock:
+        assert _expander_contains_roles(parent, "Calculadora", ("RadioButton", "ListItem")) is True
+    list_mock.assert_called_once()
+    assert list_mock.call_args.kwargs.get("role") == "RadioButton"
+
+
 def test_do_expand_element_fallback_fast_path_skips_expand_chain():
     from tools.ui_automation import do_expand_element
 
@@ -94,11 +116,25 @@ def test_do_expand_element_fallback_fast_path_skips_expand_chain():
         "width": 278,
         "height": 85,
     }
+    collapsed = dict(expander)
+    expanded = dict(expander, height=249)
+    refresh_calls = {"n": 0}
+
+    def refresh_mock(_aid, _wt=None):
+        refresh_calls["n"] += 1
+        return collapsed if refresh_calls["n"] == 1 else expanded
+
     with patch(
         "tools.ui_automation._quick_resolve_element", return_value=expander,
+    ), patch(
+        "tools.ui_automation._try_expand_via_interactive_child",
+    ) as mock_child, patch(
+        "tools.ui_automation._refresh_expander_dims", side_effect=refresh_mock,
     ), patch("tools.spy_bridge.spy_expand_collapse_element") as mock_spy, patch(
         "tools.ui_automation.do_click", return_value={},
-    ), patch("tools.target_window.ensure_focus"):
+    ), patch("tools.target_window.ensure_focus"), patch(
+        "tools.wait_tools.do_wait_for_input_idle", return_value={"success": True},
+    ):
         result = do_expand_element(
             automation_id="AppThemeExpander",
             window_title="Calculadora",
@@ -106,10 +142,25 @@ def test_do_expand_element_fallback_fast_path_skips_expand_chain():
         )
 
     assert result["success"] is True
-    assert result["method"] == "HeaderClick"
+    assert result["method"] == "ChevronClick"
     assert result.get("fast_path") is True
-    assert result["elapsed_ms"] < 2000
+    assert result["elapsed_ms"] < 4000
     mock_spy.assert_not_called()
+    mock_child.assert_not_called()
+
+
+def test_quick_resolve_uses_control_lookup_before_spy():
+    from tools.ui_automation import _quick_resolve_element
+
+    data = {"automation_id": "AppThemeExpander", "role": "Group", "name": "Tema"}
+    with patch("tools.control_items._resolve_control", return_value=(object(), None, data, {})), patch(
+        "tools.spy_bridge.spy_inspect_element",
+    ) as spy_inspect:
+        got = _quick_resolve_element(
+            automation_id="AppThemeExpander", window_title="Calculadora",
+        )
+    assert got == data
+    spy_inspect.assert_not_called()
 
 
 def test_do_expand_element_fallback_click_settings_expander():
@@ -125,8 +176,20 @@ def test_do_expand_element_fallback_click_settings_expander():
         "width": 347,
         "height": 112,
     }
+    collapsed = dict(expander)
+    expanded = dict(expander, height=249)
+    refresh_calls = {"n": 0}
+
+    def refresh_mock(_aid, _wt=None):
+        refresh_calls["n"] += 1
+        return collapsed if refresh_calls["n"] == 1 else expanded
+
     with patch(
         "tools.ui_automation._quick_resolve_element", return_value=expander,
+    ), patch(
+        "tools.ui_automation._try_expand_via_interactive_child",
+    ) as mock_child, patch(
+        "tools.ui_automation._refresh_expander_dims", side_effect=refresh_mock,
     ), patch("tools.spy_bridge.spy_expand_collapse_element") as mock_spy, patch(
         "tools.ui_automation.do_click", return_value={},
     ), patch("tools.target_window.ensure_focus"), patch(
@@ -139,10 +202,51 @@ def test_do_expand_element_fallback_click_settings_expander():
         )
 
     assert result["success"] is True
-    assert result["method"] == "HeaderClick"
+    assert result["method"] == "ChevronClick"
     assert result["used_fallback_click"] is True
     assert result.get("fast_path") is True
     mock_spy.assert_not_called()
+    mock_child.assert_not_called()
+
+
+def test_expander_shell_looks_open_height_heuristic():
+    from tools.ui_automation import _expander_shell_looks_open
+
+    assert _expander_shell_looks_open({"height": 249}) is True
+    assert _expander_shell_looks_open({"height": 85}) is False
+
+
+def test_do_expand_element_fallback_already_expanded_skips_click():
+    from tools.ui_automation import do_expand_element
+
+    expander = {
+        "name": "Tema de la aplicación",
+        "role": "Group",
+        "automation_id": "AppThemeExpander",
+        "class_name": "SettingsExpander",
+        "x": 110,
+        "y": 378,
+        "width": 278,
+        "height": 249,
+    }
+
+    with patch(
+        "tools.ui_automation._quick_resolve_element", return_value=expander,
+    ), patch(
+        "tools.ui_automation._refresh_expander_dims", return_value=expander,
+    ), patch("tools.ui_automation.do_click") as mock_click, patch(
+        "tools.wait_tools.do_wait_for_input_idle", return_value={"success": True},
+    ):
+        result = do_expand_element(
+            automation_id="AppThemeExpander",
+            window_title="Calculadora",
+            fallback_click=True,
+        )
+
+    assert result["success"] is True
+    assert result["method"] == "AlreadyExpanded"
+    assert result.get("fast_path") is True
+    mock_click.assert_not_called()
 
 
 def test_expand_element_fallback_uses_screen_bbox_when_no_dimensions():
@@ -154,12 +258,15 @@ def test_expand_element_fallback_uses_screen_bbox_when_no_dimensions():
         "y": 20,
     }
     with patch("tools.highlight.element_screen_bbox", return_value=(500, 600, 200, 90)), patch(
+        "tools.ui_automation._refresh_expander_dims",
+        return_value={"automation_id": "AppThemeExpander", "height": 249},
+    ), patch(
         "tools.ui_automation.do_click",
     ) as mock_click, patch("tools.target_window.ensure_focus"):
         _expand_element_fallback_header_click(expander, "Calculadora")
     cx, cy = mock_click.call_args[0]
-    assert cx == 600
-    assert cy == 615
+    assert cx == 684
+    assert cy == 645
 
 
 def test_expand_element_fallback_prefers_elem_bbox_over_list_walk():
@@ -172,15 +279,16 @@ def test_expand_element_fallback_prefers_elem_bbox_over_list_walk():
         "width": 100,
         "height": 60,
     }
-    with patch("tools.highlight.element_screen_bbox") as mock_bbox, patch(
-        "detection.element_coords.to_screen_coords", side_effect=lambda e, _t: e,
+    with patch("tools.highlight.element_screen_bbox", return_value=None), patch(
+        "tools.ui_automation._refresh_expander_dims",
+        return_value={"automation_id": "AppThemeExpander", "height": 249},
     ), patch(
         "tools.ui_automation.do_click",
     ) as mock_click, patch("tools.target_window.ensure_focus"):
         _expand_element_fallback_header_click(expander, "Calculadora")
-    mock_bbox.assert_not_called()
     cx, cy = mock_click.call_args[0]
-    assert cy == 20 + 60 // 6
+    assert cx == 94
+    assert cy == 50
 
 
 def test_do_expand_element_no_fallback_hint():

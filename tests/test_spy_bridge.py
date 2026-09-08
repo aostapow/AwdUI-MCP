@@ -24,3 +24,13 @@ class TestSpyBridge:
         assert elem["automation_id"] == "num6Button"
         assert elem["clickable_x"] == 148
         assert elem["backend"] == "spy"
+
+    def test_spy_props_value_pattern(self):
+        from tools.spy_bridge import spy_props_to_element
+        elem = spy_props_to_element({
+            "name": "Editor de texto",
+            "role": "Document",
+            "automation_id": "15",
+            "patterns": {"Value": {"supported": True, "value": "hello notepad"}},
+        })
+        assert elem["value"] == "hello notepad"

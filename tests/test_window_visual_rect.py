@@ -11,29 +11,21 @@ def test_element_center_in_rect():
 
 
 def test_resolve_window_visual_rect_prefers_frame_host():
+    from unittest import mock
+
     from tools.windows import resolve_window_visual_rect
-
-    rect = resolve_window_visual_rect("Calculadora")
-    if rect is None:
-        return
-    assert rect["w"] > 200
-    assert rect["h"] > 400
-
-
-def test_best_window_candidate_prefers_application_frame_for_calculator():
-    from tools.windows import _best_window_candidate
 
     windows = [
         {
-            "title": "Calculadora",
-            "process_name": "CalculatorApp.exe",
+            "title": "Sample UWP",
+            "process_name": "SampleApp.exe",
             "x": 0,
             "y": 1,
             "width": 400,
             "height": 665,
         },
         {
-            "title": "Calculadora",
+            "title": "Sample UWP",
             "process_name": "ApplicationFrameHost.exe",
             "x": 98,
             "y": 318,
@@ -41,5 +33,33 @@ def test_best_window_candidate_prefers_application_frame_for_calculator():
             "height": 675,
         },
     ]
-    best = _best_window_candidate(windows, "calculadora", purpose="visual")
+    with mock.patch("tools.windows.do_list_windows", return_value=windows):
+        rect = resolve_window_visual_rect("Sample UWP")
+    assert rect is not None
+    assert rect["w"] >= 425
+    assert rect["h"] >= 675
+
+
+def test_best_window_candidate_prefers_application_frame_for_uwp_pair():
+    from tools.windows import _best_window_candidate
+
+    windows = [
+        {
+            "title": "Sample UWP",
+            "process_name": "SampleApp.exe",
+            "x": 0,
+            "y": 1,
+            "width": 400,
+            "height": 665,
+        },
+        {
+            "title": "Sample UWP",
+            "process_name": "ApplicationFrameHost.exe",
+            "x": 98,
+            "y": 318,
+            "width": 425,
+            "height": 675,
+        },
+    ]
+    best = _best_window_candidate(windows, "sample uwp", purpose="visual")
     assert "applicationframehost" in (best.get("process_name") or "").lower()

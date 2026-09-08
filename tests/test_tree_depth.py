@@ -71,6 +71,19 @@ def test_resolve_list_depth_role_boost():
     req, eff, _ = resolve_list_depth(0, framework="win32", role="Button")
     assert req == 0
     assert eff >= 12
+    assert eff <= 20
+
+
+def test_resolve_list_depth_menu_role_shallow():
+    req, eff, _ = resolve_list_depth(0, framework="win32", role="MenuItem")
+    assert req == 0
+    assert eff <= 6
+
+
+def test_resolve_list_depth_explicit_menu_respects_cap():
+    req, eff, _ = resolve_list_depth(4, framework="win32", role="MenuItem")
+    assert req == 4
+    assert eff == 4
 
 
 def test_format_depth_header():
