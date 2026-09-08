@@ -278,3 +278,48 @@ def scope_metadata_for_find(
         except Exception:
             pass
     return meta
+
+
+def _bbox_contains(outer: dict, inner: dict, margin: int = 2) -> bool:
+    ox, oy = int(outer.get("x") or 0), int(outer.get("y") or 0)
+    ow, oh = int(outer.get("width") or 0), int(outer.get("height") or 0)
+    if ow <= 0 or oh <= 0:
+        return True
+    ix, iy = int(inner.get("x") or 0), int(inner.get("y") or 0)
+    iw, ih = int(inner.get("width") or 0), int(inner.get("height") or 0)
+    if iw <= 0 or ih <= 0:
+        cx, cy = ix, iy
+    else:
+        cx, cy = ix + iw // 2, iy + ih // 2
+    return (
+        ox - margin <= cx <= ox + ow + margin
+        and oy - margin <= cy <= oy + oh + margin
+    )
+
+
+def filter_elements_by_ancestor(
+    elements: list[DetectedElement],
+    ancestor_automation_id: str,
+) -> tuple[list[DetectedElement], dict]:
+    """Keep only elements whose center lies inside the ancestor bbox."""
+    aid = (ancestor_automation_id or "").strip()
+    meta = {"ancestor_automation_id": aid, "ancestor_found": False, "filtered_out": 0}
+    if not aid:
+        return elements, meta
+    ancestor = None
+    for elem in elements:
+        if (elem.automation_id or "").strip() == aid:
+            ancestor = elem
+            break
+    if ancestor is None:
+        return [], {**meta, "error": f"ancestor not in tree: {aid}"}
+    meta["ancestor_found"] = True
+    outer = {"x": ancestor.x, "y": ancestor.y, "width": ancestor.width, "height": ancestor.height}
+    kept: list[DetectedElement] = []
+    for elem in elements:
+        inner = {"x": elem.x, "y": elem.y, "width": elem.width, "height": elem.height}
+        if _bbox_contains(outer, inner):
+            kept.append(elem)
+        else:
+            meta["filtered_out"] += 1
+    return kept, meta

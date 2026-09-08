@@ -4,6 +4,20 @@ from __future__ import annotations
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _block_real_scroll_keyboard(monkeypatch):
+    """Prevent real PageDown/arrows reaching the foreground app during unit tests."""
+
+    def _fake_send_keys(*_args, **_kwargs):
+        return {"action": "send_keys", "mocked": True}
+
+    monkeypatch.setattr("tools.input_tools.do_send_keys", _fake_send_keys)
+    monkeypatch.setattr(
+        "tools.uia_pattern_tools._keyboard_scroll",
+        lambda *_a, **_k: {"success": False},
+    )
+
+
 def test_do_scroll_into_view(monkeypatch):
     from tools.uia_pattern_tools import do_scroll_into_view
 
@@ -88,8 +102,8 @@ def test_do_scroll_element_percent(monkeypatch):
     from tools.uia_pattern_tools import do_scroll_element
 
     monkeypatch.setattr(
-        "tools.uia_pattern_tools._resolve_control",
-        lambda aid, wt: (object(), None, {}, {}),
+        "tools.uia_pattern_tools._resolve_raw_control",
+        lambda **kwargs: (object(), {}, "listPane", {}),
     )
     captured = {}
 
@@ -150,6 +164,10 @@ def test_do_scroll_element_fallback_on_pattern_failure(monkeypatch):
         lambda *_a, **_k: {"success": False, "error": "COM ScrollPattern failed"},
     )
     monkeypatch.setattr(
+        "tools.uia_pattern_tools._keyboard_scroll",
+        lambda *_a, **_k: {"success": False},
+    )
+    monkeypatch.setattr(
         "detection.uia_patterns._element_dict",
         lambda _r: {"x": 100, "y": 50, "width": 200, "height": 400},
     )
@@ -196,3 +214,38 @@ def test_do_scroll_element_uses_scrollable_ancestor(monkeypatch):
     assert out["success"] is True
     assert captured["raw"] is ancestor
     assert out.get("scroll_via") == "ancestor"
+
+
+def test_keyboard_fallback_mocked_not_real_send_keys(monkeypatch):
+    from tools.uia_pattern_tools import do_scroll_element
+
+    send_calls = []
+
+    def _track_send_keys(*args, **kwargs):
+        send_calls.append((args, kwargs))
+        return {"action": "send_keys", "mocked": True}
+
+    monkeypatch.setattr("tools.input_tools.do_send_keys", _track_send_keys)
+    monkeypatch.setattr(
+        "tools.uia_pattern_tools._resolve_raw_control",
+        lambda **kwargs: (object(), {}, "docPane", {}),
+    )
+    monkeypatch.setattr(
+        "detection.uia_patterns.apply_scroll_pattern",
+        lambda *_a, **_k: {"success": False, "error": "COM ScrollPattern failed"},
+    )
+    monkeypatch.setattr(
+        "tools.uia_pattern_tools._keyboard_scroll",
+        lambda raw, direction, repeat: {
+            "success": True,
+            "method": "keyboard",
+            "scroll_method": "keyboard",
+            "direction": direction,
+            "repeat": repeat,
+        },
+    )
+
+    out = do_scroll_element("docPane", direction="down", repeat=2)
+    assert out["success"] is True
+    assert out["scroll_method"] == "keyboard"
+    assert send_calls == []

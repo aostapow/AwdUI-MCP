@@ -157,6 +157,37 @@ def do_find_item_by_property(
     return result
 
 
+def _keyboard_scroll(
+    raw,
+    direction: str,
+    repeat: int,
+) -> dict[str, Any]:
+    from tools.input_tools import do_send_keys
+
+    key_map = {
+        "down": "{PGDN}",
+        "up": "{PGUP}",
+        "left": "{LEFT}",
+        "right": "{RIGHT}",
+    }
+    key = key_map.get((direction or "down").lower())
+    if not key or repeat <= 0:
+        return {"success": False}
+    try:
+        raw.set_focus()
+    except Exception:
+        pass
+    for _ in range(int(repeat)):
+        do_send_keys(key)
+    return {
+        "success": True,
+        "method": "keyboard",
+        "scroll_method": "keyboard",
+        "direction": direction,
+        "repeat": repeat,
+    }
+
+
 def do_scroll_element(
     automation_id: str = "",
     direction: str = "down",
@@ -207,8 +238,14 @@ def do_scroll_element(
         horizontal_percent=h_pct,
         vertical_percent=v_pct,
     )
+    if result.get("success"):
+        result["scroll_method"] = "ScrollPattern"
     if result.get("success") and scroll_via == "ancestor":
         result["scroll_via"] = "ancestor"
+    if not result.get("success") and h_pct is None and v_pct is None:
+        kb = _keyboard_scroll(raw, direction, repeat)
+        if kb.get("success"):
+            result = kb
     if not result.get("success"):
         from detection.uia_patterns import _element_dict
 
@@ -227,6 +264,7 @@ def do_scroll_element(
                 result = {
                     "success": True,
                     "method": "scroll_fallback_coords",
+                    "scroll_method": "coords",
                     "fallback_reason": result.get("error", "ScrollPattern failed"),
                     "x": cx,
                     "y": cy,

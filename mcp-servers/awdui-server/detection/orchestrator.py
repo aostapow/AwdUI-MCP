@@ -114,6 +114,7 @@ class DetectionOrchestrator:
         window_handle: Optional[int] = None,
         adaptive_cluster: bool = True,
         view_scope: bool = False,
+        ancestor_automation_id: Optional[str] = None,
     ) -> dict:
         from detection.tree_depth import normalize_tree_depth
 
@@ -132,7 +133,7 @@ class DetectionOrchestrator:
         )
         cache_key = (
             f"{resolved_title}|{resolved_hwnd}|{max_depth}|{role}|"
-            f"{tree_mode}|{include_offscreen}|{backend}|{view_scope}"
+            f"{tree_mode}|{include_offscreen}|{backend}|{view_scope}|{ancestor_automation_id or ''}"
         )
         now = time.monotonic()
         if cache_key in _tree_cache:
@@ -183,8 +184,16 @@ class DetectionOrchestrator:
                             include_offscreen=include_offscreen,
                         )
                     )
+                    ancestor_meta: dict = {}
+                    if (ancestor_automation_id or "").strip():
+                        from detection.element_scope import filter_elements_by_ancestor
+
+                        scoped_elements, ancestor_meta = filter_elements_by_ancestor(
+                            scoped_elements,
+                            ancestor_automation_id,
+                        )
                     _tree_cache[cache_key] = (now, scoped_elements)
-                    return {
+                    out = {
                         "elements": [
                             dict_to_legacy_element(e.to_dict()) for e in scoped_elements
                         ],
@@ -195,6 +204,9 @@ class DetectionOrchestrator:
                         "backend_used": bname,
                         "view_scope_applied": view_scope,
                     }
+                    if ancestor_meta:
+                        out["ancestor_scope"] = ancestor_meta
+                    return out
             except Exception as e:
                 last_error = str(e)
         return {"elements": [], "count": 0, "error": last_error or "no elements found"}

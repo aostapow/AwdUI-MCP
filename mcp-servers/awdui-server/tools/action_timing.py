@@ -427,6 +427,9 @@ def run_selection_item_verify(
     """Verify SelectionItem without waiting for offscreen Nav ListItem nodes."""
     from tools.wait_tools import _norm_text, _read_properties
 
+    if poll_ms >= 100 and timeout_ms <= 2500:
+        poll_ms = 50
+
     t0 = time.perf_counter()
     aid = (acted_automation_id or "").strip()
     role = (acted_role or "").strip().lower()
