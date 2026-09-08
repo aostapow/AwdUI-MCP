@@ -64,11 +64,27 @@ def do_read_element(
         window_handle=window_handle,
     )
     if props.get("found"):
+        properties = props.get("properties") or {}
+        from detection.uia_text import read_editable_text
+
+        role = (properties.get("role") or "").strip()
+        if role in ("Edit", "Document", "Text") or automation_id:
+            editable = read_editable_text(
+                properties,
+                automation_id=automation_id,
+                name=name,
+                window_title=window_title,
+            )
+            if editable.get("text"):
+                properties = dict(properties)
+                properties["value"] = editable["text"]
+                properties["read_method"] = editable.get("read_method", "")
         return {
             "success": True,
             "index": index,
-            "properties": props.get("properties") or {},
+            "properties": properties,
             "backend_used": props.get("backend_used", ""),
+            **({"read_method": properties.get("read_method")} if properties.get("read_method") else {}),
         }
 
     all_hits = do_find_all_elements(

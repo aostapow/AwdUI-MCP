@@ -1280,6 +1280,7 @@ def do_set_element_value(
     window_title: Optional[str] = None,
     index: int = 0,
     window_handle: Optional[int] = None,
+    verify: bool = False,
 ) -> dict:
     if sys.platform != "win32":
         return {"success": False, "error": "set_element_value is Windows-only"}
@@ -1305,6 +1306,27 @@ def do_set_element_value(
         from detection.orchestrator import invalidate_tree_cache
 
         invalidate_tree_cache(window_title)
+    if verify and result.get("success"):
+        from tools.element_read_tools import do_read_element
+
+        read_back = do_read_element(
+            automation_id=automation_id,
+            name=name,
+            window_title=window_title,
+            window_handle=window_handle,
+            index=index,
+        )
+        actual = ""
+        if read_back.get("success"):
+            actual = str((read_back.get("properties") or {}).get("value") or "")
+        if value not in actual:
+            result = {
+                **result,
+                "success": False,
+                "error": "verify failed after set_element_value",
+                "verify_actual": actual,
+                "verify_expected": value,
+            }
     return result
 
 
@@ -2232,6 +2254,7 @@ def do_type_into_element(
     window_title: Optional[str] = None,
     app_id: str = "",
     clear_first: bool = True,
+    verify: bool = False,
 ) -> dict[str, Any]:
     wt, _hwnd, err = resolve_scope(app_id, window_title)
     if err:
@@ -2244,6 +2267,7 @@ def do_type_into_element(
         name=name,
         automation_id=automation_id,
         window_title=wt or None,
+        verify=verify,
     )
     if set_result.get("success"):
         return {"success": True, "method": "ValuePattern", "text": text}
@@ -2259,7 +2283,27 @@ def do_type_into_element(
     if clear_first:
         do_send_keys("ctrl+a")
     do_type_text(text)
-    return {"success": True, "method": "click+type", "text": text}
+    out = {"success": True, "method": "click+type", "text": text}
+    if verify:
+        from tools.element_read_tools import do_read_element
+
+        read_back = do_read_element(
+            automation_id=automation_id,
+            name=name,
+            window_title=wt or None,
+        )
+        actual = ""
+        if read_back.get("success"):
+            actual = str((read_back.get("properties") or {}).get("value") or "")
+        if text not in actual:
+            out = {
+                "success": False,
+                "method": "click+type",
+                "error": "verify failed after type_into_element",
+                "verify_actual": actual,
+                "verify_expected": text,
+            }
+    return out
 
 def register(server) -> int:
     """Register UI automation and inspector tools."""
