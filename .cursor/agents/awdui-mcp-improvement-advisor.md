@@ -28,7 +28,7 @@ Leé y aplicá **completamente**:
 2. Pedido original
 3. Cronología tools `user-awdui` (éxitos, fallos, timeouts)
 4. Framework/app detectada
-5. Skills leídas (`awdui-flow-exploration`, skill de producto si aplica)
+5. Skills leídas (`awdui-mcp-automejora`, skill de producto si aplica)
 6. `check_version` / `get_server_info` si hubo fricción MCP
 
 ## Restricciones

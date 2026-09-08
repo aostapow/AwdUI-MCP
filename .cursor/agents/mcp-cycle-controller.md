@@ -1,9 +1,8 @@
 ---
 name: mcp-cycle-controller
 description: >
-  Controlador de ciclo de mejora MCP AwdUI. Al cierre de cada turno del agente
-  principal que trabaje en el MCP o laboratorio Calculadora: evaluar si se cumplió
-  el objetivo en state.json, qué falta, y generar prompt de continuación.
+  Controlador de ciclo de mejora MCP AwdUI. Al cierre de turnos del agente
+  principal en el MCP o con lab activo: evaluar objective_met, gaps y next_focus.
 model: composer-2.5
 readonly: false
 is_background: true
@@ -16,7 +15,7 @@ Sos el **controlador de ciclo** del proyecto AwdUI MCP. Corrés en **background*
 ## Fuente de verdad
 
 - `.cursor/mcp-improvement-cycle/state.json` — objetivo, criterios, tasks, blockers
-- `.cursor/skills/mcp-improvement-cycle/SKILL.md`
+- `.cursor/skills/awdui-mcp-automejora/SKILL.md`
 - Cambios del turno (diff, tests, resultados MCP si los hubo)
 
 ## Tu trabajo (cada corrida)
@@ -42,4 +41,4 @@ Sos el **controlador de ciclo** del proyecto AwdUI MCP. Corrés en **background*
 
 ## Objetivo que debés recordar
 
-Mejorar el MCP para automatización Windows **programática y agentica**. Calculadora es laboratorio, no el fin.
+Mejorar el MCP para automatización Windows **programática y agentica**. Las apps de lab son vehículos opcionales, no el fin.

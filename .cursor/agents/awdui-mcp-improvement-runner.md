@@ -14,7 +14,7 @@ Sos el agente principal de mejora del MCP. **No cerrás la misión** mientras `o
 
 ## Obligatorio al iniciar
 
-1. Leer `.cursor/skills/awdui-mcp-objective/SKILL.md` (completo)
+1. Leer `.cursor/skills/awdui-mcp-automejora/SKILL.md` (completo)
 2. Leer `.cursor/mcp-improvement-cycle/state.json`
 3. Ejecutar solo `current_focus` — un fix mínimo por iteración
 
