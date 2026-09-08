@@ -477,6 +477,12 @@ def register(server) -> int:
             set_target(win.get("title") or resolved, window_handle=win.get("hwnd"))
         else:
             set_target("")
+        try:
+            from detection.orchestrator import invalidate_tree_cache
+
+            invalidate_tree_cache()
+        except Exception:
+            pass
 
         current = get_target()
         pinned = get_target_hwnd()

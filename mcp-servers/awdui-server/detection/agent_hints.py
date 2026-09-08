@@ -125,3 +125,13 @@ def hint_verify_automation_id(hints: str) -> Optional[str]:
         if isinstance(val, str) and val.strip():
             return val.strip()
     return None
+
+
+def hint_requires_flow(hints: str) -> Optional[str]:
+    """Optional flow id (e.g. F-02) that must be active before acting on this object."""
+    parsed = parse_agent_hints(hints)
+    for key in ("requires_flow", "flow", "requires_flow_id"):
+        val = parsed.get(key)
+        if isinstance(val, str) and val.strip():
+            return val.strip()
+    return None

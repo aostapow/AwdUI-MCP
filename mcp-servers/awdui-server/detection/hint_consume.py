@@ -6,6 +6,7 @@ from typing import Any, Optional
 from detection.agent_hints import (
     hint_click_mode,
     hint_preferred_tool,
+    hint_requires_flow,
     hint_verify_automation_id,
     parse_agent_hints,
 )
@@ -41,6 +42,7 @@ def resolve_object_hints(
         "hint_preferred_tool": preferred,
         "hint_verify_automation_id": hint_verify_automation_id(hints) if hints.strip() else None,
         "hint_click_mode": hint_click_mode(hints) if hints.strip() else "auto",
+        "hint_requires_flow": hint_requires_flow(hints) if hints.strip() else None,
     }
 
 
@@ -71,6 +73,8 @@ def attach_hints_to_result(
         result["hint_verify_automation_id"] = ctx["hint_verify_automation_id"]
     if ctx.get("hint_click_mode") and ctx["hint_click_mode"] != "auto":
         result["hint_click_mode"] = ctx["hint_click_mode"]
+    if ctx.get("hint_requires_flow"):
+        result["hint_requires_flow"] = ctx["hint_requires_flow"]
     return result
 
 

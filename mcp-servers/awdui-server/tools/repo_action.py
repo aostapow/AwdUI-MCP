@@ -472,9 +472,13 @@ def do_repo_hints_set(
     updated = repo_store.update_object(repo_path, agent_hints=merged)
     if not updated:
         return {"success": False, "error": f"failed to update hints for {repo_path}"}
+    from datetime import datetime, timezone
+
+    hint_updated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return {
         "success": True,
         "repo_path": repo_path,
         "agent_hints": merged,
         "appended": bool(append and existing.strip()),
+        "hint_updated_at": hint_updated_at,
     }
