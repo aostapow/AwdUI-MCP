@@ -156,6 +156,9 @@ def do_find_element(
                     repo_result["repo_path"] = path
             except Exception:
                 pass
+        from detection.hint_consume import attach_hints_to_result
+
+        attach_hints_to_result(repo_result)
         return attach_simple_elapsed(repo_result, t0)
 
     result = _orch().find_elements(
@@ -191,15 +194,20 @@ def do_find_element(
                 result["repo_path"] = path
         except Exception:
             pass
-    return attach_simple_elapsed(
-        {
-            "found": True,
-            "elements": elements,
-            "backend_used": backend,
-            **({"repo_path": result["repo_path"]} if result.get("repo_path") else {}),
-        },
-        t0,
+    out = {
+        "found": True,
+        "elements": elements,
+        "backend_used": backend,
+        **({"repo_path": result["repo_path"]} if result.get("repo_path") else {}),
+    }
+    from detection.hint_consume import attach_hints_to_result
+
+    attach_hints_to_result(
+        out,
+        automation_id=automation_id,
+        repo_path=out.get("repo_path"),
     )
+    return attach_simple_elapsed(out, t0)
 
 
 def do_list_elements(
@@ -210,6 +218,7 @@ def do_list_elements(
     include_offscreen: bool = False,
     window_handle: Optional[int] = None,
     adaptive_cluster: bool = True,
+    view_scope: bool = False,
 ) -> dict:
     import time
     from detection.tree_depth import resolve_list_depth
@@ -235,9 +244,12 @@ def do_list_elements(
         include_offscreen=include_offscreen,
         window_handle=window_handle,
         adaptive_cluster=adaptive_cluster,
+        view_scope=view_scope,
     )
     out["max_depth_requested"] = requested
     out["max_depth_effective"] = effective
+    if view_scope:
+        out["view_scope_applied"] = bool(out.get("view_scope_applied"))
     if fw:
         out["framework_depth"] = fw
     return attach_simple_elapsed(out, t0)
@@ -428,6 +440,9 @@ def _finish_action_with_verify(
     verify_automation_id: Optional[str],
     verify_name_contains: Optional[str],
     acted_automation_id: Optional[str] = None,
+    verify_modal_dismissed: bool = False,
+    modal_title: Optional[str] = None,
+    parent_pid: Optional[int] = None,
     verify_timeout_ms: int = 5000,
     verify_poll_ms: int = 100,
 ) -> dict:
@@ -444,6 +459,66 @@ def _finish_action_with_verify(
         verify_name_contains,
         window_title,
     )
+    pid = parent_pid if parent_pid is not None else _resolve_parent_pid(window_title)
+
+    method = str(result.get("method") or "")
+    elem = result.get("element") or {}
+    elem_role = (elem.get("role") or "").strip().lower()
+    selection_like_invoke = method in (
+        "InvokePattern",
+        "Invoke",
+        "InvokePattern.Invoke",
+    ) and elem_role in ("treeitem", "listitem", "tabitem", "dataitem")
+    use_selection_verify = (
+        not (verify_automation_id or "").strip()
+        and not needle
+        and verify_target == acted
+        and ("SelectionItem" in method or selection_like_invoke)
+    )
+    if use_selection_verify:
+        from tools.action_timing import run_selection_item_verify
+
+        v = run_selection_item_verify(
+            window_title=window_title,
+            acted_automation_id=acted,
+            acted_name=elem.get("name") or "",
+            acted_role=elem.get("role") or "",
+            pre_header_name=result.get("pre_header_name"),
+            pre_window_title=result.get("pre_window_title"),
+            timeout_ms=min(int(verify_timeout_ms or 2500), 2500),
+            poll_ms=verify_poll_ms,
+        )
+        timer.mark("verify_ms", v.get("verify_ms", 0))
+        result["verified"] = v.get("verified")
+        if v.get("verify_method"):
+            result["verify_method"] = v["verify_method"]
+        if v.get("verify_error"):
+            result["verify_error"] = v["verify_error"]
+        if v.get("verify_name"):
+            result["verify_name"] = v["verify_name"]
+        return timer.attach(result)
+
+    if verify_modal_dismissed:
+        v = run_post_act_verify(
+            window_title=window_title,
+            verify_modal_dismissed=True,
+            modal_title=modal_title or window_title,
+            parent_pid=pid,
+            timeout_ms=verify_timeout_ms,
+            poll_ms=verify_poll_ms,
+        )
+        timer.mark("verify_ms", v.get("verify_ms", 0))
+        result["verified"] = v.get("verified")
+        if v.get("modal_dismissed") is not None:
+            result["modal_dismissed"] = v["modal_dismissed"]
+        if v.get("modal_still_open"):
+            result["modal_still_open"] = v["modal_still_open"]
+        if v.get("verify_error"):
+            result["verify_error"] = v["verify_error"]
+        if v.get("hint"):
+            result["hint"] = v["hint"]
+        return timer.attach(result)
+
     if verify_target or needle:
         v = run_post_act_verify(
             window_title=window_title,
@@ -471,6 +546,17 @@ def _finish_action_with_verify(
     return timer.attach(result)
 
 
+def _should_snapshot_header_for_selection(
+    elem: Optional[dict],
+    verify_automation_id: Optional[str],
+    verify_name_contains: Optional[str],
+) -> bool:
+    if (verify_automation_id or "").strip() or (verify_name_contains or "").strip():
+        return False
+    role = ((elem or {}).get("role") or "").lower()
+    return role in ("listitem", "treeitem", "radiobutton", "tabitem", "dataitem")
+
+
 def do_invoke_element(
     name: Optional[str] = None,
     automation_id: Optional[str] = None,
@@ -478,8 +564,13 @@ def do_invoke_element(
     element: Optional[dict] = None,
     verify_automation_id: Optional[str] = None,
     verify_name_contains: Optional[str] = None,
+    verify_modal_dismissed: bool = False,
+    modal_title: Optional[str] = None,
+    parent_pid: Optional[int] = None,
     verify_timeout_ms: int = 5000,
     verify_poll_ms: int = 100,
+    scope_mode: str = "auto",
+    window_handle: Optional[int] = None,
 ) -> dict:
     from tools.action_timing import ActionTimer
 
@@ -487,15 +578,50 @@ def do_invoke_element(
     if sys.platform != "win32":
         return {"success": False, "error": "invoke_element is Windows-only", "elapsed_ms": 0}
 
+    wt, hwnd, scope_info = _apply_action_scope(
+        window_title, window_handle, scope_mode=scope_mode,
+    )
+    window_title = wt
+    window_handle = hwnd
+
     verify_kwargs = {
         "verify_timeout_ms": verify_timeout_ms,
         "verify_poll_ms": verify_poll_ms,
+        "verify_modal_dismissed": verify_modal_dismissed,
+        "modal_title": modal_title,
+        "parent_pid": parent_pid,
     }
+    _enrich_modal_verify_kwargs(
+        verify_kwargs, scope_info, window_title=window_title,
+    )
 
     if element:
         timer.start("act")
+        pre_header = ""
+        pre_window_title = ""
+        if _should_snapshot_header_for_selection(element, verify_automation_id, verify_name_contains):
+            from tools.action_timing import snapshot_selection_prestate
+
+            prestate = snapshot_selection_prestate(window_title)
+            pre_header = prestate.get("header_name") or ""
+            pre_window_title = prestate.get("window_title") or ""
         result = do_invoke_on_element(element, window_title=window_title)
         timer.end()
+        result["element"] = element
+        if pre_header:
+            result["pre_header_name"] = pre_header
+        if pre_window_title:
+            result["pre_window_title"] = pre_window_title
+        if not result.get("success") and _is_menuitem(element):
+            return _menuitem_bbox_click(
+                element,
+                window_title,
+                timer,
+                acted_automation_id=(element or {}).get("automation_id") or automation_id,
+                verify_automation_id=verify_automation_id,
+                verify_name_contains=verify_name_contains,
+                **verify_kwargs,
+            )
         return _finish_action_with_verify(
             timer,
             result,
@@ -516,12 +642,33 @@ def do_invoke_element(
         if fw in ("uwp", "winui"):
             from tools.spy_bridge import spy_invoke_element, spy_available
             if spy_available():
+                pre_header = ""
+                pre_window_title = ""
+                if _should_snapshot_header_for_selection(
+                    {"role": "ListItem", "automation_id": automation_id or ""},
+                    verify_automation_id,
+                    verify_name_contains,
+                ):
+                    from tools.action_timing import snapshot_selection_prestate
+
+                    prestate = snapshot_selection_prestate(window_title)
+                    pre_header = prestate.get("header_name") or ""
+                    pre_window_title = prestate.get("window_title") or ""
                 timer.start("act")
                 spy = spy_invoke_element(
                     name=name, automation_id=automation_id, window_title=window_title,
                 )
                 timer.end()
                 if spy.get("success"):
+                    spy["element"] = {
+                        "automation_id": automation_id or "",
+                        "name": name or "",
+                        "role": "ListItem",
+                    }
+                    if pre_header:
+                        spy["pre_header_name"] = pre_header
+                    if pre_window_title:
+                        spy["pre_window_title"] = pre_window_title
                     return _finish_action_with_verify(
                         timer,
                         spy,
@@ -539,6 +686,7 @@ def do_invoke_element(
         name=name,
         automation_id=automation_id,
         window_title=window_title,
+        window_handle=window_handle,
         include_offscreen=True,
         remember=False,
     )
@@ -566,9 +714,23 @@ def do_invoke_element(
         }
         return timer.attach(out)
 
+    elem0 = matches["elements"][0]
+    pre_header = ""
+    pre_window_title = ""
+    if _should_snapshot_header_for_selection(elem0, verify_automation_id, verify_name_contains):
+        from tools.action_timing import snapshot_selection_prestate
+
+        prestate = snapshot_selection_prestate(window_title)
+        pre_header = prestate.get("header_name") or ""
+        pre_window_title = prestate.get("window_title") or ""
     timer.start("act")
-    result = do_invoke_on_element(matches["elements"][0], window_title=window_title)
+    result = do_invoke_on_element(elem0, window_title=window_title)
     timer.end()
+    result["element"] = elem0
+    if pre_header:
+        result["pre_header_name"] = pre_header
+    if pre_window_title:
+        result["pre_window_title"] = pre_window_title
     if result.get("success"):
         return _finish_action_with_verify(
             timer,
@@ -577,6 +739,17 @@ def do_invoke_element(
             verify_automation_id=verify_automation_id,
             verify_name_contains=verify_name_contains,
             acted_automation_id=automation_id,
+            **verify_kwargs,
+        )
+    if _is_menuitem(elem0):
+        return _menuitem_bbox_click(
+            elem0,
+            window_title,
+            timer,
+            backend_used=matches.get("backend_used", "uia"),
+            acted_automation_id=automation_id or elem0.get("automation_id"),
+            verify_automation_id=verify_automation_id,
+            verify_name_contains=verify_name_contains,
             **verify_kwargs,
         )
 
@@ -609,6 +782,10 @@ def _stale_instance_probe(
     if not automation_id:
         return None
     try:
+        from detection.backends.uia_backend import _prefer_uia_find_before_spy
+
+        if _prefer_uia_find_before_spy(window_title):
+            return None
         from tools.spy_bridge import spy_available, spy_verify_live
         from detection.orchestrator import invalidate_tree_cache
         if not spy_available():
@@ -616,14 +793,51 @@ def _stale_instance_probe(
         live = spy_verify_live(automation_id=automation_id, window_title=window_title)
         if live.get("live"):
             return None
+        reason = str(live.get("reason") or "")
+        if reason == "not_found":
+            return None
         invalidate_tree_cache(window_title)
         return {
             "success": False,
-            "error": f"Stale UIA instance ({live.get('reason')})",
+            "error": f"Stale UIA instance ({reason or 'disabled'})",
             "code": live.get("code", "stale_instance"),
             "hint": "launch_app(path='calc.exe', replace=true) + set_target_window; retry invoke_element",
             "probe": automation_id,
         }
+    except Exception:
+        return None
+
+
+def _refresh_expander_dims(
+    automation_id: str,
+    window_title: Optional[str] = None,
+) -> Optional[dict]:
+    """Live dimensions for expander shell — spy bbox on UWP, else UIA resolve."""
+    aid = (automation_id or "").strip()
+    if not aid:
+        return None
+    try:
+        from tools.framework_detect import do_detect_framework
+
+        fw = do_detect_framework(window_title).get("framework", "")
+        if fw in ("uwp", "winui"):
+            from tools.spy_bridge import spy_available, spy_inspect_element, spy_props_to_element
+
+            if spy_available():
+                props = spy_inspect_element(
+                    automation_id=aid, window_title=window_title,
+                )
+                if props.get("found"):
+                    return spy_props_to_element(
+                        props.get("properties") or props, window_title=window_title,
+                    )
+    except Exception:
+        pass
+    try:
+        from tools.control_items import _resolve_control
+
+        _raw, _view, data, _scope = _resolve_control(aid, window_title)
+        return data
     except Exception:
         return None
 
@@ -636,17 +850,32 @@ def _quick_resolve_element(
     """Lightweight element lookup for fallback_click — no ExpandCollapse attempts."""
     if not (automation_id or name):
         return None
-    try:
-        from tools.spy_bridge import spy_available, spy_inspect_element, spy_props_to_element
+    if (automation_id or "").strip():
+        try:
+            from tools.control_items import _resolve_control
 
-        if spy_available():
-            props = spy_inspect_element(
-                name=name, automation_id=automation_id, window_title=window_title,
+            _raw, _view, data, _scope = _resolve_control(
+                automation_id.strip(), window_title,
             )
-            if props.get("found"):
-                return spy_props_to_element(
-                    props.get("properties") or props, window_title=window_title,
+            if data:
+                return data
+        except Exception:
+            pass
+    try:
+        from tools.framework_detect import do_detect_framework
+
+        fw = do_detect_framework(window_title).get("framework", "")
+        if fw not in ("uwp", "winui"):
+            from tools.spy_bridge import spy_available, spy_inspect_element, spy_props_to_element
+
+            if spy_available():
+                props = spy_inspect_element(
+                    name=name, automation_id=automation_id, window_title=window_title,
                 )
+                if props.get("found"):
+                    return spy_props_to_element(
+                        props.get("properties") or props, window_title=window_title,
+                    )
     except Exception:
         pass
     matches = do_find_element(
@@ -671,37 +900,197 @@ def _looks_like_uwp_expander(elem: dict) -> bool:
     return role == "group" and "expander" in aid
 
 
-def _expand_element_fallback_header_click(
+def _expander_visible_bbox(
     elem: dict, window_title: Optional[str] = None
-) -> dict:
-    from detection.element_coords import expander_header_click_coords
-    from tools.target_window import ensure_focus_for_input
+) -> Optional[tuple[int, int, int, int]]:
+    from tools.highlight import element_screen_bbox
 
-    ensure_focus_for_input()
+    bbox = element_screen_bbox(elem, window_title=window_title)
+    if bbox and len(bbox) >= 4:
+        return int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+    x = int(elem.get("x", 0) or 0)
+    y = int(elem.get("y", 0) or 0)
     w = int(elem.get("width") or elem.get("w") or 0)
     h = int(elem.get("height") or elem.get("h") or 0)
     if w > 0 and h > 0:
-        cx, cy = expander_header_click_coords(elem, window_title)
-    else:
-        from tools.highlight import element_screen_bbox
+        return x, y, w, h
+    return None
 
-        bbox = element_screen_bbox(elem, window_title=window_title)
-        if bbox:
-            x, y, bw, bh = bbox
-            cx = x + bw // 2
-            cy = y + max(1, bh // 6)
-        else:
-            cx, cy = expander_header_click_coords(elem, window_title)
+
+def _expander_shell_lacks_expand_pattern(elem: dict) -> bool:
+    pats = elem.get("patterns") or []
+    if isinstance(pats, dict):
+        pats = list(pats.keys())
+    normalized = {str(p) for p in pats}
+    return "ExpandCollapse" not in normalized
+
+
+def _expander_shell_looks_open(elem: dict) -> bool:
+    """UWP SettingsExpander grows vertically when children are visible (~120px+)."""
+    h = int(elem.get("height") or elem.get("h") or 0)
+    w = int(elem.get("width") or elem.get("w") or 0)
+    if h <= 0:
+        return False
+    return h >= 120
+
+
+def _expander_contains_roles(
+    parent: dict,
+    window_title: Optional[str],
+    roles: tuple[str, ...] = ("RadioButton", "ListItem"),
+    *,
+    max_depth: int = 6,
+    refresh_parent: bool = True,
+) -> bool:
+    """Scoped role-filtered passes — one shallow list per role under expander band."""
+    aid = (parent.get("automation_id") or "").strip()
+    if refresh_parent and aid:
+        fresh = do_find_element(
+            automation_id=aid,
+            window_title=window_title,
+            include_offscreen=True,
+        )
+        if fresh.get("found") and fresh.get("elements"):
+            parent = fresh["elements"][0]
+    px = int(parent.get("x", 0) or 0)
+    py = int(parent.get("y", 0) or 0)
+    pw = int(parent.get("width") or parent.get("w") or 0)
+    ph = int(parent.get("height") or parent.get("h") or 0)
+    if pw <= 0 or ph <= 0:
+        return False
+    band_bottom = py + max(ph * 3, ph + 320, 400)
+    parent_aid = (parent.get("automation_id") or "").strip()
+    cap = min(max(int(max_depth or 4), 3), 6)
+    for role in roles:
+        listing = do_list_elements(
+            window_title=window_title,
+            max_depth=cap,
+            role=role,
+            include_offscreen=False,
+        )
+        for elem in listing.get("elements") or []:
+            if (elem.get("automation_id") or "").strip() == parent_aid:
+                continue
+            ex = int(elem.get("x", 0) or 0)
+            ey = int(elem.get("y", 0) or 0)
+            ew = int(elem.get("width") or elem.get("w") or 0)
+            eh = int(elem.get("height") or elem.get("h") or 0)
+            cx = ex + max(ew, 1) // 2
+            cy = ey + max(eh, 1) // 2
+            if px <= cx <= px + pw and py <= cy <= band_bottom:
+                return True
+    return False
+
+
+def _expander_contains_role(
+    parent: dict, window_title: Optional[str], role: str, *, limit: int = 20
+) -> bool:
+    del limit  # legacy param; single-pass helper ignores limit
+    return _expander_contains_roles(parent, window_title, (role,))
+
+
+def _try_expand_via_interactive_child(
+    elem: dict,
+    window_title: Optional[str] = None,
+    action: str = "expand",
+) -> Optional[dict]:
+    """UWP SettingsExpander shell often lacks ExpandCollapse; act on interactive child."""
+    from detection.backends.uia_backend import get_uia_backend
+    from detection.control_interaction import discover_from_element
+    from detection.element_model import DetectedElement
+
+    children: list[dict] = []
+    for depth in (3, 5):
+        listing = do_list_elements(
+            window_title=window_title,
+            max_depth=depth,
+            include_offscreen=False,
+        )
+        children = _elements_inside_parent(elem, listing.get("elements") or [], limit=12)
+        if children:
+            break
+    report = discover_from_element(elem, children=children or None)
+    kids = report.get("interactive_children") or []
+    backend = get_uia_backend()
+    for child in kids:
+        patterns = set(child.get("patterns") or [])
+        cname = (child.get("name") or "").strip()
+        crole = (child.get("role") or "").strip()
+        caid = (child.get("automation_id") or "").strip()
+        lookup_aid = None if caid == "Header" else (caid or None)
+        lookup_name = cname or (elem.get("name") or "").strip() or None
+        if "ExpandCollapse" in patterns:
+            detected = DetectedElement(
+                name=lookup_name or "",
+                role=crole or "Text",
+                automation_id=lookup_aid or "",
+            )
+            result = backend.expand_collapse_element(
+                detected, action=action, window_title=window_title,
+            )
+            if result.get("success"):
+                result["used_interactive_child"] = True
+                result["child"] = child
+                return result
+        if "Invoke" in patterns and lookup_name:
+            detected = DetectedElement(name=lookup_name or "", role=crole, automation_id=lookup_aid or "")
+            result = backend.invoke_element(detected, window_title=window_title)
+            if result.get("success"):
+                result["used_interactive_child"] = True
+                result["child"] = child
+                return result
+    return None
+
+
+def _expander_chevron_click_coords(
+    elem: dict, window_title: Optional[str] = None
+) -> tuple[int, int]:
+    bbox = _expander_visible_bbox(elem, window_title)
+    if bbox:
+        x, y, bw, bh = bbox
+        return x + max(bw - 16, bw // 2), y + bh // 2
+    from detection.element_coords import expander_header_click_coords
+
+    return expander_header_click_coords(elem, window_title)
+
+
+def _expand_element_fallback_header_click(
+    elem: dict, window_title: Optional[str] = None, action: str = "expand"
+) -> dict:
+    from tools.target_window import ensure_focus_for_input
+
+    ensure_focus_for_input()
+    cx, cy = _expander_chevron_click_coords(elem, window_title)
     click_result = do_click(cx, cy)
     out = {
         "success": True,
-        "method": "HeaderClick",
+        "method": "ChevronClick",
         "used_fallback_click": True,
         "clicked_at": {"x": cx, "y": cy},
         "element": elem,
     }
+    if action == "expand" and _looks_like_uwp_expander(elem):
+        aid = (elem.get("automation_id") or "").strip()
+        fresh = elem
+        if aid:
+            import time
+
+            time.sleep(0.12)
+            probe = _refresh_expander_dims(aid, window_title)
+            if probe:
+                fresh = probe
+        if not _expander_shell_looks_open(fresh):
+            out["success"] = False
+            out["error"] = "Expander click did not reveal interactive children"
+            out["code"] = "expand_not_opened"
     if "navigation_warning" in click_result:
         out["navigation_warning"] = click_result["navigation_warning"]
+    try:
+        from detection.orchestrator import invalidate_tree_cache
+
+        invalidate_tree_cache(window_title)
+    except Exception:
+        pass
     return out
 
 
@@ -722,6 +1111,19 @@ def do_expand_element(
     from detection.element_model import DetectedElement
 
     def _finish(result: dict) -> dict:
+        if result.get("success"):
+            try:
+                from detection.orchestrator import invalidate_tree_cache
+
+                invalidate_tree_cache(window_title)
+            except Exception:
+                pass
+            try:
+                from tools.wait_tools import do_wait_for_input_idle
+
+                do_wait_for_input_idle(window_title=window_title, timeout_ms=800)
+            except Exception:
+                pass
         result["elapsed_ms"] = int((time.perf_counter() - t0) * 1000)
         return result
 
@@ -730,9 +1132,24 @@ def do_expand_element(
             name=name, automation_id=automation_id, window_title=window_title,
         )
         if quick and _looks_like_uwp_expander(quick):
-            out = _expand_element_fallback_header_click(quick, window_title)
-            out["fast_path"] = True
-            return _finish(out)
+            aid = (quick.get("automation_id") or "").strip()
+            refreshed = _refresh_expander_dims(aid, window_title) if aid else None
+            if refreshed:
+                quick = refreshed
+            if action == "expand" and _expander_shell_looks_open(quick):
+                return _finish(
+                    {
+                        "success": True,
+                        "method": "AlreadyExpanded",
+                        "fast_path": True,
+                        "element": quick,
+                    }
+                )
+            # fallback_click=true → chevron/header click; skip interactive-child tree walk
+            out = _expand_element_fallback_header_click(quick, window_title, action)
+            if out.get("success"):
+                out["fast_path"] = True
+                return _finish(out)
 
     if element:
         detected = DetectedElement(
@@ -782,6 +1199,9 @@ def do_expand_element(
         )
         if result.get("success"):
             return _finish(result)
+        child_result = _try_expand_via_interactive_child(elem_dict, window_title, action)
+        if child_result and child_result.get("success"):
+            return _finish(child_result)
 
     from tools.spy_bridge import spy_expand_collapse_element
     spy = spy_expand_collapse_element(
@@ -866,7 +1286,12 @@ def do_set_element_value(
     elem = DetectedElement(
         name=e["name"], role=e["role"], automation_id=e.get("automation_id", ""),
     )
-    return get_uia_backend().set_element_value(elem, value, window_title=window_title)
+    result = get_uia_backend().set_element_value(elem, value, window_title=window_title)
+    if result.get("success"):
+        from detection.orchestrator import invalidate_tree_cache
+
+        invalidate_tree_cache(window_title)
+    return result
 
 
 def _fuzzy_find_nearest(
@@ -918,6 +1343,119 @@ def _click_coords(elem: dict, window_title: Optional[str] = None) -> tuple[int, 
     return click_coords(elem, window_title)
 
 
+def _resolve_parent_pid(window_title: Optional[str] = None) -> Optional[int]:
+    """PID of the scoped target app (parent of modals)."""
+    from tools.target_window import get_target
+    from tools.window_scope import resolve_window_scope
+
+    target = (get_target() or "").strip()
+    scope = resolve_window_scope(target or window_title)
+    parent = scope.get("window") or {}
+    pid = parent.get("pid") or parent.get("process_id")
+    try:
+        return int(pid) if pid is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _apply_action_scope(
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    scope_mode: str = "auto",
+) -> tuple[Optional[str], Optional[int], dict]:
+    """Scope click/invoke to foreground owned modal when ``scope_mode=auto``."""
+    from tools.window_scope import resolve_action_scope
+
+    mode = (scope_mode or "auto").strip().lower()
+    if mode == "target" and not window_title and not (window_handle or 0):
+        return window_title, window_handle, {"scope": "target"}
+
+    resolved = resolve_action_scope(
+        window_title=window_title,
+        window_handle=window_handle or 0,
+        scope_mode=mode,
+    )
+    wt = resolved.get("window_title") or window_title
+    hwnd = resolved.get("window_handle") or window_handle
+    return wt, hwnd, resolved
+
+
+def _enrich_modal_verify_kwargs(
+    verify_kwargs: dict,
+    scope_info: dict,
+    *,
+    window_title: Optional[str] = None,
+) -> None:
+    """Default modal_title/parent_pid when acting inside a scoped foreground modal."""
+    if scope_info.get("scope") != "foreground_modal":
+        return
+    if verify_kwargs.get("verify_modal_dismissed") and not verify_kwargs.get("modal_title"):
+        verify_kwargs["modal_title"] = scope_info.get("window_title") or window_title
+    if verify_kwargs.get("parent_pid") is None:
+        verify_kwargs["parent_pid"] = _resolve_parent_pid(
+            scope_info.get("parent_title") or window_title,
+        )
+
+
+def _is_menuitem(elem: dict) -> bool:
+    return (elem.get("role") or "").strip().lower() == "menuitem"
+
+
+def _allows_bbox_fallback(elem: dict) -> bool:
+    role = (elem.get("role") or "").strip().lower()
+    return role in {"menuitem", "document", "edit"}
+
+
+def _menuitem_bbox_click(
+    elem: dict,
+    window_title: Optional[str],
+    timer,
+    *,
+    backend_used: str = "uia",
+    repo_path: Optional[str] = None,
+    resolved_via: Optional[str] = None,
+    verify_automation_id: Optional[str] = None,
+    verify_name_contains: Optional[str] = None,
+    verify_modal_dismissed: bool = False,
+    modal_title: Optional[str] = None,
+    parent_pid: Optional[int] = None,
+    verify_timeout_ms: int = 5000,
+    verify_poll_ms: int = 100,
+    acted_automation_id: Optional[str] = None,
+    method: str = "MenuItem_bbox_fallback",
+) -> dict:
+    timer.start("act")
+    center_x, center_y = _click_coords(elem, window_title)
+    click_result = do_click(center_x, center_y)
+    timer.end()
+    out: dict = {
+        "success": True,
+        "element": elem,
+        "method": method,
+        "clicked_at": {"x": center_x, "y": center_y},
+        "backend_used": backend_used,
+    }
+    if repo_path:
+        out["repo_path"] = repo_path
+    if resolved_via:
+        out["resolved_via"] = resolved_via
+    if "navigation_warning" in click_result:
+        out["navigation_warning"] = click_result["navigation_warning"]
+    return _finish_action_with_verify(
+        timer,
+        out,
+        window_title=window_title,
+        verify_automation_id=verify_automation_id,
+        verify_name_contains=verify_name_contains,
+        verify_modal_dismissed=verify_modal_dismissed,
+        modal_title=modal_title,
+        parent_pid=parent_pid,
+        acted_automation_id=acted_automation_id or elem.get("automation_id"),
+        verify_timeout_ms=verify_timeout_ms,
+        verify_poll_ms=verify_poll_ms,
+    )
+
+
 def _try_invoke_click(elem: dict, window_title: Optional[str] = None) -> Optional[dict]:
     """Use UIA Invoke when available — reliable for UWP/XAML buttons."""
     patterns = [str(p).lower() for p in (elem.get("patterns") or [])]
@@ -938,18 +1476,34 @@ def do_click_element(
     window_handle: Optional[int] = None,
     verify_automation_id: Optional[str] = None,
     verify_name_contains: Optional[str] = None,
+    verify_modal_dismissed: bool = False,
+    modal_title: Optional[str] = None,
+    parent_pid: Optional[int] = None,
     verify_timeout_ms: int = 5000,
     verify_poll_ms: int = 100,
     fuzzy_match: bool = False,
+    scope_mode: str = "auto",
 ) -> dict:
     from tools.action_timing import ActionTimer
     from tools.app_session import normalize_index
     from tools.element_resolve import find_element_for_action
 
+    wt, hwnd, scope_info = _apply_action_scope(
+        window_title, window_handle, scope_mode=scope_mode,
+    )
+    window_title = wt
+    window_handle = hwnd
+
     verify_kwargs = {
         "verify_timeout_ms": verify_timeout_ms,
         "verify_poll_ms": verify_poll_ms,
+        "verify_modal_dismissed": verify_modal_dismissed,
+        "modal_title": modal_title,
+        "parent_pid": parent_pid,
     }
+    _enrich_modal_verify_kwargs(
+        verify_kwargs, scope_info, window_title=window_title,
+    )
 
     timer = ActionTimer()
     timer.start("find")
@@ -1002,6 +1556,53 @@ def do_click_element(
                 **verify_kwargs,
             )
         if _identifiable_by_properties(elem):
+            if _allows_bbox_fallback(elem):
+                if (elem.get("role") or "").strip().lower() in {"document", "edit"}:
+                    from detection.backends.uia_backend import get_uia_backend
+                    from detection.element_model import DetectedElement
+
+                    detected = DetectedElement(
+                        name=elem.get("name") or "",
+                        role=elem.get("role") or "",
+                        automation_id=elem.get("automation_id") or "",
+                    )
+                    focus_result = get_uia_backend().focus_element(
+                        detected, window_title=window_title,
+                    )
+                    if focus_result.get("success"):
+                        out = {
+                            "success": True,
+                            "element": elem,
+                            "method": "SetFocus",
+                            "backend_used": result.get("backend_used", "uia"),
+                        }
+                        if result.get("repo_path"):
+                            out["repo_path"] = result["repo_path"]
+                        return _finish_action_with_verify(
+                            timer,
+                            out,
+                            window_title=window_title,
+                            verify_automation_id=verify_automation_id,
+                            verify_name_contains=verify_name_contains,
+                            acted_automation_id=automation_id or elem.get("automation_id"),
+                            **verify_kwargs,
+                        )
+                method = "MenuItem_bbox_fallback"
+                if (elem.get("role") or "").strip().lower() in {"document", "edit"}:
+                    method = "ClientInput_bbox_fallback"
+                return _menuitem_bbox_click(
+                    elem,
+                    window_title,
+                    timer,
+                    backend_used=result.get("backend_used", "uia"),
+                    repo_path=result.get("repo_path"),
+                    resolved_via=result.get("method"),
+                    acted_automation_id=automation_id or elem.get("automation_id"),
+                    verify_automation_id=verify_automation_id,
+                    verify_name_contains=verify_name_contains,
+                    method=method,
+                    **verify_kwargs,
+                )
             out = {
                 "success": False,
                 "error": (
@@ -1192,6 +1793,9 @@ def do_repo_find(
         "swf_class": result.get("swf_class"),
         "repo_path": repo_path,
     }
+    from detection.hint_consume import attach_hints_to_result
+
+    attach_hints_to_result(out, repo_path=repo_path, automation_id=elem.get("automation_id"))
     if highlight:
         try:
             from tools.highlight import highlight_element_dict
@@ -1735,8 +2339,11 @@ def register(server) -> int:
         capture_full: bool = False,
         verify_automation_id: str = "",
         verify_name_contains: str = "",
+        verify_modal_dismissed: bool = False,
+        modal_title: str = "",
         verify_timeout_ms: int = 5000,
         verify_poll_ms: int = 100,
+        scope_mode: str = "auto",
     ) -> list:
         """Find a UI element and click its center (or clickable point).
 
@@ -1747,8 +2354,12 @@ def register(server) -> int:
             capture_full: When True with capture, full screen; else target window if set.
             verify_automation_id: After click, poll until this control is found / matches.
             verify_name_contains: After click, poll until element name contains this text.
+            verify_modal_dismissed: After click, poll list_windows until modal title absent.
+            modal_title: Modal title to watch (default: scoped modal title when auto).
             verify_timeout_ms: Max wait for verify poll (default 5000).
             verify_poll_ms: Poll interval for verify (default 100).
+            scope_mode: auto (default) scopes find to foreground #32770 modal same PID;
+                target keeps parent window only; foreground forces modal if present.
         """
         from tools.params import resolve_scoped_window
 
@@ -1758,7 +2369,7 @@ def register(server) -> int:
         if scope_err:
             return f"Failed: {scope_err}"
         action_timeout = 10.0
-        if verify_automation_id or verify_name_contains:
+        if verify_automation_id or verify_name_contains or verify_modal_dismissed:
             action_timeout = max(action_timeout, verify_timeout_ms / 1000.0 + 5.0)
         try:
             result = with_timeout(
@@ -1772,8 +2383,11 @@ def register(server) -> int:
                     fuzzy_match=fuzzy_match,
                     verify_automation_id=verify_automation_id or None,
                     verify_name_contains=verify_name_contains or None,
+                    verify_modal_dismissed=verify_modal_dismissed,
+                    modal_title=modal_title or None,
                     verify_timeout_ms=verify_timeout_ms,
                     verify_poll_ms=verify_poll_ms,
+                    scope_mode=scope_mode,
                 ),
                 timeout=action_timeout,
             )
@@ -1824,15 +2438,22 @@ def register(server) -> int:
         include_offscreen: bool = False,
         window_handle: int = 0,
         adaptive_cluster: bool = True,
+        view_scope: bool = False,
     ) -> str:
         """List accessible UI elements in a window.
 
         max_depth=0 (default) uses framework-adaptive depth (detect_framework).
         Use max_depth=-1 for unlimited, or N>0 for an explicit cap.
         adaptive_cluster=true (default) drops spatial outliers outside the dominant control band.
+        view_scope=true restricts walk to the widest content Pane/Document (Electron section views).
         include_offscreen=true includes collapsed/offscreen nodes.
         """
         try:
+            list_timeout = (
+                45.0
+                if (role or "").strip().lower() in ("treeitem", "listitem", "tabitem")
+                else 10.0
+            )
             result = with_timeout(
                 lambda: do_list_elements(
                     window_title=_wt(window_title, title),
@@ -1842,11 +2463,12 @@ def register(server) -> int:
                     include_offscreen=include_offscreen,
                     window_handle=window_handle or None,
                     adaptive_cluster=adaptive_cluster,
+                    view_scope=view_scope,
                 ),
-                timeout=10.0,
+                timeout=list_timeout,
             )
         except ActionTimeoutError:
-            return "Timed out after 10s listing UI elements."
+            return f"Timed out after {list_timeout:.0f}s listing UI elements."
         if not result["elements"]:
             msg = f"No elements found. {result.get('error', '')}".strip()
             fw = do_detection_health(_wt(window_title, title)).get("framework")
@@ -1877,6 +2499,8 @@ def register(server) -> int:
             header += f" ({format_depth_header(int(req), int(eff or 0), str(fw))})"
         if role:
             header += f" with role '{role}'"
+        if result.get("view_scope_applied"):
+            header += " view_scope=content_pane"
         header += ":"
         lines = [header]
         for i, elem in enumerate(result["elements"]):
@@ -2034,27 +2658,44 @@ def register(server) -> int:
         title: str = "",
         verify_automation_id: str = "",
         verify_name_contains: str = "",
+        verify_modal_dismissed: bool = False,
+        modal_title: str = "",
         verify_timeout_ms: int = 5000,
         verify_poll_ms: int = 100,
+        scope_mode: str = "auto",
+        window_handle: int = 0,
     ) -> str:
         """Invoke a button/menu via UIA patterns (Invoke, SelectionItem, Toggle, Expand).
 
         Returns phased timing: probe / find / act / verify. verify_* polls UIA until match
         (default 5s) — prefer over a separate wait_for_condition call.
+        MenuItem: falls back to bbox center click when InvokePattern fails.
+        scope_mode auto scopes find to foreground #32770 modal owned by target PID.
         """
+        from tools.params import resolve_scoped_window
+
+        wt, hwnd, scope_err = resolve_scoped_window(
+            app_id="", window_title=window_title, title=title, window_handle=window_handle,
+        )
+        if scope_err:
+            return f"Failed: {scope_err}"
         action_timeout = 10.0
-        if verify_automation_id or verify_name_contains:
+        if verify_automation_id or verify_name_contains or verify_modal_dismissed:
             action_timeout = max(action_timeout, verify_timeout_ms / 1000.0 + 5.0)
         try:
             result = with_timeout(
                 lambda: do_invoke_element(
                     name=name or None,
                     automation_id=automation_id or None,
-                    window_title=_wt(window_title, title),
+                    window_title=wt or _wt(window_title, title),
+                    window_handle=hwnd or None,
                     verify_automation_id=verify_automation_id or None,
                     verify_name_contains=verify_name_contains or None,
+                    verify_modal_dismissed=verify_modal_dismissed,
+                    modal_title=modal_title or None,
                     verify_timeout_ms=verify_timeout_ms,
                     verify_poll_ms=verify_poll_ms,
+                    scope_mode=scope_mode,
                 ),
                 timeout=action_timeout,
             )
@@ -2308,6 +2949,7 @@ def register(server) -> int:
         name: str = "",
         automation_id: str = "",
         parent: str = "",
+        agent_hints: str = "",
     ) -> str:
         """Capture a control into the repository with Swf* class and Smart ID properties (Object Spy style)."""
         from tools.repo_action import do_repo_capture
@@ -2321,6 +2963,7 @@ def register(server) -> int:
                     name=name or "",
                     automation_id=automation_id or "",
                     parent=parent or "",
+                    agent_hints=agent_hints or "",
                 ),
                 timeout=20.0,
             )
@@ -2329,10 +2972,38 @@ def register(server) -> int:
         if not result.get("success"):
             return f"Capture failed: {result.get('error', '')}"
         methods = ", ".join(result.get("allowed_methods", []))
+        hint_note = " Hints stored." if agent_hints.strip() else ""
         return (
             f"Captured {result['repo_path']} as {result['swf_class']}. "
-            f"Methods: {methods}"
+            f"Methods: {methods}.{hint_note}"
         )
+
+    @server.tool()
+    def repo_hints_set(
+        repo_path: str,
+        hints: str,
+        append: bool = False,
+    ) -> str:
+        """Store or update agent_hints on a repository object (memory for next runs).
+
+        Use after learning workarounds, verify targets, preconditions, or latency notes.
+        Format: plain text, ``key: value`` lines, or JSON. See agent_hints parser in repo docs.
+
+        Parameters:
+            repo_path: Full path (e.g. Calculadora/equalButton).
+            hints: Text to store (replaces existing unless append=true).
+            append: If true, append to existing hints with a newline.
+        """
+        from tools.repo_action import do_repo_hints_set
+
+        result = do_repo_hints_set(repo_path, hints, append=append)
+        if not result.get("success"):
+            return f"Hints not saved: {result.get('error', '')}"
+        mode = "appended" if result.get("appended") else "set"
+        preview = (result.get("agent_hints") or "")[:200]
+        if len(result.get("agent_hints") or "") > 200:
+            preview += "..."
+        return f"Hints {mode} for {repo_path}.\n{preview}"
 
     @server.tool()
     def highlight_element(

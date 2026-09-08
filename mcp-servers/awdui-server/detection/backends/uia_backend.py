@@ -1,6 +1,7 @@
 """UIA3 detection backend — pywinauto + comtypes direct access."""
 from __future__ import annotations
 
+import re
 import sys
 from typing import Any, Optional
 
@@ -224,6 +225,69 @@ def _walk_tree_comtypes(root_element, tree_mode: str = "control", max_depth: int
     return results
 
 
+def _element_rect_left(raw_elem) -> int:
+    try:
+        rect = raw_elem.CurrentBoundingRectangle
+        return int(rect.left)
+    except Exception:
+        return 0
+
+
+def _element_control_type(raw_elem) -> int:
+    try:
+        return int(raw_elem.CurrentControlType)
+    except Exception:
+        return 0
+
+
+def _walk_treeitems_spatial_pruned(
+    root_element,
+    max_depth: int,
+    *,
+    prune_left_abs: int,
+) -> list:
+    """ControlView walk collecting TreeItem in left column; prune wide-content subtrees."""
+    iuia = _get_iuia().iuia
+    walker = iuia.ControlViewWalker
+
+    from pywinauto.uia_element_info import UIAElementInfo
+    from pywinauto.controls.uiawrapper import UIAWrapper
+
+    results: list = []
+
+    def walk(elem, depth: int) -> None:
+        if depth > max_depth:
+            return
+        left = _element_rect_left(elem)
+        if depth >= 1 and left > prune_left_abs:
+            return
+        if _element_control_type(elem) == _UIA_CONTROL_TREEITEM:
+            try:
+                results.append(UIAWrapper(UIAElementInfo(elem)))
+            except Exception:
+                pass
+        try:
+            child = walker.GetFirstChildElement(elem)
+            while child:
+                walk(child, depth + 1)
+                child = walker.GetNextSiblingElement(child)
+        except Exception:
+            pass
+
+    walk(root_element, 0)
+    return results
+
+
+def _window_prune_left_abs(window) -> int:
+    try:
+        rect = window.rectangle()
+        width = max(int(rect.width()), 1)
+        band = min(_SIDEBAR_TREE_MAX_WIDTH + 80, int(width * _SIDEBAR_PRUNE_WIDTH_RATIO))
+        return int(rect.left) + band
+    except Exception:
+        return _SIDEBAR_TREE_MAX_WIDTH + 80
+
+
 def _resolve_window(desktop, window_title: Optional[str], window_handle: Optional[int] = None):
     if window_handle and int(window_handle) > 0:
         try:
@@ -253,10 +317,40 @@ def _window_from_hwnd(hwnd: int):
         return None
 
 
+def _find_raw_by_automation_id_comtypes(window, automation_id: str):
+    """FindFirst by AutomationId — O(subtree index) vs pywinauto child_window walks."""
+    if not automation_id:
+        return None
+    try:
+        raw = window.element_info.element
+    except Exception:
+        return None
+    try:
+        iuia = _get_iuia().iuia
+        condition = iuia.CreatePropertyCondition(
+            _UiaAutomationIdPropertyId, automation_id
+        )
+        elem = raw.FindFirst(_UiaTreeScopeDescendants, condition)
+    except Exception:
+        return None
+    if elem is None:
+        return None
+    try:
+        from pywinauto.controls.uiawrapper import UIAWrapper
+        from pywinauto.uia_element_info import UIAElementInfo
+
+        return UIAWrapper(UIAElementInfo(elem))
+    except Exception:
+        return None
+
+
 def _find_raw_by_automation_id(window, automation_id: str):
     """Targeted property lookup — avoids full tree walks when automation_id is set."""
     if not automation_id:
         return None
+    hit = _find_raw_by_automation_id_comtypes(window, automation_id)
+    if hit is not None:
+        return hit
     try:
         elem = window.child_window(auto_id=automation_id)
         if elem.exists(timeout=0):
@@ -264,13 +358,99 @@ def _find_raw_by_automation_id(window, automation_id: str):
     except Exception:
         pass
     try:
-        for desc in window.descendants():
+        for desc in window.descendants(depth=16):
             d = _pywinauto_to_element(desc)
             if d and d.automation_id == automation_id:
                 return desc
     except Exception:
         pass
     return None
+
+
+def _find_raw_direct(
+    window,
+    name: Optional[str] = None,
+    role: Optional[str] = None,
+    automation_id: Optional[str] = None,
+):
+    """Fast UIA condition search before subtree walks."""
+    if automation_id:
+        return _find_raw_by_automation_id(window, automation_id)
+    needle = (name or "").strip()
+    if not needle:
+        return None
+    kwargs: dict = {}
+    if role:
+        kwargs["control_type"] = role
+    patterns = [needle]
+    if len(needle) > 24:
+        patterns.append(needle[:24])
+    first_token = needle.split()[0] if needle.split() else ""
+    if first_token and first_token not in patterns and len(first_token) >= 4:
+        patterns.append(first_token)
+    for pat in patterns:
+        try:
+            elem = window.child_window(title_re=f".*{re.escape(pat)}.*", **kwargs)
+            if elem.exists(timeout=0):
+                return elem
+        except Exception:
+            continue
+    try:
+        elem = window.child_window(best_match=needle, **kwargs)
+        if elem.exists(timeout=0):
+            return elem
+    except Exception:
+        pass
+    return None
+
+
+_FIND_DEPTH_LADDER = (6, 10, 14, 18, 24)
+_FIND_DEPTH_LADDER_AUTOMATION_ID = (4, 8, 14)
+
+_TYPED_ROLE_CONTROL = {
+    "treeitem": "TreeItem",
+    "listitem": "ListItem",
+    "tabitem": "TabItem",
+}
+
+# UIA ControlType ids (UIAutomationClient.h) — used for pruned walks only.
+_UIA_CONTROL_TREEITEM = 50024
+_UiaControlTypePropertyId = 30003
+_UiaAutomationIdPropertyId = 30011
+_UiaTreeScopeDescendants = 4
+
+# Narrow Tree roots (Electron nav/chat columns) — app-agnostic width band.
+_SIDEBAR_TREE_MAX_WIDTH = 520
+_SIDEBAR_TREE_MIN_WIDTH = 120
+_SIDEBAR_TREE_MIN_ITEMS = 5
+_SIDEBAR_TREE_FULL_ITEMS = 35
+_SIDEBAR_PRUNE_WIDTH_RATIO = 0.42
+
+
+def _prefer_uia_find_before_spy(window_title: Optional[str]) -> bool:
+    """Electron/Teams: FlaUI sidecar find often 8–15s; try local UIA first."""
+    try:
+        from tools.framework_detect import do_detect_framework
+
+        fw = do_detect_framework(window_title).get("framework", "")
+        return fw in ("electron", "chromium_browser")
+    except Exception:
+        return False
+
+
+def _should_skip_spy_list(
+    window_title: Optional[str],
+    role_lower: Optional[str],
+    has_uia_elements: bool,
+) -> bool:
+    """Skip FlaUI sidecar list when local UIA already satisfied the query."""
+    if not has_uia_elements:
+        return False
+    if role_lower in ("menuitem", "menu"):
+        return True
+    if role_lower in _TYPED_ROLE_CONTROL:
+        return True
+    return _prefer_uia_find_before_spy(window_title)
 
 
 def _element_useful(d: DetectedElement, include_offscreen: bool) -> bool:
@@ -310,18 +490,490 @@ class UIABackend(DetectionBackend):
     def _collect_descendants(
         self, window, tree_mode: str, max_depth: int, role: Optional[str]
     ):
-        # Deep UIA walk (comtypes) — pywinauto descendants() misses nested XAML controls.
+        role_lower = (role or "").strip().lower()
+        if role_lower in ("menuitem", "menu"):
+            return self._collect_menu_elements(window, tree_mode, max_depth)
+        if role_lower in _TYPED_ROLE_CONTROL:
+            typed = self._collect_typed_role_elements(window, max_depth, role_lower)
+            if typed:
+                return typed
+
+        comtypes_cap = max_depth
+        if role:
+            comtypes_cap = min(max(max_depth, max_depth + 2), 24)
+
         try:
             raw = window.element_info.element
-            depth = max(max_depth, 100 if role else max_depth)
-            walked = _walk_tree_comtypes(raw, tree_mode, depth)
+            walked = _walk_tree_comtypes(raw, tree_mode, comtypes_cap)
             if walked:
                 return walked
         except Exception:
             pass
-        if role:
-            return window.descendants()
-        return window.descendants(depth=max_depth)
+        descendant_depth = min(max_depth, 24) if role else max_depth
+        try:
+            return window.descendants(depth=descendant_depth)
+        except Exception:
+            return []
+
+    def _collect_menu_elements(self, window, tree_mode: str, max_depth: int):
+        """Shallow walk for MenuItem/Menu — avoids full-window depth-100 comtypes walks."""
+        cap = min(max(int(max_depth or 4), 4), 8)
+        collected: list = []
+        seen: set[int] = set()
+
+        def _add_wrappers(wrappers) -> None:
+            for wrapper in wrappers or []:
+                key = id(getattr(wrapper, "element_info", wrapper))
+                if key in seen:
+                    continue
+                seen.add(key)
+                collected.append(wrapper)
+
+        try:
+            raw = window.element_info.element
+            _add_wrappers(_walk_tree_comtypes(raw, tree_mode, cap))
+        except Exception:
+            pass
+
+        try:
+            menubar = window.child_window(control_type="MenuBar")
+            if menubar.exists(timeout=0):
+                _add_wrappers(
+                    _walk_tree_comtypes(menubar.element_info.element, tree_mode, cap)
+                )
+        except Exception:
+            pass
+
+        if collected:
+            return collected
+
+        try:
+            return window.descendants(depth=cap)
+        except Exception:
+            return []
+
+    def _findall_sidebar_treeitems(self, window, prune_left: int) -> list:
+        """Single UIA FindAll pass filtered to sidebar column."""
+        try:
+            raw = window.element_info.element
+        except Exception:
+            return []
+        try:
+            iuia = _get_iuia().iuia
+            condition = iuia.CreatePropertyCondition(
+                _UiaControlTypePropertyId, _UIA_CONTROL_TREEITEM
+            )
+            arr = raw.FindAll(_UiaTreeScopeDescendants, condition)
+        except Exception:
+            return []
+        if arr is None:
+            return []
+        try:
+            count = int(arr.Length)
+        except Exception:
+            return []
+        from pywinauto.uia_element_info import UIAElementInfo
+        from pywinauto.controls.uiawrapper import UIAWrapper
+
+        results: list = []
+        for i in range(count):
+            try:
+                elem = arr.GetElement(i)
+            except Exception:
+                continue
+            if _element_rect_left(elem) > prune_left:
+                continue
+            try:
+                results.append(UIAWrapper(UIAElementInfo(elem)))
+            except Exception:
+                continue
+        return results
+
+    @staticmethod
+    def _treeitem_dedupe_key(wrapper) -> str:
+        det = _pywinauto_to_element(wrapper)
+        if not det:
+            return str(id(wrapper))
+        return f"{det.automation_id}|{det.name}|{int(det.y or 0)}"
+
+    def _merge_treeitem_wrappers(self, *groups: list) -> list:
+        seen: set[str] = set()
+        merged: list = []
+        for group in groups:
+            for wrapper in group or []:
+                key = self._treeitem_dedupe_key(wrapper)
+                if key in seen:
+                    continue
+                seen.add(key)
+                merged.append(wrapper)
+        return merged
+
+    def _resolve_sidebar_scroll_raw(self, merged: list):
+        """Pick a scrollable UIA node for the chat sidebar list."""
+        from detection.uia_patterns import find_scrollable_ancestor
+
+        for wrapper in merged:
+            det = _pywinauto_to_element(wrapper)
+            if not det:
+                continue
+            name = (det.name or "").strip()
+            if name == "Chats":
+                try:
+                    ancestor = find_scrollable_ancestor(
+                        wrapper.element_info.element, max_levels=20
+                    )
+                    return ancestor or wrapper.element_info.element
+                except Exception:
+                    continue
+
+        chat_wrappers: list[tuple[int, object]] = []
+        for wrapper in merged:
+            det = _pywinauto_to_element(wrapper)
+            if not det:
+                continue
+            name = (det.name or "").strip()
+            if name.startswith("Chat "):
+                chat_wrappers.append((int(det.y or 0), wrapper))
+        if chat_wrappers:
+            chat_wrappers.sort(key=lambda item: item[0])
+            bottom = chat_wrappers[-1][1]
+            try:
+                raw = bottom.element_info.element
+                ancestor = find_scrollable_ancestor(raw, max_levels=20)
+                return ancestor or raw
+            except Exception:
+                pass
+
+        if merged:
+            try:
+                return find_scrollable_ancestor(
+                    merged[-1].element_info.element, max_levels=20
+                )
+            except Exception:
+                return None
+        return None
+
+    def _scroll_raw_for_sidebar_chat(self, merged: list):
+        """Resolve scroll container from bottom visible chat via fresh UIA lookup."""
+        from detection.uia_patterns import find_scrollable_ancestor
+
+        chat_aids: list[tuple[int, str]] = []
+        for wrapper in merged:
+            det = _pywinauto_to_element(wrapper)
+            if not det:
+                continue
+            name = (det.name or "").strip()
+            aid = (getattr(det, "automation_id", "") or "").strip()
+            if name.startswith("Chat ") and aid:
+                chat_aids.append((int(det.y or 0), aid))
+        if chat_aids:
+            chat_aids.sort(key=lambda item: item[0])
+            aid = chat_aids[-1][1]
+            try:
+                from tools.uia_pattern_tools import _resolve_raw_control
+
+                raw, _data, _resolved, _scope = _resolve_raw_control(
+                    automation_id=aid
+                )
+                if raw is not None:
+                    ancestor = find_scrollable_ancestor(raw, max_levels=20)
+                    return ancestor or raw
+            except Exception:
+                pass
+        return self._resolve_sidebar_scroll_raw(merged)
+
+    @staticmethod
+    def _sidebar_keyboard_nudge(merged: list, direction: str, pages: float = 1.0) -> None:
+        """PageDown/PageUp at sidebar list center when ScrollPattern does not realize rows."""
+        import time
+
+        if not merged:
+            return
+        xs: list[int] = []
+        ys: list[int] = []
+        for wrapper in merged:
+            det = _pywinauto_to_element(wrapper)
+            if not det:
+                continue
+            w = int(det.width or 0)
+            h = int(det.height or 0)
+            if w <= 0 or h <= 0:
+                continue
+            xs.append(int(det.x or 0) + w // 2)
+            ys.append(int(det.y or 0) + h // 2)
+        if not xs:
+            return
+        cx = int(sum(xs) / len(xs))
+        cy = max(ys)
+        try:
+            import pyautogui
+
+            pyautogui.moveTo(cx, cy)
+            key = "pagedown" if direction == "down" else "pageup"
+            presses = max(1, int(round(float(pages))))
+            for _ in range(presses):
+                pyautogui.press(key)
+                time.sleep(0.05)
+        except Exception:
+            pass
+
+    def _bottom_chat_automation_id(self, merged: list) -> str:
+        chat_aids: list[tuple[int, str]] = []
+        for wrapper in merged:
+            det = _pywinauto_to_element(wrapper)
+            if not det:
+                continue
+            name = (det.name or "").strip()
+            aid = (getattr(det, "automation_id", "") or "").strip()
+            if name.startswith("Chat ") and aid:
+                chat_aids.append((int(det.y or 0), aid))
+        if not chat_aids:
+            return ""
+        chat_aids.sort(key=lambda item: item[0])
+        return chat_aids[-1][1]
+
+    def _sidebar_scroll_via_automation_id(
+        self, window, bottom_aid: str, direction: str, *, vertical_percent: float | None = None
+    ) -> bool:
+        """Scroll sidebar list without re-entering ui_automation (avoids list_elements recursion)."""
+        if not bottom_aid:
+            return False
+        try:
+            from detection.uia_patterns import apply_scroll_pattern, find_scrollable_ancestor
+
+            raw = _find_raw_by_automation_id(window, bottom_aid)
+            if raw is None:
+                return False
+            scroll_raw = find_scrollable_ancestor(raw, max_levels=20) or raw
+            v_pct = vertical_percent if vertical_percent is not None else None
+            result = apply_scroll_pattern(
+                scroll_raw,
+                direction=direction,
+                amount="large",
+                repeat=1,
+                vertical_percent=v_pct,
+            )
+            return bool(result.get("success"))
+        except Exception:
+            return False
+
+    def _collect_treeitem_findall(self, window, cap: int) -> list:
+        """UIA FindAll(TreeItem) + sidebar scroll sweep for virtualized rows."""
+        import time
+
+        prune_left = _window_prune_left_abs(window)
+        merged = self._findall_sidebar_treeitems(window, prune_left)
+        if len(merged) < _SIDEBAR_TREE_MIN_ITEMS:
+            return []
+
+        if len(merged) >= _SIDEBAR_TREE_FULL_ITEMS:
+            return merged
+
+        target_more = 25
+        bottom_aid = self._bottom_chat_automation_id(merged)
+
+        if bottom_aid and len(merged) < target_more:
+            self._sidebar_scroll_via_automation_id(
+                window, bottom_aid, "down", vertical_percent=100.0
+            )
+            time.sleep(0.03)
+            merged = self._merge_treeitem_wrappers(
+                merged,
+                self._findall_sidebar_treeitems(window, prune_left),
+            )
+            for _ in range(3):
+                if len(merged) >= target_more:
+                    break
+                prev_count = len(merged)
+                self._sidebar_scroll_via_automation_id(
+                    window, bottom_aid, "down"
+                )
+                time.sleep(0.03)
+                merged = self._merge_treeitem_wrappers(
+                    merged,
+                    self._findall_sidebar_treeitems(window, prune_left),
+                )
+                if len(merged) == prev_count:
+                    break
+            self._sidebar_scroll_via_automation_id(
+                window, bottom_aid, "up", vertical_percent=0.0
+            )
+        else:
+            scroll_raw = self._scroll_raw_for_sidebar_chat(merged)
+            if scroll_raw is not None and len(merged) < target_more:
+                from detection.uia_patterns import apply_scroll_pattern
+
+                apply_scroll_pattern(
+                    scroll_raw,
+                    direction="down",
+                    amount="large",
+                    repeat=1,
+                    vertical_percent=100.0,
+                )
+                time.sleep(0.03)
+                merged = self._merge_treeitem_wrappers(
+                    merged,
+                    self._findall_sidebar_treeitems(window, prune_left),
+                )
+                apply_scroll_pattern(
+                    scroll_raw,
+                    direction="up",
+                    amount="large",
+                    repeat=1,
+                    vertical_percent=0.0,
+                )
+
+        if len(merged) >= _SIDEBAR_TREE_MIN_ITEMS:
+            return merged
+        return []
+
+    def _collect_treeitem_from_narrow_panes(self, window, cap: int) -> list:
+        """Shallow pick left-column panes, then typed TreeItem descendants only."""
+        prune_left = _window_prune_left_abs(window)
+        collected: list = []
+        seen: set[int] = set()
+        try:
+            roots = window.children()
+        except Exception:
+            roots = []
+        for root in roots or []:
+            det = _pywinauto_to_element(root)
+            if not det:
+                continue
+            left = int(det.x or 0)
+            width = int(det.width or 0)
+            if left > prune_left or width > _SIDEBAR_TREE_MAX_WIDTH:
+                continue
+            try:
+                items = root.descendants(control_type="TreeItem", depth=cap)
+            except Exception:
+                continue
+            for item in items or []:
+                key = id(getattr(item, "element_info", item))
+                if key in seen:
+                    continue
+                seen.add(key)
+                collected.append(item)
+        if len(collected) >= _SIDEBAR_TREE_MIN_ITEMS:
+            return collected
+        return []
+
+    def _collect_treeitem_comtypes_spatial(self, window, cap: int) -> list:
+        """Fast TreeItem list: comtypes walk with left-column prune (Electron sidebars)."""
+        try:
+            raw = window.element_info.element
+        except Exception:
+            return []
+        prune_left = _window_prune_left_abs(window)
+        try:
+            items = _walk_treeitems_spatial_pruned(
+                raw, cap, prune_left_abs=prune_left
+            )
+        except Exception:
+            return []
+        if len(items) >= _SIDEBAR_TREE_MIN_ITEMS:
+            return items
+        return []
+
+    def _collect_treeitem_via_sidebar_roots(
+        self, window, cap: int
+    ) -> list:
+        """TreeItem from narrow Tree roots before full-window descendants walk."""
+        collected: list = []
+        seen: set[int] = set()
+        try:
+            tree_roots = window.descendants(control_type="Tree", depth=5)
+        except Exception:
+            tree_roots = []
+        for root in tree_roots or []:
+            det = _pywinauto_to_element(root)
+            if not det:
+                continue
+            w = int(det.width or 0)
+            if w < _SIDEBAR_TREE_MIN_WIDTH or w > _SIDEBAR_TREE_MAX_WIDTH:
+                continue
+            try:
+                items = root.descendants(control_type="TreeItem", depth=cap)
+            except Exception:
+                continue
+            for item in items or []:
+                key = id(getattr(item, "element_info", item))
+                if key in seen:
+                    continue
+                seen.add(key)
+                collected.append(item)
+        if len(collected) >= _SIDEBAR_TREE_MIN_ITEMS:
+            return collected
+        return []
+
+    def _window_hwnd(self, window) -> int:
+        try:
+            return int(getattr(window, "handle", 0) or window.element_info.handle or 0)
+        except Exception:
+            return 0
+
+    def _collect_typed_role_elements(
+        self, window, max_depth: int, role_lower: str
+    ) -> list:
+        """UIA control_type filter — faster than full subtree walk + role filter."""
+        control_type = _TYPED_ROLE_CONTROL.get(role_lower)
+        if not control_type:
+            return []
+        requested = max(4, min(int(max_depth or 6), 10))
+        cap = requested
+        if role_lower == "treeitem":
+            hwnd = self._window_hwnd(window)
+
+            def _fetch_treeitems() -> list:
+                for collector in (
+                    self._collect_treeitem_findall,
+                    self._collect_treeitem_from_narrow_panes,
+                    self._collect_treeitem_comtypes_spatial,
+                    self._collect_treeitem_via_sidebar_roots,
+                ):
+                    items = collector(window, cap)
+                    if items:
+                        return items
+                return []
+
+            if hwnd:
+                from detection.uia_tree_cache import get_descendants
+
+                cached = get_descendants(
+                    hwnd,
+                    _fetch_treeitems,
+                    scope=f"treeitem:{cap}",
+                    ttl_s=60.0,
+                )
+                if cached:
+                    return cached
+            direct = _fetch_treeitems()
+            if direct:
+                return direct
+
+        def _fetch_full_window() -> list:
+            try:
+                elems = window.descendants(control_type=control_type, depth=cap)
+                if elems:
+                    return elems
+            except Exception:
+                pass
+            try:
+                return window.descendants(depth=cap)
+            except Exception:
+                return []
+
+        hwnd = self._window_hwnd(window)
+        if hwnd:
+            from detection.uia_tree_cache import get_descendants
+
+            return get_descendants(
+                hwnd,
+                _fetch_full_window,
+                scope=f"typed:{role_lower}:{cap}",
+                ttl_s=30.0,
+            )
+        return _fetch_full_window()
 
     def _legacy_dict_to_detected(self, d: dict) -> DetectedElement:
         return DetectedElement(
@@ -377,6 +1029,7 @@ class UIABackend(DetectionBackend):
         tree_mode: str = "control",
         include_offscreen: bool = False,
         window_handle: Optional[int] = None,
+        view_scope: bool = False,
     ) -> list[DetectedElement]:
         if not self.is_available():
             return []
@@ -384,8 +1037,19 @@ class UIABackend(DetectionBackend):
         window = _resolve_window(desktop, window_title, window_handle=window_handle)
         if not window:
             return []
+        walk_root = window
+        role_lower_scope = (role or "").strip().lower()
+        if view_scope and role_lower_scope not in _TYPED_ROLE_CONTROL:
+            try:
+                from detection.spatial_cluster import resolve_content_walk_root
+
+                scoped = resolve_content_walk_root(window)
+                if scoped is not None:
+                    walk_root = scoped
+            except Exception:
+                pass
         try:
-            descendants = self._collect_descendants(window, tree_mode, max_depth, role)
+            descendants = self._collect_descendants(walk_root, tree_mode, max_depth, role)
         except Exception:
             return []
 
@@ -403,7 +1067,11 @@ class UIABackend(DetectionBackend):
 
         try:
             from tools.spy_bridge import spy_available, spy_list_elements
-            if spy_available():
+            role_lower = role.lower() if role else None
+            skip_spy = _should_skip_spy_list(
+                window_title, role_lower, bool(elements)
+            )
+            if spy_available() and not skip_spy:
                 spy_elems = spy_list_elements(
                     window_title=window_title or "",
                     max_depth=max_depth,
@@ -453,44 +1121,62 @@ class UIABackend(DetectionBackend):
         index: int = 0,
         window_handle: Optional[int] = None,
     ) -> list[DetectedElement]:
-        spy_hits = self._try_spy_find(name, automation_id, window_title, role)
-        if spy_hits:
-            matches = [d for d in spy_hits if _matches(d, name, role, automation_id, class_name)]
+        desktop = _get_desktop()
+        window = _resolve_window(desktop, window_title, window_handle=window_handle)
+        uia_first = _prefer_uia_find_before_spy(window_title)
+
+        if window and automation_id:
+            raw = _find_raw_by_automation_id(window, automation_id)
+            if raw:
+                d = _pywinauto_to_element(raw)
+                if d and _matches(d, name, role, automation_id, class_name):
+                    return [d]
+
+        if window and (name or automation_id) and uia_first:
+            raw = _find_raw_direct(window, name=name, role=role, automation_id=automation_id)
+            if raw:
+                d = _pywinauto_to_element(raw)
+                if d and _matches(d, name, role, automation_id, class_name):
+                    return [d]
+
+        spy_hits: list[DetectedElement] = []
+        if not uia_first and not automation_id:
+            spy_hits = self._try_spy_find(name, automation_id, window_title, role)
+            if spy_hits:
+                matches = [d for d in spy_hits if _matches(d, name, role, automation_id, class_name)]
+                if matches:
+                    if index > 0:
+                        idx = min(index, len(matches) - 1)
+                        return [matches[idx]]
+                    return matches
+
+        if window and (name or automation_id) and not uia_first and not automation_id:
+            raw = _find_raw_direct(window, name=name, role=role, automation_id=automation_id)
+            if raw:
+                d = _pywinauto_to_element(raw)
+                if d and _matches(d, name, role, automation_id, class_name):
+                    return [d]
+
+        depth_ladder = _FIND_DEPTH_LADDER_AUTOMATION_ID if automation_id else _FIND_DEPTH_LADDER
+        for depth in depth_ladder:
+            all_elems = self.list_elements(
+                window_title=window_title,
+                max_depth=depth,
+                role=role,
+                tree_mode=tree_mode,
+                include_offscreen=include_offscreen,
+                window_handle=window_handle,
+            )
+            matches = [
+                d for d in all_elems
+                if _matches(d, name, role, automation_id, class_name)
+            ]
             if matches:
                 if index > 0:
                     idx = min(index, len(matches) - 1)
                     return [matches[idx]]
                 return matches
-
-        if automation_id:
-            desktop = _get_desktop()
-            window = _resolve_window(desktop, window_title, window_handle=window_handle)
-            if window:
-                raw = _find_raw_by_automation_id(window, automation_id)
-                if raw:
-                    d = _pywinauto_to_element(raw)
-                    if d and _matches(d, name, role, automation_id, class_name):
-                        return [d]
-
-        depth = 100 if (name or role or automation_id or class_name) else 12
-        all_elems = self.list_elements(
-            window_title=window_title,
-            max_depth=depth,
-            role=role,
-            tree_mode=tree_mode,
-            include_offscreen=include_offscreen,
-            window_handle=window_handle,
-        )
-        matches = [
-            d for d in all_elems
-            if _matches(d, name, role, automation_id, class_name)
-        ]
-        if not matches:
-            return []
-        if index > 0:
-            idx = min(index, len(matches) - 1)
-            return [matches[idx]]
-        return matches
+        return []
 
     def element_at_point(self, x: int, y: int) -> Optional[DetectedElement]:
         if not self.is_available():
@@ -646,6 +1332,21 @@ class UIABackend(DetectionBackend):
                 "success": False,
                 "error": "No Invoke/Toggle/SelectionItem/ExpandCollapse pattern available",
             }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def focus_element(
+        self,
+        element: DetectedElement,
+        window_title: Optional[str] = None,
+    ) -> dict:
+        """Move keyboard focus to an element via UIA SetFocus."""
+        try:
+            raw, err = self._resolve_raw_element(element, window_title)
+            if not raw:
+                return {"success": False, "error": err or "Element not found for focus"}
+            raw.set_focus()
+            return {"success": True, "method": "SetFocus"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 

@@ -222,6 +222,32 @@ def invalidate_content_region_cache(window_title: Optional[str] = None) -> int:
     return len(keys)
 
 
+def resolve_content_walk_root(window_wrapper) -> Optional[object]:
+    """Shallow pick widest Pane/Document child as walk root (Electron/main content)."""
+    if window_wrapper is None:
+        return None
+    try:
+        from detection.backends.uia_backend import _pywinauto_to_element
+
+        best = None
+        best_w = 0
+        for child in window_wrapper.children() or []:
+            det = _pywinauto_to_element(child)
+            if not det:
+                continue
+            role = (det.role or "").strip().lower()
+            if role not in ("pane", "document", "group"):
+                continue
+            w = int(det.width or 0)
+            if w < 120 or w <= best_w:
+                continue
+            best_w = w
+            best = child
+        return best
+    except Exception:
+        return None
+
+
 def filter_by_content_cluster(
     elements: list[DetectedElement],
     scope: dict,

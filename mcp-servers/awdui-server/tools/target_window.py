@@ -16,6 +16,7 @@ from typing import Literal, Optional
 FocusPolicy = Literal["minimal", "always", "never"]
 
 _target_window: Optional[str] = None
+_target_hwnd: Optional[int] = None
 _focus_policy: FocusPolicy = "minimal"
 _last_focus_target: Optional[str] = None
 _last_focus_time: float = 0.0
@@ -225,21 +226,91 @@ def _refocus_host_terminal() -> None:
         pass
 
 
-def set_target(title: Optional[str]) -> None:
+def _prefetch_electron_treeitem_cache(
+    window_title: Optional[str], window_handle: Optional[int]
+) -> None:
+    """Warm TreeItem list cache for Electron sidebars (background, non-blocking)."""
+    if not window_title and not window_handle:
+        return
+    try:
+        from tools.framework_detect import do_detect_framework
+
+        fw = str(do_detect_framework(window_title).get("framework") or "")
+        if fw not in ("electron", "chromium_browser"):
+            return
+    except Exception:
+        return
+
+    import threading
+
+    title = window_title
+    hwnd = int(window_handle or 0)
+
+    def _run() -> None:
+        try:
+            from detection.orchestrator import get_orchestrator
+
+            get_orchestrator().list_elements(
+                window_title=title,
+                max_depth=6,
+                role="TreeItem",
+                window_handle=hwnd or None,
+            )
+        except Exception:
+            pass
+
+    threading.Thread(target=_run, daemon=True, name="awdui-prefetch-treeitem").start()
+
+
+def set_target(title: Optional[str] = None, window_handle: Optional[int] = None) -> None:
     """Set (or clear) the target window for session scope."""
-    global _target_window, _last_focus_target, _last_focus_time
-    was_set = _target_window is not None
-    if title is not None and title.strip() == "":
-        title = None
-    _target_window = title
-    _last_focus_target = None
-    _last_focus_time = 0.0
-    if title:
-        print(f"[target_window] Target set: {title!r}", file=sys.stderr)
-    else:
+    global _target_window, _target_hwnd, _last_focus_target, _last_focus_time
+    was_set = _target_window is not None or _target_hwnd is not None
+
+    if title is not None and str(title).strip() == "":
+        _target_window = None
+        _target_hwnd = None
+        _last_focus_target = None
+        _last_focus_time = 0.0
         print("[target_window] Target cleared", file=sys.stderr)
         if was_set:
             _refocus_host_terminal()
+        return
+
+    resolved_title = (title or "").strip() or None
+    resolved_hwnd: Optional[int] = None
+    if window_handle is not None:
+        try:
+            hwnd = int(window_handle)
+        except (TypeError, ValueError):
+            hwnd = 0
+        if hwnd > 0:
+            resolved_hwnd = hwnd
+            from tools.windows import resolve_window_by_hwnd
+
+            win = resolve_window_by_hwnd(hwnd)
+            if win:
+                resolved_title = str(win.get("title") or resolved_title or "")
+
+    _target_window = resolved_title or None
+    _target_hwnd = resolved_hwnd
+    _last_focus_target = None
+    _last_focus_time = 0.0
+    if _target_window or _target_hwnd:
+        suffix = f" hwnd={_target_hwnd}" if _target_hwnd else ""
+        print(f"[target_window] Target set: {_target_window!r}{suffix}", file=sys.stderr)
+        _prefetch_electron_treeitem_cache(_target_window, _target_hwnd)
+    elif title is None and window_handle is None:
+        _target_window = None
+        _target_hwnd = None
+        print("[target_window] Target cleared", file=sys.stderr)
+        if was_set:
+            _refocus_host_terminal()
+
+
+def get_target_hwnd() -> Optional[int]:
+    """Return pinned HWND for session target, if any."""
+    return _target_hwnd
 
 
 def set_focus_policy(policy: Optional[str]) -> FocusPolicy:
@@ -307,15 +378,29 @@ def ensure_focus(force: bool = False) -> bool:
     return is_target_foreground()
 
 
-def ensure_focus_for_input() -> bool:
+def ensure_focus_for_input(*, skip_client_focus: Optional[bool] = None) -> bool:
     """Focus before pointer/keyboard input when the target is not already foreground."""
+    if skip_client_focus is None:
+        skip_client_focus = _focus_policy == "minimal"
     if _target_window is None:
         return True
-    if is_target_foreground():
-        return True
     if _focus_policy == "never":
-        return False
-    return ensure_focus(force=True)
+        return is_target_foreground()
+    if not is_target_foreground():
+        ensure_focus(force=True)
+    if (
+        not skip_client_focus
+        and sys.platform == "win32"
+        and _target_window
+        and _focus_policy != "never"
+    ):
+        try:
+            from tools.client_focus import ensure_client_focus
+
+            ensure_client_focus()
+        except Exception:
+            pass
+    return is_target_foreground()
 
 
 def ensure_focus_for_capture() -> bool:
@@ -332,7 +417,9 @@ def register(server) -> int:
     def set_target_window(
         title: str = "",
         window_title: str = "",
+        window_handle: int = 0,
         focus_policy: str = "",
+        disambiguate: str = "error",
     ) -> str:
         """Set or clear the target window for session scope and optional focus policy.
 
@@ -342,22 +429,64 @@ def register(server) -> int:
           always — legacy: auto-focus target before input, screenshot, and on set.
           never — never steal focus; pointer/keyboard may fail if target is in background.
 
-        When cleared (empty title), the host terminal is refocused.
+        window_handle — pin a specific top-level HWND (multi-instance Win32). When set,
+        title is optional and resolved from list_windows.
+
+        disambiguate — when multiple windows match the title hint (same process):
+          error (default) — fail with candidate list; use window_handle or exact title.
+          foreground — pick the foreground window among candidates.
+          last_set — reuse previously pinned HWND if still among candidates.
+
+        When cleared (empty title and window_handle=0), the host terminal is refocused.
 
         IMPORTANT: call set_target_window('') when done with GUI work.
         """
         from tools.params import resolve_window_title
-        resolved = resolve_window_title(window_title, title)
+        from tools.windows import do_list_windows, find_matching_window
+
         if focus_policy.strip():
             set_focus_policy(focus_policy)
-        set_target(resolved)
+        resolved = resolve_window_title(window_title, title)
+        hwnd = int(window_handle or 0)
+
+        if hwnd > 0:
+            set_target(resolved, window_handle=hwnd)
+        elif resolved:
+            match = find_matching_window(
+                resolved,
+                do_list_windows(),
+                disambiguate=disambiguate or "error",
+                preferred_hwnd=get_target_hwnd(),
+            )
+            if match.get("ambiguous"):
+                lines = [
+                    f"Failed: ambiguous target for {resolved!r} — {match.get('hint', '')}",
+                    "Candidates:",
+                ]
+                for cand in match.get("candidates") or []:
+                    lines.append(
+                        f"  hwnd={cand.get('hwnd')} pid={cand.get('pid')} "
+                        f"title={cand.get('title')!r}"
+                    )
+                return "\n".join(lines)
+            win = match.get("window")
+            if not win:
+                avail = match.get("available") or []
+                preview = ", ".join(repr(t) for t in avail[:8])
+                return f"Failed: no window matching {resolved!r}. Available: {preview}"
+            set_target(win.get("title") or resolved, window_handle=win.get("hwnd"))
+        else:
+            set_target("")
+
         current = get_target()
+        pinned = get_target_hwnd()
         policy = get_focus_policy()
-        if current:
+        if current or pinned:
             if policy == "always":
                 ensure_focus(force=True)
+            hwnd_note = f" hwnd={pinned}" if pinned else ""
             msg = (
-                f"Target window set to {current!r} (focus_policy={policy}). "
+                f"Target window set to {current!r}{hwnd_note} (focus_policy={policy}). "
                 "UIA tools work without foreground; pointer/keyboard focus only when needed. "
                 "REMEMBER: call set_target_window('') when done."
             )
@@ -368,10 +497,13 @@ def register(server) -> int:
     def get_target_window() -> str:
         """Get the current target window and focus policy."""
         current = get_target()
+        pinned = get_target_hwnd()
         policy = get_focus_policy()
-        if current:
+        if current or pinned:
             fg = "foreground" if is_target_foreground() else "background"
-            return f"Target window: {current!r}  focus_policy={policy}  ({fg})"
+            hwnd_note = f"  hwnd={pinned}" if pinned else ""
+            title_note = current or "(hwnd only)"
+            return f"Target window: {title_note!r}{hwnd_note}  focus_policy={policy}  ({fg})"
         return f"No target window set. focus_policy={policy}"
 
     return 2

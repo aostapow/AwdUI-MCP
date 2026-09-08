@@ -186,6 +186,13 @@ element_read_tools.register(mcp)
 event_monitor.register(mcp)
 ascii_view.register(mcp)
 
+from addin_sdk.registry import bootstrap_addins, shutdown_addins
+
+_addin_registry = bootstrap_addins(mcp)
+
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    try:
+        mcp.run(transport="stdio")
+    finally:
+        shutdown_addins(_addin_registry)
 

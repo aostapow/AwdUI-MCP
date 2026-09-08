@@ -154,24 +154,12 @@ def resolve_storage_app(
     exe_path: str = "",
 ) -> tuple[str, str, str]:
     """Resolve canonical repository app bucket for a window title hint."""
-    from detection.repo_consolidate import WINDOW_APP_ALIASES, _infer_from_text
-
     hint = (window_hint or "").strip()
-    inferred = _infer_from_text(hint)
-    if inferred:
-        name, exe = inferred
-        return app_id(name, exe), name, exe
-
     hint_lower = hint.lower()
     for row in conn.execute("SELECT app_id, app_name, exe_path FROM applications"):
         app_name = row["app_name"] or ""
         if hint_lower in app_name.lower() or hint_lower in (row["exe_path"] or "").lower():
             return row["app_id"], app_name, row["exe_path"] or ""
-
-    norm = hint_lower.replace(" ", "_")
-    if norm in WINDOW_APP_ALIASES:
-        name, exe = WINDOW_APP_ALIASES[norm]
-        return app_id(name, exe), name, exe
 
     name = hint if hint.lower().endswith(".exe") else f"{hint}.exe"
     return app_id(name, exe_path), name, exe_path

@@ -121,7 +121,9 @@ def _walk_accessible(acc, child_id: int, depth: int, max_depth: int, results: li
             continue
 
 
-def _resolve_hwnd(window_title: Optional[str]) -> int:
+def _resolve_hwnd(window_title: Optional[str], window_handle: Optional[int] = None) -> int:
+    if window_handle and int(window_handle) > 0:
+        return int(window_handle)
     if window_title:
         from tools.windows import do_list_windows, find_matching_window
         match = find_matching_window(window_title, do_list_windows())
@@ -143,8 +145,13 @@ class MSAABackend(DetectionBackend):
         except Exception:
             return False
 
-    def _get_tree(self, window_title: Optional[str], max_depth: int) -> list[DetectedElement]:
-        hwnd = _resolve_hwnd(window_title)
+    def _get_tree(
+        self,
+        window_title: Optional[str],
+        max_depth: int,
+        window_handle: Optional[int] = None,
+    ) -> list[DetectedElement]:
+        hwnd = _resolve_hwnd(window_title, window_handle)
         if not hwnd:
             return []
         _, accessible_from_window = _get_oleacc()
@@ -160,8 +167,10 @@ class MSAABackend(DetectionBackend):
         role: Optional[str] = None,
         tree_mode: str = "control",
         include_offscreen: bool = False,
+        window_handle: Optional[int] = None,
+        **kwargs,
     ) -> list[DetectedElement]:
-        elements = self._get_tree(window_title, max_depth)
+        elements = self._get_tree(window_title, max_depth, window_handle=window_handle)
         role_lower = role.lower() if role else None
         out = []
         for e in elements:
@@ -188,6 +197,7 @@ class MSAABackend(DetectionBackend):
         all_elems = self.list_elements(
             window_title=window_title, max_depth=10,
             include_offscreen=include_offscreen,
+            window_handle=window_handle,
         )
         matches = []
         for e in all_elems:

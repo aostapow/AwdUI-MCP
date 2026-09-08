@@ -30,6 +30,7 @@ _CLASS_PATTERNS: list[tuple[str, str]] = [
     ("HwndWrapper",         "wpf"),
     ("WindowsForms",        "winforms"),
     ("Chrome_WidgetWin",    "electron"),  # disambiguated vs browsers below
+    ("TeamsWebView",        "electron"),  # WebView2 shell (Teams, etc.)
     ("SunAwt",              "java_swing"),
     ("gdkWindowToplevel",   "gtk"),
     ("gdkWindowChild",      "gtk"),
@@ -55,6 +56,9 @@ _WIN32_CLASSES: set[str] = {
 # Process name -> framework
 _PROCESS_FRAMEWORKS: dict[str, str] = {
     "electron.exe": "electron",
+    "ms-teams.exe": "electron",
+    "slack.exe": "electron",
+    "discord.exe": "electron",
     "javaw.exe":    "java_swing",
     "java.exe":     "java_swing",
 }

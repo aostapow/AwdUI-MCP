@@ -63,6 +63,7 @@ def _ensure_server() -> bool:
     global _proc, _reader
     if not sidecar_available():
         return False
+    need_ping = False
     with _io_lock:
         if _proc is not None and _proc.poll() is None:
             return True
@@ -80,8 +81,11 @@ def _ensure_server() -> bool:
             return False
         _reader = threading.Thread(target=_reader_loop, daemon=True, name="awdui-event-sidecar-reader")
         _reader.start()
+        need_ping = True
+    if need_ping:
         ping = _call("ping", {}, timeout=2.0)
         return bool(ping.get("success"))
+    return True
 
 
 def _call(command: str, params: dict[str, Any], timeout: float = 10.0) -> dict[str, Any]:

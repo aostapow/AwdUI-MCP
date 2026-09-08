@@ -11,7 +11,7 @@ from detection.layers.layered_detector import LayeredDetector, LocatorQuery, Res
 
 _orchestrator: Optional["DetectionOrchestrator"] = None
 _tree_cache: dict[str, tuple[float, list[DetectedElement]]] = {}
-_CACHE_TTL = 5.0
+_CACHE_TTL = 20.0
 
 
 class DetectionOrchestrator:
@@ -113,6 +113,7 @@ class DetectionOrchestrator:
         backend: Optional[str] = None,
         window_handle: Optional[int] = None,
         adaptive_cluster: bool = True,
+        view_scope: bool = False,
     ) -> dict:
         from detection.tree_depth import normalize_tree_depth
 
@@ -121,9 +122,17 @@ class DetectionOrchestrator:
             from detection.tree_depth import resolve_list_depth
 
             _, max_depth, _ = resolve_list_depth(0, window_title=window_title, role=role)
+        role_lower = (role or "").strip().lower()
+        if role_lower in ("treeitem", "listitem", "tabitem") and adaptive_cluster:
+            adaptive_cluster = False
+        if role_lower in ("treeitem", "listitem", "tabitem") and not include_offscreen:
+            include_offscreen = True
+        resolved_title, resolved_hwnd = _resolve_list_window_context(
+            window_title, window_handle
+        )
         cache_key = (
-            f"{window_title}|{window_handle}|{max_depth}|{role}|"
-            f"{tree_mode}|{include_offscreen}|{backend}"
+            f"{resolved_title}|{resolved_hwnd}|{max_depth}|{role}|"
+            f"{tree_mode}|{include_offscreen}|{backend}|{view_scope}"
         )
         now = time.monotonic()
         if cache_key in _tree_cache:
@@ -144,22 +153,34 @@ class DetectionOrchestrator:
             if not b:
                 continue
             try:
-                elements = b.list_elements(
-                    window_title=window_title,
-                    max_depth=max_depth,
-                    role=role,
-                    tree_mode=tree_mode,
-                    include_offscreen=include_offscreen,
-                    window_handle=window_handle,
-                )
+                try:
+                    elements = b.list_elements(
+                        window_title=resolved_title or window_title,
+                        max_depth=max_depth,
+                        role=role,
+                        tree_mode=tree_mode,
+                        include_offscreen=include_offscreen,
+                        window_handle=resolved_hwnd or window_handle,
+                        view_scope=view_scope,
+                    )
+                except TypeError:
+                    elements = b.list_elements(
+                        window_title=resolved_title or window_title,
+                        max_depth=max_depth,
+                        role=role,
+                        tree_mode=tree_mode,
+                        include_offscreen=include_offscreen,
+                        window_handle=resolved_hwnd or window_handle,
+                    )
                 if elements and not self._weak_backend_result(bname, elements, framework):
                     from detection.element_scope import filter_elements_to_scope
 
                     scoped_elements, scoped_out, cluster_out, content_region = (
                         filter_elements_to_scope(
                             elements,
-                            window_title,
+                            resolved_title or window_title,
                             adaptive_cluster=adaptive_cluster,
+                            include_offscreen=include_offscreen,
                         )
                     )
                     _tree_cache[cache_key] = (now, scoped_elements)
@@ -172,6 +193,7 @@ class DetectionOrchestrator:
                         "cluster_out": cluster_out,
                         "content_region": content_region,
                         "backend_used": bname,
+                        "view_scope_applied": view_scope,
                     }
             except Exception as e:
                 last_error = str(e)
@@ -189,7 +211,15 @@ class DetectionOrchestrator:
         index: int = 0,
         window_handle: Optional[int] = None,
     ) -> dict:
-        backends = self._backend_order(window_title)
+        if automation_id:
+            ordered = self._backend_order(window_title)
+            backends = ["uia"] + [b for b in ordered if b != "uia"]
+            backends = [
+                b for b in backends
+                if b in self._backends and self._backends[b].is_available()
+            ]
+        else:
+            backends = self._backend_order(window_title)
         all_matches: list[DetectedElement] = []
         backend_used = ""
         for bname in backends:
@@ -410,3 +440,18 @@ def invalidate_tree_cache(window_title: Optional[str] = None) -> int:
 
 
 clear_tree_cache = invalidate_tree_cache
+
+
+def _resolve_list_window_context(
+    window_title: Optional[str],
+    window_handle: Optional[int],
+) -> tuple[Optional[str], int]:
+    """Normalize list/find cache keys with session target when args omitted."""
+    from tools.target_window import get_target, get_target_hwnd
+
+    title = (window_title or get_target() or "").strip() or None
+    try:
+        hwnd = int(window_handle or 0) or int(get_target_hwnd() or 0)
+    except (TypeError, ValueError):
+        hwnd = 0
+    return title, hwnd

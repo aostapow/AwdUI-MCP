@@ -63,23 +63,81 @@ def get_foreground_title() -> str:
     return ""
 
 
-def find_matching_window(title: str, windows: list[dict]) -> dict:
+def _normalize_window_title_for_match(title: str) -> str:
+    """Normalize Win32 title for matching — strip leading dirty-marker ``*``."""
+    t = (title or "").strip()
+    while t.startswith("*"):
+        t = t[1:].lstrip()
+    return t.lower()
+
+
+def _window_pid(win: dict) -> Optional[int]:
+    pid = win.get("pid") or win.get("process_id")
+    try:
+        return int(pid) if pid is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _same_process_name(candidates: list[dict]) -> bool:
+    names = {
+        (w.get("process_name") or "").strip().lower()
+        for w in candidates
+        if (w.get("process_name") or "").strip()
+    }
+    return len(names) == 1
+
+
+def _title_matches_query(window_title: str, query: str) -> bool:
+    norm_win = _normalize_window_title_for_match(window_title)
+    norm_query = _normalize_window_title_for_match(query)
+    if not norm_query:
+        return False
+    return norm_query in norm_win
+
+
+def resolve_window_by_hwnd(window_handle: int) -> Optional[dict]:
+    """Return window dict from ``list_windows`` for *window_handle*, or None."""
+    try:
+        hwnd = int(window_handle)
+    except (TypeError, ValueError):
+        return None
+    if hwnd <= 0:
+        return None
+    for win in do_list_windows():
+        if int(win.get("hwnd") or 0) == hwnd:
+            return win
+    return None
+
+
+def find_matching_window(
+    title: str,
+    windows: list[dict],
+    *,
+    disambiguate: str = "error",
+    preferred_hwnd: Optional[int] = None,
+) -> dict:
     """Find a window by title using case-insensitive substring matching.
+
+    Normalizes leading ``*`` (Win32 dirty document flag). When multiple windows
+    of the same process match, returns ``ambiguous: true`` unless *disambiguate*
+    is ``foreground`` or ``last_set`` (with *preferred_hwnd*).
 
     Falls back to matching against the process executable name when no
     title match is found (e.g. query "steam" matches process "steam.exe").
 
     Returns:
-        {"window": dict, "match_quality": "exact"|"process_name"} on match, or
+        {"window": dict, "match_quality": "exact"|"process_name"|"hwnd"} on match, or
+        {"window": None, "ambiguous": True, "candidates": [...], "hint": str}, or
         {"window": None, "available": [str, ...]} listing all window titles.
     """
     if not windows:
         return {"window": None, "available": []}
 
-    title_lower = title.lower()
+    title_lower = _normalize_window_title_for_match(title)
     available = [w["title"] for w in windows]
 
-    candidates = [w for w in windows if title_lower in w["title"].lower()]
+    candidates = [w for w in windows if _title_matches_query(w.get("title") or "", title)]
     if not candidates:
         candidates = []
         for win in windows:
@@ -94,6 +152,46 @@ def find_matching_window(title: str, windows: list[dict]) -> dict:
 
         return {"window": None, "available": available}
 
+    if len(candidates) > 1:
+        from detection.uwp_window import is_uwp_shell_window
+
+        has_uwp_pair = any(is_uwp_shell_window(w) for w in candidates)
+        if not has_uwp_pair and _same_process_name(candidates):
+            mode = (disambiguate or "error").strip().lower()
+            if mode == "foreground":
+                fg_title = get_foreground_title()
+                fg_norm = _normalize_window_title_for_match(fg_title)
+                for w in candidates:
+                    if _normalize_window_title_for_match(w.get("title") or "") == fg_norm:
+                        return {"window": w, "match_quality": "exact", "disambiguated": "foreground"}
+            if mode == "last_set" and preferred_hwnd:
+                for w in candidates:
+                    if int(w.get("hwnd") or 0) == int(preferred_hwnd):
+                        return {"window": w, "match_quality": "exact", "disambiguated": "last_set"}
+            if mode != "error":
+                pass
+            elif preferred_hwnd:
+                for w in candidates:
+                    if int(w.get("hwnd") or 0) == int(preferred_hwnd):
+                        return {"window": w, "match_quality": "exact", "disambiguated": "last_set"}
+            return {
+                "window": None,
+                "ambiguous": True,
+                "candidates": [
+                    {
+                        "hwnd": w.get("hwnd"),
+                        "title": w.get("title"),
+                        "pid": _window_pid(w),
+                        "process_name": w.get("process_name"),
+                    }
+                    for w in candidates
+                ],
+                "hint": (
+                    "Multiple windows match; pass exact title from list_windows "
+                    "or set_target_window(window_handle=<hwnd>)"
+                ),
+            }
+
     best = _best_window_candidate(candidates, title_lower)
     return {"window": best, "match_quality": "exact"}
 
@@ -103,25 +201,38 @@ def resolve_window_handle(window_title: Optional[str] = None) -> Optional[int]:
 
     Uses ``set_target_window`` when *window_title* is empty.
     """
-    from tools.target_window import get_target
+    from tools.target_window import get_target, get_target_hwnd
+
+    pinned = get_target_hwnd()
+    if pinned and not (window_title or "").strip():
+        return pinned
 
     title = (window_title or get_target() or "").strip()
-    if not title:
+    if not title and not pinned:
         return None
-    match = find_matching_window(title, do_list_windows())
+    if pinned and title:
+        win = resolve_window_by_hwnd(pinned)
+        if win and _title_matches_query(win.get("title") or "", title):
+            return pinned
+    match = find_matching_window(
+        title,
+        do_list_windows(),
+        preferred_hwnd=pinned,
+    )
     win = match.get("window")
     if not win:
-        return None
+        return pinned
     hwnd = win.get("hwnd")
-    return int(hwnd) if hwnd else None
+    return int(hwnd) if hwnd else pinned
 
 
 def resolve_window_visual_rect(window_title: Optional[str] = None) -> Optional[dict]:
     """Screen bounding box for UIA enumeration (UWP: prefer ApplicationFrameHost).
 
     CoreWindow UIA bounds are often smaller than the visible host frame; controls
-    like Calculator numpad buttons can sit outside CoreWindow but inside the frame.
+    can sit outside CoreWindow but inside the ApplicationFrameHost frame.
     """
+    from detection.uwp_window import is_uwp_shell_window, uwp_window_score_bonus
     from tools.target_window import get_target
 
     title = (window_title or get_target() or "").strip()
@@ -139,14 +250,14 @@ def resolve_window_visual_rect(window_title: Optional[str] = None) -> Optional[d
             return None
         candidates = [win]
 
+    has_uwp_pair = len(candidates) > 1 and any(
+        is_uwp_shell_window(w) for w in candidates
+    )
+
     def score(win: dict) -> int:
         s = 0
-        proc = (win.get("process_name") or "").lower()
-        if title_lower in ("calculadora", "calculator"):
-            if "applicationframehost" in proc:
-                s += 20000
-            elif "calculatorapp" in proc:
-                s += 5000
+        if has_uwp_pair:
+            s += uwp_window_score_bonus(win, purpose="visual")
         x, y = win.get("x", 0), win.get("y", 0)
         if x > 0 and y > 0:
             s += 1000
@@ -172,32 +283,24 @@ def _best_window_candidate(
     """Pick the best window when several share the same title (common for UWP).
 
     purpose:
-        handle — HWND/UIA attach (prefer CoreWindow / CalculatorApp.exe)
+        handle — HWND/UIA attach (prefer core process, not ApplicationFrameHost)
         visual — screenshot bounds (prefer ApplicationFrameHost frame)
     """
-    hint = title_hint.lower()
-    prefer_visual = purpose == "visual"
+    from detection.uwp_window import is_uwp_shell_window, uwp_window_score_bonus
+
+    hint = _normalize_window_title_for_match(title_hint)
+    has_uwp_pair = len(windows) > 1 and any(is_uwp_shell_window(w) for w in windows)
 
     def score(win: dict) -> int:
         s = 0
-        win_title = (win.get("title") or "").lower()
+        win_title = _normalize_window_title_for_match(win.get("title") or "")
         if hint and win_title == hint:
             s += 10000
         elif hint and (win_title.startswith(hint) or win_title.endswith(hint)):
             s += 2000
-        proc = (win.get("process_name") or "").lower()
-        if hint in ("calculadora", "calculator"):
-            if prefer_visual:
-                if "applicationframehost" in proc:
-                    s += 12000
-                elif "calculatorapp" in proc:
-                    s += 8000
-            else:
-                if "calculatorapp" in proc:
-                    s += 12000
-                elif "applicationframehost" in proc:
-                    s += 8000
-        elif "applicationframehost" in proc:
+        if has_uwp_pair:
+            s += uwp_window_score_bonus(win, purpose=purpose)
+        elif is_uwp_shell_window(win):
             s += 1000
         x, y = win.get("x", 0), win.get("y", 0)
         if x > -1000 and y > -1000:

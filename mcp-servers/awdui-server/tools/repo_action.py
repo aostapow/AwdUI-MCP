@@ -182,6 +182,14 @@ def do_repo_action(
     if err:
         return {"success": False, "error": err, "swf_class": swf_class, "allowed_methods": allowed_methods(swf_class)}
 
+    from detection.hint_consume import attach_hints_to_result, resolve_object_hints
+
+    hints_ctx = resolve_object_hints(
+        repo_path=repo_path,
+        automation_id=elem.get("automation_id"),
+    )
+    click_mode = hints_ctx.get("hint_click_mode") or "auto"
+
     if highlight:
         try:
             from tools.highlight import highlight_element_dict
@@ -196,25 +204,48 @@ def do_repo_action(
         "method": method,
         "resolved_via": resolved.get("method", ""),
     }
+    attach_hints_to_result(result, repo_path=repo_path, automation_id=elem.get("automation_id"))
 
     if method == "Click":
         from tools.ui_automation import do_invoke_on_element, _identifiable_by_properties
-        inv = do_invoke_on_element(elem, window_title=window_title)
-        if inv.get("success"):
-            result.update({"success": True, "action": inv.get("method", "InvokePattern")})
-        elif _identifiable_by_properties(elem):
-            result.update({
-                "success": False,
-                "error": (
-                    "Element resolved by properties but InvokePattern failed; "
-                    "coordinate click skipped"
-                ),
-            })
-        else:
+        if click_mode == "click":
             from tools.input_tools import do_click
             cx, cy = _click_coords(elem, window_title)
             do_click(cx, cy)
-            result.update({"success": True, "action": "click", "clicked_at": {"x": cx, "y": cy}})
+            result.update({
+                "success": True,
+                "action": "click",
+                "clicked_at": {"x": cx, "y": cy},
+                "hint_applied": "click_mode=click",
+            })
+        else:
+            inv = do_invoke_on_element(elem, window_title=window_title)
+            if inv.get("success"):
+                applied = "invoke_mode=invoke" if click_mode == "invoke" else None
+                result.update({
+                    "success": True,
+                    "action": inv.get("method", "InvokePattern"),
+                    **({"hint_applied": applied} if applied else {}),
+                })
+            elif click_mode == "invoke":
+                result.update({
+                    "success": False,
+                    "error": "InvokePattern failed; repo hint requests invoke only (no coordinate click)",
+                    "hint_applied": "invoke_mode=invoke",
+                })
+            elif _identifiable_by_properties(elem):
+                result.update({
+                    "success": False,
+                    "error": (
+                        "Element resolved by properties but InvokePattern failed; "
+                        "coordinate click skipped"
+                    ),
+                })
+            else:
+                from tools.input_tools import do_click
+                cx, cy = _click_coords(elem, window_title)
+                do_click(cx, cy)
+                result.update({"success": True, "action": "click", "clicked_at": {"x": cx, "y": cy}})
 
     elif method == "DblClick":
         from tools.input_tools import do_click
@@ -338,6 +369,7 @@ def do_repo_capture(
     automation_id: str = "",
     parent: str = "",
     highlight: bool = True,
+    agent_hints: str = "",
 ) -> dict[str, Any]:
     """Capture a control into the repository (Object Spy → Add to Repository)."""
     elem: Optional[dict] = None
@@ -386,6 +418,7 @@ def do_repo_capture(
         identification=meta["identification"],
         parent=parent,
         element=elem,
+        agent_hints=agent_hints or None,
     )
 
     if highlight:
@@ -414,4 +447,34 @@ def do_repo_capture(
         "swf_class": swf_class,
         "identification": meta["identification"],
         "allowed_methods": meta["allowed_methods"],
+    }
+
+
+def do_repo_hints_set(
+    repo_path: str,
+    hints: str,
+    *,
+    append: bool = False,
+) -> dict[str, Any]:
+    """Persist agent_hints for a repository object (institutional memory)."""
+    from detection import repo_store
+
+    if not (hints or "").strip():
+        return {"success": False, "error": "hints text is required"}
+    obj = repo_store.get_object_by_path(repo_path)
+    if not obj:
+        return {"success": False, "error": f"object not found: {repo_path}"}
+    existing = repo_store.get_agent_hints(repo_path)
+    if append and existing.strip():
+        merged = existing.rstrip() + "\n" + hints.strip()
+    else:
+        merged = hints.strip()
+    updated = repo_store.update_object(repo_path, agent_hints=merged)
+    if not updated:
+        return {"success": False, "error": f"failed to update hints for {repo_path}"}
+    return {
+        "success": True,
+        "repo_path": repo_path,
+        "agent_hints": merged,
+        "appended": bool(append and existing.strip()),
     }

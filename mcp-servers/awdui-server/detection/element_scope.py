@@ -67,7 +67,30 @@ def resolve_window_scope(window_title: Optional[str] = None) -> Optional[dict]:
         "visual": visual,
         "client": client,
         "process_ids": process_ids,
+        "allow_renderer_pid": _framework_allows_renderer_pid(title),
     }
+
+
+def _framework_allows_renderer_pid(window_title: Optional[str]) -> bool:
+    """Electron/WebView2 UIA nodes often report renderer PID != shell HWND PID."""
+    try:
+        from tools.framework_detect import do_detect_framework
+
+        fw = do_detect_framework(window_title).get("framework", "")
+        if fw in ("electron", "chromium_browser", "unknown"):
+            try:
+                from tools.window_classify import classify_window
+
+                info = classify_window(window_title=window_title)
+                proc = (info.get("process") or "").lower()
+                cls = (info.get("class_name") or "")
+                if proc == "ms-teams.exe" or cls == "TeamsWebView":
+                    return True
+            except Exception:
+                pass
+        return fw in ("electron", "chromium_browser")
+    except Exception:
+        return False
 
 
 def element_in_window_scope(
@@ -93,8 +116,9 @@ def element_in_window_scope(
     pid = int(data.get("process_id") or 0)
     if pids and pid and pid not in pids:
         fw = (data.get("framework_id") or "").upper()
-        # UWP: CoreWindow (XAML) PID may differ from ApplicationFrameHost HWND PID.
-        if fw != "XAML":
+        if fw == "XAML" or scope.get("allow_renderer_pid"):
+            pass
+        else:
             return False
 
     rect = scope.get("client") or scope.get("visual")
@@ -115,11 +139,30 @@ def element_in_window_scope(
     return element_center_in_rect(normalized, rect, margin=margin)
 
 
+def _drop_electron_compact_tree_rows(
+    elements: list[DetectedElement],
+    scope: dict,
+) -> list[DetectedElement]:
+    """Drop ultra-compact TreeItem rows common in foreign file-tree UIA leak."""
+    out: list[DetectedElement] = []
+    for elem in elements:
+        role = (elem.role or "").strip()
+        aid = (elem.automation_id or "").strip()
+        h = int(elem.height or 0)
+        if role == "TreeItem" and aid.startswith("list_id_"):
+            continue
+        if scope.get("allow_renderer_pid") and role == "TreeItem" and 0 < h < 28:
+            continue
+        out.append(elem)
+    return out
+
+
 def filter_elements_to_scope(
     elements: list[DetectedElement],
     window_title: Optional[str] = None,
     *,
     adaptive_cluster: bool = True,
+    include_offscreen: bool = False,
 ) -> tuple[list[DetectedElement], int, int, Optional[dict]]:
     """Filter by window scope, then optional dominant spatial cluster.
 
@@ -131,11 +174,35 @@ def filter_elements_to_scope(
 
     kept: list[DetectedElement] = []
     scoped_out = 0
+    client = scope.get("client") or scope.get("visual")
+    sidebar_max_x: Optional[int] = None
+    if include_offscreen and client:
+        sidebar_max_x = int(client["x"]) + int(client.get("w", client.get("width", 0)) * 0.45)
+
     for elem in elements:
+        role = (elem.role or "").strip()
+        if include_offscreen and sidebar_max_x is not None and role == "TreeItem":
+            from detection.element_coords import to_screen_coords
+
+            normalized = to_screen_coords(
+                {
+                    "x": int(elem.x or 0),
+                    "y": int(elem.y or 0),
+                    "width": int(elem.width or 0),
+                    "height": int(elem.height or 0),
+                },
+                scope.get("window_title"),
+            )
+            center_x = int(normalized.get("x", 0)) + int(normalized.get("width", 0) or 0) // 2
+            if center_x <= sidebar_max_x:
+                kept.append(elem)
+                continue
         if element_in_window_scope(elem, scope):
             kept.append(elem)
         else:
             scoped_out += 1
+
+    kept = _drop_electron_compact_tree_rows(kept, scope)
 
     from detection.spatial_cluster import filter_by_content_cluster
 

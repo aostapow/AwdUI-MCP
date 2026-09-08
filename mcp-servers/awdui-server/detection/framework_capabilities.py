@@ -4,9 +4,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Optional
 
-# Repo-known apps whose live framework may disagree with a wrong detector label.
-_REPO_APP_FRAMEWORK: dict[str, str] = {
-    "administrador.exe": "winforms",
+# Framework + control role overrides (tool_name -> level, use_instead).
+_FRAMEWORK_ROLE_OVERRIDES: dict[tuple[str, str, str], tuple[str, str]] = {
+    ("winforms", "combobox", "set_element_value"): (
+        "blocked",
+        "list_control_items + select_control_item",
+    ),
+    ("winforms", "button", "invoke_element"): (
+        "discouraged",
+        "click_element",
+    ),
 }
 
 # Default tool levels per framework (tool_name -> level).
@@ -39,18 +46,6 @@ _FRAMEWORK_TOOL_LEVELS: dict[str, dict[str, str]] = {
     },
 }
 
-# App-specific control overrides: (storage_key, role, tool) -> (level, use_instead)
-_CONTROL_OVERRIDES: dict[tuple[str, str, str], tuple[str, str]] = {
-    ("administrador.exe", "combobox", "set_element_value"): (
-        "blocked",
-        "list_control_items + select_control_item",
-    ),
-    ("administrador.exe", "button", "invoke_element"): (
-        "discouraged",
-        "click_element",
-    ),
-}
-
 _FRAMEWORK_PRIORITY: dict[str, int] = {
     "winforms": 30,
     "wpf": 25,
@@ -71,11 +66,8 @@ def _normalize_framework(framework: str) -> str:
     return (framework or "unknown").strip().lower()
 
 
-def _normalize_storage_key(app_storage_key: Optional[str]) -> str:
-    key = (app_storage_key or "").strip().lower()
-    if "\\" in key:
-        key = key.rsplit("\\", 1)[-1]
-    return key
+def _normalize_role(control_role: Optional[str]) -> str:
+    return (control_role or "").strip().lower()
 
 
 def merge_framework(existing: str, new: str) -> str:
@@ -100,19 +92,10 @@ def get_tool_capability(
 ) -> ToolCapability:
     fw = _normalize_framework(framework)
     tool = (tool_name or "").strip()
-    storage = _normalize_storage_key(app_storage_key)
 
-    if storage and storage in _REPO_APP_FRAMEWORK:
-        known = _REPO_APP_FRAMEWORK[storage]
-        if fw != known and fw not in ("", "unknown"):
-            return ToolCapability(
-                "conditional",
-                f"repository indicates {known}, not {fw}",
-            )
-
-    if storage and control_role:
-        role = control_role.strip().lower()
-        override = _CONTROL_OVERRIDES.get((storage, role, tool))
+    if control_role:
+        role = _normalize_role(control_role)
+        override = _FRAMEWORK_ROLE_OVERRIDES.get((fw, role, tool))
         if override:
             level, use_instead = override
             return ToolCapability(level, use_instead)
@@ -160,9 +143,9 @@ def build_automation_profile(
     repo_framework: str = "unknown",
 ) -> dict[str, Any]:
     fw = merge_framework(repo_framework, repo_framework)
-    storage = _normalize_storage_key(app_name)
-    if storage in _REPO_APP_FRAMEWORK:
-        fw = merge_framework(fw, _REPO_APP_FRAMEWORK[storage])
+    storage = (app_name or "").strip()
+    if "\\" in storage:
+        storage = storage.rsplit("\\", 1)[-1]
 
     preferred_tools: list[str] = []
     blocked_tools: list[str] = []
@@ -173,14 +156,15 @@ def build_automation_profile(
             blocked_tools.append(tool)
 
     notes: list[str] = []
-    if storage == "administrador.exe" or "ast" in (window_title or "").lower():
-        notes.append("AST Activities Manager is WinForms — not Electron.")
-        app_label = "AST Activities Manager"
-    else:
-        app_label = (app_name or window_title or "Application").rsplit(".", 1)[0]
+    app_label = (app_name or window_title or "Application").rsplit(".", 1)[0]
 
     if fw == "winforms":
         notes.append("Prefer UIA patterns and AutomationId on WinForms controls.")
+    elif fw == "uwp":
+        notes.append(
+            "UWP apps may expose multiple HWNDs (ApplicationFrameHost vs core); "
+            "prefer core process for UIA attach and frame host for screenshots."
+        )
 
     tools: dict[str, dict[str, Any]] = {}
     for tool in sorted(
@@ -209,7 +193,9 @@ def capability_precheck(window_title: str, tool_name: str) -> Optional[dict[str,
     detected = do_detect_framework(window_title or "")
     fw = _normalize_framework(detected.get("framework", "unknown"))
     app_name, _exe = repository_app_name(fw, window_title or "")
-    storage = _normalize_storage_key(app_name)
+    storage = (app_name or "").strip()
+    if "\\" in storage:
+        storage = storage.rsplit("\\", 1)[-1]
 
     if fw == "java_swing" and tool_name == "find_element":
         return {

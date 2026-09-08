@@ -23,18 +23,6 @@ JUNK_APP_NAMES = frozenset(
     }
 )
 
-WINDOW_APP_ALIASES: dict[str, tuple[str, str]] = {
-    "calculadora": ("CalculatorApp.exe", ""),
-    "calculator": ("CalculatorApp.exe", ""),
-    "notepad": ("Notepad.exe", ""),
-    "bloc_de_notas": ("Notepad.exe", ""),
-}
-
-APP_WINDOW_DISPLAY: dict[str, str] = {
-    "CalculatorApp.exe": "Calculadora",
-    "Notepad.exe": "Notepad",
-}
-
 
 def is_junk_app_name(app_name: str) -> bool:
     lower = (app_name or "").strip().lower()
@@ -49,12 +37,11 @@ def _normalize_window_key(window_key: str) -> str:
     return (window_key or "").strip().lower().replace("_", " ")
 
 
-def _infer_from_text(*parts: str) -> Optional[tuple[str, str]]:
-    blob = " ".join(p for p in parts if p).lower()
-    if any(k in blob for k in ("notepad", "bloc de notas", "bloc_de_notas")):
-        return WINDOW_APP_ALIASES["notepad"]
-    if any(k in blob for k in ("calculadora", "calculator", "calc")):
-        return WINDOW_APP_ALIASES["calculadora"]
+def _bucket_from_repo_path(repo_path: str) -> Optional[str]:
+    """First path segment is the stable window bucket (e.g. Calculadora/obj)."""
+    parts = [p for p in (repo_path or "").split("/") if p]
+    if len(parts) >= 2:
+        return parts[0]
     return None
 
 
@@ -66,28 +53,35 @@ def canonical_for_window(
     logical_name: str = "",
 ) -> tuple[str, str]:
     """Pick the stable app bucket for objects under *window_key*."""
-    inferred = _infer_from_text(window_key, repo_path, logical_name)
-    if inferred:
-        return inferred
-
-    norm = _normalize_window_key(window_key)
-    if norm in WINDOW_APP_ALIASES:
-        return WINDOW_APP_ALIASES[norm]
+    label = _bucket_from_repo_path(repo_path) or (window_key or "main")
 
     best: tuple[int, str, str] | None = None
     for info in app_index.values():
         if is_junk_app_name(info["app_name"]):
             continue
         count = int(info["windows"].get(window_key, 0))
-        if count <= 0:
+        if count <= 0 and label not in info["windows"]:
             continue
-        candidate = (count, info["app_name"], info["exe_path"])
+        candidate_count = max(
+            int(info["windows"].get(window_key, 0)),
+            int(info["windows"].get(label, 0)),
+        )
+        if candidate_count <= 0:
+            continue
+        candidate = (candidate_count, info["app_name"], info["exe_path"])
         if best is None or candidate[0] > best[0]:
             best = candidate
     if best:
         return best[1], best[2]
 
-    display = (window_key or "main").replace("_", " ")
+    norm = _normalize_window_key(label)
+    for info in app_index.values():
+        if is_junk_app_name(info["app_name"]):
+            continue
+        if _normalize_window_key(info["app_name"]) == norm:
+            return info["app_name"], info["exe_path"]
+
+    display = label.replace("_", " ")
     return display, ""
 
 
@@ -98,16 +92,12 @@ def canonical_window_key(
     repo_path: str = "",
     logical_name: str = "",
 ) -> str:
-    if app_name in APP_WINDOW_DISPLAY:
-        return APP_WINDOW_DISPLAY[app_name]
+    bucket = _bucket_from_repo_path(repo_path)
+    if bucket:
+        return bucket
     parts = [p for p in repo_path.split("/") if p]
     if parts and not is_junk_app_name(parts[0]):
         return parts[0]
-    inferred = _infer_from_text(window_key, repo_path, logical_name)
-    if inferred:
-        for app, display in APP_WINDOW_DISPLAY.items():
-            if inferred[0] == app:
-                return display
     return window_key or "main"
 
 

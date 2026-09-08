@@ -33,6 +33,14 @@ FRAMEWORK_AUTO_DEPTH: dict[str, int] = {
 }
 DEFAULT_AUTO_DEPTH = 20
 
+_MENU_ROLES = frozenset({"menuitem", "menu", "menubar"})
+_MENU_ROLE_MAX_DEPTH = {
+    "menuitem": 6,
+    "menu": 6,
+    "menubar": 4,
+}
+_WIN32_ROLE_FILTER_CAP = 20
+
 _FW_CACHE: dict[str, tuple[float, str]] = {}
 _FW_CACHE_TTL = 30.0
 
@@ -103,9 +111,16 @@ def resolve_list_depth(
         framework_used = (framework or _detect_framework(window_title)).strip().lower() or "unknown"
         effective = framework_auto_depth(framework_used)
 
-    # Role-filtered walks need deeper reach; UIA backend also bumps comtypes walk when role set.
+    # Role-filtered walks: shallow caps for menus; modest bump for other roles.
     if role and effective < UNLIMITED_DEPTH:
-        effective = max(effective, min(effective + 8, 48))
+        role_lower = role.strip().lower()
+        if role_lower in _MENU_ROLES:
+            cap = _MENU_ROLE_MAX_DEPTH.get(role_lower, 6)
+            effective = min(effective, cap)
+        elif framework_used == "win32":
+            effective = min(max(effective, effective + 2), _WIN32_ROLE_FILTER_CAP)
+        else:
+            effective = max(effective, min(effective + 8, 48))
 
     return requested, effective, framework_used
 

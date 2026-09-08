@@ -6,15 +6,7 @@ import subprocess
 import time
 from typing import Any, Optional
 
-# Known apps with non-obvious process ↔ exe mapping (UWP, aliases).
-LAUNCH_PROFILES: dict[str, dict[str, Any]] = {
-    "calc": {
-        "process_names": ("calculatorapp.exe",),
-        "window_hints": ("calculadora", "calculator"),
-        "kill_process_names": ("CalculatorApp.exe",),
-        "health_automation_id": "num1Button",
-    },
-}
+from detection.uwp_window import is_uwp_shell_window
 
 
 def launch_key(path: str) -> str:
@@ -25,17 +17,43 @@ def launch_key(path: str) -> str:
     return base
 
 
-def resolve_launch_profile(path: str) -> Optional[dict[str, Any]]:
-    return LAUNCH_PROFILES.get(launch_key(path))
+def _process_matches_launch_key(proc: str, key: str) -> bool:
+    proc_lower = (proc or "").lower()
+    if not proc_lower or not key:
+        return False
+    stem = proc_lower.rsplit(".", 1)[0] if "." in proc_lower else proc_lower
+    return stem == key or key in proc_lower
 
 
-def get_window_pid(hwnd: int) -> int:
-    import ctypes
-    import ctypes.wintypes
+def _title_matches_launch_key(title: str, key: str) -> bool:
+    title_lower = (title or "").lower()
+    key_lower = (key or "").lower()
+    if not title_lower or not key_lower:
+        return False
+    return key_lower in title_lower
 
-    pid = ctypes.wintypes.DWORD()
-    ctypes.windll.user32.GetWindowThreadProcessId(int(hwnd), ctypes.byref(pid))
-    return int(pid.value)
+
+def attach_uwp_shell_siblings(
+    windows: list[dict],
+    matches: list[dict],
+) -> list[dict]:
+    """Include ApplicationFrameHost windows that share a title with a core match."""
+    if not matches:
+        return matches
+    titles = {(w.get("title") or "").strip().lower() for w in matches if w.get("title")}
+    out = list(matches)
+    seen = {int(w.get("hwnd") or 0) for w in out if w.get("hwnd")}
+    for win in windows:
+        hwnd = int(win.get("hwnd") or 0)
+        if hwnd and hwnd in seen:
+            continue
+        if not is_uwp_shell_window(win):
+            continue
+        if (win.get("title") or "").strip().lower() in titles:
+            out.append(win)
+            if hwnd:
+                seen.add(hwnd)
+    return out
 
 
 def match_app_windows(
@@ -44,47 +62,31 @@ def match_app_windows(
     profile: Optional[dict[str, Any]] = None,
 ) -> list[dict]:
     """Return visible windows that belong to the app launched via *path*."""
-    profile = profile or resolve_launch_profile(path)
     key = launch_key(path)
     matches: list[dict] = []
 
     for win in windows:
-        proc = (win.get("process_name") or "").lower()
-        title = (win.get("title") or "").lower()
-        if not title:
+        proc = win.get("process_name") or ""
+        title = win.get("title") or ""
+        if not title and not proc:
             continue
 
-        if profile:
-            proc_names = tuple(p.lower() for p in profile.get("process_names", ()))
-            hints = tuple(h.lower() for h in profile.get("window_hints", ()))
-            if proc_names and proc in proc_names:
-                matches.append(win)
-                continue
-            if hints and any(h in title for h in hints):
-                # UWP shell (ApplicationFrameHost) shares the calculator title.
-                if proc_names and proc == "applicationframehost.exe":
-                    matches.append(win)
-                elif proc_names and proc in proc_names:
-                    matches.append(win)
-                elif not proc_names:
-                    matches.append(win)
+        if _process_matches_launch_key(proc, key):
+            matches.append(win)
             continue
-
-        stem = proc.rsplit(".", 1)[0] if proc else ""
-        if stem == key or (proc and key in proc):
+        if _title_matches_launch_key(title, key):
             matches.append(win)
 
-    return matches
+    return attach_uwp_shell_siblings(windows, matches)
 
 
-def rank_app_window(win: dict, profile: Optional[dict[str, Any]]) -> int:
+def rank_app_window(win: dict, profile: Optional[dict[str, Any]] = None) -> int:
     """Higher score = better candidate to keep focused."""
-    proc = (win.get("process_name") or "").lower()
     score = 0
-    if profile:
-        for idx, name in enumerate(profile.get("process_names", ())):
-            if name.lower() == proc:
-                score += 1000 - idx
+    if is_uwp_shell_window(win):
+        score -= 500
+    else:
+        score += 1000
     area = int(win.get("width", 0) or 0) * int(win.get("height", 0) or 0)
     score += area // 1000
     return score
@@ -92,7 +94,7 @@ def rank_app_window(win: dict, profile: Optional[dict[str, Any]]) -> int:
 
 def pick_primary_window(
     windows: list[dict],
-    profile: Optional[dict[str, Any]],
+    profile: Optional[dict[str, Any]] = None,
 ) -> Optional[dict]:
     if not windows:
         return None
@@ -101,23 +103,17 @@ def pick_primary_window(
 
 def collect_primary_pids(
     windows: list[dict],
-    profile: Optional[dict[str, Any]],
+    profile: Optional[dict[str, Any]] = None,
 ) -> set[int]:
-    """PIDs to kill when closing extras (prefer app process, not shell)."""
+    """PIDs to kill when closing extras (prefer app process, not UWP shell)."""
     pids: set[int] = set()
-    proc_names = tuple(
-        p.lower() for p in (profile or {}).get("process_names", ())
-    )
-    for win in windows:
-        proc = (win.get("process_name") or "").lower()
+    core_windows = [w for w in windows if not is_uwp_shell_window(w)]
+    targets = core_windows or windows
+    for win in targets:
         hwnd = win.get("hwnd")
         if not hwnd:
             continue
-        if proc_names:
-            if proc in proc_names:
-                pids.add(get_window_pid(int(hwnd)))
-        else:
-            pids.add(get_window_pid(int(hwnd)))
+        pids.add(get_window_pid(int(hwnd)))
     return pids
 
 
@@ -158,7 +154,7 @@ def kill_process_names(names: tuple[str, ...] | list[str]) -> int:
 
 def verify_app_health(
     window_title: str,
-    profile: Optional[dict[str, Any]],
+    profile: Optional[dict[str, Any]] = None,
 ) -> bool:
     """Light UIA probe — optional sanity check after reuse."""
     aid = (profile or {}).get("health_automation_id")
@@ -176,7 +172,7 @@ def verify_app_health(
 def close_extra_instances(
     matches: list[dict],
     keep: dict,
-    profile: Optional[dict[str, Any]],
+    profile: Optional[dict[str, Any]] = None,
 ) -> int:
     """Close duplicate instances, keeping *keep*. Returns number closed."""
     keep_hwnd = int(keep.get("hwnd") or 0)
@@ -191,6 +187,15 @@ def close_extra_instances(
     return closed
 
 
+def kill_all_matched_instances(matches: list[dict]) -> int:
+    """Kill every process backing *matches* (used for replace=true)."""
+    closed = 0
+    for pid in sorted(collect_primary_pids(matches)):
+        if kill_process_pid(pid):
+            closed += 1
+    return closed
+
+
 def try_reuse_existing(
     path: str,
     *,
@@ -199,31 +204,31 @@ def try_reuse_existing(
     """Focus an existing instance or close extras. Returns result dict or None to spawn."""
     from tools.windows import do_focus_window, do_list_windows
 
-    profile = resolve_launch_profile(path)
-    if replace and profile:
-        names = profile.get("kill_process_names") or profile.get("process_names", ())
-        if names:
-            kill_process_names(tuple(names))
+    if replace:
+        windows = do_list_windows()
+        matches = match_app_windows(windows, path)
+        if matches:
+            kill_all_matched_instances(matches)
             time.sleep(0.6)
-            return None
+        return None
 
     windows = do_list_windows()
-    matches = match_app_windows(windows, path, profile)
+    matches = match_app_windows(windows, path)
     if not matches:
         return None
 
-    primary = pick_primary_window(matches, profile)
+    primary = pick_primary_window(matches)
     if not primary:
         return None
 
     closed_extra = 0
-    if len(matches) > 1 or len(collect_primary_pids(matches, profile)) > 1:
-        closed_extra = close_extra_instances(matches, primary, profile)
+    if len(matches) > 1 or len(collect_primary_pids(matches)) > 1:
+        closed_extra = close_extra_instances(matches, primary)
         if closed_extra:
             time.sleep(0.4)
             windows = do_list_windows()
-            matches = match_app_windows(windows, path, profile)
-            primary = pick_primary_window(matches, profile) or primary
+            matches = match_app_windows(windows, path)
+            primary = pick_primary_window(matches) or primary
 
     title = (primary.get("title") or "").strip()
     if not title:
@@ -235,7 +240,7 @@ def try_reuse_existing(
 
     hwnd = int(primary.get("hwnd") or 0)
     pid = get_window_pid(hwnd) if hwnd else 0
-    healthy = verify_app_health(title, profile)
+    healthy = verify_app_health(title)
 
     try:
         from detection.orchestrator import invalidate_tree_cache
@@ -253,3 +258,12 @@ def try_reuse_existing(
         "healthy": healthy,
         "action": "focused",
     }
+
+
+def get_window_pid(hwnd: int) -> int:
+    import ctypes
+    import ctypes.wintypes
+
+    pid = ctypes.wintypes.DWORD()
+    ctypes.windll.user32.GetWindowThreadProcessId(int(hwnd), ctypes.byref(pid))
+    return int(pid.value)

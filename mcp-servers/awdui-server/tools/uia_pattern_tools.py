@@ -188,18 +188,52 @@ def do_scroll_element(
         label = automation_id or name or role or "element"
         return {"success": False, "error": f"Control not found: {label}"}
 
-    from detection.uia_patterns import apply_scroll_pattern
+    from detection.uia_patterns import apply_scroll_pattern, find_scrollable_ancestor, _has_pattern
 
     h_pct = horizontal_percent if horizontal_percent >= 0 else None
     v_pct = vertical_percent if vertical_percent >= 0 else None
+    scroll_raw = raw
+    scroll_via = "self"
+    if not _has_pattern(raw, "Scroll"):
+        ancestor = find_scrollable_ancestor(raw)
+        if ancestor is not None:
+            scroll_raw = ancestor
+            scroll_via = "ancestor"
     result = apply_scroll_pattern(
-        raw,
+        scroll_raw,
         direction=direction,
         amount=amount,
         repeat=repeat,
         horizontal_percent=h_pct,
         vertical_percent=v_pct,
     )
+    if result.get("success") and scroll_via == "ancestor":
+        result["scroll_via"] = "ancestor"
+    if not result.get("success"):
+        from detection.uia_patterns import _element_dict
+
+        elem = _element_dict(raw) if raw else {}
+        ex = int(elem.get("x") or 0)
+        ey = int(elem.get("y") or 0)
+        ew = int(elem.get("width") or 0)
+        eh = int(elem.get("height") or 0)
+        if ew > 0 and eh > 0:
+            cx, cy = ex + ew // 2, ey + eh // 2
+            pages = 1.0 if str(amount).lower() in ("large", "page", "1") else 0.25
+            from tools.input_tools import do_scroll
+
+            fb = do_scroll(cx, cy, direction=direction or "down", pages=pages)
+            if fb.get("action") == "scroll":
+                result = {
+                    "success": True,
+                    "method": "scroll_fallback_coords",
+                    "fallback_reason": result.get("error", "ScrollPattern failed"),
+                    "x": cx,
+                    "y": cy,
+                    "direction": direction or "down",
+                    "pages": pages,
+                    "verified": fb.get("verified"),
+                }
     if resolved_aid:
         result["automation_id"] = resolved_aid
     elif data:

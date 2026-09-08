@@ -136,6 +136,26 @@ def _scroll_amount_code(amount: str, increment: bool = True) -> int:
     return _SCROLL_LARGE_DEC
 
 
+def find_scrollable_ancestor(raw, max_levels: int = 12):
+    """Walk UIA parents until a node supports ScrollPattern with scrollable axis."""
+    current = raw
+    for _ in range(max(1, int(max_levels))):
+        if _has_pattern(current, "Scroll"):
+            state = read_pattern_state(current, "Scroll")
+            if state.get("horizontally_scrollable") or state.get("vertically_scrollable"):
+                return current
+            if state.get("available"):
+                return current
+        try:
+            parent = current.parent()
+            if parent is None or parent == current:
+                break
+            current = parent
+        except Exception:
+            break
+    return None
+
+
 def apply_scroll_pattern(
     raw,
     direction: Optional[str] = None,

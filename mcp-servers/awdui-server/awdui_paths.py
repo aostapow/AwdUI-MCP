@@ -21,3 +21,13 @@ def screenshots_dir() -> Path:
     path = data_dir() / "screenshots"
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def user_addins_dir() -> Path:
+    path = data_dir() / "addins"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def addins_config_path() -> Path:
+    return data_dir() / "addins.json"

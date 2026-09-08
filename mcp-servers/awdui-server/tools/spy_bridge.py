@@ -87,6 +87,16 @@ def _normalize_role(role: str) -> str:
     return (role or "").replace("ControlType.", "")
 
 
+def _value_from_spy_patterns(patterns: object) -> str:
+    """Extract ValuePattern text from spy sidecar patterns dict."""
+    if not isinstance(patterns, dict):
+        return ""
+    vp = patterns.get("Value") or patterns.get("value")
+    if isinstance(vp, dict):
+        return str(vp.get("value") or "")
+    return ""
+
+
 def spy_props_to_element(props: dict, window_title: Optional[str] = None) -> dict:
     """Convert spy sidecar properties to legacy element dict."""
     x = int(props.get("x", 0) or 0)
@@ -101,7 +111,7 @@ def spy_props_to_element(props: dict, window_title: Optional[str] = None) -> dic
         "y": y,
         "width": w,
         "height": h,
-        "value": "",
+        "value": _value_from_spy_patterns(props.get("patterns")),
         "automation_id": props.get("automation_id", "") or "",
         "class_name": props.get("class_name", "") or "",
         "framework_id": props.get("framework_id", "") or "",

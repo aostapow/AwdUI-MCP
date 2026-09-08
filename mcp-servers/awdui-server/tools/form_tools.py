@@ -27,10 +27,30 @@ def _parse_fields(fields: Any) -> list[dict[str, Any]]:
     return []
 
 
+def do_get_all_values(
+    window_title: Optional[str] = None,
+    window_handle: Optional[int] = None,
+    max_depth: int = 12,
+    scope_mode: str = "auto",
+) -> dict[str, Any]:
+    if sys.platform != "win32":
+        return {"success": False, "error": "get_all_values is Windows-only"}
+    from detection.form_read import get_all_values
+
+    payload = get_all_values(
+        window_title=window_title,
+        window_handle=window_handle,
+        max_depth=max_depth,
+        scope_mode=scope_mode,
+    )
+    return {"success": True, **payload}
+
+
 def do_fill_form(
     fields: Any,
     window_title: Optional[str] = None,
     window_handle: Optional[int] = None,
+    scope_mode: str = "auto",
 ) -> dict[str, Any]:
     if sys.platform != "win32":
         return {"success": False, "error": "fill_form is Windows-only"}
@@ -39,7 +59,16 @@ def do_fill_form(
     if not items:
         return {"success": False, "error": "no fields provided", "filled": 0}
 
+    from tools.window_scope import resolve_form_read_scope
     from tools.ui_automation import do_set_element_value
+
+    scope = resolve_form_read_scope(
+        window_title=window_title,
+        window_handle=window_handle,
+        scope_mode=scope_mode,
+    )
+    scoped_title = scope.get("window_title")
+    scoped_hwnd = scope.get("window_handle")
 
     filled = 0
     errors: list[dict[str, Any]] = []
@@ -49,8 +78,8 @@ def do_fill_form(
             value=str(value),
             automation_id=(item.get("automation_id") or None),
             name=(item.get("name") or None),
-            window_title=window_title,
-            window_handle=window_handle,
+            window_title=scoped_title,
+            window_handle=scoped_hwnd,
             index=int(item.get("index", 0) or 0),
         )
         if result.get("success"):
@@ -69,24 +98,8 @@ def do_fill_form(
         "filled": filled,
         "total": len(items),
         "errors": errors,
+        "scope": scope.get("scope", "target"),
     }
-
-
-def do_get_all_values(
-    window_title: Optional[str] = None,
-    window_handle: Optional[int] = None,
-    max_depth: int = 12,
-) -> dict[str, Any]:
-    if sys.platform != "win32":
-        return {"success": False, "error": "get_all_values is Windows-only"}
-    from detection.form_read import get_all_values
-
-    payload = get_all_values(
-        window_title=window_title,
-        window_handle=window_handle,
-        max_depth=max_depth,
-    )
-    return {"success": True, **payload}
 
 
 def register(server) -> int:
@@ -100,11 +113,14 @@ def register(server) -> int:
         window_title: str = "",
         title: str = "",
         window_handle: int = 0,
+        scope_mode: str = "auto",
     ) -> str:
         """Fill multiple form fields in one call (AutomationId or Name per field).
 
         Pass ``fields_json`` as a JSON array [{automation_id,name,value,index}] or
         object {FieldId: value}. Much faster than repeated set_element_value.
+        scope_mode: auto (default) prefers foreground #32770 modal same PID;
+        target pins parent; foreground uses foreground dialog only.
         """
         payload = fields_json or fields
         if not payload:
@@ -115,6 +131,7 @@ def register(server) -> int:
                     fields=payload,
                     window_title=_wt(window_title, title),
                     window_handle=window_handle or None,
+                    scope_mode=scope_mode,
                 ),
                 timeout=60.0,
             )
@@ -122,8 +139,8 @@ def register(server) -> int:
             return "Timed out filling form."
         if not result.get("success"):
             err = result.get("errors") or []
-            return f"FAIL filled={result.get('filled', 0)}/{result.get('total', 0)} errors={err}"
-        return f"OK filled={result.get('filled', 0)}/{result.get('total', 0)}"
+            return f"FAIL filled={result.get('filled', 0)}/{result.get('total', 0)} scope={result.get('scope', 'target')} errors={err}"
+        return f"OK filled={result.get('filled', 0)}/{result.get('total', 0)} scope={result.get('scope', 'target')}"
 
     @server.tool()
     def get_all_values(
@@ -131,8 +148,13 @@ def register(server) -> int:
         title: str = "",
         window_handle: int = 0,
         max_depth: int = 12,
+        scope_mode: str = "auto",
     ) -> str:
-        """Read all editable fields (Edit, ComboBox, CheckBox, etc.) in the window."""
+        """Read all editable fields (Edit, ComboBox, CheckBox, etc.) in the window.
+
+        scope_mode: auto (default) scopes to foreground #32770 modal owned by target PID
+        when open; target keeps parent window; foreground uses foreground dialog only.
+        """
         import json
 
         try:
@@ -141,6 +163,7 @@ def register(server) -> int:
                     window_title=_wt(window_title, title),
                     window_handle=window_handle or None,
                     max_depth=max_depth,
+                    scope_mode=scope_mode,
                 ),
                 timeout=30.0,
             )
@@ -153,6 +176,7 @@ def register(server) -> int:
                 "count": result.get("count", 0),
                 "values": result.get("values") or {},
                 "backend_used": result.get("backend_used", ""),
+                "scope": result.get("scope", "target"),
             },
             ensure_ascii=False,
         )

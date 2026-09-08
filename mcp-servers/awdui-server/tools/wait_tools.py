@@ -134,8 +134,17 @@ def _extract_property(props: dict[str, Any], property_name: str) -> str:
 
     if key in ("isselected", "selected"):
         sel = patterns.get("SelectionItem")
-        if isinstance(sel, dict) and "is_selected" in sel:
-            return _boolish(sel.get("is_selected"))
+        if isinstance(sel, dict):
+            flag = sel.get("is_selected")
+            if isinstance(flag, dict):
+                flag = flag.get("Value", flag.get("value"))
+            if flag is not None:
+                return _boolish(flag)
+            if "value" in sel:
+                val = sel.get("value")
+                if isinstance(val, dict):
+                    val = val.get("Value", val.get("value"))
+                return _boolish(val)
         return ""
 
     if key in ("selecteditem",):

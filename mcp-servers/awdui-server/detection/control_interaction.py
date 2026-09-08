@@ -862,12 +862,20 @@ def discover_from_element(
         "official_map": official_map,
     }
     if (repo_hints or "").strip():
-        report["repo_hints"] = repo_hints.strip()
-        from detection.agent_hints import parse_agent_hints
+        from detection.hint_consume import apply_hints_to_discovery_report
 
-        parsed = parse_agent_hints(repo_hints)
-        if parsed:
-            report["repo_parsed"] = parsed
+        report = apply_hints_to_discovery_report(report, repo_hints)
+    try:
+        from addin_sdk.registry import get_registry
+
+        reg = get_registry()
+        if reg:
+            for loaded in reg.addins:
+                report = loaded.instance.enrich_control_interaction(
+                    element, report, loaded.ctx
+                )
+    except Exception:
+        pass
     return report
 
 

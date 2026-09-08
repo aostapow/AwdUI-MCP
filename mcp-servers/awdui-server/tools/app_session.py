@@ -56,7 +56,7 @@ def register_window(win: dict[str, Any], *, set_target: bool = True) -> dict[str
     if set_target and entry["title"]:
         from tools.target_window import set_target
 
-        set_target(entry["title"])
+        set_target(entry["title"], window_handle=entry.get("hwnd"))
     return {"success": True, "app_id": app_id, **entry}
 
 
