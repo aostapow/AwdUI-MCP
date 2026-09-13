@@ -177,6 +177,22 @@ def test_critical_questions_lab_includes_narration_check():
     assert any("narrada" in q.lower() for q in questions)
 
 
+def test_continue_message_dict_blockers():
+    mod = _load_hook()
+    msg = mod.build_continue_message(
+        {
+            "objective_met": False,
+            "active_lab": "Calculadora",
+            "current_focus": "lab",
+            "blockers": [{"app": "Teams", "text": "slow list_elements"}],
+            "criteria_status": [],
+            "lab_apps": {"Calculadora": {}},
+            "last_cycle": {},
+        }
+    )
+    assert "Teams: slow list_elements" in msg
+
+
 def test_continue_message_includes_narration_hint():
     mod = _load_hook()
     msg = mod.build_continue_message(

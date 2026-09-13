@@ -88,6 +88,10 @@ class TestFindElementsBackendOrder:
             "name": "Siete",
             "role": "Button",
             "automation_id": "num7Button",
+            "x": 100,
+            "y": 100,
+            "width": 50,
+            "height": 30,
         }
         call_order: list[str] = []
 

@@ -23,9 +23,15 @@ export type TreeObject = {
   parent_key: string;
 };
 
+export type RepoSearchMeta = {
+  matched_in: string;
+  snippet: string;
+};
+
 export type RepoObject = {
   repo_path: string;
   logical_name?: string;
+  automation_id?: string;
   class: string;
   parent: string;
   identification: {
@@ -37,6 +43,9 @@ export type RepoObject = {
   full_properties?: Record<string, unknown>;
   last_resolution?: Record<string, unknown>;
   snapshots?: { latest?: { images?: Record<string, string>; captured_at?: string } };
+  agent_hints?: string;
+  _app_name?: string;
+  _search?: RepoSearchMeta;
 };
 
 async function get<T>(path: string): Promise<T> {
@@ -203,4 +212,59 @@ export async function consolidateRepos(): Promise<ConsolidateResult> {
   const res = await fetch(`${API}/api/consolidate`, { method: "POST" });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
+}
+
+export type FrameworkCatalogData = {
+  schema_version: number;
+  source_uia_map: string;
+  frameworks: {
+    id: string;
+    label: string;
+    uia_support: string;
+    hints: string[];
+    uses_swf_repo: boolean;
+  }[];
+  swf_classes: {
+    swf_class: string;
+    uia_role: string;
+    mandatory: string[];
+    assistive: string[];
+    smart: string[];
+    methods: {
+      name: string;
+      mcp_tools: string[];
+      summary: string;
+    }[];
+  }[];
+  uia_controls: {
+    role: string;
+    patterns_ms: {
+      must?: string[];
+      conditional?: string[];
+      not?: string[];
+    };
+    read_tools: string[];
+    act_bindings: {
+      id: string;
+      tools: string[];
+      patterns: string[];
+      steps: string[];
+    }[];
+    fallback_tools: string[];
+  }[];
+  repo_method_reference: Record<string, { mcp_tools: string[]; summary: string }>;
+  stored?: {
+    by_framework: Record<string, Record<string, number>>;
+    apps: {
+      app_id: string;
+      app_name: string;
+      framework: string;
+      object_count: number;
+      by_class: Record<string, number>;
+    }[];
+  };
+};
+
+export async function fetchCatalog(): Promise<FrameworkCatalogData> {
+  return get<FrameworkCatalogData>("/api/catalog");
 }

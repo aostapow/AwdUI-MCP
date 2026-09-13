@@ -9,21 +9,25 @@ from detection.object_repository import load_repo, upsert_object
 from detection.winforms_map import build_identification, infer_swf_class
 from detection.app_identity import repository_app_name, title_app_name
 
-# Host / IDE / shell apps — never auto-captured (explicit repo_capture still allowed).
-HOST_REPO_BLOCKLIST = frozenset({
-    "applicationframehost.exe",
-    "chrome.exe",
-    "claude.exe",
+# Auto-capture exclusions only (explicit ``repo_capture`` is always allowed).
+#
+# Default: every app under ``set_target_window`` persists on successful interaction.
+# Excluded executables are agent hosts, IDEs, and OS input chrome — never automation targets.
+#
+# | exe | Reason |
+# |-----|--------|
+# | cursor.exe, code.exe, devenv.exe | IDE / agent host |
+# | node.exe, python.exe | MCP / script runtime |
+# | cmd.exe, powershell.exe, wt.exe, windowsterminal.exe | Shells |
+# | microsoft.cmdpal.ui.exe, powertoys.quickaccess.exe | OS launcher overlays |
+# | textinputhost.exe | Windows touch keyboard |
+AUTO_REPO_EXCLUDED_EXECUTABLES = frozenset({
     "cmd.exe",
     "code.exe",
     "cursor.exe",
     "devenv.exe",
-    "explorer.exe",
-    "firefox.exe",
     "microsoft.cmdpal.ui.exe",
-    "msedge.exe",
     "node.exe",
-    "outlook.exe",
     "powershell.exe",
     "powertoys.quickaccess.exe",
     "python.exe",
@@ -31,6 +35,9 @@ HOST_REPO_BLOCKLIST = frozenset({
     "windowsterminal.exe",
     "wt.exe",
 })
+
+# Back-compat alias (tests / older docs).
+HOST_REPO_BLOCKLIST = AUTO_REPO_EXCLUDED_EXECUTABLES
 
 
 def _env_auto_repo_without_target() -> bool:
@@ -45,7 +52,7 @@ def _normalize_exe_base(name: str) -> str:
 
 
 def is_blocked_repo_app(app_name: str, exe_path: str = "") -> bool:
-    """True for host/IDE/browser apps that must not pollute the repository."""
+    """True only for AUTO_REPO_EXCLUDED_EXECUTABLES (see module doc above)."""
     for candidate in (app_name, exe_path):
         base = _normalize_exe_base(candidate)
         if base and base in HOST_REPO_BLOCKLIST:
@@ -91,6 +98,9 @@ def should_auto_remember(
     except Exception:
         target = None
     if target:
+        # Actions scoped via set_target_window often pass window_title=None; target gate is enough.
+        if not (window_title or "").strip():
+            return True
         return _window_matches_target(window_title, target)
     return _env_auto_repo_without_target()
 
@@ -120,6 +130,35 @@ def auto_repo_path(window_title: Optional[str], elem: dict) -> str:
     return f"{_window_key(window_title)}/{_object_key(elem)}"
 
 
+def remember_successful_act(
+    result: dict,
+    *,
+    window_title: Optional[str] = None,
+    repo_path: Optional[str] = None,
+    backend: str = "uia",
+) -> Optional[str]:
+    """Upsert the acted element after a successful click/invoke/expand (idempotent upsert)."""
+    if not result.get("success"):
+        return None
+    elem = result.get("element")
+    if not elem or not isinstance(elem, dict):
+        return None
+    if not (window_title or "").strip():
+        try:
+            from tools.target_window import get_target
+
+            window_title = get_target()
+        except Exception:
+            pass
+    return maybe_remember_element(
+        elem,
+        window_title=window_title,
+        repo_path=repo_path or result.get("repo_path"),
+        backend=result.get("backend_used") or backend,
+        remember=True,
+    )
+
+
 def maybe_remember_element(
     elem: dict,
     *,
@@ -132,17 +171,19 @@ def maybe_remember_element(
     """Upsert *elem* into the repo. Returns the repo_path used, or None."""
     if not remember or not elem:
         return None
+    app_guess = title_app_name(window_title) or "unknown"
+    if not should_auto_remember(window_title, app_guess, "", force=force):
+        return None
     try:
         from tools.framework_detect import do_detect_framework
         fw = do_detect_framework(window_title)
         app_name, exe_path = repository_app_name(fw, window_title)
         fw_label = fw.get("framework", "unknown")
     except Exception:
-        app_name = title_app_name(window_title) or "unknown"
+        app_name = app_guess
         exe_path = ""
         fw_label = "unknown"
-
-    if not should_auto_remember(window_title, app_name, exe_path, force=force):
+    if is_blocked_repo_app(app_name, exe_path):
         return None
 
     path = repo_path or auto_repo_path(window_title, elem)
@@ -164,11 +205,14 @@ def maybe_remember_element(
         pass
     snapshots = None
     try:
-        from detection.object_snapshot import capture_element_crop
+        from tools.perf import remember_snapshots
 
-        snapshots = capture_element_crop(
-            normalized, repo_path=path, app_id=repo["app_id"], window_title=window_title
-        )
+        if remember_snapshots():
+            from detection.object_snapshot import capture_element_crop
+
+            snapshots = capture_element_crop(
+                normalized, repo_path=path, app_id=repo["app_id"], window_title=window_title
+            )
     except Exception:
         pass
     upsert_object(

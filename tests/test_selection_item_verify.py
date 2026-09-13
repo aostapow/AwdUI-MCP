@@ -298,3 +298,74 @@ class TestFinishActionSelectionVerify:
         sel_mock.assert_called_once()
         assert out["verified"] is True
         assert out["verify_method"] == "WindowTitle.contact"
+
+
+class TestButtonSkipsSelectionVerify:
+    def test_invoke_button_selectionitem_pattern_no_verify_poll(self):
+        from tools.action_timing import ActionTimer
+        from tools.ui_automation import _finish_action_with_verify
+
+        timer = ActionTimer()
+        with mock.patch(
+            "tools.action_timing.run_selection_item_verify",
+        ) as sel_mock, mock.patch(
+            "tools.action_timing.run_post_act_verify",
+            return_value={"verified": None, "verify_ms": 0},
+        ) as post_mock:
+            out = _finish_action_with_verify(
+                timer,
+                {
+                    "success": True,
+                    "method": "SelectionItemPattern",
+                    "element": {
+                        "automation_id": "num2Button",
+                        "name": "Dos",
+                        "role": "Button",
+                    },
+                },
+                window_title="Calculadora",
+                verify_automation_id=None,
+                verify_name_contains=None,
+                acted_automation_id="num2Button",
+            )
+        sel_mock.assert_not_called()
+        post_mock.assert_not_called()
+        assert out.get("verified") is None
+
+
+class TestVerifyNameContainsListItem:
+    def test_listitem_verify_name_uses_header_contains(self):
+        from tools.action_timing import ActionTimer
+        from tools.ui_automation import _finish_action_with_verify
+
+        timer = ActionTimer()
+        with mock.patch(
+            "tools.action_timing.run_selection_item_verify",
+            return_value={
+                "verified": True,
+                "verify_ms": 48,
+                "verify_method": "Header.contains",
+                "verify_name": "Modo Científica",
+            },
+        ) as sel_mock:
+            out = _finish_action_with_verify(
+                timer,
+                {
+                    "success": True,
+                    "method": "InvokePattern",
+                    "element": {
+                        "automation_id": "Scientific",
+                        "name": "Científica Calculadora",
+                        "role": "ListItem",
+                    },
+                    "pre_header_name": "Estándar",
+                },
+                window_title="Calculadora",
+                verify_automation_id=None,
+                verify_name_contains="Científica",
+                acted_automation_id="Scientific",
+            )
+        sel_mock.assert_called_once()
+        assert sel_mock.call_args.kwargs.get("extra_needles") == ["Científica"]
+        assert out["verified"] is True
+        assert out["verify_method"] == "Header.contains"

@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-13T01:59:37.602300+00:00",
+  "run_id": "calculadora-2026-09-12",
+  "app_name": "Calculadora",
+  "framework": "uwp",
+  "catalog_ref": "lab-apps/mcp-capability-catalog.json",
+  "catalog_generated_at": "2026-09-08T01:43:46.610834+00:00",
+  "usage": {
+    "framework": "uwp",
+    "mcp_tools": {
+      "universe_total": 113,
+      "used_total": 0,
+      "coverage_pct": 0.0,
+      "used": [],
+      "unused": [
+        "act_on_control",
+        "annotate_screenshot",
+        "apply_probe_tool",
+        "ascii_ui_view",
+        "attach_to_app",
+        "attach_to_pid",
+        "batch_actions",
+        "build_detection_context",
+        "check_java_bridge",
+        "check_session_status",
+        "check_version",
+        "clear_highlight",
+        "click",
+        "click_element",
+        "click_element_hwnd",
+        "click_text",
+        "clipboard",
+        "close_app",
+        "compare_screenshot_files",
+        "configure_uac",
+        "detect_framework",
+        "detect_visual_regions",
+        "detection_health",
+        "discover_control_interaction",
+        "discover_target_tool",
+        "double_click_element",
+        "drag",
+        "drag_element",
+        "element_at_point",
+        "element_exists",
+        "expand_collapse_element",
+        "expand_element",
+        "fill_form",
+        "find_all_elements",
+        "find_by_template_tool",
+        "find_element",
+        "find_elements",
+        "find_elements_fuzzy",
+        "find_item_by_property",
+        "find_text",
+        "focus_window",
+        "get_all_values",
+        "get_element_bounds",
+        "get_element_properties",
+        "get_event_log",
+        "get_focused_element",
+        "get_grid_item",
+        "get_mouse_position",
+        "get_notifications",
+        "get_screen_size",
+        "get_server_info",
+        "get_snapshot",
+        "get_snapshot_hwnd",
+        "get_target_window",
+        "get_tree_hash",
+        "highlight_element",
+        "hover",
+        "invalidate_cache",
+        "invoke_element",
+        "launch_app",
+        "list_apps",
+        "list_control_items",
+        "list_desktop_windows",
+        "list_elements",
+        "list_windows",
+        "manage_screenshots",
+        "observe_ui_tool",
+        "plan_probes_tool",
+        "press_key",
+        "press_key_combo",
+        "read_element",
+        "read_element_by_index",
+        "read_table",
+        "realize_virtualized_item",
+        "release_all",
+        "release_keyboard",
+        "repo_action",
+        "repo_capture",
+        "repo_find",
+        "repo_hints",
+        "repo_hints_set",
+        "repo_list",
+        "restore_window",
+        "right_click_element",
+        "screenshot",
+        "screenshot_baseline",
+        "screenshot_diff",
+        "scroll",
+        "scroll_element",
+        "scroll_into_view",
+        "select_control_item",
+        "select_option",
+        "send_keys",
+        "set_element_value",
+        "set_target_window",
+        "set_value_hwnd",
+        "smart_find",
+        "spy_inspect",
+        "spy_tree",
+        "spy_walk_visible_tool",
+        "start_event_monitor",
+        "start_watcher",
+        "stop_event_monitor",
+        "stop_watcher",
+        "take_screenshot_optimized",
+        "type_into_element",
+        "type_text",
+        "ui_fingerprint",
+        "virtual_desktop",
+        "wait_for_change",
+        "wait_for_condition",
+        "wait_for_element",
+        "wait_for_input_idle"
+      ],
+      "counts": {},
+      "outcomes_by_tool": {}
+    },
+    "uia_controls": {
+      "universe_total": 41,
+      "seen_in_lab_total": 0,
+      "interacted_total": 0,
+      "seen_coverage_pct": 0.0,
+      "interaction_coverage_pct": 0.0,
+      "seen": [],
+      "interacted": [],
+      "seen_not_interacted": [],
+      "never_seen": [
+        "AppBar",
+        "Button",
+        "Calendar",
+        "CheckBox",
+        "ComboBox",
+        "Custom",
+        "DataGrid",
+        "DataItem",
+        "Document",
+        "Edit",
+        "Group",
+        "Header",
+        "HeaderItem",
+        "Hyperlink",
+        "Image",
+        "List",
+        "ListItem",
+        "Menu",
+        "MenuBar",
+        "MenuItem",
+        "Pane",
+        "ProgressBar",
+        "RadioButton",
+        "ScrollBar",
+        "SemanticZoom",
+        "Separator",
+        "Slider",
+        "Spinner",
+        "SplitButton",
+        "StatusBar",
+        "Tab",
+        "TabItem",
+        "Table",
+        "Text",
+        "Thumb",
+        "TitleBar",
+        "ToolBar",
+        "ToolTip",
+        "Tree",
+        "TreeItem",
+        "Window"
+      ]
+    },
+    "uia_patterns": {
+      "universe_total": 18,
+      "used_total": 0,
+      "coverage_pct": 0.0,
+      "used": [],
+      "unused": [
+        "Dock",
+        "ExpandCollapse",
+        "Grid",
+        "GridItem",
+        "Invoke",
+        "MultipleView",
+        "RangeValue",
+        "Scroll",
+        "ScrollItem",
+        "Selection",
+        "SelectionItem",
+        "Table",
+        "TableItem",
+        "Text",
+        "Toggle",
+        "Transform",
+        "Value",
+        "Window"
+      ]
+    },
+    "act_methods": {
+      "universe_total": 27,
+      "used_total": 0,
+      "coverage_pct": 0.0,
+      "used": [],
+      "unused": [
+        "map_appbar_expand",
+        "map_appbar_toggle",
+        "map_children",
+        "map_combo_list",
+        "map_combo_value",
+        "map_custom_inspect",
+        "map_drag",
+        "map_expand",
+        "map_grid",
+        "map_grid_select",
+        "map_invoke",
+        "map_list_select",
+        "map_menu_children",
+        "map_menubar",
+        "map_range",
+        "map_scroll",
+        "map_selection",
+        "map_semzoom_toggle",
+        "map_split",
+        "map_status_read",
+        "map_tab_items",
+        "map_text",
+        "map_toggle",
+        "map_toolbar",
+        "map_tree_items",
+        "map_value",
+        "map_window_scope"
+      ]
+    },
+    "act_bindings": {
+      "universe_total": 75,
+      "used_total": 0,
+      "coverage_pct": 0.0,
+      "unused_sample": [
+        {
+          "control": "AppBar",
+          "act_method": "map_appbar_expand",
+          "tool": "expand_element"
+        },
+        {
+          "control": "AppBar",
+          "act_method": "map_appbar_toggle",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_expand",
+          "tool": "expand_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_invoke",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_toggle",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_value",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_grid_select",
+          "tool": "click_element"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_grid_select",
+          "tool": "list_control_items"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_grid_select",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_scroll",
+          "tool": "scroll"
+        },
+        {
+          "control": "CheckBox",
+          "act_method": "map_toggle",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_list",
+          "tool": "expand_element"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_list",
+          "tool": "list_control_items"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_list",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_value",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Custom",
+          "act_method": "map_custom_inspect",
+          "tool": "discover_control_interaction"
+        },
+        {
+          "control": "Custom",
+          "act_method": "map_custom_inspect",
+          "tool": "spy_inspect"
+        },
+        {
+          "control": "DataGrid",
+          "act_method": "map_grid",
+          "tool": "list_control_items"
+        },
+        {
+          "control": "DataGrid",
+          "act_method": "map_grid",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "DataGrid",
+          "act_method": "map_scroll",
+          "tool": "scroll"
+        },
+        {
+          "control": "DataItem",
+          "act_method": "map_selection",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "DataItem",
+          "act_method": "map_selection",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "Document",
+          "act_method": "map_text",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Edit",
+          "act_method": "map_text",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Edit",
+          "act_method": "map_value",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Group",
+          "act_method": "map_children",
+          "tool": "discover_control_interaction"
+        },
+        {
+          "control": "Group",
+          "act_method": "map_children",
+          "tool": "list_elements"
+        },
+        {
+          "control": "Group",
+          "act_method": "map_expand",
+          "tool": "expand_element"
+        },
+        {
+          "control": "HeaderItem",
+          "act_method": "map_invoke",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Hyperlink",
+          "act_method": "map_invoke",
+          "tool": "invoke_element"
+        }
+      ],
+      "unused_total": 75
+    },
+    "invocation_count": 0
+  },
+  "flows": {},
+  "improvements": {
+    "total": 0,
+    "by_kind": {},
+    "items": []
+  }
+}

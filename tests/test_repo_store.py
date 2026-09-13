@@ -77,6 +77,29 @@ class TestRepoStore:
         hits = repo_db.search_objects("btnSave")
         assert len(hits) == 1
         assert hits[0]["repo_path"] == "frm/btnSave"
+        assert hits[0].get("_search", {}).get("matched_in")
+
+    def test_search_identification_and_hints(self, repo_db):
+        repo_db.upsert(
+            "Calc.exe",
+            "",
+            "win/num6",
+            obj_class="SwfButton",
+            identification={
+                "mandatory": {"automation_id": "num6Button"},
+                "assistive": {"role": "Button"},
+                "smart": {},
+                "ordinal": {},
+            },
+            agent_hints="verify_automation_id: display",
+            full_properties={"name": "Seis", "role": "Button"},
+        )
+        assert len(repo_db.search_objects("verify_automation_id")) == 1
+        assert len(repo_db.search_objects("Seis")) == 1
+        assert len(repo_db.search_objects("assistive")) == 0
+        hits = repo_db.search_objects("Calc.exe")
+        assert len(hits) == 1
+        assert hits[0]["_app_name"] == "Calc.exe"
 
     def test_json_migration(self, repo_db, tmp_path):
         legacy = tmp_path / "legacy_json"

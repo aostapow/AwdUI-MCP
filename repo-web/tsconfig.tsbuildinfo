@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/apppanel.tsx","./src/api.ts","./src/main.tsx","./src/vite-env.d.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/apppanel.tsx","./src/frameworkcatalog.tsx","./src/helppanel.tsx","./src/searchhighlight.tsx","./src/api.ts","./src/catalogsearch.ts","./src/helpcontent.ts","./src/helpsearch.ts","./src/main.tsx","./src/searchutils.ts","./src/vite-env.d.ts"],"version":"5.9.3"}

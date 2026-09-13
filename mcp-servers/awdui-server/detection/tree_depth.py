@@ -17,20 +17,30 @@ FINGERPRINT_MAX_DEPTH = 3
 UNLIMITED_DEPTH = 9999
 
 # Auto depth when max_depth=0 (framework detected via detect_framework).
-FRAMEWORK_AUTO_DEPTH: dict[str, int] = {
-    "uwp": 32,
-    "winui": 32,
-    "wpf": 24,
-    "winforms": 16,
-    "qt": 20,
-    "electron": 28,
-    "chromium_browser": 28,
-    "java_swing": 24,
-    "java_fx": 20,
-    "win32": 12,
-    "gtk": 10,
-    "unknown": 20,
-}
+# Source of truth: detection.frameworks.registry (FrameworkProfile.auto_list_depth).
+def _load_framework_auto_depth() -> dict[str, int]:
+    try:
+        from detection.frameworks.registry import framework_auto_depth_map
+
+        return framework_auto_depth_map()
+    except Exception:
+        return {
+            "uwp": 32,
+            "winui": 32,
+            "wpf": 24,
+            "winforms": 16,
+            "qt": 20,
+            "electron": 28,
+            "chromium_browser": 28,
+            "java_swing": 24,
+            "java_fx": 20,
+            "win32": 12,
+            "gtk": 10,
+            "unknown": 20,
+        }
+
+
+FRAMEWORK_AUTO_DEPTH: dict[str, int] = _load_framework_auto_depth()
 DEFAULT_AUTO_DEPTH = 20
 
 _MENU_ROLES = frozenset({"menuitem", "menu", "menubar"})
@@ -47,8 +57,13 @@ _FW_CACHE_TTL = 30.0
 
 def framework_auto_depth(framework: Optional[str]) -> int:
     """Depth cap for max_depth=0 from detected UI framework."""
-    key = (framework or "unknown").strip().lower()
-    return FRAMEWORK_AUTO_DEPTH.get(key, DEFAULT_AUTO_DEPTH)
+    try:
+        from detection.frameworks.registry import get_profile
+
+        return get_profile(framework).auto_list_depth
+    except Exception:
+        key = (framework or "unknown").strip().lower()
+        return FRAMEWORK_AUTO_DEPTH.get(key, DEFAULT_AUTO_DEPTH)
 
 
 def _detect_framework(window_title: Optional[str]) -> str:

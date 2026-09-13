@@ -20,6 +20,29 @@ Features:
 - Inspector: full properties, QTP identification tiers (mandatory/assistive/smart)
 - Agent hints editor (operational notes for the AI agent)
 - Search by name, automation_id, repo_path
+- **Catálogo MCP** — frameworks, controles UIA, métodos Swf* y resumen de objetos guardados (pestaña «Catálogo MCP» o `GET /api/catalog`)
+- **Ayuda** — guía integrada: uso del repo, niveles UIA, tools MCP, mantenimiento (pestaña «Ayuda» en Repo Studio)
+
+## Catálogo MCP (frameworks → objetos → métodos)
+
+En Repo Studio, pestaña **Catálogo MCP**:
+
+| Sección | Contenido |
+|---------|-----------|
+| **Frameworks** | UWP, WinForms, WPF, Electron, … con nivel UIA y hints de `detect_framework` |
+| **Objetos Swf*** | Clases del repo (`SwfButton`, `SwfComboBox`, …) y métodos `repo_action` (Click, Set, Select, …) |
+| **Controles UIA** | 40 tipos UIA — patterns Microsoft, tools de lectura y bindings de actuación (`invoke_element`, `select_control_item`, …) |
+| **Tu repositorio** | Conteo de objetos capturados por framework y clase Swf |
+
+API (misma data que la UI):
+
+```http
+GET http://127.0.0.1:8765/api/catalog
+```
+
+Fuente machine-readable: `mcp-servers/awdui-server/detection/data/uia_control_map.json` + `winforms_map.py`.
+
+Documentación extendida: `.cursor/skills/awdui-mcp-automejora/references/patterns/control-catalog.md`
 
 ## Naming
 
@@ -45,14 +68,27 @@ WinForms and UIA controls use QTP-style classes (`SwfButton`, `SwfEdit`, …) wi
 
 ## Auto-capture
 
-Auto-capture runs on successful `find_element`, `click_element`, or `smart_find` when `remember=true` (default), **but only if**:
+**Policy:** every automation target app persists controls on successful interaction when `set_target_window` matches the window (Calculator, Explorer, Teams, Edge, Notepad, etc.).
 
-1. **`set_target_window` is set** and the interaction's window matches that target (e.g. target `Calculadora` → only Calculator controls are stored).
-2. The app is **not** on the host blocklist (Cursor, Chrome, Outlook, Claude, PowerToys, shells, etc.).
+Auto-capture runs on successful `find_element` (`remember=true` default), and after successful **`click_element`**, **`invoke_element`**, and **`expand_element`** acts (upsert / update `last_resolution`). **`smart_find`** uses the same gate.
 
-Without an active target, nothing is auto-captured unless `AWDUI_AUTO_REPO=1` (legacy/dev).
+**Gates:**
 
-**Explicit capture** via `repo_capture` is always allowed.
+1. **`set_target_window` is set** and the control's window title matches that target (substring match on title head).
+2. Process is **not** in the exclusion list below.
+3. Without an active target, nothing is auto-captured unless `AWDUI_AUTO_REPO=1` (legacy/dev).
+
+**Excluded executables** (auto-capture only; `repo_capture` always allowed):
+
+| Executable | Reason |
+|------------|--------|
+| `cursor.exe`, `code.exe`, `devenv.exe` | IDE / agent host |
+| `node.exe`, `python.exe` | MCP / script runtime |
+| `cmd.exe`, `powershell.exe`, `wt.exe`, `windowsterminal.exe` | Shells |
+| `microsoft.cmdpal.ui.exe`, `powertoys.quickaccess.exe` | OS launcher overlays |
+| `textinputhost.exe` | Windows touch keyboard |
+
+**Explicit capture** via `repo_capture` is always allowed (any app).
 
 Each allowed capture saves:
 - Full detectable properties

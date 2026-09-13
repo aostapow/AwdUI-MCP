@@ -30,11 +30,31 @@ class TestAutoRepo:
         monkeypatch.setattr("tools.target_window.get_target", lambda: "Calculadora")
         assert should_auto_remember("Calculadora", "CalculatorApp.exe") is True
 
+    def test_should_auto_remember_target_set_empty_window_title(self, monkeypatch):
+        from detection.auto_repo import should_auto_remember
+
+        monkeypatch.setattr("tools.target_window.get_target", lambda: "Calculadora")
+        assert should_auto_remember(None, "CalculatorApp.exe") is True
+        assert should_auto_remember("", "CalculatorApp.exe") is True
+
     def test_blocked_host_app(self, monkeypatch):
         from detection.auto_repo import should_auto_remember
 
         monkeypatch.setattr("tools.target_window.get_target", lambda: "Cursor")
         assert should_auto_remember("Cursor", "Cursor.exe", r"C:\cursor\Cursor.exe") is False
+
+    def test_explorer_allowed_with_matching_target(self, monkeypatch):
+        from detection.auto_repo import should_auto_remember
+
+        monkeypatch.setattr(
+            "tools.target_window.get_target",
+            lambda: "awdui-lab-escritorio-2026-09-10",
+        )
+        assert should_auto_remember(
+            "awdui-lab-escritorio-2026-09-10",
+            "explorer.exe",
+            r"C:\Windows\explorer.exe",
+        ) is True
 
     def test_maybe_remember_element(self, tmp_path, monkeypatch):
         from detection import object_repository as repo_mod

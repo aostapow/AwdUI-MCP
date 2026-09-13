@@ -423,6 +423,7 @@ def run_selection_item_verify(
     pre_window_title: Optional[str] = None,
     timeout_ms: int = 2500,
     poll_ms: int = 100,
+    extra_needles: Optional[list[str]] = None,
 ) -> dict[str, Any]:
     """Verify SelectionItem without waiting for offscreen Nav ListItem nodes."""
     from tools.wait_tools import _norm_text, _read_properties
@@ -436,6 +437,10 @@ def run_selection_item_verify(
     pre_header = _norm_text(pre_header_name)
     pre_wt = (pre_window_title or "").strip()
     needles = _contact_needles_from_acted_name(acted_name)
+    for extra in extra_needles or []:
+        extra = (extra or "").strip()
+        if extra and extra not in needles:
+            needles.append(extra)
     deadline = t0 + max(timeout_ms, poll_ms) / 1000.0
     interval = max(poll_ms, 50) / 1000.0
 
@@ -481,6 +486,20 @@ def run_selection_item_verify(
     check_header = role in ("listitem", "treeitem", "tabitem", "dataitem") or (
         not role and aid.lower().endswith("item")
     )
+
+    if check_header and needles:
+        header_props = _read_properties(automation_id="Header", window_title=window_title)
+        if header_props:
+            header_name = _norm_text(header_props.get("name"))
+            for needle in needles:
+                if needle.lower() in header_name.lower():
+                    return {
+                        "verified": True,
+                        "verify_ms": int((time.perf_counter() - t0) * 1000),
+                        "verify_method": "Header.contains",
+                        "verify_name": header_props.get("name", ""),
+                        "contact_needle": needle,
+                    }
 
     while time.perf_counter() < deadline:
         if check_header and needles:

@@ -2,6 +2,9 @@
 
 > El repo SQLite (`~/.awdui-mcp/repository.db`) **no pierde** el esfuerzo de entender un control.
 > Complementa `element-map.md` (corrida) y skills de producto (IDs estables).
+>
+> **Política:** con `set_target_window` activo, el MCP **upsert** en cada act exitoso (`find`/`click`/`invoke`/`expand`).
+> Solo se excluyen ejecutables host (Cursor, Python, shells, etc.) — ver `docs/OBJECT_REPOSITORY.md`.
 
 ## Tres capas de mapa (no competir)
 

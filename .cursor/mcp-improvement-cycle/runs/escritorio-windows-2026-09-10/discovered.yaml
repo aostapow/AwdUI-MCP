@@ -1,0 +1,39 @@
+# Autodetect — Escritorio de Windows (lab 2026-09-10)
+app_name: Escritorio de Windows
+locale: es-AR
+safety_policy:
+  - "Sin borrar, mover ni modificar archivos/iconos del usuario."
+  - "Artefactos de prueba solo bajo TEMP/awdui-lab-escritorio-2026-09-10."
+  - "Sin Papelera, sin cinta Archivo/Eliminar, sin cambios de configuración del sistema."
+
+lab_folder: "C:\\Users\\ARIEL~1.OST\\AppData\\Local\\Temp\\awdui-lab-escritorio-2026-09-10"
+lab_probe_file: awdui_probe_readonly.txt
+
+shell:
+  desktop:
+    title: Program Manager
+    hwnd: 66028
+    class: Progman
+    process: explorer.exe
+    framework: win32
+    listitem_count_sample: 63
+    notes: "Iconos de escritorio expuestos como ListItem id=ListViewItem-*"
+
+  explorer_este_equipo:
+    title: Este equipo
+    hwnd: 2493492
+    class: CabinetWClass
+    process: explorer.exe
+    framework: win32
+    uia_support: partial
+    key_controls:
+      - { role: Tree, id: 100, name: "Vista en árbol" }
+      - { role: ToolBar, id: 1001, name: "Dirección: Este equipo" }
+      - { role: Edit, id: SearchEditBox, name: "Cuadro de búsqueda" }
+      - { role: List, name: "Vista Elementos" }
+      - { role: Pane, id: listview, name: "Vista de carpetas Shell" }
+
+friction:
+  - "list_elements Explorer depth=6 ~15s SLOW"
+  - "list_elements desktop ListItem depth=4 ~6.3s SLOW"
+  - "detection_health element count -1 (Explorer scope)"

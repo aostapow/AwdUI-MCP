@@ -18,13 +18,13 @@ from pathlib import Path
 p = Path('.cursor/mcp-improvement-cycle/state.json')
 if not p.is_file():
     raise SystemExit(0)
-s = json.loads(p.read_text(encoding='utf-8'))
+s = json.loads(p.read_text(encoding='utf-8-sig'))
 ctrl = s.setdefault('cycle_control', {})
 ctrl['paused'] = False
 ctrl['resumed_at'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 if s.get('status') == 'paused':
     s['status'] = 'running'
-p.write_text(json.dumps(s, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+p.write_text(json.dumps(s, indent=2, ensure_ascii=False) + '\n', encoding='utf-8-sig')
 "@
 } finally {
     Pop-Location

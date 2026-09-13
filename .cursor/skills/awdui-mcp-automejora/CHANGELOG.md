@@ -1,5 +1,80 @@
 # Changelog — awdui-mcp-automejora
 
+## 2.7.0 — 2026-09-11
+
+### Añadido
+- Cola canónica por app: `scripts/app_backlog_lib.py`, `init_or_resume_app_backlog.py`, `render_app_backlog.py`
+- Patrón operativo [references/patterns/app-backlog.md](references/patterns/app-backlog.md)
+- `SKILL.md` §4.5 Cola por aplicación (comandos, ciclo de turno, anti-patrones)
+- Tests `tests/test_app_backlog_lib.py`
+
+### Corregido
+- Orden de cola: `priority: 0` en hygiene (no confundir con falsy en `or 99`)
+
+### Cambiado
+- `evaluacion-lab.md` — inicio de corrida vía backlog; `flows.json` como espejo perfect gate
+- `check_mcp_objective.py` — prioriza `backlog_hint_for_state` y pregunta por `progress.complete`
+- `state.json`: campos `active_app_slug`, `backlog_ref`, `lab_apps.*.backlog_progress`
+
+## 2.6.0 — 2026-09-11
+
+### Añadido
+- Manifest `matrices/detection_baseline.json` + `lab-apps/detection-baseline.schema.json`
+- `scripts/detection_baseline_lib.py`, `scripts/merge_detection_baseline.py`
+- Regeneración automática del baseline en `incremental_lab_coverage`
+- Hint advisory de baseline en `fix_in_cycle_gate` (generic vs celda eficiente)
+- Tests `tests/test_detection_baseline_lib.py`
+
+### Cambiado
+- `mcp-usage.template.jsonl` incluye `framework`
+- `evaluacion-lab.md` — campos obligatorios timing/framework en usage
+
+## 2.5.0 — 2026-09-11
+
+### Añadido
+- `detection/frameworks/` — `FrameworkProfile`, registry, políticas por familia (UWP spy, backend order, depth)
+- Patrón `references/patterns/framework-profiles.md`
+- Gate `audit_fix_regression_scope` — `abstraction=generic` + núcleo compartido exige `regression_frameworks` ≥2
+- Tests `tests/test_framework_profiles.py`, `tests/test_fix_regression_gate.py`
+
+### Cambiado
+- `orchestrator`, `tree_depth`, ramas UWP/spy en `ui_automation` usan perfiles
+- `fix-in-cycle.md` + `last_cycle.fix_gate` (framework, abstraction, regression)
+
+## 2.4.0 — 2026-09-11
+
+### Añadido
+- Gate `scripts/fix_in_cycle_gate.py` — lab activo: bloquea auto-continue si `flow_id` tiene fricción estructural sin resolver
+- Hook `stop` antepone **FIX_IN_CYCLE BLOQUEADO** vía `check_mcp_objective.py`
+- `scripts/grandfather-fix-friction-debt.py` — marcar deuda histórica `legacy_debt` en `improvements.jsonl`
+- Tests `tests/test_fix_in_cycle_gate.py`
+
+### Cambiado
+- `last_cycle`: campos `flow_id`, `friction_logged`, `fix_gate`
+- `fix-in-cycle.md` § Gate automático; regla `awdui-mcp-objective-persistent.mdc`
+
+## 2.3.0 — 2026-09-08
+
+### Añadido
+- Patrón `references/patterns/mcp-value-filter.md` — omitir flujos discover/execute sin cobertura MCP nueva (objeto, patrón, tool o contexto no probado)
+
+### Cambiado
+- `evaluacion-lab.md`: sección valor MCP; checklist append `flows.json`; gate `perfect` acepta `cancelled` por `skip_mcp_value`
+- `SKILL.md` §1 y §5.2: discover/execute priorizan valor MCP, no volumen de flujos
+- Reglas `awdui-mission.mdc`, `lab-evaluacion.mdc` alineadas
+
+## 2.2.0 — 2026-09-08
+
+### Añadido
+- Patrón `references/patterns/fix-in-cycle.md` — detectar fricción → fix en servidor → re-VERIFY; 3 intentos; revert + `pending_manual`
+- `state.json` → `pending_manual_fixes[]`; `runs/{run}/pending-fixes.jsonl`
+- `improvements.jsonl`: kinds `fix_attempt`, `fix_applied`, `fix_reverted`; campos `attempt`, `timing_before_ms` / `timing_after_ms`
+- `evidence.jsonl`: bloque opcional `fix_cycle`
+
+### Cambiado
+- Protocolo lab execute: fricción slow/fail dispara fix_in_cycle antes de cerrar turno
+- Reglas `lab-evaluacion.mdc`, `awdui-mcp-objective-persistent.mdc` alineadas
+
 ## 2.1.0 — 2026-09-08
 
 ### Añadido

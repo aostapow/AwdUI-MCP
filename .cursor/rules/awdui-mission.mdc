@@ -11,7 +11,7 @@ Construir un MCP que automatice aplicaciones Windows **de forma programática** 
 
 Las tareas del usuario (ej. cargar horas en AST) y **apps de lab** que elijan para probar son **vehículos de aprendizaje**, no el entregable cuando hay fricción.
 
-**Lab:** cualquier app Windows usada solo para validar/mejorar el MCP. Cada control probado debe producir mejora MCP o gap documentado — nunca script batch sin agente.
+**Lab:** cualquier app Windows usada solo para validar/mejorar el MCP. Cada control probado debe producir mejora MCP o gap documentado — nunca script batch sin agente. **Flujos sin objeto/patrón/tool nuevo se omiten** (ver `patterns/mcp-value-filter.md`). **Fricción detectada:** arreglar en ciclo (fix → re-VERIFY, 3 intentos, revert si falla) — ver `patterns/fix-in-cycle.md`.
 
 ## Ante cualquier tarea de automatización
 
@@ -35,7 +35,7 @@ Las tareas del usuario (ej. cargar horas en AST) y **apps de lab** que elijan pa
 
 - Patrón en `.cursor/skills/awdui-mcp-automejora/references/patterns/` (ej. `active-window.md`)
 - Tool o mejora en código MCP + tests + `docs/MCP_TOOLS_REFERENCE.md`
-- Propuesta en `_MCP_IMPROVEMENT/` (advisor) con fricción y gap tipificado
+- Propuesta en `_MCP_IMPROVEMENT/` (advisor) con fricción y gap tipificado — o `pending_manual_fixes` si el fix en ciclo falló tras 3 intentos
 - Skill de producto actualizada solo con IDs/flujos **estables** de esa app
 
 ## Anti-patrones
@@ -45,6 +45,8 @@ Las tareas del usuario (ej. cargar horas en AST) y **apps de lab** que elijan pa
 - Abrir modales y seguir en el padre sin cerrar el sub-flujo
 - Escalar a coords/OCR sin agotar discovery y sin documentar por qué UIA no alcanza
 - Acción GUI sin narrar «Voy a» previa en chat (salvo `sin narrar` del usuario)
+- Documentar fricción en `improvements.jsonl` sin intentar fix en servidor (usar fix-in-cycle)
+- Ejecutar flujos lab redundantes solo para subir `met/total` sin cobertura MCP nueva
 
 ## Referencias
 

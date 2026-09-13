@@ -11,8 +11,29 @@ import {
   consolidateRepos,
 } from "./api";
 import AppPanel from "./AppPanel";
+import FrameworkCatalog from "./FrameworkCatalog";
+import HelpPanel from "./HelpPanel";
+import { SearchHighlight } from "./SearchHighlight";
+
+type View = "repo" | "catalog" | "help";
 
 const POLL_MS = 2500;
+const REPO_SEARCH_MS = 280;
+
+const MATCH_LABELS: Record<string, string> = {
+  repo_path: "ruta",
+  logical_name: "nombre",
+  automation_id: "automation_id",
+  class: "clase",
+  parent: "parent",
+  app: "app",
+  window: "ventana",
+  identification: "identificación",
+  properties: "propiedades",
+  agent_hints: "hints",
+  resolution: "resolución",
+  object: "objeto",
+};
 
 const JUNK_APPS = new Set([
   "foreground",
@@ -58,6 +79,7 @@ function tierKeys(obj: RepoObject | null): string[] {
 }
 
 export default function App() {
+  const [view, setView] = useState<View>("repo");
   const [apps, setApps] = useState<AppInfo[]>([]);
   const [trees, setTrees] = useState<Record<string, TreeData>>({});
   const [expandedWindows, setExpandedWindows] = useState<Set<string>>(new Set());
@@ -67,6 +89,9 @@ export default function App() {
   const [hints, setHints] = useState("");
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<RepoObject[]>([]);
+  const [searchStatus, setSearchStatus] = useState("");
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const [helpSearch, setHelpSearch] = useState("");
   const [status, setStatus] = useState("");
   const [dirty, setDirty] = useState(false);
   const [live, setLive] = useState(false);
@@ -189,13 +214,40 @@ export default function App() {
   };
 
   const onSearch = async () => {
-    if (!search.trim()) {
+    const q = search.trim();
+    if (!q) {
       setSearchResults([]);
+      setSearchStatus("");
       return;
     }
-    const data = await searchObjects(search.trim());
-    setSearchResults(data.results);
+    setSearchStatus("Buscando…");
+    try {
+      const data = await searchObjects(q);
+      setSearchResults(data.results);
+      setSearchStatus(
+        data.results.length === 0
+          ? "Sin coincidencias"
+          : `${data.results.length} resultado(s)`
+      );
+    } catch (e) {
+      setSearchStatus(String(e));
+      setSearchResults([]);
+    }
   };
+
+  useEffect(() => {
+    if (view !== "repo") return;
+    const q = search.trim();
+    if (!q) {
+      setSearchResults([]);
+      setSearchStatus("");
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      onSearch();
+    }, REPO_SEARCH_MS);
+    return () => window.clearTimeout(timer);
+  }, [search, view]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleTier = (
     tier: "mandatory" | "assistive" | "smart",
@@ -262,6 +314,31 @@ export default function App() {
           AwdUI Repo Studio
           <span className={`live-dot${live ? " live-dot--on" : ""}`} title="Actualización automática cada 2.5s" />
         </h1>
+        <nav className="view-nav">
+          <button
+            type="button"
+            className={view === "repo" ? "active" : ""}
+            onClick={() => setView("repo")}
+          >
+            Repositorio
+          </button>
+          <button
+            type="button"
+            className={view === "catalog" ? "active" : ""}
+            onClick={() => setView("catalog")}
+          >
+            Catálogo MCP
+          </button>
+          <button
+            type="button"
+            className={view === "help" ? "active" : ""}
+            onClick={() => setView("help")}
+          >
+            Ayuda
+          </button>
+        </nav>
+        {view === "repo" && (
+          <>
         {showOrganize && (
           <div className="sidebar-actions">
             <button
@@ -276,20 +353,37 @@ export default function App() {
         )}
         <input
           className="search"
-          placeholder="Buscar objeto..."
+          placeholder="Buscar ruta, id, propiedades, hints, app…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSearch()}
+          aria-label="Buscar en repositorio"
         />
+        {search.trim() && searchStatus && (
+          <p className="repo-search-status muted">{searchStatus}</p>
+        )}
         {searchResults.length > 0 && (
-          <div className="section">
+          <div className="repo-search-results section">
             {searchResults.map((r) => (
-              <div key={r.repo_path} className="tree-object">
+              <div key={r.repo_path} className="tree-object repo-search-item">
                 <button
+                  type="button"
                   className={selected === r.repo_path ? "active" : ""}
                   onClick={() => selectObject(r.repo_path)}
                 >
-                  {r.repo_path}
+                  <span className="repo-search-path">{r.repo_path}</span>
+                  <span className="repo-search-meta muted">
+                    {r._app_name || "app"} · {r.class}
+                    {r.automation_id ? ` · ${r.automation_id}` : ""}
+                  </span>
+                  {r._search?.snippet && (
+                    <span className="repo-search-snippet">
+                      <span className="repo-search-match-label">
+                        {MATCH_LABELS[r._search.matched_in] || r._search.matched_in}:
+                      </span>{" "}
+                      <SearchHighlight text={r._search.snippet} query={search} />
+                    </span>
+                  )}
                 </button>
               </div>
             ))}
@@ -362,9 +456,41 @@ export default function App() {
             </div>
           );
         })}
+          </>
+        )}
+        {view === "catalog" && (
+          <>
+            <input
+              className="search"
+              placeholder="Buscar framework, Swf*, UIA, tool MCP…"
+              value={catalogSearch}
+              onChange={(e) => setCatalogSearch(e.target.value)}
+            />
+            <p className="muted catalog-sidebar-hint">
+              Frameworks, controles UIA, métodos Swf* y objetos guardados en tu DB.
+            </p>
+          </>
+        )}
+        {view === "help" && (
+          <>
+            <input
+              className="search"
+              placeholder="Buscar en ayuda…"
+              value={helpSearch}
+              onChange={(e) => setHelpSearch(e.target.value)}
+            />
+            <p className="muted catalog-sidebar-hint">
+              Uso del repo, niveles UIA, tools MCP y enlaces a documentación.
+            </p>
+          </>
+        )}
       </aside>
       <main className="inspector">
-        {detail ? (
+        {view === "catalog" ? (
+          <FrameworkCatalog searchQuery={catalogSearch} />
+        ) : view === "help" ? (
+          <HelpPanel searchQuery={helpSearch} />
+        ) : detail ? (
           <>
             <h2>{selected}</h2>
             <p>

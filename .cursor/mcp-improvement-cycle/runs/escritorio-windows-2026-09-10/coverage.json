@@ -1,0 +1,1316 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-11T17:18:56.525591+00:00",
+  "run_id": "escritorio-windows-2026-09-10",
+  "app_name": "Escritorio de Windows",
+  "framework": "win32",
+  "catalog_ref": "lab-apps/mcp-capability-catalog.json",
+  "catalog_generated_at": "2026-09-08T01:43:46.610834+00:00",
+  "usage": {
+    "framework": "win32",
+    "mcp_tools": {
+      "universe_total": 113,
+      "used_total": 29,
+      "coverage_pct": 25.7,
+      "used": [
+        "ascii_ui_view",
+        "check_session_status",
+        "click",
+        "click_element",
+        "discover_control_interaction",
+        "element_at_point",
+        "element_exists",
+        "expand_collapse_element",
+        "expand_element",
+        "find_element",
+        "focus_window",
+        "get_element_bounds",
+        "get_focused_element",
+        "get_snapshot",
+        "invoke_element",
+        "launch_app",
+        "list_elements",
+        "list_windows",
+        "press_key",
+        "press_key_combo",
+        "read_element",
+        "repo_hints_set",
+        "screenshot",
+        "send_keys",
+        "set_target_window",
+        "spy_inspect",
+        "type_text",
+        "wait_for_condition",
+        "wait_for_element"
+      ],
+      "unused": [
+        "act_on_control",
+        "annotate_screenshot",
+        "apply_probe_tool",
+        "attach_to_app",
+        "attach_to_pid",
+        "batch_actions",
+        "build_detection_context",
+        "check_java_bridge",
+        "check_version",
+        "clear_highlight",
+        "click_element_hwnd",
+        "click_text",
+        "clipboard",
+        "close_app",
+        "compare_screenshot_files",
+        "configure_uac",
+        "detect_framework",
+        "detect_visual_regions",
+        "detection_health",
+        "discover_target_tool",
+        "double_click_element",
+        "drag",
+        "drag_element",
+        "fill_form",
+        "find_all_elements",
+        "find_by_template_tool",
+        "find_elements",
+        "find_elements_fuzzy",
+        "find_item_by_property",
+        "find_text",
+        "get_all_values",
+        "get_element_properties",
+        "get_event_log",
+        "get_grid_item",
+        "get_mouse_position",
+        "get_notifications",
+        "get_screen_size",
+        "get_server_info",
+        "get_snapshot_hwnd",
+        "get_target_window",
+        "get_tree_hash",
+        "highlight_element",
+        "hover",
+        "invalidate_cache",
+        "list_apps",
+        "list_control_items",
+        "list_desktop_windows",
+        "manage_screenshots",
+        "observe_ui_tool",
+        "plan_probes_tool",
+        "read_element_by_index",
+        "read_table",
+        "realize_virtualized_item",
+        "release_all",
+        "release_keyboard",
+        "repo_action",
+        "repo_capture",
+        "repo_find",
+        "repo_hints",
+        "repo_list",
+        "restore_window",
+        "right_click_element",
+        "screenshot_baseline",
+        "screenshot_diff",
+        "scroll",
+        "scroll_element",
+        "scroll_into_view",
+        "select_control_item",
+        "select_option",
+        "set_element_value",
+        "set_value_hwnd",
+        "smart_find",
+        "spy_tree",
+        "spy_walk_visible_tool",
+        "start_event_monitor",
+        "start_watcher",
+        "stop_event_monitor",
+        "stop_watcher",
+        "take_screenshot_optimized",
+        "type_into_element",
+        "ui_fingerprint",
+        "virtual_desktop",
+        "wait_for_change",
+        "wait_for_input_idle"
+      ],
+      "counts": {
+        "launch_app": 3,
+        "set_target_window": 80,
+        "send_keys": 3,
+        "type_text": 1,
+        "find_element": 124,
+        "screenshot": 55,
+        "list_elements": 43,
+        "check_session_status": 17,
+        "ascii_ui_view": 1,
+        "invoke_element": 94,
+        "press_key": 38,
+        "click_element": 35,
+        "get_focused_element": 3,
+        "list_windows": 5,
+        "focus_window": 9,
+        "press_key_combo": 4,
+        "repo_hints_set": 1,
+        "discover_control_interaction": 1,
+        "get_snapshot": 25,
+        "expand_element": 23,
+        "click": 13,
+        "element_at_point": 1,
+        "get_element_bounds": 2,
+        "read_element": 10,
+        "spy_inspect": 2,
+        "element_exists": 6,
+        "wait_for_element": 2,
+        "wait_for_condition": 7,
+        "expand_collapse_element": 3
+      },
+      "outcomes_by_tool": {
+        "launch_app": {
+          "ok": 2,
+          "partial": 1
+        },
+        "set_target_window": {
+          "ok": 79,
+          "fail": 1
+        },
+        "send_keys": {
+          "ok": 3
+        },
+        "type_text": {
+          "ok": 1
+        },
+        "find_element": {
+          "ok": 102,
+          "fail": 8,
+          "not_found": 9,
+          "slow": 4,
+          "ok_warn": 1
+        },
+        "screenshot": {
+          "ok": 54,
+          "dudoso": 1
+        },
+        "list_elements": {
+          "ok": 41,
+          "empty": 1,
+          "slow": 1
+        },
+        "check_session_status": {
+          "ok": 17
+        },
+        "ascii_ui_view": {
+          "ok": 1
+        },
+        "invoke_element": {
+          "partial": 1,
+          "ok": 79,
+          "fail": 4,
+          "warn": 5,
+          "slow": 4,
+          "ok_warn": 1
+        },
+        "press_key": {
+          "ok": 37,
+          "partial": 1
+        },
+        "click_element": {
+          "ok": 19,
+          "fail": 7,
+          "warn": 4,
+          "slow": 5
+        },
+        "get_focused_element": {
+          "ok": 3
+        },
+        "list_windows": {
+          "ok": 5
+        },
+        "focus_window": {
+          "ok": 9
+        },
+        "press_key_combo": {
+          "ok": 4
+        },
+        "repo_hints_set": {
+          "fail": 1
+        },
+        "discover_control_interaction": {
+          "ok": 1
+        },
+        "get_snapshot": {
+          "ok": 25
+        },
+        "expand_element": {
+          "warn": 1,
+          "ok": 19,
+          "slow": 2,
+          "fail": 1
+        },
+        "click": {
+          "ok": 13
+        },
+        "element_at_point": {
+          "ok": 1
+        },
+        "get_element_bounds": {
+          "ok": 2
+        },
+        "read_element": {
+          "ok": 10
+        },
+        "spy_inspect": {
+          "ok": 2
+        },
+        "element_exists": {
+          "ok": 4,
+          "fail": 2
+        },
+        "wait_for_element": {
+          "fail": 2
+        },
+        "wait_for_condition": {
+          "ok": 6,
+          "slow": 1
+        },
+        "expand_collapse_element": {
+          "ok": 2,
+          "fail": 1
+        }
+      }
+    },
+    "uia_controls": {
+      "universe_total": 41,
+      "seen_in_lab_total": 11,
+      "interacted_total": 0,
+      "seen_coverage_pct": 26.8,
+      "interaction_coverage_pct": 0.0,
+      "seen": [
+        "Button",
+        "CheckBox",
+        "Edit",
+        "Link",
+        "ListItem",
+        "MenuItem",
+        "RadioButton",
+        "SplitButton",
+        "TabItem",
+        "Tree",
+        "TreeItem"
+      ],
+      "interacted": [],
+      "seen_not_interacted": [
+        "Button",
+        "CheckBox",
+        "Edit",
+        "Link",
+        "ListItem",
+        "MenuItem",
+        "RadioButton",
+        "SplitButton",
+        "TabItem",
+        "Tree",
+        "TreeItem"
+      ],
+      "never_seen": [
+        "AppBar",
+        "Calendar",
+        "ComboBox",
+        "Custom",
+        "DataGrid",
+        "DataItem",
+        "Document",
+        "Group",
+        "Header",
+        "HeaderItem",
+        "Hyperlink",
+        "Image",
+        "List",
+        "Menu",
+        "MenuBar",
+        "Pane",
+        "ProgressBar",
+        "ScrollBar",
+        "SemanticZoom",
+        "Separator",
+        "Slider",
+        "Spinner",
+        "StatusBar",
+        "Tab",
+        "Table",
+        "Text",
+        "Thumb",
+        "TitleBar",
+        "ToolBar",
+        "ToolTip",
+        "Window"
+      ]
+    },
+    "uia_patterns": {
+      "universe_total": 18,
+      "used_total": 2,
+      "coverage_pct": 11.1,
+      "used": [
+        "SelectionItem",
+        "keyboard"
+      ],
+      "unused": [
+        "Dock",
+        "ExpandCollapse",
+        "Grid",
+        "GridItem",
+        "Invoke",
+        "MultipleView",
+        "RangeValue",
+        "Scroll",
+        "ScrollItem",
+        "Selection",
+        "Table",
+        "TableItem",
+        "Text",
+        "Toggle",
+        "Transform",
+        "Value",
+        "Window"
+      ]
+    },
+    "act_methods": {
+      "universe_total": 27,
+      "used_total": 3,
+      "coverage_pct": 11.1,
+      "used": [
+        "alt+d",
+        "enter",
+        "keyboard"
+      ],
+      "unused": [
+        "map_appbar_expand",
+        "map_appbar_toggle",
+        "map_children",
+        "map_combo_list",
+        "map_combo_value",
+        "map_custom_inspect",
+        "map_drag",
+        "map_expand",
+        "map_grid",
+        "map_grid_select",
+        "map_invoke",
+        "map_list_select",
+        "map_menu_children",
+        "map_menubar",
+        "map_range",
+        "map_scroll",
+        "map_selection",
+        "map_semzoom_toggle",
+        "map_split",
+        "map_status_read",
+        "map_tab_items",
+        "map_text",
+        "map_toggle",
+        "map_toolbar",
+        "map_tree_items",
+        "map_value",
+        "map_window_scope"
+      ]
+    },
+    "act_bindings": {
+      "universe_total": 75,
+      "used_total": 0,
+      "coverage_pct": 0.0,
+      "unused_sample": [
+        {
+          "control": "AppBar",
+          "act_method": "map_appbar_expand",
+          "tool": "expand_element"
+        },
+        {
+          "control": "AppBar",
+          "act_method": "map_appbar_toggle",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_expand",
+          "tool": "expand_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_invoke",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_toggle",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Button",
+          "act_method": "map_value",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_grid_select",
+          "tool": "click_element"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_grid_select",
+          "tool": "list_control_items"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_grid_select",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "Calendar",
+          "act_method": "map_scroll",
+          "tool": "scroll"
+        },
+        {
+          "control": "CheckBox",
+          "act_method": "map_toggle",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_list",
+          "tool": "expand_element"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_list",
+          "tool": "list_control_items"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_list",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "ComboBox",
+          "act_method": "map_combo_value",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Custom",
+          "act_method": "map_custom_inspect",
+          "tool": "discover_control_interaction"
+        },
+        {
+          "control": "Custom",
+          "act_method": "map_custom_inspect",
+          "tool": "spy_inspect"
+        },
+        {
+          "control": "DataGrid",
+          "act_method": "map_grid",
+          "tool": "list_control_items"
+        },
+        {
+          "control": "DataGrid",
+          "act_method": "map_grid",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "DataGrid",
+          "act_method": "map_scroll",
+          "tool": "scroll"
+        },
+        {
+          "control": "DataItem",
+          "act_method": "map_selection",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "DataItem",
+          "act_method": "map_selection",
+          "tool": "select_control_item"
+        },
+        {
+          "control": "Document",
+          "act_method": "map_text",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Edit",
+          "act_method": "map_text",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Edit",
+          "act_method": "map_value",
+          "tool": "set_element_value"
+        },
+        {
+          "control": "Group",
+          "act_method": "map_children",
+          "tool": "discover_control_interaction"
+        },
+        {
+          "control": "Group",
+          "act_method": "map_children",
+          "tool": "list_elements"
+        },
+        {
+          "control": "Group",
+          "act_method": "map_expand",
+          "tool": "expand_element"
+        },
+        {
+          "control": "HeaderItem",
+          "act_method": "map_invoke",
+          "tool": "invoke_element"
+        },
+        {
+          "control": "Hyperlink",
+          "act_method": "map_invoke",
+          "tool": "invoke_element"
+        }
+      ],
+      "unused_total": 75
+    },
+    "invocation_count": 611
+  },
+  "flows": {
+    "total": 175,
+    "by_status": {
+      "met": 65,
+      "pending": 58,
+      "cancelled": 51,
+      "blocked": 1
+    },
+    "by_kind": {
+      "entry": 74,
+      "action": 101
+    },
+    "by_source": {
+      "seed": 3,
+      "discovered": 172
+    }
+  },
+  "improvements": {
+    "total": 72,
+    "by_kind": {
+      "other": 72
+    },
+    "items": [
+      {
+        "ts": "2026-09-10T23:00:00-03:00",
+        "type": "friction",
+        "flow_id": "F-05",
+        "component": "invoke_element",
+        "symptom": "SelectionItem verify failed after TabItem Vista invoke (5732ms)",
+        "workaround": "VERIFY via list_elements Button Panel de vista previa / Panel de detalles",
+        "fix_in_cycle": "not_attempted",
+        "notes": "patrÃƒÂ³n similar UWP Calc nav verify"
+      },
+      {
+        "ts": "2026-09-10T23:10:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-06",
+        "component": "find_element",
+        "symptom": "negative find name contains especÃƒÂ­ficos 55614ms",
+        "workaround": "list_elements Button tras invoke Compartir",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Explorer Win32 ribbon; fast-fail negative gap"
+      },
+      {
+        "ts": "2026-09-10T23:28:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-08",
+        "component": "find_element",
+        "symptom": "negative find Borrar historial 36354ms",
+        "workaround": "omitir bÃƒÂºsqueda negativa; list_elements MenuItem con flyout abierto",
+        "fix_in_cycle": "not_attempted",
+        "notes": "fast-fail negative; list_elements role=Menu fallÃƒÂ³ kw window_handle"
+      },
+      {
+        "ts": "2026-09-10T23:36:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-10",
+        "component": "list_elements",
+        "symptom": "role=Button depth 4/6 Explorer 12035ms+12513ms",
+        "workaround": "find_element por automation_id/name conocidos en ribbon bÃƒÂºsqueda",
+        "fix_in_cycle": "not_attempted",
+        "notes": "discover subÃƒÂ¡rbol; positivos <400ms"
+      },
+      {
+        "ts": "2026-09-10T23:40:00-03:00",
+        "type": "friction",
+        "flow_id": "F-11",
+        "component": "invoke_element",
+        "symptom": "MenuItem Sistema sin Invoke pattern 1753ms fail",
+        "workaround": "click_element activa ExpandCollapse.Expand",
+        "fix_in_cycle": "not_attempted",
+        "notes": "title bar system menu Win32"
+      },
+      {
+        "ts": "2026-09-10T23:48:00-03:00",
+        "type": "friction",
+        "flow_id": "F-12",
+        "component": "list_elements",
+        "symptom": "flyout breadcrumbs sin MenuItem segmentos; solo ruido Sistema",
+        "workaround": "VERIFY screenshot + ruta en barra direcciones",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Explorer Win32 breadcrumb UIA gap"
+      },
+      {
+        "ts": "2026-09-10T23:52:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-12",
+        "component": "find_element",
+        "symptom": "find name Temp role Button 8967ms; list SplitButton 9535ms",
+        "workaround": "get_focused_element tras invoke; evitar find parcial en barra",
+        "fix_in_cycle": "not_attempted",
+        "notes": "discover subÃƒÂ¡rbol F-12"
+      },
+      {
+        "ts": "2026-09-10T23:56:00-03:00",
+        "type": "friction",
+        "flow_id": "F-15",
+        "component": "press_key_combo",
+        "symptom": "Alt+F4 tras Ayuda cerrÃƒÂ³ ventana lab; launch_app cerrÃƒÂ³ duplicados",
+        "workaround": "cerrar Ayuda con Ctrl+W en Edge; focus explorer antes; recovery explorer.exe ruta lab",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Ayuda abre Edge no panel in-app"
+      },
+      {
+        "ts": "2026-09-10T24:00:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-15",
+        "component": "repo_hints_set",
+        "symptom": "object not found Escritorio/Explorer/Ribbon/Ayuda",
+        "workaround": "repo_capture previo o hints solo en improvements.jsonl",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Edge help sin Link UIA en scope"
+      },
+      {
+        "ts": "2026-09-10T24:04:00-03:00",
+        "type": "friction",
+        "flow_id": "F-18",
+        "component": "invoke_element",
+        "symptom": "Button Vistas invoke fail; find Iconos extragrandes 27586ms NOT FOUND",
+        "workaround": "click_element Vistas; verify ListItem Detalles o screenshot galerÃƒÂ­a",
+        "fix_in_cycle": "not_attempted",
+        "notes": "ribbon Vista Win32"
+      },
+      {
+        "ts": "2026-09-10T24:08:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-18",
+        "component": "list_elements",
+        "symptom": "name_contains Vista max_depth=6 10589ms SLOW",
+        "workaround": "galerÃƒÂ­a ya visible tras TabItem Vista; list_elements role ListItem acotado",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Explorer ribbon cold scan"
+      },
+      {
+        "ts": "2026-09-10T24:10:00-03:00",
+        "type": "friction",
+        "flow_id": "F-22",
+        "component": "invoke_element",
+        "symptom": "Cancelar no encontrado con set_target explorer; click_element scope foreground skip coords",
+        "workaround": "focus_window tÃƒÂ­tulo modal #32770 luego invoke Cancel id=Cancel",
+        "fix_in_cycle": "not_attempted",
+        "notes": "modal mismo PID explorer; auto scope mejorable"
+      },
+      {
+        "ts": "2026-09-10T24:13:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-22",
+        "component": "list_elements",
+        "symptom": "max_depth=8 mezcla explorer+modal 11571ms; find Tab AuditorÃƒÂ­a 23674ms NOT FOUND",
+        "workaround": "focus_window modal; find por automation_id; get_snapshot filtrar nodos modal",
+        "fix_in_cycle": "not_attempted",
+        "notes": "find Permisos fuzzy matchea ResetAclTreePermission"
+      },
+      {
+        "ts": "2026-09-10T24:20:00-03:00",
+        "type": "friction",
+        "flow_id": "F-23",
+        "component": "find_element",
+        "symptom": "Button Compartir Enviar confundido con TabItem; click_element sin coords; flyout no visible UIA",
+        "workaround": "seleccionar ListItem probe; element_at_point+click; disambiguar por bbox y>100",
+        "fix_in_cycle": "not_attempted",
+        "notes": "click_element_hwnd do_click_element_hwnd undefined; find neg Copiar/Bluetooth >20s"
+      },
+      {
+        "ts": "2026-09-10T24:22:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-raÃƒÂ­z",
+        "component": "find_element",
+        "symptom": "Panel de navegaciÃƒÂ³n SplitButton 8985ms NOT FOUND en discover raÃƒÂ­z",
+        "workaround": "get_snapshot max_depth 5; find solo seÃƒÂ±ales ya vistas en snapshot",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Panel navegaciÃƒÂ³n solo visible con cinta Vista"
+      },
+      {
+        "ts": "2026-09-10T24:25:00-03:00",
+        "type": "friction",
+        "flow_id": "F-23",
+        "component": "click_element",
+        "symptom": "click_element ListItem abre diÃƒÂ¡logo Abrir con; shell no reconoce selecciÃƒÂ³n para Share (tooltip)",
+        "workaround": "invoke_element ListItem; clic fila listview; get_element_bounds role=Button; click centro",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Share flyout UWP Light Dismiss fuera de list_windows"
+      },
+      {
+        "ts": "2026-09-10T24:27:00-03:00",
+        "type": "gap",
+        "flow_id": "discover-raÃƒÂ­z",
+        "component": "discover_flows",
+        "symptom": "F-23 partial sin subÃƒÂ¡rbol flyout Share encolado",
+        "workaround": "turno raÃƒÂ­z pass-4; F-91 LaunchApp relacionado Abrir con",
+        "fix_in_cycle": "not_attempted",
+        "notes": "flyout Enviar UIA gap pendiente fix MCP"
+      },
+      {
+        "ts": "2026-09-10T24:33:00-03:00",
+        "type": "friction",
+        "flow_id": "F-23",
+        "component": "invoke_element",
+        "symptom": "SelectionItem verify fail en ListItem probe; invoke Ã¢Â‰Â¥3s",
+        "workaround": "click coords centro ListItem + get_element_bounds Button Compartir Enviar + click 613,172; verify automation_id SharePickerFlyout",
+        "fix_in_cycle": "not_attempted",
+        "notes": "programÃƒÂ¡tico ideal: act_on_control ListItem Selection sin coords"
+      },
+      {
+        "ts": "2026-09-10T24:35:00-03:00",
+        "type": "gap",
+        "flow_id": "F-29",
+        "component": "spy_inspect",
+        "symptom": "Button Historial is_enabled=False con probe .txt local; panel no abre",
+        "workaround": "archivo lab con historial OneDrive o fixture con versiones; evitar find_element negativo largo",
+        "fix_in_cycle": "not_attempted",
+        "notes": "get_control_state/is_enabled en read antes de act; clic ribbon mal alineado abriÃƒÂ³ Peek"
+      },
+      {
+        "ts": "2026-09-10T24:39:00-03:00",
+        "type": "pattern",
+        "flow_id": "F-30",
+        "component": "invoke_element",
+        "symptom": "n/a",
+        "workaround": "SplitButton Propiedades + invoke Cancelar sin focus_window",
+        "fix_in_cycle": "n/a",
+        "notes": "contraste F-22 modal requiriÃƒÂ³ focus_window"
+      },
+      {
+        "ts": "2026-09-10T24:41:00-03:00",
+        "type": "friction",
+        "flow_id": "discover-F-30",
+        "component": "invoke_element",
+        "symptom": "Cancelar modal Propiedades find 6s tras screenshot; TabItem Inicio 2.4s",
+        "workaround": "focus_window tÃƒÂ­tulo Propiedades antes de Cancel; Escape",
+        "fix_in_cycle": "not_attempted",
+        "notes": "F-106 Versiones anteriores candidato fixture F-29"
+      },
+      {
+        "ts": "2026-09-10T20:45:32-0300",
+        "type": "pattern",
+        "flow_id": "discover-F-42",
+        "component": "get_snapshot",
+        "symptom": "flyout BÃƒÂºsquedas recientes expone Window+List+MenuItem sin list_elements cold",
+        "workaround": "expand_element SplitButton + get_snapshot max_depth 6",
+        "fix_in_cycle": "not_needed",
+        "notes": "6 candidatos; Borrar historial cancelled F-116"
+      },
+      {
+        "ts": "2026-09-10T20:47:38-0300",
+        "type": "friction",
+        "flow_id": "discover-F-85",
+        "component": "click_element",
+        "symptom": "TabItem Inicio invoke fail salir backstage; Escape parcial",
+        "workaround": "Escape + Cerrar bÃƒÂºsqueda si modo bÃƒÂºsqueda residual",
+        "fix_in_cycle": "not_attempted",
+        "notes": "prefer get_snapshot tras PestaÃƒÂ±a Archivo"
+      },
+      {
+        "ts": "2026-09-10T20:50:11-0300",
+        "type": "friction",
+        "flow_id": "discover-root-pass6",
+        "component": "find_element",
+        "symptom": "find_element negativo Cerrar bÃƒÂºsqueda 25269ms SLOW aun sin modo bÃƒÂºsqueda",
+        "workaround": "omitir find neg; usar get_snapshot para detectar SearchEditBox/Cerrar",
+        "fix_in_cycle": "not_attempted",
+        "notes": "repo vacÃƒÂ­o Ã¢Â€Â” no repo_hints_set"
+      },
+      {
+        "ts": "2026-09-10T20:52:39-0300",
+        "type": "pattern",
+        "flow_id": "discover-root-pass7",
+        "component": "invoke_element",
+        "symptom": "click_element TabItem Inicio fail; invoke_element TabItem OK ~630-2048ms",
+        "workaround": "invoke_element SelectionItem en tabs ribbon",
+        "fix_in_cycle": "not_needed",
+        "notes": "repo vacÃƒÂ­o; sin find_element neg este turno"
+      },
+      {
+        "ts": "2026-09-10T20:54:02-0300",
+        "type": "pattern",
+        "flow_id": "F-43",
+        "component": "expand_element",
+        "symptom": "flyout AQS requiere Escape x2 en screenshot",
+        "workaround": "Escape tras expand; Cerrar bÃƒÂºsqueda para lab limpio",
+        "fix_in_cycle": "not_needed",
+        "notes": "turno <3s salvo cerrar 889ms"
+      },
+      {
+        "ts": "2026-09-10T20:56:04-0300",
+        "type": "pattern",
+        "flow_id": "discover-F-43",
+        "component": "press_key",
+        "symptom": "Escape cierra flyout y modo bÃƒÂºsqueda; Cerrar bÃƒÂºsqueda not found",
+        "workaround": "Escape suficiente; verify probe ListItem",
+        "fix_in_cycle": "not_needed",
+        "notes": "repo_hints_set N/A"
+      },
+      {
+        "ts": "2026-09-10T20:57:26-0300",
+        "type": "friction",
+        "flow_id": "F-64",
+        "component": "screenshot",
+        "symptom": "scope window con set_target lab captura explorer no Edge",
+        "workaround": "list_windows+focus_window para verify; screenshot tras focus sin pin o scope full",
+        "fix_in_cycle": "not_attempted",
+        "notes": "repo_hints_set N/A"
+      },
+      {
+        "ts": "2026-09-10T20:59:10-0300",
+        "type": "friction",
+        "flow_id": "F-98",
+        "component": "keyboard",
+        "symptom": "Escape no cierra flyout Nuevo elemento con focus_policy minimal",
+        "workaround": "click_element en lista o focus_window+Escape",
+        "fix_in_cycle": "not_attempted",
+        "notes": "expand_element preferido vs click SplitButton"
+      },
+      {
+        "ts": "2026-09-10T21:02:30-0300",
+        "type": "gap",
+        "flow_id": "discover-F-98",
+        "component": "get_snapshot",
+        "symptom": "MenuItem Carpeta solo visible con include_offscreen; flyout duplicado en UIA (1215 vs 1678)",
+        "workaround": "get_snapshot include_offscreen=true en discover menÃƒÂºs ribbon",
+        "fix_in_cycle": "not_attempted",
+        "notes": "repo_hints_set no aplicado"
+      },
+      {
+        "ts": "2026-09-10T21:04:30-0300",
+        "type": "friction",
+        "flow_id": "F-71",
+        "component": "invoke_element",
+        "symptom": "TabItem Vista find 1631ms total 2037ms SLOW",
+        "workaround": "cache tab tras F-05; get_snapshot antes de invoke si ya en Vista",
+        "fix_in_cycle": "not_attempted",
+        "notes": "expand Ordenar por 1357ms OK"
+      },
+      {
+        "ts": "2026-09-10T21:06:30-0300",
+        "type": "pattern",
+        "flow_id": "F-72",
+        "component": "dismiss_flyout",
+        "symptom": "Escape no cierra flyouts Vista ribbon",
+        "workaround": "invoke_element ListItem galerÃƒÂ­a Vistas (~876ms) vs click_element probe SLOW",
+        "fix_in_cycle": "not_attempted",
+        "notes": "omitir re-invoke TabItem si snapshot muestra Agrupar por"
+      },
+      {
+        "ts": "2026-09-10T21:12:00-0300",
+        "type": "friction",
+        "flow_id": "F-75",
+        "component": "AceListView",
+        "symptom": "click_element ListViewSubItem falla InvokePattern; ButtonViewAce disabled sin selecciÃ³n",
+        "workaround": "set_target_window tÃ­tulo modal; click(x,y) fila visible; luego invoke ButtonViewAce",
+        "fix_in_cycle": "not_attempted",
+        "notes": "click_element_hwnd do_click_element_hwnd not defined en servidor"
+      },
+      {
+        "ts": "2026-09-10T21:14:00-0300",
+        "type": "friction",
+        "flow_id": "F-99",
+        "component": "dismiss_flyout",
+        "symptom": "invoke_element ListItem probe dismiss 3738ms SLOW verify SelectionItem fail",
+        "workaround": "element_exists MenuItem negativo suficiente; evitar verify post-invoke en dismiss",
+        "fix_in_cycle": "not_attempted",
+        "notes": "take_screenshot_optimized error _wt not defined; usar screenshot"
+      },
+      {
+        "ts": "2026-09-10T21:20:00-0300",
+        "type": "friction",
+        "flow_id": "F-76",
+        "component": "lab_recovery",
+        "symptom": "explorer desvio pagina ayuda; launch_app reuse cerro lab; find_element Comprobar 17s",
+        "workaround": "shell explorer ruta lab; verify con get_snapshot RefreshEffPermResults; no find nombre incorrecto",
+        "fix_in_cycle": "not_attempted",
+        "notes": "repo_hints_set fallo repo vacio para app"
+      },
+      {
+        "ts": "2026-09-10T21:20:00-0300",
+        "type": "pattern",
+        "flow_id": "F-76",
+        "component": "AdvancedSecurityModal",
+        "symptom": "titulo modal awdui_probe_readonly.txt vs awdui-lab-escritorio-2026-09-10",
+        "workaround": "list_windows title_contains ConfiguraciÃ³n de seguridad",
+        "fix_in_cycle": "not_attempted",
+        "notes": "tab Acceso efectivo invoke <600ms OK"
+      },
+      {
+        "ts": "2026-09-10T21:23:00-0300",
+        "type": "pattern",
+        "flow_id": "F-77",
+        "component": "AdvancedSecurityModal",
+        "symptom": "find name Permisos ambiguo vs ResetAclTreePermission",
+        "workaround": "invoke_element role=TabItem name=Permisos; verify find_element automation_id=AceListView",
+        "fix_in_cycle": "not_attempted",
+        "notes": "modal abre en tab Permisos por defecto"
+      },
+      {
+        "ts": "2026-09-10T21:25:00-0300",
+        "type": "friction",
+        "flow_id": "F-86",
+        "component": "find_element",
+        "symptom": "verify Toolbar nombre ruta completa 33s SLOW",
+        "workaround": "read_element probe + element_exists NOT flyout; evitar find largo post-Escape",
+        "fix_in_cycle": "not_attempted",
+        "notes": "invoke flyout 1447ms OK; Escape cierra List Direccion"
+      },
+      {
+        "ts": "2026-09-10T21:27:00-0300",
+        "type": "pattern",
+        "flow_id": "F-87",
+        "component": "ribbon_minimize",
+        "symptom": "find Expandir Cinta NOT FOUND 33s",
+        "workaround": "element_exists Seguridad avanzada como proxy estado expandido; mismo boton Minimizar toggle",
+        "fix_in_cycle": "not_attempted",
+        "notes": "toggle act <1.1s ambos sentidos"
+      },
+      {
+        "ts": "2026-09-10T21:29:00-0300",
+        "type": "pattern",
+        "flow_id": "F-88",
+        "component": "address_bar_refresh",
+        "symptom": "nombre boton incluye carpeta y (F5)",
+        "workaround": "invoke_element nombre exacto con comillas escapadas en param",
+        "fix_in_cycle": "not_attempted",
+        "notes": "1543ms total OK sin slow waiver"
+      },
+      {
+        "ts": "2026-09-10T21:30:00-0300",
+        "type": "friction",
+        "flow_id": "F-89",
+        "component": "dismiss_context_menu",
+        "symptom": "Escape no cierra menu QAT; click_element probe 4462ms SLOW verify fail",
+        "workaround": "element_exists MenuItem Nueva carpeta NOT FOUND tras click",
+        "fix_in_cycle": "not_attempted",
+        "notes": "invoke QAT act <1.3s OK"
+      },
+      {
+        "ts": "2026-09-10T21:35:00-0300",
+        "type": "friction",
+        "flow_id": "F-90",
+        "component": "column_filter_dismiss",
+        "symptom": "1x Escape no cierra lista filtro; click_element probe dismiss 6224ms SLOW verify fail",
+        "workaround": "press_key escape x2",
+        "fix_in_cycle": "not_attempted",
+        "notes": "invoke Dropdown act <350ms OK"
+      },
+      {
+        "ts": "2026-09-10T21:42:00-0300",
+        "type": "pattern",
+        "flow_id": "F-101",
+        "component": "ribbon_abrir_split",
+        "symptom": "find_element devuelve SplitButton 57px; expand_element abre otro control; doble clic abre Peek",
+        "workaround": "get_snapshot max_depth 6: Group Abrir + SplitButton 13px en x=935; click chevron; Escape cierra menu",
+        "fix_in_cycle": "not_attempted",
+        "notes": "invoke LaunchAppButton abre propiedades por error en intento previo"
+      },
+      {
+        "ts": "2026-09-10T21:50:00-0300",
+        "type": "gap",
+        "flow_id": "F-91",
+        "component": "LaunchAppButton",
+        "symptom": "invoke/click LaunchAppButton abre Propiedades; sin ExpandCollapse; flyout apps es F-101 chevron Abrir",
+        "workaround": "verify Se abre con en modal + Cancelar; lista apps usar SplitButton Abrir 941,85",
+        "fix_in_cycle": "not_attempted",
+        "notes": "PinButton no despliega lista"
+      },
+      {
+        "ts": "2026-09-10T21:55:00-0300",
+        "type": "pattern",
+        "flow_id": "F-93",
+        "component": "SharePickerFlyout",
+        "symptom": "coords historicas 613,172 fallan; SharePickerControl a veces NOT FOUND con flyout visible",
+        "workaround": "get_element_bounds Button Compartir toolbar Enviar; click centro; verify automation_id SharePickerFlyout; Escape cierra",
+        "fix_in_cycle": "not_attempted",
+        "notes": "parent F-23; OCR Compartir confirma panel"
+      },
+      {
+        "ts": "2026-09-10T22:00:00-0300",
+        "type": "gap",
+        "flow_id": "F-94",
+        "component": "SharePickerFlyout",
+        "symptom": "flyout Compartir queda shell blanco; CopyFileButton/SharePickerFlyout ausentes UIA; F-93 mismo turno previo OK",
+        "workaround": "reintentar: solo click 48,112 tras seleccion probe; evitar click_element+Await 30s; esperar carga XAML",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Light Dismiss visible; contenido no hidrata"
+      },
+      {
+        "ts": "2026-09-10T22:05:00-0300",
+        "type": "friction",
+        "flow_id": "F-94",
+        "component": "SharePickerFlyout",
+        "symptom": "flyout shell blanco en pantalla; find_element CopyFileButton falla tras wait; SharePickerFlyout id ausente",
+        "workaround": "wait_for_condition automation_id=CopyFileButton property=visible poll 300ms; tab Inicio->Compartir si stuck",
+        "fix_in_cycle": "not_attempted",
+        "notes": "no click_element Compartir; hidratacion 4s"
+      },
+      {
+        "ts": "2026-09-10T22:08:00-0300",
+        "type": "pattern",
+        "flow_id": "F-95",
+        "component": "SuggestedContactGridView",
+        "symptom": "element_exists/OCR fallan tras wait_for_condition OK; shell blanco",
+        "workaround": "misma secuencia F-94: click 48,112 + wait_for_condition visible poll 400ms",
+        "fix_in_cycle": "not_attempted",
+        "notes": "sin seleccionar contacto/app"
+      },
+      {
+        "ts": "2026-09-10T22:11:00-0300",
+        "type": "pattern",
+        "flow_id": "F-96",
+        "component": "SharePicker_GetMoreApps",
+        "symptom": "verify por automation_id SharePicker_GetMoreApps; nombre boton timeout 31s",
+        "workaround": "wait_for_condition automation_id tras CopyFileButton; no usar name largo en wait",
+        "fix_in_cycle": "not_attempted",
+        "notes": "no abrir Microsoft Store"
+      },
+      {
+        "ts": "2026-09-10T22:13:00-0300",
+        "type": "pattern",
+        "flow_id": "F-102",
+        "component": "nav_tree",
+        "symptom": "n/a",
+        "workaround": "expand_element TreeItem Acceso rapido; verify hijos anclados + breadcrumb lab",
+        "fix_in_cycle": "not_needed",
+        "notes": "find 1.8s bajo slow waiver"
+      },
+      {
+        "ts": "2026-09-10T22:18:00-0300",
+        "type": "friction",
+        "flow_id": "F-103",
+        "component": "find_element",
+        "symptom": "verify campo General Tipo de archivo 9504ms SLOW en modal Propiedades",
+        "workaround": "invoke Tab General + find id=13080; evitar wait_for_condition mal parametrizado",
+        "fix_in_cycle": "not_attempted",
+        "notes": "eficiencia sin waiver NO"
+      },
+      {
+        "ts": "2026-09-10T22:18:00-0300",
+        "type": "pattern",
+        "flow_id": "F-103",
+        "component": "SharePicker residual",
+        "symptom": "flyout Compartir shell blanco persiste tras flujos share; tapa screenshot post-Propiedades",
+        "workaround": "Escape xN antes de Propiedades; dismiss explicito tras F-93..96",
+        "fix_in_cycle": "not_attempted",
+        "notes": "relacionado improvements F-94..96"
+      },
+      {
+        "ts": "2026-09-10T22:22:00-0300",
+        "type": "gap",
+        "flow_id": "F-104",
+        "component": "Propiedades archivo vs carpeta",
+        "symptom": "probe .txt Propiedades solo tabs General/Seguridad/Detalles; sin Uso compartido",
+        "workaround": "deseleccionar archivo; Propiedades carpeta lab; invoke TabItem Uso compartido + window_title exacto",
+        "fix_in_cycle": "not_attempted",
+        "notes": "skill producto lab: F-30 hijos asumen subarbol carpeta"
+      },
+      {
+        "ts": "2026-09-10T22:22:00-0300",
+        "type": "friction",
+        "flow_id": "F-104",
+        "component": "PowerToys Peek",
+        "symptom": "TabItem Compartir en Peek confunde list_elements con titulo parcial Propiedades",
+        "workaround": "focus_window titulo completo; evitar click fuzzy Compartir fuera modal #32770",
+        "fix_in_cycle": "not_attempted",
+        "notes": "cerrar Peek Escape"
+      },
+      {
+        "ts": "2026-09-10T22:26:00-0300",
+        "type": "pattern",
+        "flow_id": "F-105",
+        "component": "Propiedades probe",
+        "symptom": "SelectionItem verify falla tras invoke ListItem probe ~5s",
+        "workaround": "continuar flujo; read_element post-modal para verify",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Seguridad tab OK en archivo sin contexto carpeta"
+      },
+      {
+        "ts": "2026-09-10T22:30:00-0300",
+        "type": "pattern",
+        "flow_id": "F-106",
+        "component": "probe_select",
+        "symptom": "invoke ListItem verify slow ~5s recurrente",
+        "workaround": "read_element clickable_x/y + click coords evita verify SelectionItem",
+        "fix_in_cycle": "not_attempted",
+        "notes": "turno sin slow en seleccion"
+      },
+      {
+        "ts": "2026-09-10T22:34:00-0300",
+        "type": "gap",
+        "flow_id": "F-107",
+        "component": "Propiedades carpeta lab",
+        "symptom": "carpeta con un solo archivo: click vacio/ribbon abre props del probe no carpeta",
+        "workaround": "Subir a Temp; seleccionar ListItem carpeta; Propiedades; window_title carpeta",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Personalizar solo en props carpeta"
+      },
+      {
+        "ts": "2026-09-10T22:38:00-0300",
+        "type": "pattern",
+        "flow_id": "F-108",
+        "component": "Propiedades General",
+        "symptom": "discovery id=13154 label Avanzados en archivo vs Opciones avanzados en carpeta",
+        "workaround": "invoke por automation_id=13154 sin depender del name",
+        "fix_in_cycle": "not_needed",
+        "notes": "subdialog titulo Atributos avanzados"
+      },
+      {
+        "ts": "2026-09-10T22:42:00-0300",
+        "type": "pattern",
+        "flow_id": "F-135",
+        "component": "ribbon Organizar",
+        "symptom": "expand_element Mover a OK; verify flyout via list_elements MenuItem 3.2s",
+        "workaround": "expand_element SplitButton; list_elements role MenuItem acotado",
+        "fix_in_cycle": "not_attempted",
+        "notes": "sin click destino"
+      },
+      {
+        "ts": "2026-09-10T22:46:00-0300",
+        "type": "pattern",
+        "flow_id": "F-136",
+        "component": "ribbon Organizar",
+        "symptom": "paridad F-135: expand_element Copiar a; verify find_element MenuItem mas rapido que list_elements",
+        "workaround": "find_element Elegir ubicacion vs list_elements 23 items",
+        "fix_in_cycle": "not_attempted",
+        "notes": "sin copiar archivo"
+      },
+      {
+        "ts": "2026-09-10T22:50:00-0300",
+        "type": "pattern",
+        "flow_id": "F-137",
+        "component": "nav_back",
+        "symptom": "invoke Atras fuzzy name 4s; restore ListItem carpeta 6s verify",
+        "workaround": "find_element probe ausente confirma Temp; invoke ListItem awdui-lab-*",
+        "fix_in_cycle": "not_attempted",
+        "notes": "cumple restaurar lab"
+      },
+      {
+        "ts": "2026-09-10T22:54:00-0300",
+        "type": "pattern",
+        "flow_id": "F-138",
+        "component": "nav_forward",
+        "symptom": "Adelante requiere Atras previo; invoke fuzzy 4-5s",
+        "workaround": "Atras desde lab luego invoke Adelante; read_element probe verify",
+        "fix_in_cycle": "not_attempted",
+        "notes": "par F-137"
+      },
+      {
+        "ts": "2026-09-10T22:58:00-0300",
+        "type": "pattern",
+        "flow_id": "F-139",
+        "component": "address_bar",
+        "symptom": "click_element ToolBar id=1001 no coord click; Alt+D enfoca Edit Direccion",
+        "workaround": "press_key_combo alt+d + read_element value ruta; Escape sin editar",
+        "fix_in_cycle": "not_attempted",
+        "notes": "cumple success_criteria"
+      },
+      {
+        "ts": "2026-09-10T23:00:00-03:00",
+        "type": "friction",
+        "flow_id": "F-140",
+        "component": "breadcrumb_split",
+        "symptom": "invoke/click cuerpo SplitButton Disco local navega a C:\\; expand_element sin ExpandCollapse",
+        "workaround": "click chevron derecho ~x=left+width-8 y~top+11 en breadcrumb y247; cerrar Peek duplicado",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Compartir Cerrar cerro Explorer lab — relanzar Start-Process explorer"
+      },
+      {
+        "ts": "2026-09-10T23:05:00-03:00",
+        "type": "friction",
+        "flow_id": "F-142",
+        "component": "read_element",
+        "symptom": "name_contains ariel.ostapow devolvio Pane ReBar 40965 no SplitButton",
+        "workaround": "list_elements role SplitButton y~247 o offset desde segmento Usuarios",
+        "fix_in_cycle": "not_attempted",
+        "notes": "nombre UIA LRM en SplitButton"
+      },
+      {
+        "ts": "2026-09-10T23:08:00-03:00",
+        "type": "friction",
+        "flow_id": "F-143",
+        "component": "expand_element",
+        "symptom": "fallback_click Invoke navego a Usuarios 23921ms; probe perdido",
+        "workaround": "solo click chevron; Alt+D o Start-Process explorer para restaurar lab",
+        "fix_in_cycle": "not_attempted",
+        "notes": "mismo patron breadcrumb que F-140 cuerpo vs chevron"
+      },
+      {
+        "ts": "2026-09-10T23:14:00-03:00",
+        "type": "friction",
+        "flow_id": "F-145",
+        "component": "list_elements",
+        "symptom": "list ListItem flyout Temp 14366ms con muchos hermanos en arbol",
+        "workaround": "VERIFY screenshot o find_element name_contains awdui-lab en flyout acotado",
+        "fix_in_cycle": "not_attempted",
+        "notes": "Temp carpeta con muchos _MEI/GUID"
+      },
+      {
+        "ts": "2026-09-10T23:17:00-03:00",
+        "type": "friction",
+        "flow_id": "F-146",
+        "component": "expand_element",
+        "symptom": "TreeItem Este equipo expand 3443ms borderline slow",
+        "workaround": "discover_control_interaction tree_expand; verify hijo Disco local sin list masivo",
+        "fix_in_cycle": "not_attempted",
+        "notes": "patron UIA ExpandCollapse OK en arbol"
+      },
+      {
+        "ts": "2026-09-10T23:20:00-03:00",
+        "type": "friction",
+        "flow_id": "F-147",
+        "component": "expand_element",
+        "symptom": "expand_element name_contains OneDrive uso InvokePattern 31464ms sin subarbol",
+        "workaround": "expand_element con nombre completo TreeItem OneDrive ACCUSYS para ExpandCollapse",
+        "fix_in_cycle": "not_attempted",
+        "notes": "lab intacto tras Invoke"
+      },
+      {
+        "ts": "2026-09-10T23:23:00-03:00",
+        "type": "friction",
+        "flow_id": "F-148",
+        "component": "expand_collapse_element",
+        "symptom": "collapse Red TreeItem invalid state tras expand sin hijos UIA",
+        "workaround": "Escape; expand OK; verify probe; screenshot seleccion Red",
+        "fix_in_cycle": "not_attempted",
+        "notes": "red vacia o lazy network nodes"
+      },
+      {
+        "ts": "2026-09-10T23:26:00-03:00",
+        "type": "friction",
+        "flow_id": "F-150",
+        "component": "find_element",
+        "symptom": "find SplitButton Panel navegacion 7464ms tras Tab Vista",
+        "workaround": "read_element nombre exacto tras invoke Vista; verify list_elements MenuItem no find_contains navegaci",
+        "fix_in_cycle": "not_attempted",
+        "notes": "chevron ribbon x~left+width-8 y~90"
+      },
+      {
+        "ts": "2026-09-10T23:29:00-03:00",
+        "type": "friction",
+        "flow_id": "F-151",
+        "component": "find_element",
+        "symptom": "negative find desktop.ini 30845ms sin archivos ocultos en lab",
+        "workaround": "VERIFY toggle via screenshot checkbox o TogglePattern; no find negativo en carpeta vacia",
+        "fix_in_cycle": "not_attempted",
+        "notes": "invoke CheckBox OK <1.1s"
+      }
+    ]
+  }
+}

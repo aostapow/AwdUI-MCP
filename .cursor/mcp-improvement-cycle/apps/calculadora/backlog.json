@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "app_name": "Calculadora",
+  "app_slug": "calculadora",
+  "framework": "unknown",
+  "created_at": "2026-09-13T00:59:11Z",
+  "updated_at": "2026-09-13T01:09:39Z",
+  "items": [
+    {
+      "id": "W-H01",
+      "category": "hygiene",
+      "status": "done",
+      "title": "Fase 0: launch_app + focus_window + set_target_window",
+      "success_criteria": "Calculadora visible; target hwnd pinneado; discovered.yaml actualizado",
+      "notes": "launch calc PID 16092; target hwnd=788710",
+      "ref": "phase0",
+      "source": "catalog",
+      "priority": 0,
+      "parent_id": null,
+      "evidence": [
+        "runs/calculadora-2026-09-12/discovered.yaml"
+      ],
+      "last_run_id": "calculadora-2026-09-12",
+      "updated_at": "2026-09-13T01:03:37Z"
+    },
+    {
+      "id": "W-H02",
+      "category": "hygiene",
+      "status": "done",
+      "title": "Fase 0: detect_framework + detection_health",
+      "success_criteria": "framework y process en discovered.yaml; detection_health OK",
+      "notes": "framework uwp; detection_health OK; discovered.yaml",
+      "ref": "phase0",
+      "source": "catalog",
+      "priority": 1,
+      "parent_id": null,
+      "evidence": [
+        "runs/calculadora-2026-09-12/discovered.yaml"
+      ],
+      "last_run_id": "calculadora-2026-09-12",
+      "updated_at": "2026-09-13T01:03:37Z"
+    },
+    {
+      "id": "W-F-01",
+      "category": "flow",
+      "status": "done",
+      "title": "Suma 2+2 modo Estándar",
+      "success_criteria": "CalculatorResults muestra 4",
+      "notes": "invoke num2+plus+num2+equal verify CalculatorResults 4",
+      "ref": "F-01",
+      "source": "discovered",
+      "priority": 10,
+      "parent_id": null,
+      "kind": "action",
+      "evidence": [
+        "runs/calculadora-2026-09-12/evidence.jsonl"
+      ],
+      "last_run_id": "calculadora-2026-09-12",
+      "updated_at": "2026-09-13T01:09:39Z"
+    },
+    {
+      "id": "W-F-02",
+      "category": "flow",
+      "status": "pending",
+      "title": "Discover NavView modos (entry)",
+      "success_criteria": "Encolar hijos action por modo visible",
+      "notes": "",
+      "ref": "F-02",
+      "source": "discovered",
+      "priority": 20,
+      "parent_id": null,
+      "kind": "entry",
+      "evidence": [],
+      "last_run_id": "calculadora-2026-09-12"
+    }
+  ],
+  "progress": {
+    "total": 4,
+    "pending": 1,
+    "in_progress": 0,
+    "done": 3,
+    "blocked": 0,
+    "na": 0,
+    "cancelled": 0,
+    "complete": false
+  },
+  "next_item_id": "W-F-02"
+}

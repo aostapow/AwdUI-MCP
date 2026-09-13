@@ -357,13 +357,6 @@ def _find_raw_by_automation_id(window, automation_id: str):
             return elem
     except Exception:
         pass
-    try:
-        for desc in window.descendants(depth=16):
-            d = _pywinauto_to_element(desc)
-            if d and d.automation_id == automation_id:
-                return desc
-    except Exception:
-        pass
     return None
 
 
@@ -1126,11 +1119,70 @@ class UIABackend(DetectionBackend):
         uia_first = _prefer_uia_find_before_spy(window_title)
 
         if window and automation_id:
-            raw = _find_raw_by_automation_id(window, automation_id)
-            if raw:
-                d = _pywinauto_to_element(raw)
-                if d and _matches(d, name, role, automation_id, class_name):
-                    return [d]
+            from detection.automation_id_aliases import alias_candidates
+
+            for aid_try in alias_candidates(automation_id):
+                raw = _find_raw_by_automation_id(window, aid_try)
+                if raw:
+                    d = _pywinauto_to_element(raw)
+                    if d and _matches(d, name, role, automation_id, class_name):
+                        return [d]
+                    if d and _matches(d, name, role, aid_try, class_name):
+                        return [d]
+            try:
+                from detection.element_model import DetectedElement
+                from tools.spy_bridge import (
+                    spy_available,
+                    spy_inspect_element,
+                    spy_props_to_element,
+                )
+
+                def _spy_to_detected(props: dict, aid: str) -> Optional[DetectedElement]:
+                    elem = spy_props_to_element(
+                        props.get("properties") or props,
+                        window_title=window_title,
+                    )
+                    if not elem:
+                        return None
+                    return DetectedElement(
+                        name=elem.get("name", ""),
+                        role=elem.get("role", ""),
+                        automation_id=elem.get("automation_id", aid),
+                        x=int(elem.get("x", 0) or 0),
+                        y=int(elem.get("y", 0) or 0),
+                        width=int(elem.get("width", 0) or 0),
+                        height=int(elem.get("height", 0) or 0),
+                    )
+
+                if spy_available():
+                    hit = spy_inspect_element(
+                        automation_id=automation_id,
+                        window_title=window_title,
+                    )
+                    if hit.get("found"):
+                        d = _spy_to_detected(hit, automation_id)
+                        if d and _matches(d, name, role, automation_id, class_name):
+                            return [d]
+                    else:
+                        for alt in alias_candidates(automation_id)[1:]:
+                            alt_hit = spy_inspect_element(
+                                automation_id=alt,
+                                window_title=window_title,
+                            )
+                            if not alt_hit.get("found"):
+                                continue
+                            d = _spy_to_detected(alt_hit, alt)
+                            if d and _matches(d, name, role, alt, class_name):
+                                return [d]
+                            raw = _find_raw_by_automation_id(window, alt)
+                            if raw:
+                                d = _pywinauto_to_element(raw)
+                                if d and _matches(d, name, role, alt, class_name):
+                                    return [d]
+                        return []
+            except Exception:
+                pass
+            return []
 
         if window and (name or automation_id) and uia_first:
             raw = _find_raw_direct(window, name=name, role=role, automation_id=automation_id)

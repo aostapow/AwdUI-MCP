@@ -71,7 +71,13 @@ def is_paused(state: dict | None = None) -> bool:
     return False
 
 
-def _safe_text(text: str) -> str:
+def _safe_text(text: object) -> str:
+    if isinstance(text, dict):
+        app = text.get("app") or text.get("id") or ""
+        body = text.get("text") or text.get("message") or ""
+        text = f"{app}: {body}" if app else str(body or text)
+    else:
+        text = str(text)
     return text.replace("\u2192", "->").replace("\u2014", "-")
 
 
@@ -325,13 +331,29 @@ def _lab_focus(state: dict) -> str:
             autodetect = f"discovered.yaml listo ({discovered_txt}); "
         override = _override_path(str(active))
         hint = f" override {override.as_posix()}" if override else ""
+        try:
+            scripts = _repo_root() / "scripts"
+            if str(scripts) not in sys.path:
+                sys.path.insert(0, str(scripts))
+            from app_backlog_lib import backlog_hint_for_state
+
+            backlog_hint = backlog_hint_for_state(state)
+        except Exception:
+            backlog_hint = ""
         flow_hint = _lab_flow_hint(state)
+        primary = backlog_hint or flow_hint
         cov = _incremental_coverage(state)
         cov_txt = f" {cov}." if cov else ""
+        mirror = (
+            " flows.json espejo opcional (perfect gate); NO usar flows met/total como cola."
+            if backlog_hint
+            else ""
+        )
         return (
-            f"Lab activo '{active}' ({status}): solo nombre de app — {autodetect}"
-            f"{flow_hint}; append mcp-usage.jsonl + improvements.jsonl cada turno;{cov_txt} "
-            f"runs/{run}/evidence.jsonl.{hint}"
+            f"Lab activo '{active}' ({status}): repo-first (repo_find/repo_action antes de discover); "
+            f"{autodetect}"
+            f"{primary}; append mcp-usage.jsonl + improvements.jsonl cada turno;{cov_txt} "
+            f"runs/{run}/evidence.jsonl.{mirror}{hint}"
         )
 
     pending = _pending_criteria(state)
@@ -365,6 +387,27 @@ def build_critical_questions(state: dict) -> list[str]:
 
     active = state.get("active_lab")
     if active:
+        try:
+            scripts = _repo_root() / "scripts"
+            if str(scripts) not in sys.path:
+                sys.path.insert(0, str(scripts))
+            from app_backlog_lib import load_backlog, slug_from_app_name
+
+            slug = state.get("active_app_slug") or slug_from_app_name(str(active))
+            bl = load_backlog(str(slug))
+            if bl:
+                prog = bl.get("progress") or {}
+                complete = prog.get("complete")
+                questions.append(
+                    f"apps/{slug}/backlog progress.complete? "
+                    f"{'SI' if complete else 'NO -> continuar lab (cola canonica) o pause usuario'}"
+                )
+            else:
+                questions.append(
+                    f"apps/{slug}/backlog.json existe? NO -> init_or_resume_app_backlog.py"
+                )
+        except Exception:
+            pass
         apps_entry = (state.get("lab_apps") or {}).get(str(active)) or {}
         perfect = _lab_perfect(state, str(active))
         if perfect is not True:
@@ -420,6 +463,11 @@ def build_critical_questions(state: dict) -> list[str]:
         questions.append(
             "friccion/workaround persistido en repo (repo_hints_set)? verificar si aplico"
         )
+        questions.append(
+            "friccion estructural en improvements.jsonl con fix_in_cycle resuelto "
+            "(fix_applied / not_needed / pending_manual) y last_cycle.fix_gate.status=ok? "
+            "NO -> fix_in_cycle obligatorio antes del siguiente flujo"
+        )
     elif last.get("live_verify") or "ast" in str(state.get("current_focus") or "").lower():
         questions.append(
             "cada accion GUI narrada en chat (Voy a...) ANTES de la tool? verificar turno"
@@ -467,9 +515,28 @@ def build_session_bootstrap(state: dict) -> str:
         "VERIFICAR (timings + screenshot en hitos) -> append mcp-usage.jsonl -> "
         "cobertura incremental (coverage.json) -> actualizar state.json y "
         "runs/{active_run}/evidence.jsonl si lab activo.\n"
+        "Lab: friccion estructural -> fix_in_cycle obligatorio en el mismo turno o antes "
+        "de cambiar flow_id; last_cycle.fix_gate.status=ok; hook stop bloquea si queda "
+        "fix_in_cycle=not_attempted en improvements.jsonl para el flow_id activo.\n"
         "No esperar al usuario salvo pregunta explicita distinta. "
         "No declarar objective_met=true hasta completion_criteria y mcp_quality_status operational."
     )
+
+
+def _fix_gate_followup(state: dict) -> str:
+    """Lab learning: block auto-continue until fix_in_cycle is addressed."""
+    try:
+        scripts = _repo_root() / "scripts"
+        import sys
+
+        if str(scripts) not in sys.path:
+            sys.path.insert(0, str(scripts))
+        from fix_in_cycle_gate import audit_learning_turn, build_fix_gate_followup
+
+        result = audit_learning_turn(state)
+        return build_fix_gate_followup(result, state)
+    except Exception:
+        return ""
 
 
 def build_continue_message(state: dict) -> str:
@@ -531,6 +598,10 @@ def main() -> int:
         return 0
 
     msg = build_continue_message(state)
+    if state.get("active_lab") and not is_paused(state):
+        fix_msg = _fix_gate_followup(state)
+        if fix_msg:
+            msg = f"{fix_msg} {msg}"
 
     if args.mode == "status":
         print("objective_met: false")

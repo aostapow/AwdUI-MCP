@@ -15,7 +15,7 @@ Referencia canónica para agentes de IA. Describe **cada tool** del servidor `aw
 |---------------|-------|
 | **Target** | `set_target_window`, `get_target_window`, `attach_to_app`, `attach_to_pid`, `list_apps`, `close_app` |
 | **Ventanas** | `list_windows`, `list_desktop_windows`, `focus_window`, `launch_app`, `restore_window`, `virtual_desktop` |
-| **Exploración UIA** | `find_element`, `find_elements`, `find_elements_fuzzy`, `find_all_elements`, `list_elements`, `get_snapshot`, `get_snapshot_hwnd`, `get_tree_hash`, `get_element_bounds`, `ascii_ui_view`, `read_element`, `read_element_by_index`, `get_focused_element`, `element_at_point`, `get_element_properties`, `discover_control_interaction`, `spy_inspect`, `spy_tree`, `ui_fingerprint`, `detection_health`, `detect_framework`, `check_java_bridge` |
+| **Exploración UIA** | `find_element`, `find_elements`, `find_elements_fuzzy`, `find_all_elements`, `list_elements`, `get_snapshot`, `get_snapshot_hwnd`, `get_tree_hash`, `get_element_bounds`, `ascii_ui_view`, `read_element`, `read_element_by_index`, `get_focused_element`, `element_at_point`, `get_element_properties`, `discover_control_interaction`, `spy_inspect`, `spy_tree`, `ui_fingerprint`, `detection_health`, `detect_framework`, `get_automation_profile`, `check_java_bridge` |
 | **Espera / verify UIA** | `wait_for_element`, `wait_for_condition`, `wait_for_input_idle`, `element_exists` |
 | **Sesión / caché** | `check_session_status`, `invalidate_cache`, `release_all`, `release_keyboard` |
 | **Formularios** | `fill_form`, `get_all_values`, `set_element_value`, `set_value_hwnd`, `type_into_element` |
@@ -24,7 +24,7 @@ Referencia canónica para agentes de IA. Describe **cada tool** del servidor `aw
 | **Input coordenadas** | `click`, `type_text`, `send_keys`, `press_key`, `press_key_combo`, `scroll`, `drag`, `hover`, `get_mouse_position` |
 | **OCR / visual** | `find_text`, `click_text`, `smart_find`, `detect_visual_regions`, `find_by_template_tool` |
 | **Screenshots** | `screenshot`, `take_screenshot_optimized`, `annotate_screenshot`, `compare_screenshot_files`, `wait_for_change`, `get_screen_size`, `screenshot_baseline`, `screenshot_diff` |
-| **Repositorio QTP** | `repo_find`, `repo_list`, `repo_hints`, `repo_hints_set`, `repo_action`, `repo_capture` |
+| **Repositorio QTP** | `repo_find`, `repo_list`, `repo_hints`, `repo_hints_set`, `repo_identification_stats`, `repo_action`, `repo_capture` |
 | **Descubrimiento** | `observe_ui_tool`, `plan_probes_tool`, `apply_probe_tool`, `discover_target_tool`, `spy_walk_visible_tool`, `build_detection_context` |
 | **Batch / utilidades** | `batch_actions`, `clipboard`, `manage_screenshots`, `highlight_element`, `clear_highlight` |
 | **Watcher** | `start_watcher`, `stop_watcher`, `get_notifications` |
@@ -61,6 +61,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 | `compare_screenshot_files` | `visual_diff` | `mcp-servers/awdui-server/tools/visual_diff.py` |
 | `configure_uac` | `uac` | `mcp-servers/awdui-server/tools/uac.py` |
 | `detect_framework` | `framework_detect` | `mcp-servers/awdui-server/tools/framework_detect.py` |
+| `get_automation_profile` | `automation_profile` | `mcp-servers/awdui-server/tools/automation_profile.py` |
 | `detect_visual_regions` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `detection_health` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `discover_control_interaction` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
@@ -121,6 +122,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 | `repo_find` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `repo_hints` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `repo_hints_set` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
+| `repo_identification_stats` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `repo_list` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
 | `restore_window` | `windows` | `mcp-servers/awdui-server/tools/windows.py` |
 | `right_click_element` | `ui_automation` | `mcp-servers/awdui-server/tools/ui_automation.py` |
@@ -559,12 +561,23 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 
 **Módulo:** `framework_detect` (`mcp-servers/awdui-server/tools/framework_detect.py`)
 
-**Qué hace:** Detecta toolkit (WinForms, WPF, UWP, Electron, etc.) y hints de automatización.
-**Cuándo usarla:** Primera interacción con app nueva — define si priorizar UIA, OCR o repo.
+**Qué hace:** Detecta toolkit (WinForms, WPF, UWP, Electron, etc.), nivel UIA (`full`/`partial`/…) y hints. Incluye **`automation_profile`**: tools preferidas/bloqueadas, notas por framework y cautelas por rol (matriz en `detection/framework_capabilities.py`).
+**Cuándo usarla:** Primera interacción con app nueva — define si priorizar UIA, OCR o repo; en frameworks **partial** leer también el bloque «Automation profile».
 **Parámetros clave:** `window_title` / `title` (opcional).
 **Evitar:** Hardcodear reglas por framework en el agente — usar salida + `discover_control_interaction`.
 **Ejemplo:** `detect_framework(window_title="Calculadora")`
-**Relacionadas:** `detection_health`, `observe_ui_tool`, `set_target_window`
+**Relacionadas:** `get_automation_profile`, `detection_health`, `observe_ui_tool`, `set_target_window`
+
+### `get_automation_profile`
+
+**Módulo:** `automation_profile` (`mcp-servers/awdui-server/tools/automation_profile.py`)
+
+**Qué hace:** Devuelve el perfil de automatización (misma matriz que `detect_framework` → `automation_profile`): `preferred_tools`, `blocked_tools`, `tools` con niveles (`blocked`/`discouraged`/`conditional`) y notas operativas por framework (WinForms combo, UWP flyouts, Win32 menús, Qt OCR).
+**Cuándo usarla:** Planificar acciones en apps **partial** sin repetir toda la detección; o cuando ya conocés el framework y solo necesitás la guía de tools.
+**Parámetros clave:** `window_title` / `title` (opcional).
+**Evitar:** Ignorar `blocked`/`use_instead` en combos WinForms o `java_swing` sin JAB.
+**Ejemplo:** `get_automation_profile(window_title="Activities Manager")`
+**Relacionadas:** `detect_framework`, `discover_control_interaction`, `capability_precheck` (interno)
 
 ### `check_java_bridge`
 
@@ -790,6 +803,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Ejemplo:** `click_element(name="Cancelar", scope_mode="auto", verify_modal_dismissed=true)`
 **Relacionadas:** `invoke_element`, `find_element`, `wait_for_condition`
 **Verify:** con `verify_*` hace poll UIA hasta match; con `verify_modal_dismissed=true` poll `list_windows` hasta ausencia del modal. **Timing:** `total_ms` con `find_ms` + `act_ms` + `verify_ms`; `>=3000ms` -> SLOW.
+**Repositorio:** tras act exitoso con `set_target_window`, upsert en `repository.db` (`repo_path`, `repo_updated` si aplica). Ver `docs/OBJECT_REPOSITORY.md` (exclusiones host).
 
 ### `invoke_element`
 
@@ -805,6 +819,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Verify display:** si el botón actuado no es el display, pasar `verify_automation_id` explícito o `agent_hints` en repo.
 **SelectionItem verify (NavView / chat list):** poll `Header.changed`, `SelectionItem.is_selected`, `WindowTitle.contact` / `WindowTitle.stable` (TreeItem chat — poll título HWND sin UIA), o `ChatContext.compose_ready`. También corre tras `InvokePattern` en `TreeItem`/`ListItem` sin `verify_*` explícito.
 **Timing:** `total_ms` en respuesta = suma `find_ms`+`act_ms`+`verify_ms` (`operational_ms`); no incluye spy preflight. Electron/Teams: omitido `spy_verify_live` stale probe (UIA-first).
+**Repositorio:** tras act exitoso con target, upsert del elemento actuado (`repo_updated`). Exclusiones: ver `OBJECT_REPOSITORY.md`.
 
 ### `act_on_control`
 
@@ -827,6 +842,7 @@ Ruta base: `mcp-servers/awdui-server/tools/`. Generado desde `@server.tool()` en
 **Evitar:** `fallback_click` en ítems de lista/combo — solo headers tipo `SettingsExpander`.
 **Ejemplo:** `expand_element(automation_id="AppThemeExpander", window_title="Calculadora", fallback_click=true)`
 **Relacionadas:** `list_control_items`, `select_control_item`, `invoke_element`
+**Repositorio:** tras expand/collapse exitoso con `set_target_window`, upsert del elemento (`repo_path`, `repo_updated`). Exclusiones: `docs/OBJECT_REPOSITORY.md`.
 **Settings:** `fallback_click=true` — fast-path HeaderClick directo (~<1s bajo `focus_policy=minimal`), salta cadena ExpandCollapse e interactive-child tree walk. Si radios/hijos ya visibles → `AlreadyExpanded` sin click. Dimensión vía spy en UWP (altura ≥120 = abierto).
 
 ### `list_control_items`
@@ -1301,6 +1317,17 @@ WinForms ComboLBox puede devolver `requires_operation=click` + `click_at` — ll
 **Evitar:** Sobrescribir hints largos sin `append=true` si solo agregás una línea nueva.
 **Ejemplo:** `repo_hints_set(repo_path="Calculadora/equalButton", hints="verify_automation_id: CalculatorResults", append=true)`
 **Relacionadas:** `repo_hints`, `repo_capture`, `repo_find`
+
+### `repo_identification_stats`
+
+**Módulo:** `ui_automation` (`mcp-servers/awdui-server/tools/ui_automation.py`)
+
+**Qué hace:** Devuelve estadísticas de estabilidad de propiedades UIA para un `repo_path`, a partir de observaciones append-only en `property_observations` (solo resoluciones/acciones exitosas).
+**Cuándo usarla:** Tras varios éxitos en lab o producto — decidir identificadores mandatory vs volátiles; complementa `repo_hints_set` con datos medidos.
+**Parámetros clave:** `repo_path` (req), `window_title`/`title` (contexto de app).
+**Evitar:** Interpretar stats con `samples` &lt; 3 — insuficiente para marcar volatile/stable con confianza.
+**Ejemplo:** `repo_identification_stats(repo_path="Calculadora/num2Button", window_title="Calculadora")`
+**Relacionadas:** `repo_find`, `repo_hints`, `repo_action`, `scripts/analyze_repo_property_stability.py`
 
 ### `repo_action`
 

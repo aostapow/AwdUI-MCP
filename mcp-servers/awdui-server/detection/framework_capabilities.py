@@ -14,6 +14,14 @@ _FRAMEWORK_ROLE_OVERRIDES: dict[tuple[str, str, str], tuple[str, str]] = {
         "discouraged",
         "click_element",
     ),
+    ("win32", "menuitem", "click_element"): (
+        "discouraged",
+        "invoke_element or send_keys (menu must be open)",
+    ),
+    ("uwp", "listitem", "invoke_element"): (
+        "conditional",
+        "verify_name_contains may need Header.contains; prefer visible nodes",
+    ),
 }
 
 # Default tool levels per framework (tool_name -> level).
@@ -28,9 +36,22 @@ _FRAMEWORK_TOOL_LEVELS: dict[str, dict[str, str]] = {
         "screenshot_window": "preferred",
         "find_element": "preferred",
     },
+    "win32": {
+        "find_element": "preferred",
+        "invoke_element": "preferred",
+        "send_keys": "preferred",
+        "list_elements": "preferred",
+    },
+    "qt": {
+        "find_element": "preferred",
+        "find_text": "conditional",
+        "click_text": "conditional",
+    },
     "uwp": {
         "screenshot_window": "blocked",
         "find_element": "preferred",
+        "smart_find": "preferred",
+        "list_elements": "preferred",
     },
     "electron": {
         "screenshot_window": "blocked",
@@ -141,8 +162,9 @@ def build_automation_profile(
     app_name: str = "",
     exe_path: str = "",
     repo_framework: str = "unknown",
+    detected_framework: str = "unknown",
 ) -> dict[str, Any]:
-    fw = merge_framework(repo_framework, repo_framework)
+    fw = merge_framework(detected_framework, repo_framework)
     storage = (app_name or "").strip()
     if "\\" in storage:
         storage = storage.rsplit("\\", 1)[-1]
@@ -160,11 +182,21 @@ def build_automation_profile(
 
     if fw == "winforms":
         notes.append("Prefer UIA patterns and AutomationId on WinForms controls.")
+        notes.append("ComboBox: list_control_items + select_control_item (not set_element_value).")
+        notes.append("Lookup modals: complete sub-flow in dialog before returning to parent.")
     elif fw == "uwp":
         notes.append(
             "UWP apps may expose multiple HWNDs (ApplicationFrameHost vs core); "
             "prefer core process for UIA attach and frame host for screenshots."
         )
+        notes.append("Flyouts and title chrome may be separate top-level windows — check active window.")
+        notes.append("NavView: use include_offscreen=true only for discovery; act on visible controls.")
+    elif fw == "win32":
+        notes.append("Menus are only in the UIA tree while open — use Alt+letter or expand first.")
+        notes.append("Modal dialogs (#32770): set scope to modal HWND before find/act.")
+    elif fw == "qt":
+        notes.append("Standard Qt widgets are UIA-accessible; QML/QtQuick needs Accessible{} declarations.")
+        notes.append("Custom QWidgets without QAccessibleInterface require find_text/OCR fallback.")
 
     tools: dict[str, dict[str, Any]] = {}
     for tool in sorted(
@@ -215,3 +247,65 @@ def capability_precheck(window_title: str, tool_name: str) -> Optional[dict[str,
             "use_instead": cap.get("use_instead", ""),
         }
     return None
+
+
+def attach_automation_profile(detected: dict[str, Any]) -> dict[str, Any]:
+    """Merge framework capability matrix into a detect_framework result dict."""
+    from detection.app_identity import repository_app_name
+
+    title = (detected.get("window_title") or "").strip()
+    fw = _normalize_framework(detected.get("framework", "unknown"))
+    app_name = (detected.get("app_name") or "").strip()
+    exe_path = (detected.get("exe_path") or "").strip()
+
+    if not app_name:
+        app_name, exe_path = repository_app_name(fw, title)
+
+    repo_fw = fw
+    try:
+        from detection.object_repository import load_repo
+
+        repo = load_repo(app_name, exe_path) or {}
+        repo_fw = merge_framework(fw, repo.get("framework") or fw)
+    except Exception:
+        pass
+
+    profile = build_automation_profile(
+        window_title=title,
+        app_name=app_name,
+        exe_path=exe_path,
+        detected_framework=fw,
+        repo_framework=repo_fw,
+    )
+    profile["uia_support"] = detected.get("uia_support", "unknown")
+    detected["automation_profile"] = profile
+    return detected
+
+
+def format_automation_profile_lines(profile: dict[str, Any]) -> list[str]:
+    """Human-readable lines for MCP text output."""
+    lines = ["", "Automation profile:"]
+    if profile.get("notes"):
+        lines.append("  Notes:")
+        for note in profile["notes"]:
+            lines.append(f"    - {note}")
+    preferred = profile.get("preferred_tools") or []
+    blocked = profile.get("blocked_tools") or []
+    if preferred:
+        lines.append(f"  Preferred tools: {', '.join(preferred)}")
+    if blocked:
+        lines.append(f"  Blocked tools: {', '.join(blocked)}")
+    tools = profile.get("tools") or {}
+    flagged = [
+        (name, info)
+        for name, info in sorted(tools.items())
+        if info.get("level") in ("blocked", "discouraged", "conditional")
+    ]
+    if flagged:
+        lines.append("  Tool cautions:")
+        for name, info in flagged:
+            level = info.get("level", "")
+            reason = info.get("reason") or info.get("use_instead") or ""
+            suffix = f" — {reason}" if reason else ""
+            lines.append(f"    - {name}: {level}{suffix}")
+    return lines

@@ -50,28 +50,14 @@ class DetectionOrchestrator:
     def _backend_order(self, window_title: Optional[str] = None) -> list[str]:
         order = ["uia"]
         try:
-            from tools.framework_detect import do_detect_framework
-            fw = do_detect_framework(window_title).get("framework", "unknown")
-            if fw == "java_swing":
-                order = ["jab", "uia"]
-            elif fw in ("win32", "mfc"):
-                order = ["uia", "msaa", "win32"]
-            elif fw == "winforms":
-                order = ["flaui", "uia", "msaa"]
-            elif fw == "wpf":
-                order = ["uia", "flaui", "msaa"]
-            elif fw == "gtk":
-                order = []  # OCR/visual handled by layered detector
-            elif fw in ("electron", "chromium_browser"):
-                order = ["uia", "flaui", "msaa"]
-            elif fw in ("uwp", "winui"):
-                order = ["flaui", "uia", "msaa"]
-            elif fw == "java_fx":
-                order = ["uia", "jab"]
-            else:
-                order = ["uia", "flaui", "msaa", "win32", "jab"]
+            from detection.frameworks.registry import get_profile_for_window
+
+            profile = get_profile_for_window(window_title)
+            order = list(profile.backend_order) if profile.backend_order else []
         except Exception:
             order = ["uia", "msaa", "win32", "jab", "flaui"]
+        if not order:
+            return []
         return [b for b in order if b in self._backends and self._backends[b].is_available()]
 
     def _framework_name(self, window_title: Optional[str] = None) -> str:
@@ -87,21 +73,13 @@ class DetectionOrchestrator:
         elements: list,
         framework: str,
     ) -> bool:
-        """True when a backend returned a low-value tree (common for UWP via MSAA/FlaUI)."""
-        if framework in ("uwp", "winui") and backend_name == "flaui":
-            aids = sum(1 for e in elements if getattr(e, "automation_id", ""))
-            if aids < 15:
-                return True
-        if framework not in ("uwp", "winui") or backend_name != "msaa":
+        """True when a backend returned a low-value tree for this framework family."""
+        try:
+            from detection.frameworks.registry import get_profile
+
+            return get_profile(framework).weak_backend_result(backend_name, elements)
+        except Exception:
             return False
-        if not elements or len(elements) > 2:
-            return False
-        shell_roles = {"Role_10", "Pane", "Client", "Window", "Dialog"}
-        return all(
-            not (getattr(elem, "automation_id", "") or "")
-            and (getattr(elem, "role", "") or "") in shell_roles
-            for elem in elements
-        )
 
     def list_elements(
         self,
@@ -266,10 +244,15 @@ class DetectionOrchestrator:
                     framework = self._framework_name(window_title)
                     if self._weak_backend_result(bname, matches, framework):
                         continue
-                    if automation_id and not any(
-                        (getattr(m, "automation_id", "") or "") == automation_id for m in matches
-                    ):
-                        continue
+                    if automation_id:
+                        from detection.automation_id_aliases import alias_candidates
+
+                        allowed = set(alias_candidates(automation_id))
+                        if not any(
+                            (getattr(m, "automation_id", "") or "") in allowed
+                            for m in matches
+                        ):
+                            continue
                     all_matches = matches
                     backend_used = bname
                     break

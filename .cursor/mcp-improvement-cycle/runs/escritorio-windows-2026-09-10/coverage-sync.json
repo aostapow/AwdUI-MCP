@@ -1,0 +1,31 @@
+{
+  "active_lab": "Escritorio de Windows",
+  "active_run": "escritorio-windows-2026-09-10",
+  "coverage": {
+    "last_report": "runs/escritorio-windows-2026-09-10/coverage.json",
+    "lab_summary": "runs/escritorio-windows-2026-09-10/lab-summary.md",
+    "mcp_tools_pct": 25.7,
+    "mcp_tools_used": 29,
+    "mcp_tools_universe": 113,
+    "uia_controls_seen_pct": 26.8,
+    "uia_controls_interacted": 0,
+    "act_methods_pct": 11.1,
+    "improvements_total": 72,
+    "invocation_count": 611,
+    "updated_at": "2026-09-11T17:18:56.534148+00:00"
+  },
+  "flows_progress": {
+    "total": 175,
+    "entry_total": 74,
+    "action_total": 101,
+    "met": 65,
+    "pending": 58,
+    "exploring": 0,
+    "partial": 0,
+    "blocked": 1,
+    "cancelled": 51,
+    "last_mode": "discover_flows",
+    "updated_at": "2026-09-11T17:18:56Z"
+  },
+  "generated_at": "2026-09-11T17:18:56.534148+00:00"
+}

@@ -305,7 +305,7 @@ class TestRegister:
         server = mock.MagicMock()
         from tools.ui_automation import register
         count = register(server)
-        assert count == 38
+        assert count == 39
 
     def test_registers_discovery_tools(self):
         server = mock.MagicMock()
@@ -331,4 +331,4 @@ class TestRegister:
                 discovery.register,
             )
         )
-        assert total == 81
+        assert total == 82

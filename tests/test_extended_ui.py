@@ -146,4 +146,4 @@ class TestRegisterCounts:
         server = mock.MagicMock()
         from tools.ui_automation import register
 
-        assert register(server) == 38
+        assert register(server) == 39

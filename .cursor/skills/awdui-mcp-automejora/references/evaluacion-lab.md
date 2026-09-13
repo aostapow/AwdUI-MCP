@@ -2,7 +2,17 @@
 
 El usuario solo indica **el nombre de la aplicación** (ej. «Calculadora», «Bloc de notas», «Microsoft Teams»).  
 Opcionalmente puede listar **unos pocos flujos funcionales** conocidos al inicio (ej. «suma 2+2», «guardar archivo»).  
-El agente **autodetecta** framework, ventana y launch; el **catálogo de flujos crece** durante la corrida.
+El agente **autodetecta** framework, ventana y launch; el **catálogo de trabajo crece** en la cola canónica por app.
+
+## Cola canónica (leer primero)
+
+Con lab activo, **toda** la planificación execute/discover va sobre:
+
+`apps/{slug}/backlog.json` — ver [app-backlog.md](patterns/app-backlog.md).
+
+- **Iniciar / reanudar:** `python scripts/init_or_resume_app_backlog.py "{nombre}"`
+- **No parar** la app mientras `progress.complete` sea `false` (salvo pausa usuario).
+- `runs/{active_run}/flows.json` = espejo/evidencia para perfect gate; **no** usar solo `met/total` de flows para decidir si el lab terminó.
 
 ## Cuándo aplica
 
@@ -24,11 +34,10 @@ Sin eso → **solo automejora MCP**. No inventar lab.
 
 ### Inicio de corrida
 
-1. Crear `runs/{active_run}/`.
-2. Crear `flows.json` desde [flows.template.json](../../../lab-apps/flows.template.json):
-   - Si el usuario listó flujos en el turno → uno por fila `source: seed`, `status: pending`.
-   - Si existe `lab-apps/seeds/{slug}.json` → copiar/adaptar.
-   - Si no hay seeds → `flows: []` (válido; el primer turno post-autodetect será `discover_flows`).
+1. **`init_or_resume_app_backlog.py "{nombre}"`** — crea o carga `apps/{slug}/backlog.json` y punteros en `state.json`.
+2. Carpeta `runs/{active_run}/` (la fija el script o `--run-id`).
+3. Opcional primera vez: `--import-flows runs/.../flows.json` para migrar filas `F-xx` a ítems `W-F-xx`.
+4. `flows.json` en la corrida: crear desde [flows.template.json](../../../lab-apps/flows.template.json) solo si hace falta el espejo para perfect gate; seeds nuevos van al **backlog** (`add_discovered_items`).
 
 ---
 
@@ -146,7 +155,20 @@ Cada **modal o ventana hija** puede ser un `entry` hijo de otro `entry` si abre 
 1. No ejecutar `action` si `parent_id` no está `met`.
 2. Priorizar `entry` pendientes en raíz antes que acciones sueltas en raíz.
 3. Tras `entry` `met` sin subárbol → priorizar `discover_flows` en ese scope antes de profundizar otra rama.
-4. Entre hermanos (`mismo parent_id`): menor `priority` primero.
+4. Entre hermanos (`mismo parent_id`): menor `priority` primero; **saltar** hermanos sin valor MCP (ver [mcp-value-filter.md](patterns/mcp-value-filter.md)).
+
+---
+
+## Valor MCP — omitir flujos redundantes
+
+El lab mejora el **servidor MCP**, no completa la app. Al analizar candidatos en discover o al elegir el siguiente `execute_flow`:
+
+1. ¿Expone rol/pattern/tool/contexto **no probado** en la corrida? → encolar o ejecutar.
+2. ¿Solo repite un patrón ya `met` (mismo rol + misma tool chain, otro label)? → **no encolar** o `status: cancelled` con `notes: "skip_mcp_value: …"`.
+
+Detalle, ejemplos y excepciones: [mcp-value-filter.md](patterns/mcp-value-filter.md).
+
+Un `entry` que abre subárbol no escaneado **sí** aporta aunque «abrir menú» ya esté cubierto. Variantes del mismo botón numérico **no**.
 
 ---
 
@@ -171,7 +193,8 @@ Ejecutar **un paso** del flujo pendiente con mayor prioridad (`pending` o `explo
 4. **Chat:** bloque «Voy a» antes de cada tool (ver [action-narration.md](patterns/action-narration.md)).
 5. **Repo:** si el control es estable → anotar `repo_path` en el flujo / `element-map.md`; `repo_capture` si no existe; tras fricción → `repo_hints_set` (ver [object-repository.md](patterns/object-repository.md)). Antes de `repo_action` → `repo_hints`.
 6. Si `success_criteria` cumplido → `status: met`; si no, dejar `exploring` o `partial`.
-7. `cycle.last_mode = execute_flow`.
+7. **Si VERIFY falla o es slow (≥3 s) estructural** → [fix-in-cycle.md](patterns/fix-in-cycle.md): aplicar fix, pytest, reiniciar MCP, re-VERIFY (máx. 3 intentos); revertir y `pending_manual` si no resuelve.
+8. `cycle.last_mode = execute_flow`.
 
 Un turno = un paso agentico verificable, no un script batch del flujo entero.
 
@@ -298,9 +321,12 @@ Cada llamada MCP durante lab → **una línea** en `runs/{active_run}/mcp-usage.
 
 | Campo | Cuándo |
 |-------|--------|
+| `framework` | **Obligatorio** en lab — familia (`detect_framework` o `discovered.yaml`); alimenta `detection_baseline.json` |
+| `timing_ms` | **Obligatorio** en tools de detección/actuación — sin esto el baseline no agrega percentiles |
 | `interacted: false` | Solo lectura (`list_elements`, `spy_tree` en discover) — cuenta como **visto** |
 | `interacted: true` | ACT en OBS→ACT→VERIFY — cuenta como **interactuado** |
 | `act_method` | Si aplica según `discover_control_interaction` / control-catalog |
+| `uia_role` | Recomendado — clave de celda en baseline junto con `tool` |
 
 En `discover_flows`, registrar al menos las tools de observación y los **roles vistos** (batch en una o varias líneas).
 
@@ -311,6 +337,7 @@ No esperar al final de la corrida. **Después de cada turno lab:**
 1. Append a `mcp-usage.jsonl` (cada tool MCP del turno).
 2. Append a `improvements.jsonl` si hubo fix MCP.
 3. Regenerar `coverage.json` + `lab-summary.md` (métricas acumuladas desde el inicio de la corrida).
+4. Actualizar manifest global `matrices/detection_baseline.json` (automático vía `incremental_lab_coverage`; manual: `python scripts/merge_detection_baseline.py`).
 4. Actualizar `state.json` → `lab_apps.{app}.coverage`.
 
 El hook `stop` / `sessionStart` ejecuta el paso 3–4 automáticamente si `active_lab` está seteado.  
@@ -364,11 +391,28 @@ Cada cambio al MCP motivado por la corrida → línea en `runs/{active_run}/impr
 
 | `kind` | Ejemplo |
 |--------|---------|
-| `mcp_code` | Fix en servidor |
+| `friction` | Gap detectado (antes del fix) |
+| `fix_attempt` | Intento N de arreglo en ciclo |
+| `fix_applied` | Fix validado en re-VERIFY |
+| `fix_reverted` | 3 intentos fallidos; código revertido; `status: pending_manual` |
+| `mcp_code` | Fix en servidor (legacy; preferir `fix_applied`) |
 | `mcp_tool` | Nueva tool o parámetro |
 | `test` | Test que fija regresión |
 | `blocker_resolved` | Desbloqueo de corrida |
 | `doc` | MCP_TOOLS_REFERENCE actualizado |
+
+Campos adicionales para ciclo de arreglo:
+
+| Campo | Uso |
+|-------|-----|
+| `attempt` | 1..3 |
+| `outcome` | `ok` \| `fail` \| `pending_manual` |
+| `timing_before_ms` / `timing_after_ms` | Baseline vs post-fix |
+| `files_attempted` | Archivos tocados antes del revert |
+| `revert_command` | Comando usado para restaurar |
+| `manual_review` | Ruta propuesta `_MCP_IMPROVEMENT/` |
+
+Tras `fix_reverted` → también append en `pending-fixes.jsonl` y `state.json` → `pending_manual_fixes[]`.
 
 El informe `lab-summary.md` agrega sección **Mejoras MCP durante la corrida** con resumen y beneficio declarado — para evaluar si los ciclos valieron la pena.
 
@@ -412,7 +456,7 @@ Ver [object-repository.md](patterns/object-repository.md).
 
 **Prohibido** cerrar un flujo `met` con workaround obligatorio sin línea en `agent_hints` del objeto tocado.
 
-Gate `perfect`: todos los flujos **seed** en `met` (o `cancelled` con motivo), cobertura razonable de descubiertos, evidencia agentica, sin workarounds obligatorios.
+Gate `perfect`: todos los flujos **seed** en `met` (o `cancelled` con motivo), descubiertos en `met` o `cancelled` por valor MCP, cobertura razonable, evidencia agentica, sin workarounds obligatorios.
 
 ### Checklist antes de append en `flows.json`
 
@@ -420,7 +464,8 @@ Gate `perfect`: todos los flujos **seed** en `met` (o `cancelled` con motivo), c
 2. ¿`kind` correcto (`entry` en raíz / `action` solo con `parent_id`)?
 3. ¿Padre `entry` en `met` antes de **ejecutar** hijos `action`? (encolar seeds con padre `pending` → aviso, no error)
 4. ¿Sin duplicar `discovery_signals` / título?
-5. Tras editar → `python scripts/validate_flows.py runs/{active_run}/flows.json`
+5. ¿Aporta **cobertura MCP nueva**? Si no → no append o `cancelled` + `skip_mcp_value` en `notes` (ver [mcp-value-filter.md](patterns/mcp-value-filter.md))
+6. Tras editar → `python scripts/validate_flows.py runs/{active_run}/flows.json`
 
 ### Gate `lab_apps.{app}.perfect` (medible — `validate_perfect_gate.py`)
 
@@ -471,3 +516,4 @@ Solo si el usuario las dice en el turno → `safety.yaml` o `lab_apps.{name}.saf
 - Mezclar en un solo flujo «abrir menú + elegir ítem + confirmar modal»  
 - **Ejecutar en el turno discover** lo recién encolado (discover solo encola; execute consume la cola)  
 - Limitar artificialmente a 1 flujo nuevo por discover cuando la UI expone varios candidatos válidos
+- Ejecutar flujos que solo repiten patrón ya `met` (ej. todos los dígitos de una calculadora) sin objeto/tool nuevo

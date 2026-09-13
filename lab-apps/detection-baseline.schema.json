@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://awdui-mcp.local/schemas/detection-baseline.json",
+  "title": "Detection baseline manifest (framework × tool × UIA role)",
+  "description": "Aggregated lab timings from mcp-usage.jsonl — not object repository data.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "cells"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "slow_threshold_ms": { "type": "integer", "minimum": 1, "default": 3000 },
+    "source_runs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "run_id folders merged into this file"
+    },
+    "cells": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["framework", "tool", "uia_role", "samples", "p50_ms", "p95_ms"],
+        "properties": {
+          "framework": { "type": "string" },
+          "tool": { "type": "string" },
+          "uia_role": { "type": "string" },
+          "samples": { "type": "integer", "minimum": 0 },
+          "p50_ms": { "type": ["integer", "null"] },
+          "p95_ms": { "type": ["integer", "null"] },
+          "min_ms": { "type": ["integer", "null"] },
+          "max_ms": { "type": ["integer", "null"] },
+          "ok_count": { "type": "integer" },
+          "slow_count": { "type": "integer" },
+          "fail_count": { "type": "integer" },
+          "last_ts": { "type": "string" },
+          "run_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

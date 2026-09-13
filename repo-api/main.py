@@ -66,9 +66,21 @@ class AppUpdate(BaseModel):
     agent_hints: Optional[str] = None
 
 
+@app.get("/api/catalog")
+def framework_catalog():
+    """Frameworks, UIA controls, Swf* methods, and stored object summary."""
+    from detection.framework_catalog import build_framework_catalog
+
+    return build_framework_catalog(include_stored=True)
+
+
 @app.get("/api/health")
 def health():
-    return {"ok": True}
+    return {
+        "ok": True,
+        "api_version": 2,
+        "features": ["catalog", "framework_detect"],
+    }
 
 
 @app.get("/api/changes")

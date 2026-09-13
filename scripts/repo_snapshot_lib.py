@@ -28,7 +28,14 @@ def _match_app(app_name: str, candidate: str) -> bool:
     c = candidate.lower().strip()
     if not a or not c:
         return False
-    return a in c or c in a or a.split(".")[0] in c
+    if a in c or c in a or a.split(".")[0] in c:
+        return True
+    # Display title (e.g. Calculadora) vs packaged process (CalculatorApp.exe)
+    stem_a = re.sub(r"[^a-z0-9]", "", a)
+    stem_c = re.sub(r"[^a-z0-9]", "", c)
+    if len(stem_a) >= 6 and len(stem_c) >= 6 and stem_a[:6] == stem_c[:6]:
+        return True
+    return False
 
 
 def build_repo_snapshot(run_dir: Path) -> dict[str, Any] | None:

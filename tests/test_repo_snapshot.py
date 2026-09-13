@@ -8,6 +8,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 
+def test_match_app_calculadora_calculatorapp():
+    from repo_snapshot_lib import _match_app
+
+    assert _match_app("Calculadora", "CalculatorApp.exe") is True
+    assert _match_app("Bloc de notas", "Notepad.exe") is False
+
+
 def test_write_repo_snapshot_no_discovered(tmp_path):
     from repo_snapshot_lib import write_repo_snapshot
 

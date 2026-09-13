@@ -9,8 +9,10 @@ globs:
 
 Probar el MCP contra **la app que indique el usuario** (solo el nombre en `active_lab`).
 
-**Skill:** `.cursor/skills/awdui-mcp-automejora/SKILL.md` (v2.1.0)  
+**Skill:** `.cursor/skills/awdui-mcp-automejora/SKILL.md` (v2.3.0)  
 **Protocolo:** `references/evaluacion-lab.md` — autodetect + `flows.json` (execute_flow ↔ discover_flows)  
+**Valor MCP:** `references/patterns/mcp-value-filter.md` — omitir flujos sin objeto/patrón/tool nuevo  
+**Arreglo en ciclo:** `references/patterns/fix-in-cycle.md` — detectar → fix → re-VERIFY; 3 intentos; revert + `pending_manual`  
 **Narración:** `references/patterns/action-narration.md` — decir en chat «Voy a…» antes de cada tool GUI  
 **Repo:** `references/patterns/object-repository.md` — `repo_hints` antes de actuar; `repo_hints_set` tras fricción
 
@@ -23,7 +25,8 @@ Sin `active_lab` ni pedido explícito → **no** arrancar lab.
 | `discovered.yaml` | Autodetect (una vez) |
 | `flows.json` | Árbol entry → action; cola funcional |
 | `mcp-usage.jsonl` | Append cada invocación MCP |
-| `improvements.jsonl` | Append cada fix en `mcp-servers/` |
+| `improvements.jsonl` | Append cada fix / friction / fix_reverted en `mcp-servers/` |
+| `pending-fixes.jsonl` | Fixes revertidos tras 3 intentos — cola revisión manual |
 | `coverage.json` / `lab-summary.md` | Regenerados cada turno (hook incremental) |
 | `coverage-diff.md` | Δ vs corrida anterior misma app |
 | `coverage-sync.json` | Espejo coverage + flows_progress (sidecar) |

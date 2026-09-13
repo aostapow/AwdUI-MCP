@@ -361,3 +361,52 @@ class TestListElementsSpySkip:
         resolve_root.assert_not_called()
         collect.assert_called_once()
         assert collect.call_args[0][0] is window
+
+    def test_automation_id_spy_negative_skips_depth_ladder(self):
+        backend = UIABackend()
+        window = mock.Mock()
+        with mock.patch(
+            "detection.backends.uia_backend._get_desktop",
+            return_value=mock.Mock(),
+        ), mock.patch(
+            "detection.backends.uia_backend._resolve_window",
+            return_value=window,
+        ), mock.patch(
+            "detection.backends.uia_backend._find_raw_by_automation_id",
+            return_value=None,
+        ), mock.patch(
+            "tools.spy_bridge.spy_available",
+            return_value=True,
+        ), mock.patch(
+            "tools.spy_bridge.spy_inspect_element",
+            return_value={"found": False},
+        ), mock.patch.object(backend, "list_elements") as list_mock:
+            hits = backend.find_elements(
+                automation_id="HistoryFlyout",
+                window_title="Calculadora",
+            )
+        list_mock.assert_not_called()
+        assert hits == []
+
+    def test_automation_id_comtypes_miss_returns_empty_without_ladder(self):
+        backend = UIABackend()
+        window = mock.Mock()
+        with mock.patch(
+            "detection.backends.uia_backend._get_desktop",
+            return_value=mock.Mock(),
+        ), mock.patch(
+            "detection.backends.uia_backend._resolve_window",
+            return_value=window,
+        ), mock.patch(
+            "detection.backends.uia_backend._find_raw_by_automation_id",
+            return_value=None,
+        ), mock.patch(
+            "tools.spy_bridge.spy_available",
+            return_value=False,
+        ), mock.patch.object(backend, "list_elements") as list_mock:
+            hits = backend.find_elements(
+                automation_id="HistoryFlyout",
+                window_title="Calculadora",
+            )
+        list_mock.assert_not_called()
+        assert hits == []

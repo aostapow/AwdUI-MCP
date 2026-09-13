@@ -238,7 +238,7 @@ def do_detect_framework(window_title: Optional[str] = None) -> dict:
         from detection.app_identity import title_app_name
 
         name = title_app_name(window_title)
-        return {
+        out = {
             "framework": "unknown",
             "uia_support": "unknown",
             "hints": ["No window found to inspect."],
@@ -250,6 +250,9 @@ def do_detect_framework(window_title: Optional[str] = None) -> dict:
             "window_title": window_title or "",
             "is_uwp_shell": False,
         }
+        from detection.framework_capabilities import attach_automation_profile
+
+        return attach_automation_profile(out)
 
     class_name = _get_class_name(hwnd)
     process_name = _get_process_name(hwnd)
@@ -300,7 +303,7 @@ def do_detect_framework(window_title: Optional[str] = None) -> dict:
 
     identity = resolve_app_identity(window_title, hwnd)
 
-    return {
+    out = {
         "framework": framework,
         "uia_support": uia_support,
         "hints": hints,
@@ -312,6 +315,9 @@ def do_detect_framework(window_title: Optional[str] = None) -> dict:
         "window_title": identity.get("window_title", window_title or ""),
         "is_uwp_shell": identity.get("is_uwp_shell", False),
     }
+    from detection.framework_capabilities import attach_automation_profile
+
+    return attach_automation_profile(out)
 
 
 # ---------------------------------------------------------------------------
@@ -333,6 +339,8 @@ def register(server) -> int:
             title: Alias for window_title — either parameter is accepted.
         """
         from tools.params import resolve_window_title
+        from detection.framework_capabilities import format_automation_profile_lines
+
         result = do_detect_framework(resolve_window_title(window_title, title))
         lines = [
             f"Framework: {result['framework']}",
@@ -345,6 +353,9 @@ def register(server) -> int:
         ]
         for hint in result["hints"]:
             lines.append(f"  - {hint}")
+        profile = result.get("automation_profile")
+        if profile:
+            lines.extend(format_automation_profile_lines(profile))
         return "\n".join(lines)
 
     return 1

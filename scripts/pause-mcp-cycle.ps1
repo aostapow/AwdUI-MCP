@@ -4,24 +4,36 @@ param(
     [string]$Reason = "paused by user"
 )
 $ErrorActionPreference = "Stop"
-$root = if ($env:CURSOR_PROJECT_DIR) { $env:CURSOR_PROJECT_DIR } else { (Get-Location).Path }
-$statePath = Join-Path $root ".cursor\mcp-improvement-cycle\state.json"
+$root = Split-Path $PSScriptRoot -Parent
 $pausedPath = Join-Path $root ".cursor\mcp-improvement-cycle\PAUSED"
-$ts = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+$py = Join-Path $env:USERPROFILE ".awdui-mcp\.venv\Scripts\python.exe"
+if (-not (Test-Path $py)) { $py = "python" }
 
 New-Item -ItemType File -Path $pausedPath -Force | Out-Null
 
-if (Test-Path $statePath) {
-    $state = Get-Content $statePath -Raw -Encoding UTF8 | ConvertFrom-Json
-    if (-not $state.cycle_control) {
-        $state | Add-Member -NotePropertyName cycle_control -NotePropertyValue ([pscustomobject]@{})
-    }
-    $state.cycle_control.paused = $true
-    $state.cycle_control | Add-Member -NotePropertyName paused_at -NotePropertyValue $ts -Force
-    $state.cycle_control | Add-Member -NotePropertyName paused_reason -NotePropertyValue $Reason -Force
-    $state.cycle_control | Add-Member -NotePropertyName paused_by -NotePropertyValue "user" -Force
-    $state.status = "paused"
-    $state | ConvertTo-Json -Depth 20 | Set-Content $statePath -Encoding UTF8
+$env:AWDUI_PAUSE_REASON = $Reason
+Push-Location $root
+try {
+    & $py -c @"
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+reason = os.environ.get('AWDUI_PAUSE_REASON', 'paused by user')
+p = Path('.cursor/mcp-improvement-cycle/state.json')
+if not p.is_file():
+    raise SystemExit(0)
+s = json.loads(p.read_text(encoding='utf-8-sig'))
+ctrl = s.setdefault('cycle_control', {})
+ctrl['paused'] = True
+ctrl['paused_at'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+ctrl['paused_reason'] = reason
+ctrl['paused_by'] = 'user'
+s['status'] = 'paused'
+p.write_text(json.dumps(s, indent=2, ensure_ascii=False) + '\n', encoding='utf-8-sig')
+"@
+} finally {
+    Pop-Location
 }
 
 Write-Host "MCP cycle PAUSED. Stop hook will not inject followup."

@@ -136,6 +136,25 @@ def element_in_window_scope(
         },
         scope.get("window_title"),
     )
+    rw = int(rect.get("w") or rect.get("width") or 0)
+    rh = int(rect.get("h") or rect.get("height") or 0)
+    compact = rw > 0 and rh > 0 and (rw * rh) < 280_000
+    margin = 0 if compact else 2
+    if compact:
+        ex = int(normalized.get("x", 0))
+        ey = int(normalized.get("y", 0))
+        ew = int(normalized.get("width", 0) or 0)
+        eh = int(normalized.get("height", 0) or 0)
+        if ew <= 0 or eh <= 0:
+            return element_center_in_rect(normalized, rect, margin=margin)
+        rx = int(rect.get("x", 0))
+        ry = int(rect.get("y", 0))
+        return (
+            ex + ew > rx + margin
+            and ey + eh > ry + margin
+            and ex < rx + rw - margin
+            and ey < ry + rh - margin
+        )
     return element_center_in_rect(normalized, rect, margin=margin)
 
 
@@ -242,15 +261,22 @@ def filter_dict_elements_to_scope(
         pass
 
     aid = (automation_id or "").strip()
+    allowed_aids: set[str] = set()
+    if aid:
+        from detection.automation_id_aliases import alias_candidates
+
+        allowed_aids = set(alias_candidates(aid))
     kept: list[dict] = []
     rejected = 0
     for elem in elements:
         if not element_in_window_scope(elem, scope):
             rejected += 1
             continue
-        if aid and (elem.get("automation_id") or "").strip() != aid:
-            rejected += 1
-            continue
+        if allowed_aids:
+            elem_aid = (elem.get("automation_id") or "").strip()
+            if elem_aid not in allowed_aids:
+                rejected += 1
+                continue
         kept.append(elem)
     meta["rejected_foreign"] = rejected
     return kept, meta

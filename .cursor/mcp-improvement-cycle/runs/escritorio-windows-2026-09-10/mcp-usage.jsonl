@@ -1,0 +1,883 @@
+{"ts":"2026-09-10T22:40:00-03:00","tool":"launch_app","flow_id":"F-02","mode":"execute_flow","outcome":"ok","timing_ms":null,"notes":"explorer /select probe"}
+
+{"ts":"2026-09-10T22:40:05-03:00","tool":"set_target_window","flow_id":"F-02","mode":"execute_flow","outcome":"ok","timing_ms":null,"notes":"hwnd=1182180"}
+
+{"ts":"2026-09-10T22:40:10-03:00","tool":"send_keys","flow_id":"F-02","mode":"execute_flow","uia_pattern":"keyboard","act_method":"alt+d","interacted":true,"outcome":"ok","timing_ms":null,"notes":"address bar"}
+
+{"ts":"2026-09-10T22:40:12-03:00","tool":"type_text","flow_id":"F-02","mode":"execute_flow","act_method":"keyboard","interacted":true,"outcome":"ok","timing_ms":null,"notes":"lab path TEMP"}
+
+{"ts":"2026-09-10T22:40:14-03:00","tool":"send_keys","flow_id":"F-02","mode":"execute_flow","act_method":"enter","interacted":true,"outcome":"ok","timing_ms":null,"notes":"navigate"}
+
+{"ts":"2026-09-10T22:40:18-03:00","tool":"find_element","flow_id":"F-03","mode":"execute_flow","uia_role":"ListItem","uia_control":"ListItem","interacted":false,"outcome":"ok","timing_ms":1080,"notes":"awdui_probe_readonly.txt"}
+
+{"ts":"2026-09-10T22:40:22-03:00","tool":"screenshot","flow_id":"F-02","mode":"execute_flow","interacted":false,"outcome":"ok","timing_ms":null,"notes":"awdui_1789079615257_1.png"}
+
+{"ts":"2026-09-10T22:47:00-03:00","tool":"launch_app","flow_id":null,"mode":"discover_flows","outcome":"ok","notes":"reopen lab folder"}
+
+{"ts":"2026-09-10T22:47:05-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok","notes":"hwnd=1182180 lab path title"}
+
+{"ts":"2026-09-10T22:47:10-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"TabItem","interacted":false,"outcome":"ok","timing_ms":358,"notes":"3 tabs"}
+
+{"ts":"2026-09-10T22:47:15-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","interacted":false,"outcome":"ok","timing_ms":12524,"notes":"SLOW ribbon+nav"}
+
+{"ts":"2026-09-10T22:47:25-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"RadioButton","interacted":false,"outcome":"ok","timing_ms":9713,"notes":"SLOW view modes"}
+
+{"ts":"2026-09-10T22:47:35-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Edit","interacted":false,"outcome":"ok","timing_ms":16307,"notes":"SLOW search+columns"}
+
+{"ts":"2026-09-10T22:51:00-03:00","tool":"set_target_window","flow_id":"F-04","mode":"execute_flow","outcome":"ok","notes":"hwnd=1182180"}
+
+{"ts":"2026-09-10T22:51:02-03:00","tool":"check_session_status","flow_id":"F-04","mode":"execute_flow","interacted":false,"outcome":"ok","notes":"target_alive"}
+
+{"ts":"2026-09-10T22:51:10-03:00","tool":"ascii_ui_view","flow_id":"F-04","mode":"execute_flow","interacted":false,"outcome":"ok","notes":"16/85 basic legible"}
+
+{"ts":"2026-09-10T22:51:20-03:00","tool":"list_elements","flow_id":"F-04","mode":"execute_flow","uia_role":"Tree","interacted":false,"outcome":"ok","timing_ms":11911,"notes":"Vista en ÃÂ¡rbol id=100 SLOW"}
+
+{"ts":"2026-09-10T22:51:25-03:00","tool":"screenshot","flow_id":"F-04","mode":"execute_flow","outcome":"ok","notes":"awdui_1789079809774_2.png"}
+
+{"ts":"2026-09-10T22:55:00-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok","notes":"hwnd=1182180"}
+
+{"ts":"2026-09-10T22:55:05-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"SplitButton","timing_ms":10410,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T22:55:10-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"MenuItem","timing_ms":1487,"outcome":"ok"}
+
+{"ts":"2026-09-10T22:55:12-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"TreeItem","timing_ms":2428,"outcome":"ok"}
+
+{"ts":"2026-09-10T22:59:00-03:00","tool":"set_target_window","flow_id":"F-05","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T22:59:02-03:00","tool":"check_session_status","flow_id":"F-05","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T22:59:05-03:00","tool":"find_element","flow_id":"F-05","uia_role":"TabItem","timing_ms":766,"outcome":"ok"}
+
+{"ts":"2026-09-10T22:59:10-03:00","tool":"invoke_element","flow_id":"F-05","uia_pattern":"SelectionItem","timing_ms":7821,"outcome":"partial","notes":"verify fail act OK"}
+
+{"ts":"2026-09-10T22:59:20-03:00","tool":"list_elements","flow_id":"F-05","uia_role":"Button","timing_ms":19721,"outcome":"ok","notes":"SLOW verify panel"}
+
+{"ts":"2026-09-10T22:59:30-03:00","tool":"screenshot","flow_id":"F-05","mode":"execute_flow","outcome":"ok","notes":"awdui_1789079947224_3.png"}
+
+{"ts":"2026-09-10T23:03:00-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok","notes":"F-05 subtree"}
+
+{"ts":"2026-09-10T23:03:05-03:00","tool":"find_element","mode":"discover_flows","timing_ms":7724,"outcome":"fail","notes":"panel cerrado SLOW"}
+
+{"ts":"2026-09-10T23:03:12-03:00","tool":"invoke_element","flow_id":"F-05","mode":"discover_flows","timing_ms":1877,"outcome":"ok","notes":"reopen Vista"}
+
+{"ts":"2026-09-10T23:03:20-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","timing_ms":17086,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:03:30-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"CheckBox","timing_ms":10937,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:06:00-03:00","tool":"set_target_window","flow_id":"F-06","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:06:02-03:00","tool":"check_session_status","flow_id":"F-06","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:06:05-03:00","tool":"find_element","flow_id":"F-06","uia_role":"TabItem","timing_ms":568,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:06:08-03:00","tool":"invoke_element","flow_id":"F-06","uia_pattern":"SelectionItem","timing_ms":1085,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:06:15-03:00","tool":"list_elements","flow_id":"F-06","uia_role":"Button","timing_ms":11455,"outcome":"ok","notes":"SLOW verify"}
+
+{"ts":"2026-09-10T23:06:22-03:00","tool":"screenshot","flow_id":"F-06","mode":"execute_flow","outcome":"ok","notes":"awdui_1789080103455_4.png"}
+
+{"ts":"2026-09-10T23:09:00-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok","notes":"F-06 subtree"}
+
+{"ts":"2026-09-10T23:09:05-03:00","tool":"find_element","mode":"discover_flows","timing_ms":6528,"outcome":"fail","notes":"panel closed SLOW"}
+
+{"ts":"2026-09-10T23:09:12-03:00","tool":"invoke_element","flow_id":"F-06","mode":"discover_flows","timing_ms":1061,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:09:18-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","timing_ms":12288,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:09:25-03:00","tool":"find_element","mode":"discover_flows","timing_ms":55614,"outcome":"fail","notes":"especÃÂ­ficos NOT FOUND extreme"}
+
+{"ts":"2026-09-10T23:11:30-03:00","tool":"set_target_window","flow_id":"F-07","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:11:32-03:00","tool":"check_session_status","flow_id":"F-07","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:11:35-03:00","tool":"find_element","flow_id":"F-07","uia_role":"TabItem","timing_ms":513,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:11:38-03:00","tool":"invoke_element","flow_id":"F-07","timing_ms":1035,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:11:42-03:00","tool":"find_element","flow_id":"F-07","timing_ms":292,"outcome":"ok","notes":"Copiar"}
+
+{"ts":"2026-09-10T23:11:44-03:00","tool":"find_element","flow_id":"F-07","timing_ms":268,"outcome":"ok","notes":"Pegar"}
+
+{"ts":"2026-09-10T23:11:48-03:00","tool":"screenshot","flow_id":"F-07","mode":"execute_flow","outcome":"ok","notes":"awdui_1789080290653_5.png"}
+
+{"ts":"2026-09-10T23:14:00-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok","notes":"F-07 subtree"}
+
+{"ts":"2026-09-10T23:14:05-03:00","tool":"find_element","mode":"discover_flows","timing_ms":7437,"outcome":"fail","notes":"Copiar absent SLOW"}
+
+{"ts":"2026-09-10T23:14:12-03:00","tool":"invoke_element","flow_id":"F-07","mode":"discover_flows","timing_ms":1141,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:14:18-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","timing_ms":12575,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:21:30-03:00","tool":"check_session_status","flow_id":"F-08","mode":"execute_flow","timing_ms":0,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:21:32-03:00","tool":"find_element","flow_id":"F-08","mode":"execute_flow","timing_ms":590,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:21:35-03:00","tool":"invoke_element","flow_id":"F-08","mode":"execute_flow","timing_ms":1067,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:21:38-03:00","tool":"list_elements","flow_id":"F-08","mode":"execute_flow","uia_role":"MenuItem","timing_ms":1011,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:21:40-03:00","tool":"press_key","flow_id":"F-08","mode":"execute_flow","timing_ms":0,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:21:42-03:00","tool":"find_element","flow_id":"F-08","mode":"execute_flow","timing_ms":373,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:21:45-03:00","tool":"screenshot","flow_id":"F-08","mode":"execute_flow","timing_ms":0,"outcome":"ok","notes":"awdui_1789080433063_6.png"}
+
+{"ts":"2026-09-10T23:26:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-08","outcome":"ok"}
+
+{"ts":"2026-09-10T23:26:02-03:00","tool":"check_session_status","mode":"discover_flows","scope":"F-08","outcome":"ok"}
+
+{"ts":"2026-09-10T23:26:05-03:00","tool":"invoke_element","mode":"discover_flows","scope":"F-08","timing_ms":1048,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:26:10-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"MenuItem","timing_ms":988,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:26:45-03:00","tool":"find_element","mode":"discover_flows","timing_ms":36354,"outcome":"not_found","notes":"SLOW neg Borrar historial"}
+
+{"ts":"2026-09-10T23:26:55-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","timing_ms":10583,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:27:00-03:00","tool":"invoke_element","mode":"discover_flows","timing_ms":597,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:27:05-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"MenuItem","timing_ms":1606,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:27:06-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"ListItem","timing_ms":173,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:27:10-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789080588744_7.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:27:12-03:00","tool":"press_key","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:00-03:00","tool":"set_target_window","flow_id":"F-10","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:02-03:00","tool":"check_session_status","flow_id":"F-10","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:04-03:00","tool":"find_element","flow_id":"F-10","timing_ms":131,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:06-03:00","tool":"click_element","flow_id":"F-10","timing_ms":191,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:08-03:00","tool":"get_focused_element","flow_id":"F-10","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:10-03:00","tool":"press_key","flow_id":"F-10","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:12-03:00","tool":"find_element","flow_id":"F-10","timing_ms":359,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:31:14-03:00","tool":"screenshot","flow_id":"F-10","notes":"awdui_1789080667298_8.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-10","outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:02-03:00","tool":"check_session_status","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:04-03:00","tool":"click_element","mode":"discover_flows","timing_ms":194,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:08-03:00","tool":"find_element","mode":"discover_flows","timing_ms":201,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:09-03:00","tool":"find_element","mode":"discover_flows","timing_ms":166,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:10-03:00","tool":"get_focused_element","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:18-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","timing_ms":12035,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:34:22-03:00","tool":"invoke_element","mode":"discover_flows","timing_ms":568,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:35-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Button","timing_ms":12513,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:34:40-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789080775159_9.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:45-03:00","tool":"find_element","mode":"discover_flows","timing_ms":333,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:46-03:00","tool":"find_element","mode":"discover_flows","timing_ms":278,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:47-03:00","tool":"find_element","mode":"discover_flows","timing_ms":270,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:48-03:00","tool":"find_element","mode":"discover_flows","timing_ms":361,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:49-03:00","tool":"find_element","mode":"discover_flows","timing_ms":347,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:50-03:00","tool":"find_element","mode":"discover_flows","timing_ms":344,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:52-03:00","tool":"invoke_element","mode":"discover_flows","timing_ms":771,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:34:54-03:00","tool":"find_element","mode":"discover_flows","timing_ms":335,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:00-03:00","tool":"set_target_window","flow_id":"F-11","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:02-03:00","tool":"check_session_status","flow_id":"F-11","outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:04-03:00","tool":"find_element","flow_id":"F-11","timing_ms":606,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:06-03:00","tool":"invoke_element","flow_id":"F-11","timing_ms":1753,"outcome":"fail"}
+
+{"ts":"2026-09-10T23:38:10-03:00","tool":"click_element","flow_id":"F-11","timing_ms":1493,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:12-03:00","tool":"list_elements","flow_id":"F-11","uia_role":"MenuItem","timing_ms":1250,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:14-03:00","tool":"press_key","flow_id":"F-11","outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:16-03:00","tool":"check_session_status","flow_id":"F-11","outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:18-03:00","tool":"find_element","flow_id":"F-11","timing_ms":391,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:20-03:00","tool":"screenshot","flow_id":"F-11","notes":"awdui_1789080880887_10.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:38:22-03:00","tool":"press_key","flow_id":"F-11","outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-11","outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:02-03:00","tool":"check_session_status","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:05-03:00","tool":"click_element","mode":"discover_flows","timing_ms":1564,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:10-03:00","tool":"find_element","mode":"discover_flows","timing_ms":300,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:11-03:00","tool":"find_element","mode":"discover_flows","timing_ms":237,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:12-03:00","tool":"find_element","mode":"discover_flows","timing_ms":254,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:13-03:00","tool":"find_element","mode":"discover_flows","timing_ms":248,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:14-03:00","tool":"find_element","mode":"discover_flows","timing_ms":233,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:15-03:00","tool":"find_element","mode":"discover_flows","timing_ms":245,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:18-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789080969807_11.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:42:20-03:00","tool":"press_key","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:00-03:00","tool":"set_target_window","flow_id":"F-12","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:02-03:00","tool":"check_session_status","flow_id":"F-12","outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:04-03:00","tool":"find_element","flow_id":"F-12","timing_ms":677,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:08-03:00","tool":"invoke_element","flow_id":"F-12","timing_ms":1973,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:12-03:00","tool":"list_elements","flow_id":"F-12","uia_role":"MenuItem","timing_ms":895,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:14-03:00","tool":"find_element","flow_id":"F-12","timing_ms":1080,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:16-03:00","tool":"screenshot","flow_id":"F-12","notes":"awdui_1789081056367_12.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:18-03:00","tool":"press_key","flow_id":"F-12","outcome":"ok"}
+
+{"ts":"2026-09-10T23:46:20-03:00","tool":"find_element","flow_id":"F-12","timing_ms":356,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-12","outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:02-03:00","tool":"check_session_status","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:05-03:00","tool":"invoke_element","mode":"discover_flows","timing_ms":1615,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:08-03:00","tool":"get_focused_element","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:18-03:00","tool":"find_element","mode":"discover_flows","timing_ms":8967,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:50:22-03:00","tool":"find_element","mode":"discover_flows","timing_ms":1600,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:30-03:00","tool":"find_element","mode":"discover_flows","timing_ms":1305,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:38-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"SplitButton","timing_ms":9535,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:50:42-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789081184936_13.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:44-03:00","tool":"press_key","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:50:46-03:00","tool":"find_element","mode":"discover_flows","timing_ms":393,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:00-03:00","tool":"set_target_window","flow_id":"F-15","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:02-03:00","tool":"check_session_status","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:04-03:00","tool":"find_element","flow_id":"F-15","timing_ms":605,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:06-03:00","tool":"invoke_element","flow_id":"F-15","timing_ms":1188,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:10-03:00","tool":"list_windows","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:25-03:00","tool":"find_element","flow_id":"F-15","timing_ms":13383,"outcome":"not_found","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:54:28-03:00","tool":"screenshot","flow_id":"F-15","notes":"awdui_1789081287379_14.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:30-03:00","tool":"focus_window","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:32-03:00","tool":"press_key_combo","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:35-03:00","tool":"set_target_window","flow_id":"F-15","outcome":"fail"}
+
+{"ts":"2026-09-10T23:54:40-03:00","tool":"launch_app","flow_id":"F-15","outcome":"partial","notes":"closed 5 duplicates"}
+
+{"ts":"2026-09-10T23:54:50-03:00","tool":"set_target_window","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:52-03:00","tool":"find_element","flow_id":"F-15","timing_ms":402,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:54-03:00","tool":"check_session_status","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:54:56-03:00","tool":"screenshot","flow_id":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-15","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:02-03:00","tool":"check_session_status","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:05-03:00","tool":"invoke_element","mode":"discover_flows","timing_ms":1512,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:08-03:00","tool":"list_windows","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:10-03:00","tool":"set_target_window","mode":"discover_flows","notes":"Edge help","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:12-03:00","tool":"list_elements","mode":"discover_flows","uia_role":"Link","outcome":"empty"}
+
+{"ts":"2026-09-10T23:58:16-03:00","tool":"find_element","mode":"discover_flows","timing_ms":3746,"outcome":"not_found","notes":"SLOW"}
+
+{"ts":"2026-09-10T23:58:20-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789081459943_16.png","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:22-03:00","tool":"press_key_combo","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:24-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:26-03:00","tool":"find_element","mode":"discover_flows","timing_ms":915,"outcome":"ok"}
+
+{"ts":"2026-09-10T23:58:28-03:00","tool":"repo_hints_set","mode":"discover_flows","outcome":"fail"}
+
+{"ts":"2026-09-10T24:02:00-03:00","tool":"set_target_window","flow_id":"F-18","mode":"execute_flow","outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:02-03:00","tool":"check_session_status","flow_id":"F-18","outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:05-03:00","tool":"invoke_element","flow_id":"F-18","timing_ms":2271,"outcome":"ok","notes":"TabItem Vista"}
+
+{"ts":"2026-09-10T24:02:08-03:00","tool":"find_element","flow_id":"F-18","timing_ms":818,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:10-03:00","tool":"invoke_element","flow_id":"F-18","timing_ms":459,"outcome":"fail","notes":"Vistas"}
+
+{"ts":"2026-09-10T24:02:12-03:00","tool":"click_element","flow_id":"F-18","timing_ms":1709,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:15-03:00","tool":"list_elements","flow_id":"F-18","uia_role":"MenuItem","timing_ms":1461,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:40-03:00","tool":"find_element","flow_id":"F-18","timing_ms":27586,"outcome":"not_found","notes":"SLOW"}
+
+{"ts":"2026-09-10T24:02:42-03:00","tool":"find_element","flow_id":"F-18","timing_ms":249,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:45-03:00","tool":"screenshot","flow_id":"F-18","notes":"awdui_1789081622623_17.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:47-03:00","tool":"press_key","flow_id":"F-18","outcome":"ok"}
+
+{"ts":"2026-09-10T24:02:49-03:00","tool":"find_element","flow_id":"F-18","timing_ms":358,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:06:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-18","outcome":"ok"}
+
+{"ts":"2026-09-10T24:06:02-03:00","tool":"invoke_element","scope":"F-18","timing_ms":1960,"outcome":"ok","notes":"TabItem Vista"}
+
+{"ts":"2026-09-10T24:06:05-03:00","tool":"click_element","scope":"F-18","outcome":"fail","notes":"Button/Group Vistas"}
+
+{"ts":"2026-09-10T24:06:08-03:00","tool":"discover_control_interaction","scope":"F-18","outcome":"ok"}
+
+{"ts":"2026-09-10T24:06:12-03:00","tool":"list_elements","scope":"F-18","timing_ms":10589,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T24:06:15-03:00","tool":"screenshot","scope":"F-18","notes":"awdui_1789081732996_18.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:06:17-03:00","tool":"press_key","scope":"F-18","outcome":"ok"}
+
+{"ts":"2026-09-10T24:06:19-03:00","tool":"find_element","scope":"F-18","timing_ms":389,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:09:00-03:00","tool":"set_target_window","flow_id":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:09:02-03:00","tool":"invoke_element","flow_id":"F-22","timing_ms":1169,"outcome":"ok","notes":"TabItem Compartir"}
+
+{"ts":"2026-09-10T24:09:04-03:00","tool":"find_element","flow_id":"F-22","timing_ms":264,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:09:06-03:00","tool":"invoke_element","flow_id":"F-22","timing_ms":911,"outcome":"ok","notes":"Seguridad avanzada"}
+
+{"ts":"2026-09-10T24:09:08-03:00","tool":"list_windows","flow_id":"F-22","outcome":"ok","notes":"modal #32770"}
+
+{"ts":"2026-09-10T24:09:09-03:00","tool":"find_element","flow_id":"F-22","timing_ms":979,"outcome":"ok","notes":"Cancelar"}
+
+{"ts":"2026-09-10T24:09:11-03:00","tool":"screenshot","flow_id":"F-22","notes":"awdui_1789081821092_19.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:09:13-03:00","tool":"invoke_element","flow_id":"F-22","timing_ms":1829,"outcome":"fail","notes":"Cancel target explorer"}
+
+{"ts":"2026-09-10T24:09:15-03:00","tool":"click_element","flow_id":"F-22","outcome":"fail","notes":"scope foreground"}
+
+{"ts":"2026-09-10T24:09:17-03:00","tool":"focus_window","flow_id":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:09:19-03:00","tool":"invoke_element","flow_id":"F-22","timing_ms":388,"outcome":"ok","notes":"Cancel"}
+
+{"ts":"2026-09-10T24:09:21-03:00","tool":"list_windows","flow_id":"F-22","outcome":"ok","notes":"modal dismissed"}
+
+{"ts":"2026-09-10T24:09:23-03:00","tool":"set_target_window","flow_id":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:09:25-03:00","tool":"find_element","flow_id":"F-22","timing_ms":338,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:11:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:11:02-03:00","tool":"invoke_element","scope":"F-22","timing_ms":2237,"outcome":"ok","notes":"TabItem Compartir"}
+
+{"ts":"2026-09-10T24:11:05-03:00","tool":"invoke_element","scope":"F-22","timing_ms":945,"outcome":"ok","notes":"Seguridad avanzada"}
+
+{"ts":"2026-09-10T24:11:07-03:00","tool":"focus_window","scope":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:11:10-03:00","tool":"list_elements","scope":"F-22","timing_ms":11571,"outcome":"ok","notes":"SLOW"}
+
+{"ts":"2026-09-10T24:11:25-03:00","tool":"find_element","scope":"F-22","timing_ms":22796,"outcome":"not_found","notes":"Deshabilitar herencia SLOW"}
+
+{"ts":"2026-09-10T24:11:28-03:00","tool":"find_element","scope":"F-22","timing_ms":1385,"outcome":"ok","notes":"ButtonViewAce"}
+
+{"ts":"2026-09-10T24:11:30-03:00","tool":"find_element","scope":"F-22","timing_ms":1289,"outcome":"ok","notes":"LUAChangeButton"}
+
+{"ts":"2026-09-10T24:11:32-03:00","tool":"find_element","scope":"F-22","timing_ms":23674,"outcome":"not_found","notes":"Tab AuditorÃÂ­a SLOW"}
+
+{"ts":"2026-09-10T24:11:35-03:00","tool":"get_snapshot","scope":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:11:38-03:00","tool":"find_element","scope":"F-22","timing_ms":955,"outcome":"ok","notes":"Acceso efectivo"}
+
+{"ts":"2026-09-10T24:11:40-03:00","tool":"screenshot","scope":"F-22","notes":"awdui_1789082027673_20.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:11:42-03:00","tool":"invoke_element","scope":"F-22","timing_ms":1841,"outcome":"fail","notes":"Cancel sin focus"}
+
+{"ts":"2026-09-10T24:11:44-03:00","tool":"focus_window","scope":"F-22","outcome":"ok"}
+
+{"ts":"2026-09-10T24:11:46-03:00","tool":"invoke_element","scope":"F-22","timing_ms":304,"outcome":"ok","notes":"Cancel"}
+
+{"ts":"2026-09-10T24:16:00-03:00","tool":"set_target_window","flow_id":"F-23","outcome":"ok"}
+
+{"ts":"2026-09-10T24:16:02-03:00","tool":"invoke_element","flow_id":"F-23","timing_ms":2558,"outcome":"ok","notes":"TabItem Compartir"}
+
+{"ts":"2026-09-10T24:16:05-03:00","tool":"list_elements","flow_id":"F-23","timing_ms":5826,"outcome":"ok","notes":"role Button SLOW"}
+
+{"ts":"2026-09-10T24:16:08-03:00","tool":"invoke_element","flow_id":"F-23","timing_ms":721,"outcome":"warn","notes":"SelectionItem TabItem"}
+
+{"ts":"2026-09-10T24:16:10-03:00","tool":"click_element","flow_id":"F-23","outcome":"fail"}
+
+{"ts":"2026-09-10T24:16:12-03:00","tool":"expand_element","flow_id":"F-23","timing_ms":10725,"outcome":"warn","notes":"SLOW wrong target"}
+
+{"ts":"2026-09-10T24:16:20-03:00","tool":"click","flow_id":"F-23","outcome":"ok","notes":"613,172"}
+
+{"ts":"2026-09-10T24:16:22-03:00","tool":"find_element","flow_id":"F-23","timing_ms":20442,"outcome":"not_found","notes":"Copiar enlace SLOW"}
+
+{"ts":"2026-09-10T24:16:25-03:00","tool":"click_element","flow_id":"F-23","timing_ms":3790,"outcome":"warn","notes":"ListItem verify fail"}
+
+{"ts":"2026-09-10T24:16:28-03:00","tool":"screenshot","flow_id":"F-23","notes":"_23.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:16:35-03:00","tool":"invoke_element","flow_id":"F-23","timing_ms":954,"outcome":"ok","notes":"Usuarios especÃÂ­ficos wizard"}
+
+{"ts":"2026-09-10T24:16:38-03:00","tool":"invoke_element","flow_id":"F-23","timing_ms":1685,"outcome":"ok","notes":"Cancel wizard"}
+
+{"ts":"2026-09-10T24:16:40-03:00","tool":"find_element","flow_id":"F-23","timing_ms":357,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:21:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"raÃÂ­z","outcome":"ok"}
+
+{"ts":"2026-09-10T24:21:02-03:00","tool":"get_snapshot","mode":"discover_flows","outcome":"ok","notes":"max_depth 5 count 81"}
+
+{"ts":"2026-09-10T24:21:05-03:00","tool":"find_element","mode":"discover_flows","timing_ms":881,"outcome":"ok","notes":"PestaÃÂ±a Archivo"}
+
+{"ts":"2026-09-10T24:21:07-03:00","tool":"find_element","mode":"discover_flows","timing_ms":703,"outcome":"ok","notes":"Ubicaciones anteriores"}
+
+{"ts":"2026-09-10T24:21:09-03:00","tool":"find_element","mode":"discover_flows","timing_ms":1290,"outcome":"ok","notes":"Opciones fuzzy"}
+
+{"ts":"2026-09-10T24:21:11-03:00","tool":"find_element","mode":"discover_flows","timing_ms":1061,"outcome":"ok","notes":"Minimizar cinta"}
+
+{"ts":"2026-09-10T24:21:14-03:00","tool":"find_element","mode":"discover_flows","timing_ms":8985,"outcome":"not_found","notes":"Panel navegaciÃÂ³n SLOW"}
+
+{"ts":"2026-09-10T24:21:16-03:00","tool":"find_element","mode":"discover_flows","timing_ms":802,"outcome":"not_found","notes":"Actualizar short name"}
+
+{"ts":"2026-09-10T24:21:18-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789082576279_27.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:21:20-03:00","tool":"find_element","mode":"discover_flows","timing_ms":452,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:00-03:00","tool":"set_target_window","flow_id":"F-23","outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:02-03:00","tool":"invoke_element","flow_id":"F-23","timing_ms":1849,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:05-03:00","tool":"click_element","flow_id":"F-23","timing_ms":4769,"outcome":"warn","notes":"Abrir con"}
+
+{"ts":"2026-09-10T24:24:08-03:00","tool":"element_at_point","flow_id":"F-23","outcome":"ok","notes":"Light Dismiss"}
+
+{"ts":"2026-09-10T24:24:10-03:00","tool":"screenshot","flow_id":"F-23","notes":"_28.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:12-03:00","tool":"press_key","flow_id":"F-23","outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:14-03:00","tool":"invoke_element","flow_id":"F-23","timing_ms":3533,"outcome":"warn"}
+
+{"ts":"2026-09-10T24:24:16-03:00","tool":"get_element_bounds","flow_id":"F-23","outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:18-03:00","tool":"click","flow_id":"F-23","outcome":"ok","notes":"613,172"}
+
+{"ts":"2026-09-10T24:24:20-03:00","tool":"screenshot","flow_id":"F-23","notes":"_29.png _30.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:24:25-03:00","tool":"find_element","flow_id":"F-23","timing_ms":1003,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:26:00-03:00","tool":"set_target_window","mode":"discover_flows","scope":"raÃÂ­z","outcome":"ok"}
+
+{"ts":"2026-09-10T24:26:02-03:00","tool":"get_snapshot","mode":"discover_flows","outcome":"ok","notes":"count 83"}
+
+{"ts":"2026-09-10T24:26:05-03:00","tool":"find_element","mode":"discover_flows","timing_ms":980,"outcome":"ok"}
+
+{"ts":"2026-09-10T24:26:07-03:00","tool":"find_element","mode":"discover_flows","timing_ms":1277,"outcome":"ok","notes":"LaunchAppButton"}
+
+{"ts":"2026-09-10T24:26:09-03:00","tool":"find_element","mode":"discover_flows","timing_ms":177,"outcome":"ok","notes":"Dropdown"}
+
+{"ts":"2026-09-10T24:26:11-03:00","tool":"screenshot","mode":"discover_flows","notes":"awdui_1789082849896_31.png","outcome":"ok"}
+
+{"ts":"2026-09-10T24:26:13-03:00","tool":"find_element","mode":"discover_flows","timing_ms":380,"outcome":"ok","notes":"probe"}
+
+{"ts":"2026-09-10T24:29:00-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok","notes":"hwnd 2231810"}
+
+{"ts":"2026-09-10T24:29:01-03:00","tool":"find_element","mode":"execute_flow","timing_ms":201,"outcome":"ok","notes":"ViewMode_LargeIcons"}
+
+{"ts":"2026-09-10T24:29:02-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":526,"outcome":"ok","notes":"F-09 act"}
+
+{"ts":"2026-09-10T24:29:03-03:00","tool":"read_element","mode":"execute_flow","outcome":"ok","notes":"has_focus"}
+
+{"ts":"2026-09-10T24:29:04-03:00","tool":"find_element","mode":"execute_flow","timing_ms":766,"outcome":"ok","notes":"probe"}
+
+{"ts":"2026-09-10T24:29:05-03:00","tool":"screenshot","mode":"execute_flow","outcome":"ok","notes":"awdui_1789082920659_32.png"}
+
+{"ts":"2026-09-10T24:29:06-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok","notes":"clear"}
+
+{"ts":"2026-09-10T24:31:00-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T24:31:01-03:00","tool":"find_element","mode":"execute_flow","timing_ms":174,"outcome":"ok","notes":"F-92 ViewButtonsGroup"}
+{"ts":"2026-09-10T24:31:02-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":3796,"outcome":"warn","notes":"F-23 ListItem SLOW"}
+{"ts":"2026-09-10T24:31:03-03:00","tool":"get_element_bounds","mode":"execute_flow","outcome":"ok","notes":"Button Compartir"}
+{"ts":"2026-09-10T24:31:04-03:00","tool":"click","mode":"execute_flow","outcome":"ok","notes":"F-23 select+share"}
+{"ts":"2026-09-10T24:31:05-03:00","tool":"get_snapshot","mode":"execute_flow","outcome":"ok","notes":"SharePickerFlyout"}
+{"ts":"2026-09-10T24:31:06-03:00","tool":"press_key","mode":"execute_flow","outcome":"ok","notes":"Escape"}
+{"ts":"2026-09-10T24:31:07-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok","notes":"clear"}
+
+{"ts":"2026-09-10T24:34:00-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T24:34:01-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":1294,"outcome":"ok","notes":"TabItem Inicio"}
+{"ts":"2026-09-10T24:34:02-03:00","tool":"spy_inspect","mode":"execute_flow","outcome":"ok","notes":"Historial disabled"}
+{"ts":"2026-09-10T24:34:03-03:00","tool":"find_element","mode":"execute_flow","timing_ms":26542,"outcome":"fail","notes":"F-29 verify SLOW"}
+{"ts":"2026-09-10T24:34:04-03:00","tool":"screenshot","mode":"execute_flow","outcome":"ok","notes":"_37.png"}
+
+{"ts":"2026-09-10T24:36:00-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok"}
+{"ts":"2026-09-10T24:36:01-03:00","tool":"get_snapshot","mode":"discover_flows","outcome":"ok","notes":"depth6 120 nodes"}
+{"ts":"2026-09-10T24:36:02-03:00","tool":"find_element","mode":"discover_flows","timing_ms":934,"outcome":"ok","notes":"probe"}
+{"ts":"2026-09-10T24:36:03-03:00","tool":"screenshot","mode":"discover_flows","outcome":"ok","notes":"_38.png"}
+
+{"ts":"2026-09-10T24:38:00-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T24:38:01-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":1059,"outcome":"ok","notes":"F-85"}
+{"ts":"2026-09-10T24:38:02-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":587,"outcome":"ok","notes":"F-30 Propiedades"}
+{"ts":"2026-09-10T24:38:03-03:00","tool":"spy_inspect","mode":"execute_flow","outcome":"ok","notes":"F-29 blocked"}
+
+{"ts":"2026-09-10T24:40:00-03:00","tool":"set_target_window","mode":"discover_flows","outcome":"ok"}
+{"ts":"2026-09-10T24:40:01-03:00","tool":"get_snapshot","mode":"discover_flows","outcome":"ok","notes":"F-30 tabs"}
+{"ts":"2026-09-10T24:40:02-03:00","tool":"invoke_element","mode":"discover_flows","timing_ms":2414,"outcome":"warn","notes":"TabItem Inicio SLOW"}
+
+{"ts":"2026-09-10T24:42:00-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok","notes":"hwnd 2231810"}
+{"ts":"2026-09-10T24:42:01-03:00","tool":"click_element","mode":"execute_flow","timing_ms":188,"outcome":"ok","notes":"SearchEditBox"}
+{"ts":"2026-09-10T24:42:02-03:00","tool":"expand_element","mode":"execute_flow","timing_ms":936,"outcome":"ok","notes":"F-42"}
+{"ts":"2026-09-10T24:42:03-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":862,"outcome":"ok","notes":"Cerrar bÃºsqueda"}
+
+{"ts":"2026-09-10T24:42:00-03:00","tool":"set_target_window","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T24:42:01-03:00","tool":"click_element","mode":"execute_flow","timing_ms":188,"outcome":"ok","notes":"SearchEditBox"}
+{"ts":"2026-09-10T24:42:02-03:00","tool":"expand_element","mode":"execute_flow","timing_ms":936,"outcome":"ok","notes":"F-42"}
+{"ts":"2026-09-10T24:42:03-03:00","tool":"invoke_element","mode":"execute_flow","timing_ms":862,"outcome":"ok","notes":"Cerrar busqueda"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "hwnd 2231810 F-42"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 216, "outcome": "ok", "notes": "SearchEditBox"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "expand_element", "mode": "discover_flows", "timing_ms": 1147, "outcome": "ok", "notes": "F-42 reopen"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "130 nodes flyout"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 919, "outcome": "ok", "notes": "Cerrar busqueda"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "screenshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "awdui_1789083901417_43.png"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 1047, "outcome": "ok", "notes": "Cerrar busqueda retry"}
+{"ts": "2026-09-10T20:45:32-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "hwnd 2231810"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 941, "outcome": "ok", "notes": "PestaÃ±a Archivo F-85"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "178 nodes backstage"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 0, "outcome": "fail", "notes": "TabItem Inicio invoke fail"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "press_key", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "Escape x2"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "find_element", "mode": "discover_flows", "timing_ms": 278, "outcome": "ok", "notes": "Cerrar bÃºsqueda exists"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 1136, "outcome": "ok", "notes": "Cerrar bÃºsqueda"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "screenshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "awdui_1789084033126_44.png"}
+{"ts": "2026-09-10T20:47:38-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "hwnd 2231810"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "press_key", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "Escape"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 0, "outcome": "fail", "notes": "TabItem Inicio invoke fail"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "find_element", "mode": "discover_flows", "timing_ms": 25269, "outcome": "slow", "notes": "Cerrar busqueda NOT FOUND"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "122 nodes pass-6"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "screenshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "awdui_1789084191968_45.png"}
+{"ts": "2026-09-10T20:50:11-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "hwnd 2231810"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "invoke_element", "mode": "discover_flows", "timing_ms": 2048, "outcome": "ok", "notes": "TabItem Vista"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "122 Vista"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "invoke_element", "mode": "discover_flows", "timing_ms": 634, "outcome": "ok", "notes": "TabItem Compartir"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "110 Compartir"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "invoke_element", "mode": "discover_flows", "timing_ms": 633, "outcome": "ok", "notes": "TabItem Inicio restore"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "screenshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "awdui_1789084338240_46.png"}
+{"ts": "2026-09-10T20:52:39-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-43"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 165, "outcome": "ok", "notes": "SearchEditBox"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 951, "outcome": "ok", "notes": "Opciones avanzadas"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "VERIFY menu AQS"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "Escape"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 889, "outcome": "ok", "notes": "Cerrar busqueda"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 322, "outcome": "ok", "notes": "probe ListItem"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "_47.png"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "Escape x2"}
+{"ts": "2026-09-10T20:54:02-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "F-43 discover"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 192, "outcome": "ok", "notes": "SearchEditBox"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "expand_element", "mode": "discover_flows", "timing_ms": 904, "outcome": "ok", "notes": "Opciones avanzadas"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "4 MenuItem AQS"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "press_key", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "Escape"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "click_element", "mode": "discover_flows", "timing_ms": 0, "outcome": "fail", "notes": "Cerrar busqueda ya cerrado"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "find_element", "mode": "discover_flows", "timing_ms": 334, "outcome": "ok", "notes": "probe"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "screenshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "_48.png"}
+{"ts": "2026-09-10T20:56:04-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-64"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 743, "outcome": "ok", "notes": "OBS probe"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 1017, "outcome": "ok", "notes": "Ayuda"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "list_windows", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "msedge help title"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "focus_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "Edge help"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "dudoso", "notes": "_49 explorer pin"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "focus_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "Edge re-focus"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "press_key_combo", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "ctrl+w"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "hwnd 2231810"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 339, "outcome": "ok", "notes": "VERIFY probe"}
+{"ts": "2026-09-10T20:57:26-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-98 lab hwnd 2231810"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 1220, "outcome": "ok", "notes": "F-98 Nuevo elemento"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "VERIFY menu items"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "_50.png"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 3753, "outcome": "slow", "notes": "dismiss menu; verify fail selection"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "probe unchanged"}
+{"ts": "2026-09-10T20:59:10-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "clear post F-98"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "F-98 subtree"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "invoke_element", "mode": "discover_flows", "timing_ms": 605, "outcome": "ok", "notes": "TabItem Inicio"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "expand_element", "mode": "discover_flows", "timing_ms": 813, "outcome": "ok", "notes": "Nuevo elemento flyout"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "MenuItem scan"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "get_snapshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "include_offscreen Carpeta"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "screenshot", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "_51.png"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "focus_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "cerrar menu"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "press_key", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "escape"}
+{"ts": "2026-09-10T21:02:30-0300", "tool": "set_target_window", "mode": "discover_flows", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-71 lab"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "OBS Ordenar"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 2037, "outcome": "slow", "notes": "TabItem Vista"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "SplitButton Ordenar por"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 1357, "outcome": "ok", "notes": "F-71 flyout"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "VERIFY MenuItem"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "_52.png"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "focus_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "dismiss"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "escape x2"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 4591, "outcome": "slow", "notes": "cerrar flyout"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "probe"}
+{"ts": "2026-09-10T21:04:30-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-72"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "OBS Agrupar por"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 809, "outcome": "ok", "notes": "F-72 flyout"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "VERIFY MenuItem"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "_53.png"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "focus_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "dismiss attempt"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "escape"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 870, "outcome": "ok", "notes": "SplitButton toggle fail open"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 876, "outcome": "ok", "notes": "ListItem dismiss flyout"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "probe"}
+{"ts": "2026-09-10T21:06:30-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "clear"}
+{"ts": "2026-09-10T21:12:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 649, "outcome": "ok", "notes": "F-75 submodal Cerrar"}
+{"ts": "2026-09-10T21:12:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 224, "outcome": "ok", "notes": "F-75 Cancel modal seguridad"}
+{"ts": "2026-09-10T21:12:00-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-75 verify probe"}
+{"ts": "2026-09-10T21:12:00-0300", "tool": "set_target_window", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "lab hwnd 2231810"}
+{"ts": "2026-09-10T21:14:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 612, "outcome": "ok", "notes": "F-99 TabItem Inicio"}
+{"ts": "2026-09-10T21:14:00-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 838, "outcome": "ok", "notes": "F-99 Fácil acceso"}
+{"ts": "2026-09-10T21:14:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-99 _57.png"}
+{"ts": "2026-09-10T21:14:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 3738, "outcome": "slow", "notes": "F-99 dismiss flyout verify fail"}
+{"ts": "2026-09-10T21:20:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 512, "outcome": "ok", "notes": "F-76 TabItem Acceso efectivo"}
+{"ts": "2026-09-10T21:20:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 220, "outcome": "ok", "notes": "F-76 Cancel modal"}
+{"ts": "2026-09-10T21:20:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 17864, "outcome": "slow", "notes": "F-76 verify neg Comprobar"}
+{"ts": "2026-09-10T21:20:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-76 _60.png"}
+{"ts": "2026-09-10T21:23:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 431, "outcome": "ok", "notes": "F-77 TabItem Permisos"}
+{"ts": "2026-09-10T21:23:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 106, "outcome": "ok", "notes": "F-77 AceListView automation_id"}
+{"ts": "2026-09-10T21:23:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 218, "outcome": "ok", "notes": "F-77 Cancel"}
+{"ts": "2026-09-10T21:23:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-77 _61.png"}{"ts": "2026-09-10T21:25:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 1447, "outcome": "ok", "notes": "F-86 Ubicaciones anteriores"}
+{"ts": "2026-09-10T21:25:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-86 Escape dismiss"}
+{"ts": "2026-09-10T21:25:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 33219, "outcome": "slow", "notes": "F-86 verify Toolbar Direccion"}
+{"ts": "2026-09-10T21:25:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-86 _62.png"}{"ts": "2026-09-10T21:27:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 1074, "outcome": "ok", "notes": "F-87 minimize ribbon"}
+{"ts": "2026-09-10T21:27:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 712, "outcome": "ok", "notes": "F-87 restore ribbon"}
+{"ts": "2026-09-10T21:27:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 735, "outcome": "ok", "notes": "F-87 TabItem Vista verify"}
+{"ts": "2026-09-10T21:27:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-87 _63.png"}{"ts": "2026-09-10T21:29:00-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-88 probe pre"}
+{"ts": "2026-09-10T21:29:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 1543, "outcome": "ok", "notes": "F-88 Actualizar F5"}
+{"ts": "2026-09-10T21:29:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-88 _64.png"}
+{"ts": "2026-09-10T21:29:00-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-88 probe post"}{"ts": "2026-09-10T21:30:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 601, "outcome": "ok", "notes": "F-89 QAT button"}
+{"ts": "2026-09-10T21:30:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 1231, "outcome": "ok", "notes": "F-89 open QAT menu"}
+{"ts": "2026-09-10T21:30:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 4462, "outcome": "slow", "notes": "F-89 dismiss QAT menu"}
+{"ts": "2026-09-10T21:30:00-0300", "tool": "screenshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-89 _65.png"}{"ts": "2026-09-10T21:35:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 218, "outcome": "ok", "notes": "F-90 Dropdown"}
+{"ts": "2026-09-10T21:35:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 312, "outcome": "ok", "notes": "F-90 open column filter"}
+{"ts": "2026-09-10T21:35:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "partial", "notes": "F-90 escape x1 insufficient"}
+{"ts": "2026-09-10T21:35:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 6224, "outcome": "slow", "notes": "F-90 dismiss attempt probe"}
+{"ts": "2026-09-10T21:35:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-90 escape x2 closed filter"}
+{"ts": "2026-09-10T21:35:00-0300", "tool": "element_exists", "mode": "execute_flow", "timing_ms": 300, "outcome": "ok", "notes": "F-90 verify filter gone"}
+{"ts": "2026-09-10T21:42:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 8480, "outcome": "slow", "notes": "F-101 Abrir SplitButton ambiguous"}
+{"ts": "2026-09-10T21:42:00-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 18233, "outcome": "slow", "notes": "F-101 wrong target Nuevo elemento"}
+{"ts": "2026-09-10T21:42:00-0300", "tool": "click", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-101 chevron 941,85"}
+{"ts": "2026-09-10T21:42:00-0300", "tool": "list_elements", "mode": "execute_flow", "timing_ms": 1648, "outcome": "ok", "notes": "F-101 menu 6 apps"}
+{"ts": "2026-09-10T21:42:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-101 escape dismiss"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 1179, "outcome": "ok", "notes": "F-91 LaunchAppButton"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 1772, "outcome": "ok", "notes": "F-91 abre Propiedades no flyout"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 20966, "outcome": "slow", "notes": "F-91 intento flyout"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 4996, "outcome": "slow", "notes": "F-91 reselect probe"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 1793, "outcome": "ok", "notes": "F-91 verify invoke"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "element_exists", "mode": "execute_flow", "timing_ms": 500, "outcome": "ok", "notes": "F-91 Se abre con"}
+{"ts": "2026-09-10T21:50:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 171, "outcome": "ok", "notes": "F-91 Cancelar"}
+{"ts": "2026-09-10T21:55:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 769, "outcome": "ok", "notes": "F-93 TabItem Compartir"}
+{"ts": "2026-09-10T21:55:00-0300", "tool": "click", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-93 select probe + Enviar Compartir 48,112"}
+{"ts": "2026-09-10T21:55:00-0300", "tool": "element_exists", "mode": "execute_flow", "timing_ms": 1500, "outcome": "ok", "notes": "F-93 SharePickerFlyout"}
+{"ts": "2026-09-10T21:55:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-93 dismiss flyout"}
+{"ts": "2026-09-10T22:00:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 2313, "outcome": "ok", "notes": "F-94 open share via Button Compartir"}
+{"ts": "2026-09-10T22:00:00-0300", "tool": "wait_for_element", "mode": "execute_flow", "timing_ms": 6470, "outcome": "fail", "notes": "F-94 SharePickerFlyout timeout"}
+{"ts": "2026-09-10T22:00:00-0300", "tool": "wait_for_element", "mode": "execute_flow", "timing_ms": 9337, "outcome": "fail", "notes": "F-94 CopyFileButton timeout"}
+{"ts": "2026-09-10T22:00:00-0300", "tool": "list_elements", "mode": "execute_flow", "timing_ms": 18734, "outcome": "slow", "notes": "F-94 search CopyFile offscreen"}
+{"ts": "2026-09-10T22:00:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 2448, "outcome": "fail", "notes": "F-94 CopyFileButton"}
+{"ts": "2026-09-10T22:05:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 4179, "outcome": "ok", "notes": "F-94 CopyFileButton visible"}
+{"ts": "2026-09-10T22:05:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 3666, "outcome": "ok", "notes": "F-94 CopyFileButton visible retry"}
+{"ts": "2026-09-10T22:05:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 2566, "outcome": "fail", "notes": "F-94 post-wait not found"}
+{"ts": "2026-09-10T22:05:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-94 dismiss flyout"}
+{"ts": "2026-09-10T22:08:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 4445, "outcome": "ok", "notes": "F-95 SuggestedContactGridView"}
+{"ts": "2026-09-10T22:08:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 4210, "outcome": "ok", "notes": "F-95 CopyFileButton hydration proxy"}
+{"ts": "2026-09-10T22:08:00-0300", "tool": "element_exists", "mode": "execute_flow", "timing_ms": 800, "outcome": "fail", "notes": "F-95 grid post-wait"}
+{"ts": "2026-09-10T22:08:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-95 dismiss"}
+{"ts": "2026-09-10T22:11:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 3527, "outcome": "ok", "notes": "F-96 hydration CopyFileButton"}
+{"ts": "2026-09-10T22:11:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 4244, "outcome": "ok", "notes": "F-96 SharePicker_GetMoreApps"}
+{"ts": "2026-09-10T22:11:00-0300", "tool": "wait_for_condition", "mode": "execute_flow", "timing_ms": 31069, "outcome": "slow", "notes": "F-96 name Obtener aplicaciones timeout"}
+{"ts": "2026-09-10T22:11:00-0300", "tool": "element_exists", "mode": "execute_flow", "timing_ms": 800, "outcome": "fail", "notes": "F-96 post-wait GetMoreApps"}
+{"ts": "2026-09-10T22:13:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 1808, "outcome": "ok", "notes": "F-102 Acceso rapido TreeItem"}
+{"ts": "2026-09-10T22:13:00-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 435, "outcome": "ok", "notes": "F-102 expand nav tree"}
+{"ts": "2026-09-10T22:13:00-0300", "tool": "element_exists", "mode": "execute_flow", "timing_ms": 1000, "outcome": "ok", "notes": "F-102 verify anclados"}
+{"ts": "2026-09-10T22:18:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 152, "outcome": "ok", "notes": "F-103 Tab Inicio"}
+{"ts": "2026-09-10T22:18:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 158, "outcome": "ok", "notes": "F-103 Propiedades SplitButton"}
+{"ts": "2026-09-10T22:18:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 560, "outcome": "ok", "notes": "F-103 Tab General"}
+{"ts": "2026-09-10T22:18:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 9504, "outcome": "ok", "notes": "F-103 verify Tipo de archivo SLOW"}
+{"ts": "2026-09-10T22:18:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 212, "outcome": "ok", "notes": "F-103 Cancelar"}
+{"ts": "2026-09-10T22:18:00-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-103 probe post-cancel"}
+{"ts": "2026-09-10T22:22:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 4492, "outcome": "warn", "notes": "F-104 probe select SLOW verify fail"}
+{"ts": "2026-09-10T22:22:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 173, "outcome": "ok", "notes": "F-104 folder Propiedades"}
+{"ts": "2026-09-10T22:22:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 520, "outcome": "ok", "notes": "F-104 Tab Uso compartido"}
+{"ts": "2026-09-10T22:22:00-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-104 verify Compartir 1059"}
+{"ts": "2026-09-10T22:22:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 110, "outcome": "ok", "notes": "F-104 Cancelar"}
+{"ts": "2026-09-10T22:22:00-0300", "tool": "list_elements", "mode": "execute_flow", "timing_ms": 19619, "outcome": "ok", "notes": "F-104 diag SLOW"}
+{"ts": "2026-09-10T22:26:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 4951, "outcome": "warn", "notes": "F-105 probe select SLOW verify fail"}
+{"ts": "2026-09-10T22:26:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 612, "outcome": "ok", "notes": "F-105 Tab Seguridad"}
+{"ts": "2026-09-10T22:26:00-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-105 verify ACL UI"}
+{"ts": "2026-09-10T22:26:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 194, "outcome": "ok", "notes": "F-105 Cancelar"}
+{"ts": "2026-09-10T22:30:00-0300", "tool": "click", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-106 probe select coords"}
+{"ts": "2026-09-10T22:30:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 505, "outcome": "ok", "notes": "F-106 Tab Versiones anteriores"}
+{"ts": "2026-09-10T22:30:00-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-106 verify EmptyText"}
+{"ts": "2026-09-10T22:30:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 149, "outcome": "ok", "notes": "F-106 Cancelar"}
+{"ts": "2026-09-10T22:34:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 4139, "outcome": "ok", "notes": "F-107 Subir Temp SLOW"}
+{"ts": "2026-09-10T22:34:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 4630, "outcome": "ok", "notes": "F-107 select carpeta lab verified"}
+{"ts": "2026-09-10T22:34:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 767, "outcome": "ok", "notes": "F-107 Tab Personalizar"}
+{"ts": "2026-09-10T22:34:00-0300", "tool": "get_snapshot", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-107 verify customize UI"}
+{"ts": "2026-09-10T22:34:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 220, "outcome": "ok", "notes": "F-107 Cancelar"}
+{"ts": "2026-09-10T22:38:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 7006, "outcome": "warn", "notes": "F-108 probe select SLOW"}
+{"ts": "2026-09-10T22:38:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 258, "outcome": "ok", "notes": "F-108 id=13154 Avanzados"}
+{"ts": "2026-09-10T22:38:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 192, "outcome": "ok", "notes": "F-108 Cancelar atributos"}
+{"ts": "2026-09-10T22:38:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 335, "outcome": "ok", "notes": "F-108 Cancelar props"}
+{"ts": "2026-09-10T22:42:00-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 304, "outcome": "ok", "notes": "F-135 Mover a flyout"}
+{"ts": "2026-09-10T22:42:00-0300", "tool": "list_elements", "mode": "execute_flow", "timing_ms": 3219, "outcome": "ok", "notes": "F-135 verify MenuItem SLOW"}
+{"ts": "2026-09-10T22:42:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-135 Escape dismiss"}
+{"ts": "2026-09-10T22:46:00-0300", "tool": "expand_element", "mode": "execute_flow", "timing_ms": 327, "outcome": "ok", "notes": "F-136 Copiar a flyout"}
+{"ts": "2026-09-10T22:46:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 1967, "outcome": "ok", "notes": "F-136 verify Elegir ubicacion"}
+{"ts": "2026-09-10T22:46:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-136 Escape"}
+{"ts": "2026-09-10T22:50:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 4060, "outcome": "ok", "notes": "F-137 Atras SLOW"}
+{"ts": "2026-09-10T22:50:00-0300", "tool": "find_element", "mode": "execute_flow", "timing_ms": 3773, "outcome": "ok", "notes": "F-137 verify salida lab"}
+{"ts": "2026-09-10T22:50:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 6125, "outcome": "ok", "notes": "F-137 restore carpeta SLOW verify"}
+{"ts": "2026-09-10T22:54:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 3418, "outcome": "ok", "notes": "F-138 prep Atras SLOW"}
+{"ts": "2026-09-10T22:54:00-0300", "tool": "invoke_element", "mode": "execute_flow", "timing_ms": 4622, "outcome": "ok", "notes": "F-138 Adelante SLOW"}
+{"ts": "2026-09-10T22:54:00-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-138 verify probe lab"}
+{"ts": "2026-09-10T22:58:00-0300", "tool": "click_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "fail", "notes": "F-139 ToolBar 1001 invoke fail"}
+{"ts": "2026-09-10T22:58:00-0300", "tool": "press_key_combo", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-139 Alt+D address bar"}
+{"ts": "2026-09-10T22:58:00-0300", "tool": "read_element", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-139 verify path lab"}
+{"ts": "2026-09-10T22:58:00-0300", "tool": "press_key", "mode": "execute_flow", "timing_ms": 0, "outcome": "ok", "notes": "F-139 Escape"}
+{"ts":"2026-09-10T23:00:00-03:00","tool":"set_target_window","flow_id":"F-140","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:00:00-03:00","tool":"click","flow_id":"F-140","timing_ms":0,"outcome":"ok","notes":"chevron Disco local ~872,258"}
+{"ts":"2026-09-10T23:00:00-03:00","tool":"list_elements","flow_id":"F-140","uia_role":"ListItem","timing_ms":1303,"outcome":"ok"}
+{"ts":"2026-09-10T23:00:00-03:00","tool":"screenshot","flow_id":"F-140","notes":"awdui_1789091724504_168.png","outcome":"ok"}
+{"ts":"2026-09-10T23:00:00-03:00","tool":"press_key","flow_id":"F-140","outcome":"ok","notes":"Escape flyout"}
+{"ts":"2026-09-10T23:00:00-03:00","tool":"find_element","flow_id":"F-140","timing_ms":639,"outcome":"ok"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"set_target_window","flow_id":"F-141","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"find_element","flow_id":"F-141","timing_ms":1104,"outcome":"ok"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"read_element","flow_id":"F-141","outcome":"ok","notes":"SplitButton Usuarios 878,247"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"click","flow_id":"F-141","outcome":"ok","notes":"chevron 953,260"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"list_elements","flow_id":"F-141","uia_role":"ListItem","timing_ms":1002,"outcome":"ok"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"screenshot","flow_id":"F-141","notes":"awdui_1789091855160_169.png","outcome":"ok"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"press_key","flow_id":"F-141","outcome":"ok"}
+{"ts":"2026-09-10T23:02:00-03:00","tool":"find_element","flow_id":"F-141","timing_ms":655,"outcome":"ok"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"set_target_window","flow_id":"F-142","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"find_element","flow_id":"F-142","timing_ms":1161,"outcome":"ok"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"list_elements","flow_id":"F-142","uia_role":"SplitButton","timing_ms":8484,"outcome":"ok","notes":"SLOW"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"click","flow_id":"F-142","outcome":"ok","notes":"chevron 1069,260"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"list_elements","flow_id":"F-142","uia_role":"ListItem","timing_ms":2145,"outcome":"ok"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"screenshot","flow_id":"F-142","notes":"awdui_1789091972491_170.png","outcome":"ok"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"press_key","flow_id":"F-142","outcome":"ok"}
+{"ts":"2026-09-10T23:05:00-03:00","tool":"find_element","flow_id":"F-142","timing_ms":623,"outcome":"ok"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"set_target_window","flow_id":"F-143","outcome":"ok"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"find_element","flow_id":"F-143","timing_ms":1378,"outcome":"ok"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"expand_element","flow_id":"F-143","timing_ms":23921,"outcome":"fail","notes":"navego Usuarios SLOW"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"list_elements","flow_id":"F-143","uia_role":"SplitButton","timing_ms":13310,"outcome":"ok","notes":"SLOW"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"click","flow_id":"F-143","outcome":"ok","notes":"chevron 591,200"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"screenshot","flow_id":"F-143","notes":"awdui_1789092372582_171.png","outcome":"ok"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"press_key","flow_id":"F-143","outcome":"ok"}
+{"ts":"2026-09-10T23:08:00-03:00","tool":"find_element","flow_id":"F-143","timing_ms":650,"outcome":"ok"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"set_target_window","flow_id":"F-144","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"find_element","flow_id":"F-144","timing_ms":1389,"outcome":"ok"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"find_element","flow_id":"F-144","timing_ms":969,"outcome":"ok","notes":"SplitButton Local"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"click","flow_id":"F-144","outcome":"ok","notes":"chevron 653,200"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"list_elements","flow_id":"F-144","uia_role":"ListItem","timing_ms":1818,"outcome":"ok"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"screenshot","flow_id":"F-144","notes":"awdui_1789092471212_172.png","outcome":"ok"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"press_key","flow_id":"F-144","outcome":"ok"}
+{"ts":"2026-09-10T23:11:00-03:00","tool":"find_element","flow_id":"F-144","timing_ms":752,"outcome":"ok"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"set_target_window","flow_id":"F-145","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"find_element","flow_id":"F-145","timing_ms":1393,"outcome":"ok"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"find_element","flow_id":"F-145","timing_ms":1019,"outcome":"ok","notes":"SplitButton Temp"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"click","flow_id":"F-145","outcome":"ok","notes":"chevron 717,200"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"list_elements","flow_id":"F-145","uia_role":"ListItem","timing_ms":14366,"outcome":"ok","notes":"SLOW"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"screenshot","flow_id":"F-145","notes":"awdui_1789092579903_173.png","outcome":"ok"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"press_key","flow_id":"F-145","outcome":"ok"}
+{"ts":"2026-09-10T23:14:00-03:00","tool":"find_element","flow_id":"F-145","timing_ms":639,"outcome":"ok"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"set_target_window","flow_id":"F-146","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"find_element","flow_id":"F-146","timing_ms":1454,"outcome":"ok"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"find_element","flow_id":"F-146","timing_ms":1063,"outcome":"ok","notes":"Este equipo"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"expand_element","flow_id":"F-146","timing_ms":3443,"outcome":"ok","notes":"SLOW"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"find_element","flow_id":"F-146","timing_ms":3025,"outcome":"ok","notes":"Disco local C:"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"screenshot","flow_id":"F-146","notes":"awdui_1789092701288_174.png","outcome":"ok"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"expand_collapse_element","flow_id":"F-146","outcome":"ok","notes":"collapse"}
+{"ts":"2026-09-10T23:17:00-03:00","tool":"find_element","flow_id":"F-146","timing_ms":444,"outcome":"ok"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"set_target_window","flow_id":"F-147","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"find_element","flow_id":"F-147","timing_ms":1504,"outcome":"ok"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"expand_element","flow_id":"F-147","timing_ms":31464,"outcome":"ok","notes":"name_contains Invoke SLOW"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"expand_element","flow_id":"F-147","timing_ms":1816,"outcome":"ok","notes":"nombre completo ExpandCollapse"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"list_elements","flow_id":"F-147","uia_role":"TreeItem","timing_ms":2871,"outcome":"ok"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"screenshot","flow_id":"F-147","notes":"awdui_1789092871242_175.png","outcome":"ok"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"expand_collapse_element","flow_id":"F-147","outcome":"ok","notes":"collapse"}
+{"ts":"2026-09-10T23:20:00-03:00","tool":"find_element","flow_id":"F-147","timing_ms":421,"outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"set_target_window","flow_id":"F-148","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"find_element","flow_id":"F-148","timing_ms":980,"outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"find_element","flow_id":"F-148","timing_ms":649,"outcome":"ok","notes":"TreeItem Red"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"expand_element","flow_id":"F-148","timing_ms":1685,"outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"list_elements","flow_id":"F-148","uia_role":"TreeItem","timing_ms":940,"outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"screenshot","flow_id":"F-148","notes":"awdui_1789092986679_176.png","outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"expand_collapse_element","flow_id":"F-148","outcome":"fail","notes":"invalid state collapse"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"press_key","flow_id":"F-148","outcome":"ok"}
+{"ts":"2026-09-10T23:23:00-03:00","tool":"find_element","flow_id":"F-148","timing_ms":341,"outcome":"ok"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"set_target_window","flow_id":"F-150","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"invoke_element","flow_id":"F-150","timing_ms":2094,"outcome":"ok","notes":"TabItem Vista"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"find_element","flow_id":"F-150","timing_ms":7464,"outcome":"ok","notes":"SplitButton SLOW"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"click","flow_id":"F-150","outcome":"ok","notes":"chevron 72,88"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"list_elements","flow_id":"F-150","uia_role":"MenuItem","timing_ms":1222,"outcome":"ok"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"screenshot","flow_id":"F-150","notes":"awdui_1789093211335_177.png","outcome":"ok"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"press_key","flow_id":"F-150","outcome":"ok"}
+{"ts":"2026-09-10T23:26:00-03:00","tool":"find_element","flow_id":"F-150","timing_ms":368,"outcome":"ok"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"set_target_window","flow_id":"F-151","mode":"execute_flow","outcome":"ok"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"find_element","flow_id":"F-151","timing_ms":992,"outcome":"ok"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"invoke_element","flow_id":"F-151","timing_ms":2009,"outcome":"ok","notes":"Vista"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"click_element","flow_id":"F-151","timing_ms":1088,"outcome":"ok","notes":"toggle on"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"find_element","flow_id":"F-151","timing_ms":30845,"outcome":"fail","notes":"desktop.ini neg SLOW"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"screenshot","flow_id":"F-151","notes":"awdui_1789093366606_178.png","outcome":"ok"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"click_element","flow_id":"F-151","timing_ms":861,"outcome":"ok","notes":"toggle off restore"}
+{"ts":"2026-09-10T23:29:00-03:00","tool":"find_element","flow_id":"F-151","timing_ms":348,"outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"set_target_window","flow_id":"F-152","outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"find_element","flow_id":"F-152","timing_ms":667,"outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"invoke_element","flow_id":"F-152","timing_ms":2475,"outcome":"ok_warn","notes":"Tab Vista borderline"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"read_element","flow_id":"F-152","outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"expand_element","flow_id":"F-152","timing_ms":828,"outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"find_element","flow_id":"F-152","timing_ms":242,"outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"screenshot","flow_id":"F-152","notes":"awdui_1789093449685_179.png","outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"send_keys","flow_id":"F-152","outcome":"ok"}
+{"ts":"2026-09-10T23:31:00-03:00","tool":"find_element","flow_id":"F-152","timing_ms":354,"outcome":"ok"}
+{"ts":"2026-09-11T12:10:00-03:00","tool":"set_target_window","flow_id":"F-153","outcome":"ok"}
+{"ts":"2026-09-11T12:10:00-03:00","tool":"find_element","flow_id":"F-153","timing_ms":2308,"outcome":"ok_warn"}
+{"ts":"2026-09-11T12:10:00-03:00","tool":"invoke_element","flow_id":"F-153","timing_ms":6377,"outcome":"slow","notes":"Tab Vista"}
+{"ts":"2026-09-11T12:10:00-03:00","tool":"set_target_window","flow_id":"F-153","outcome":"ok","notes":"cleared on pause"}

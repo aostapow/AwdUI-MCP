@@ -1,0 +1,2991 @@
+{
+  "version": 1,
+  "app_name": "Escritorio de Windows",
+  "updated_at": "2026-09-10T21:02:55-0300",
+  "cycle": {
+    "last_mode": "discover_flows",
+    "discover_scope": null,
+    "discover_passes_without_new": 0,
+    "last_discover_enqueued": 13,
+    "safety_policy": "Solo lectura en shell; cambios solo en carpeta TEMP del lab"
+  },
+  "flows": [
+    {
+      "id": "F-01",
+      "kind": "action",
+      "title": "Fase 0 — autodetección shell + Explorer",
+      "description": "list_desktop_windows, launch Explorador a carpeta lab, detect_framework, list_elements OBS",
+      "source": "seed",
+      "status": "met",
+      "priority": 1,
+      "parent_id": null,
+      "window_context": "Escritorio / Explorador",
+      "success_criteria": "discovered.yaml con hwnd, framework win32, controles clave citados",
+      "evidence_ref": "discovered.yaml",
+      "notes": "list_elements 15s Explorer; 6.3s desktop ListItem"
+    },
+    {
+      "id": "F-02",
+      "kind": "entry",
+      "title": "Navegar a carpeta de lab en TEMP",
+      "description": "Abrir solo %TEMP%\\awdui-lab-escritorio-2026-09-10 vía árbol o barra de direcciones",
+      "source": "seed",
+      "status": "met",
+      "priority": 2,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — Este equipo",
+      "window_after": "Vista de carpeta lab con awdui_probe_readonly.txt",
+      "success_criteria": "read_element o list_elements muestra el archivo probe; screenshot opcional",
+      "evidence_ref": "awdui_1789079615257_1.png",
+      "notes": "Alt+D ruta TEMP+Enter; find ListItem 1080ms; sin Papelera"
+    },
+    {
+      "id": "F-03",
+      "kind": "action",
+      "title": "Leer archivo probe (solo lectura)",
+      "description": "Verificar presencia del txt creado por el lab sin editar ni renombrar",
+      "source": "seed",
+      "status": "met",
+      "priority": 3,
+      "parent_id": "F-02",
+      "window_context": "Explorador — carpeta lab",
+      "success_criteria": "ListItem o nombre awdui_probe_readonly.txt visible en UIA",
+      "evidence_ref": "find_element ListItem awdui_probe_readonly.txt 1080ms",
+      "notes": ""
+    },
+    {
+      "id": "F-04",
+      "kind": "entry",
+      "title": "Mapa ASCII del Explorador (ribbon + árbol)",
+      "description": "ascii_ui_view detail=basic en ventana Explorador",
+      "source": "discovered",
+      "status": "met",
+      "priority": 4,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "success_criteria": "ascii_ui_view devuelve leyenda con ribbon y árbol",
+      "discovery_signals": [
+        "Ribbon",
+        "Tree id=100"
+      ],
+      "evidence_ref": "awdui_1789079809774_2.png; ascii 16/85 leyenda ribbon; Tree id=100 list 11911ms",
+      "notes": "detail=basic; árbol confirmado list_elements role=Tree (no en grid basic por occlusion)"
+    },
+    {
+      "id": "F-05",
+      "kind": "entry",
+      "title": "Abrir ficha Cinta Vista",
+      "description": "Seleccionar TabItem Vista en el ribbon del Explorador",
+      "source": "discovered",
+      "status": "met",
+      "priority": 5,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Panel Vista de la cinta visible",
+      "success_criteria": "TabItem Vista selected o controles del panel Vista en list_elements",
+      "discovered_from": "discover_flows raíz",
+      "discovery_signals": [
+        "TabItem: Vista"
+      ],
+      "evidence_ref": "awdui_1789079947224_3.png; Panel vista previa/detalles/Vistas en list_elements",
+      "notes": "invoke SelectionItem act OK; verify fail 5732ms SLOW; verify manual panel buttons"
+    },
+    {
+      "id": "F-06",
+      "kind": "entry",
+      "title": "Abrir ficha Cinta Compartir",
+      "description": "Seleccionar TabItem Compartir (sin enviar ni modificar permisos)",
+      "source": "discovered",
+      "status": "met",
+      "priority": 6,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Panel Compartir visible",
+      "success_criteria": "TabItem Compartir activo; screenshot del panel",
+      "discovered_from": "discover_flows raíz",
+      "discovery_signals": [
+        "TabItem: Compartir"
+      ],
+      "evidence_ref": "awdui_1789080103455_4.png; Correo electrónico/Comprimir/Seguridad avanzada",
+      "notes": "invoke 1085ms OK; list_button 11455ms SLOW; sin clic en envío"
+    },
+    {
+      "id": "F-07",
+      "kind": "entry",
+      "title": "Abrir ficha Cinta Inicio",
+      "description": "Seleccionar TabItem Inicio en el ribbon",
+      "source": "discovered",
+      "status": "met",
+      "priority": 7,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Panel Inicio visible",
+      "success_criteria": "TabItem Inicio activo; list_elements muestra comandos Inicio",
+      "discovered_from": "discover_flows raíz",
+      "discovery_signals": [
+        "TabItem: Inicio"
+      ],
+      "evidence_ref": "awdui_1789080290653_5.png; Copiar 292ms Pegar 268ms",
+      "notes": "invoke 1035ms; find Copiar 292ms Pegar 268ms; sin clic en Cortar/Nueva carpeta"
+    },
+    {
+      "id": "F-08",
+      "kind": "entry",
+      "title": "Abrir flyout Ubicaciones recientes",
+      "description": "Invoke botón Ubicaciones recientes en barra de navegación",
+      "source": "discovered",
+      "status": "met",
+      "priority": 8,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Lista de ubicaciones recientes desplegada",
+      "success_criteria": "Menú o lista recientes visible; cerrar sin navegar fuera del lab",
+      "discovered_from": "discover_flows raíz",
+      "discovery_signals": [
+        "Button: Ubicaciones recientes"
+      ],
+      "evidence_ref": "awdui_1789080433063_6.png; MenuItem awdui-lab-escritorio-2026-09-10; Escape; probe 373ms",
+      "notes": "invoke 1067ms; list MenuItem 1011ms; sin seleccionar ruta"
+    },
+    {
+      "id": "F-09",
+      "kind": "action",
+      "title": "Cambiar modo vista a Iconos grandes",
+      "description": "Seleccionar RadioButton ViewMode_LargeIcons en barra de estado (solo vista lab)",
+      "source": "discovered",
+      "status": "met",
+      "priority": 9,
+      "parent_id": "F-02",
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Vista iconos grandes; probe ListItem visible",
+      "success_criteria": "RadioButton Iconos grandes selected; probe sigue visible",
+      "discovered_from": "discover_flows raíz",
+      "discovery_signals": [
+        "RadioButton: Iconos grandes id=ViewMode_LargeIcons"
+      ],
+      "evidence_ref": "awdui_1789082920659_32.png; invoke SelectionItem verified; probe 766ms",
+      "notes": "find 201ms; invoke 526ms; sin list_elements RadioButton; has_focus true"
+    },
+    {
+      "id": "F-10",
+      "kind": "entry",
+      "title": "Enfocar cuadro de búsqueda",
+      "description": "Focus SearchEditBox sin escribir consulta (no buscar en todo el PC)",
+      "source": "discovered",
+      "status": "met",
+      "priority": 10,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Cuadro de búsqueda con foco",
+      "success_criteria": "get_focused_element name contiene búsqueda",
+      "discovered_from": "discover_flows raíz",
+      "discovery_signals": [
+        "Edit: Cuadro de búsqueda id=SearchEditBox"
+      ],
+      "evidence_ref": "awdui_1789080667298_8.png; SetFocus SearchEditBox; focused Cuadro de búsqueda; Escape; probe 359ms",
+      "notes": "click_element SetFocus 191ms; sin type_text"
+    },
+    {
+      "id": "F-11",
+      "kind": "entry",
+      "title": "Abrir menú Sistema de ventana",
+      "description": "Invoke MenuItem Sistema (icono esquina) y cerrar con Escape sin elegir Restaurar/Cerrar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 11,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Menú sistema desplegado brevemente",
+      "success_criteria": "Menú visible; Escape cierra; ventana lab sigue viva",
+      "discovered_from": "discover_flows raíz pass-2",
+      "discovery_signals": [
+        "MenuItem: Sistema"
+      ],
+      "evidence_ref": "awdui_1789080880887_10.png; Restaurar/Mover/Cerrar visibles; hwnd alive; probe 391ms",
+      "notes": "invoke_element fail sin pattern; click_element ExpandCollapse 1493ms OK"
+    },
+    {
+      "id": "F-12",
+      "kind": "entry",
+      "title": "Desplegar Todas las ubicaciones (breadcrumbs)",
+      "description": "Invoke SplitButton Todas las ubicaciones en barra de direcciones",
+      "source": "discovered",
+      "status": "met",
+      "priority": 12,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Lista de segmentos de ruta visible",
+      "success_criteria": "Flyout o menú ubicaciones; cerrar sin salir de carpeta lab",
+      "discovered_from": "discover_flows raíz pass-2",
+      "discovery_signals": [
+        "SplitButton: Todas las ubicaciones"
+      ],
+      "evidence_ref": "awdui_1789081056367_12.png; ruta completa en barra; probe 356ms",
+      "notes": "invoke abre Edit Dirección; sin MenuItem segmentos UIA"
+    },
+    {
+      "id": "F-13",
+      "kind": "action",
+      "title": "Ordenar por columna Nombre",
+      "description": "Invoke SplitButton cabecera Nombre en vista Detalles (solo reordenar vista)",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 13,
+      "parent_id": "F-02",
+      "window_context": "Explorador — carpeta lab vista Detalles",
+      "success_criteria": "Cabecera Nombre activa; probe sigue listado",
+      "discovered_from": "discover_flows raíz pass-2",
+      "discovery_signals": [
+        "SplitButton: Nombre id=System.ItemNameDisplay"
+      ]
+    },
+    {
+      "id": "F-14",
+      "kind": "action",
+      "title": "Cambiar modo vista a Detalles",
+      "description": "Seleccionar RadioButton ViewMode_Details en barra de estado",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 14,
+      "parent_id": "F-02",
+      "window_context": "Explorador — carpeta lab",
+      "success_criteria": "RadioButton Detalles selected",
+      "discovered_from": "discover_flows raíz pass-2",
+      "discovery_signals": [
+        "RadioButton: Detalles id=ViewMode_Details"
+      ]
+    },
+    {
+      "id": "F-15",
+      "kind": "entry",
+      "title": "Abrir panel Ayuda",
+      "description": "Invoke botón Ayuda del ribbon y cerrar sin cambios",
+      "source": "discovered",
+      "status": "met",
+      "priority": 15,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Panel o ventana Ayuda visible",
+      "success_criteria": "Ayuda abre; cierre vuelve a carpeta lab con probe",
+      "discovered_from": "discover_flows raíz pass-2",
+      "discovery_signals": [
+        "Button: Ayuda"
+      ],
+      "evidence_ref": "awdui_1789081287379_14.png; Edge help window; recovery explorer hwnd 2231810; probe 402ms",
+      "notes": "Ayuda→Edge Bing; cerrar Ctrl+W; repo Escritorio/Explorer/Ribbon/Ayuda"
+    },
+    {
+      "id": "F-16",
+      "kind": "action",
+      "title": "Alternar Panel de vista previa",
+      "description": "Toggle botón Panel de vista previa y restaurar estado inicial",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 16,
+      "parent_id": "F-05",
+      "window_context": "Cinta Vista abierta — carpeta lab",
+      "success_criteria": "Panel preview on/off verificado; probe visible; toggle restaurado",
+      "discovered_from": "discover_flows subárbol F-05",
+      "discovery_signals": [
+        "Button: Panel de vista previa"
+      ]
+    },
+    {
+      "id": "F-17",
+      "kind": "action",
+      "title": "Alternar Panel de detalles",
+      "description": "Toggle botón Panel de detalles y restaurar",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 17,
+      "parent_id": "F-05",
+      "window_context": "Cinta Vista abierta — carpeta lab",
+      "success_criteria": "Panel detalles on/off; restaurar al final",
+      "discovered_from": "discover_flows subárbol F-05",
+      "discovery_signals": [
+        "Button: Panel de detalles"
+      ]
+    },
+    {
+      "id": "F-18",
+      "kind": "entry",
+      "title": "Abrir menú Vistas (layout)",
+      "description": "Invoke botón Vistas para desplegar opciones de diseño",
+      "source": "discovered",
+      "status": "met",
+      "priority": 18,
+      "parent_id": "F-05",
+      "subtree_discovered": true,
+      "window_context": "Cinta Vista abierta",
+      "window_after": "Flyout o galería de vistas visible",
+      "success_criteria": "Menú Vistas visible; Escape cierra sin cambiar layout permanente",
+      "discovered_from": "discover_flows subárbol F-05",
+      "discovery_signals": [
+        "Button: Vistas",
+        "List: Vistas",
+        "ListItem x6",
+        "SplitButton: Ordenar por",
+        "SplitButton: Agrupar por"
+      ],
+      "evidence_ref": "awdui_1789081622623_17.png; awdui_1789081732996_18.png; galería ya abierta post-F-18",
+      "notes": "invoke Vistas fail; galería ListItem UIA; list_elements name_contains Vista 10.5s SLOW"
+    },
+    {
+      "id": "F-19",
+      "kind": "action",
+      "title": "Ajustar todas las columnas",
+      "description": "Invoke Ajustar todas las columnas en vista Detalles",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 19,
+      "parent_id": "F-05",
+      "window_context": "Cinta Vista — vista Detalles",
+      "success_criteria": "Columnas auto-ajustadas; probe sigue visible",
+      "discovered_from": "discover_flows subárbol F-05",
+      "discovery_signals": [
+        "Button: Ajustar todas las columnas"
+      ]
+    },
+    {
+      "id": "F-20",
+      "kind": "action",
+      "title": "Toggle extensiones de nombre de archivo",
+      "description": "CheckBox Extensiones de nombre de archivo on/off y restaurar",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 20,
+      "parent_id": "F-05",
+      "window_context": "Cinta Vista — Mostrar/ocultar",
+      "success_criteria": "Nombre probe muestra u oculta .txt según toggle; estado restaurado",
+      "discovered_from": "discover_flows subárbol F-05",
+      "discovery_signals": [
+        "CheckBox: Extensiones de nombre de archivo"
+      ]
+    },
+    {
+      "id": "F-21",
+      "kind": "action",
+      "title": "Toggle casillas de elemento",
+      "description": "CheckBox Casillas de elemento on/off y restaurar (solo vista)",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 21,
+      "parent_id": "F-05",
+      "window_context": "Cinta Vista — Mostrar/ocultar",
+      "success_criteria": "Casillas visibles o no; restaurar estado inicial",
+      "discovered_from": "discover_flows subárbol F-05",
+      "discovery_signals": [
+        "CheckBox: Casillas de elemento"
+      ]
+    },
+    {
+      "id": "F-22",
+      "kind": "entry",
+      "title": "Abrir Seguridad avanzada (Cancelar)",
+      "description": "Invoke Seguridad avanzada; cerrar diálogo sin cambiar permisos",
+      "source": "discovered",
+      "status": "met",
+      "priority": 22,
+      "parent_id": "F-06",
+      "subtree_discovered": true,
+      "window_context": "Cinta Compartir abierta",
+      "window_after": "Diálogo seguridad/permisos visible",
+      "success_criteria": "Modal #32770 o equivalente; Cancelar/Escape; probe intacto",
+      "discovered_from": "discover_flows subárbol F-06",
+      "discovery_signals": [
+        "Button: Seguridad avanzada",
+        "Button: Ver id=ButtonViewAce",
+        "TabItem: Acceso efectivo",
+        "Edit: Propietario",
+        "Hyperlink: Cambiar"
+      ],
+      "evidence_ref": "list_windows #32770 Configuración seguridad; awdui_1789081821092_19.png; Cancel invoke 388ms tras focus_window; probe 338ms",
+      "notes": "invoke Cancel fail con target explorer; focus_window modal antes de Cancel; discover _20.png list 11.5s SLOW"
+    },
+    {
+      "id": "F-23",
+      "kind": "entry",
+      "title": "Abrir flyout Compartir (panel Enviar)",
+      "description": "Invoke botón Compartir del grupo Enviar; cerrar sin compartir",
+      "source": "discovered",
+      "status": "met",
+      "priority": 23,
+      "parent_id": "F-06",
+      "subtree_discovered": true,
+      "window_context": "Cinta Compartir — grupo Enviar",
+      "window_after": "SharePickerFlyout visible",
+      "success_criteria": "UI compartir visible; Escape cierra sin envío",
+      "discovered_from": "discover_flows subárbol F-06",
+      "discovery_signals": [
+        "Button: Compartir (panel Enviar)",
+        "Pane SharePickerFlyout"
+      ],
+      "evidence_ref": "awdui_1789083063032_35.png; SharePickerControl UIA; Escape NOT FOUND flyout 1380ms",
+      "notes": "workaround: click ListItem (686,301)+click Enviar (613,172); invoke ListItem SLOW 3796ms verify fail; verify get_snapshot SharePickerFlyout"
+    },
+    {
+      "id": "F-24",
+      "kind": "action",
+      "title": "Comprimir a ZIP",
+      "description": "Omitido: crea archivo en carpeta",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 24,
+      "parent_id": "F-06",
+      "window_context": "Cinta Compartir",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows subárbol F-06",
+      "discovery_signals": [
+        "Button: Comprimir"
+      ],
+      "notes": "skip_mcp_value: política lab sin crear archivos"
+    },
+    {
+      "id": "F-25",
+      "kind": "action",
+      "title": "Correo electrónico",
+      "description": "Omitido: abre cliente de correo",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 25,
+      "parent_id": "F-06",
+      "window_context": "Cinta Compartir",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows subárbol F-06",
+      "discovery_signals": [
+        "Button: Correo electrónico"
+      ],
+      "notes": "skip_mcp_value: sin envío externo"
+    },
+    {
+      "id": "F-26",
+      "kind": "action",
+      "title": "Quitar acceso",
+      "description": "Omitido: modifica ACL",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 26,
+      "parent_id": "F-06",
+      "window_context": "Cinta Compartir",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows subárbol F-06",
+      "discovery_signals": [
+        "Button: Quitar acceso"
+      ],
+      "notes": "skip_mcp_value: política sin modificar permisos"
+    },
+    {
+      "id": "F-27",
+      "kind": "action",
+      "title": "Copiar ruta de acceso del probe",
+      "description": "Invoke Copiar ruta de acceso; verificar clipboard contiene TEMP lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 27,
+      "parent_id": "F-07",
+      "window_context": "Cinta Inicio — Portapapeles",
+      "success_criteria": "clipboard incluye awdui-lab-escritorio; sin Pegar",
+      "discovered_from": "discover_flows subárbol F-07",
+      "discovery_signals": [
+        "Button: Copiar ruta de acceso"
+      ]
+    },
+    {
+      "id": "F-28",
+      "kind": "action",
+      "title": "Seleccionar todo y deseleccionar",
+      "description": "Invoke Seleccionar todo luego No seleccionar ninguno",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 28,
+      "parent_id": "F-07",
+      "window_context": "Cinta Inicio — Seleccionar",
+      "success_criteria": "probe seleccionado brevemente; estado final sin selección",
+      "discovered_from": "discover_flows subárbol F-07",
+      "discovery_signals": [
+        "Button: Seleccionar todo",
+        "Button: No seleccionar ninguno"
+      ]
+    },
+    {
+      "id": "F-29",
+      "kind": "entry",
+      "title": "Abrir panel Historial",
+      "description": "Invoke Historial; cerrar sin restaurar versiones",
+      "source": "discovered",
+      "status": "blocked",
+      "priority": 29,
+      "parent_id": "F-07",
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — Abrir",
+      "window_after": "Panel historial de versiones (no abierto)",
+      "success_criteria": "Historial visible; Escape cierra",
+      "discovered_from": "discover_flows subárbol F-07",
+      "discovery_signals": [
+        "Button: Historial"
+      ],
+      "evidence_ref": "awdui_1789083284797_37.png; retry 24:38 spy is_enabled=False",
+      "notes": "blocked: fixture historial requerido (OneDrive/VSS); no find neg largo en retry"
+    },
+    {
+      "id": "F-30",
+      "kind": "entry",
+      "title": "Propiedades del probe (Cancelar)",
+      "description": "Invoke Propiedades del ribbon Inicio; cerrar diálogo sin cambios",
+      "source": "discovered",
+      "status": "met",
+      "priority": 30,
+      "parent_id": "F-07",
+      "subtree_discovered": true,
+      "window_context": "Cinta Inicio",
+      "window_after": "Diálogo Propiedades #32770",
+      "success_criteria": "Modal propiedades; Cancelar/Escape; archivo intacto",
+      "discovered_from": "discover_flows subárbol F-07",
+      "discovery_signals": [
+        "Button: Propiedades (panel Inicio)"
+      ],
+      "evidence_ref": "invoke Propiedades 587ms; Cancelar 292ms; Cancelar NOT FOUND 1122ms",
+      "notes": "SplitButton Propiedades; discover pass: tabs General..Personalizar; Versiones anteriores"
+    },
+    {
+      "id": "F-31",
+      "kind": "action",
+      "title": "Cortar",
+      "description": "Omitido: modifica portapapeles/archivo",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 31,
+      "parent_id": "F-07",
+      "discovery_signals": [
+        "Button: Cortar"
+      ],
+      "notes": "skip_mcp_value: política lab"
+    },
+    {
+      "id": "F-32",
+      "kind": "action",
+      "title": "Pegar",
+      "description": "Omitido: puede escribir en carpeta",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 32,
+      "parent_id": "F-07",
+      "discovery_signals": [
+        "Button: Pegar"
+      ],
+      "notes": "skip_mcp_value: política lab"
+    },
+    {
+      "id": "F-33",
+      "kind": "action",
+      "title": "Cambiar nombre",
+      "description": "Omitido: renombra archivo",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 33,
+      "parent_id": "F-07",
+      "discovery_signals": [
+        "Button: Cambiar nombre"
+      ],
+      "notes": "skip_mcp_value: sin modificar archivos"
+    },
+    {
+      "id": "F-34",
+      "kind": "action",
+      "title": "Nueva carpeta (Inicio)",
+      "description": "Omitido: crea carpeta",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 34,
+      "parent_id": "F-07",
+      "discovery_signals": [
+        "Button: Nueva carpeta"
+      ],
+      "notes": "skip_mcp_value: política lab"
+    },
+    {
+      "id": "F-35",
+      "kind": "action",
+      "title": "Anclar al acceso rápido",
+      "description": "Omitido: modifica acceso rápido del usuario",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 35,
+      "parent_id": "F-07",
+      "discovery_signals": [
+        "Button: Anclar al acceso rápido"
+      ],
+      "notes": "skip_mcp_value: no tocar anclajes usuario"
+    },
+    {
+      "id": "F-36",
+      "kind": "action",
+      "title": "Pegar acceso directo",
+      "description": "Omitido: crea .lnk en carpeta",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 36,
+      "parent_id": "F-07",
+      "discovery_signals": [
+        "Button: Pegar acceso directo"
+      ],
+      "notes": "skip_mcp_value: crea archivo"
+    },
+    {
+      "id": "F-37",
+      "kind": "action",
+      "title": "Seleccionar ubicación reciente carpeta lab",
+      "description": "Con flyout abierto, invoke MenuItem awdui-lab-escritorio-2026-09-10; verificar probe en vista",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 37,
+      "parent_id": "F-08",
+      "window_context": "Flyout Ubicaciones recientes",
+      "success_criteria": "Ruta lab en barra; ListItem awdui_probe_readonly.txt visible",
+      "discovered_from": "discover_flows subárbol F-08",
+      "discovery_signals": [
+        "MenuItem: awdui-lab-escritorio-2026-09-10"
+      ]
+    },
+    {
+      "id": "F-38",
+      "kind": "action",
+      "title": "Alcance búsqueda Carpeta actual",
+      "description": "Con herramientas búsqueda visibles, invoke Carpeta actual",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 38,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda",
+      "success_criteria": "Carpeta actual seleccionado; probe visible; Cerrar búsqueda al final si aplica",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "Button: Carpeta actual"
+      ]
+    },
+    {
+      "id": "F-39",
+      "kind": "action",
+      "title": "Alcance búsqueda Este equipo",
+      "description": "Invoke Este equipo en opciones de ubicación (sin texto en cuadro)",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 39,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda",
+      "success_criteria": "Este equipo activo; sin ejecutar búsqueda con texto",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "Button: Este equipo"
+      ]
+    },
+    {
+      "id": "F-40",
+      "kind": "action",
+      "title": "Alcance búsqueda Todas las subcarpetas",
+      "description": "Invoke Todas las subcarpetas",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 40,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda",
+      "success_criteria": "Todas las subcarpetas seleccionado",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "Button: Todas las subcarpetas"
+      ]
+    },
+    {
+      "id": "F-41",
+      "kind": "action",
+      "title": "Cerrar búsqueda",
+      "description": "Invoke Cerrar búsqueda; volver a vista carpeta lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 41,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda",
+      "success_criteria": "Ribbon Inicio/Vista; probe ListItem visible",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "Button: Cerrar búsqueda"
+      ]
+    },
+    {
+      "id": "F-42",
+      "kind": "entry",
+      "title": "Abrir Búsquedas recientes",
+      "description": "Expandir SplitButton Búsquedas recientes; Escape sin elegir",
+      "source": "discovered",
+      "status": "met",
+      "priority": 42,
+      "parent_id": "F-10",
+      "subtree_discovered": true,
+      "window_context": "Ribbon Herramientas de búsqueda",
+      "success_criteria": "Menú recientes visible; cerrar sin buscar",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "SplitButton: Búsquedas recientes"
+      ],
+      "evidence_ref": "awdui_1789083765069_42.png; Window List Búsquedas recientes; expand 936ms",
+      "notes": "click SearchEditBox SetFocus; Escape+Cerrar búsqueda 862ms; sin Borrar historial"
+    },
+    {
+      "id": "F-43",
+      "kind": "entry",
+      "title": "Abrir Opciones avanzadas",
+      "description": "Expandir SplitButton Opciones avanzadas; Escape sin aplicar filtros AQS",
+      "source": "discovered",
+      "status": "met",
+      "priority": 43,
+      "parent_id": "F-10",
+      "subtree_discovered": true,
+      "window_context": "Ribbon Herramientas de búsqueda",
+      "success_criteria": "Panel opciones visible; cerrar sin cambios",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "SplitButton: Opciones avanzadas"
+      ],
+      "evidence_ref": "awdui_1789084418121_47.png; Menu En ubicaciones no indizadas; expand 951ms; probe 322ms",
+      "notes": "SearchEditBox 165ms; Escape+Cerrar búsqueda 889ms"
+    },
+    {
+      "id": "F-44",
+      "kind": "action",
+      "title": "Filtro Fecha de modificación (abrir y cerrar)",
+      "description": "Expandir SplitButton Fecha de modificación; Escape sin elegir rango",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 44,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda — Refinar",
+      "success_criteria": "Menú fecha visible; sin filtro aplicado",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "SplitButton: Fecha de modificación"
+      ]
+    },
+    {
+      "id": "F-45",
+      "kind": "action",
+      "title": "Filtro Tipo (abrir y cerrar)",
+      "description": "Expandir SplitButton Tipo; Escape",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 45,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda — Refinar",
+      "success_criteria": "Menú tipo visible; sin filtro aplicado",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "SplitButton: Tipo"
+      ]
+    },
+    {
+      "id": "F-46",
+      "kind": "action",
+      "title": "Filtro Tamaño (abrir y cerrar)",
+      "description": "Expandir SplitButton Tamaño; Escape",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 46,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda — Refinar",
+      "success_criteria": "Menú tamaño visible; sin filtro aplicado",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "SplitButton: Tamaño"
+      ]
+    },
+    {
+      "id": "F-47",
+      "kind": "action",
+      "title": "Filtro Otras propiedades (abrir y cerrar)",
+      "description": "Expandir SplitButton Otras propiedades; Escape",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 47,
+      "parent_id": "F-10",
+      "window_context": "Ribbon Herramientas de búsqueda — Refinar",
+      "success_criteria": "Menú propiedades visible; sin filtro aplicado",
+      "discovered_from": "discover_flows subárbol F-10",
+      "discovery_signals": [
+        "SplitButton: Otras propiedades"
+      ]
+    },
+    {
+      "id": "F-48",
+      "kind": "action",
+      "title": "Guardar búsqueda",
+      "description": "Omitido: persiste búsqueda del usuario",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 48,
+      "parent_id": "F-10",
+      "discovery_signals": [
+        "Button: Guardar búsqueda"
+      ],
+      "notes": "skip_mcp_value: política lab sin modificar búsquedas guardadas"
+    },
+    {
+      "id": "F-49",
+      "kind": "action",
+      "title": "Abrir ubicación de archivo",
+      "description": "Omitido: puede navegar fuera del lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 49,
+      "parent_id": "F-10",
+      "discovery_signals": [
+        "Button: Abrir ubicación de archivo"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-50",
+      "kind": "action",
+      "title": "Botón Buscar (SearchBoxSearchButton)",
+      "description": "Omitido: consulta vacía puede cambiar vista / búsqueda amplia",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 50,
+      "parent_id": "F-10",
+      "discovery_signals": [
+        "Button: Buscar id=SearchBoxSearchButton"
+      ],
+      "notes": "skip_mcp_value: sin búsqueda global en lab"
+    },
+    {
+      "id": "F-51",
+      "kind": "action",
+      "title": "Restaurar (menú sistema)",
+      "description": "Omitido: cambia estado de ventana",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 51,
+      "parent_id": "F-11",
+      "discovery_signals": [
+        "MenuItem: Restaurar id=61728"
+      ],
+      "notes": "skip_mcp_value: política lab sin alterar chrome ventana"
+    },
+    {
+      "id": "F-52",
+      "kind": "action",
+      "title": "Mover (menú sistema)",
+      "description": "Omitido: modo teclado mover ventana",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 52,
+      "parent_id": "F-11",
+      "discovery_signals": [
+        "MenuItem: Mover id=61456"
+      ],
+      "notes": "skip_mcp_value: interacción modal teclado"
+    },
+    {
+      "id": "F-53",
+      "kind": "action",
+      "title": "Tamaño (menú sistema)",
+      "description": "Omitido: modo teclado redimensionar",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 53,
+      "parent_id": "F-11",
+      "discovery_signals": [
+        "MenuItem: Tamaño id=61440"
+      ],
+      "notes": "skip_mcp_value: interacción modal teclado"
+    },
+    {
+      "id": "F-54",
+      "kind": "action",
+      "title": "Minimizar (menú sistema)",
+      "description": "Omitido: minimiza Explorador lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 54,
+      "parent_id": "F-11",
+      "discovery_signals": [
+        "MenuItem: Minimizar id=61472"
+      ],
+      "notes": "skip_mcp_value: política lab ventana visible"
+    },
+    {
+      "id": "F-55",
+      "kind": "action",
+      "title": "Maximizar (menú sistema)",
+      "description": "Omitido: maximiza/restaura layout ventana",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 55,
+      "parent_id": "F-11",
+      "discovery_signals": [
+        "MenuItem: Maximizar id=61488"
+      ],
+      "notes": "skip_mcp_value: política lab sin cambiar chrome"
+    },
+    {
+      "id": "F-56",
+      "kind": "action",
+      "title": "Cerrar (menú sistema)",
+      "description": "Omitido: cierra ventana Explorador",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 56,
+      "parent_id": "F-11",
+      "discovery_signals": [
+        "MenuItem: Cerrar id=61536"
+      ],
+      "notes": "skip_mcp_value: no cerrar ventana lab"
+    },
+    {
+      "id": "F-57",
+      "kind": "action",
+      "title": "Modo edición barra Dirección (solo Escape)",
+      "description": "Tras invoke Todas las ubicaciones, verificar Edit Dirección; Escape sin Enter",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 57,
+      "parent_id": "F-12",
+      "window_context": "Barra de direcciones — edición",
+      "success_criteria": "get_focused_element Edit Dirección; Escape; probe visible",
+      "discovered_from": "discover_flows subárbol F-12",
+      "discovery_signals": [
+        "Edit: Dirección"
+      ]
+    },
+    {
+      "id": "F-58",
+      "kind": "action",
+      "title": "Subir a Temp desde barra",
+      "description": "Omitido: navega a carpeta padre fuera del lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 58,
+      "parent_id": "F-12",
+      "discovery_signals": [
+        "Button: Subir a Temp"
+      ],
+      "notes": "skip_mcp_value: salir de awdui-lab-escritorio-2026-09-10"
+    },
+    {
+      "id": "F-59",
+      "kind": "action",
+      "title": "Confirmar ruta con Enter en Dirección",
+      "description": "Omitido: navegación arbitraria por teclado",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 59,
+      "parent_id": "F-12",
+      "discovery_signals": [
+        "Edit: Dirección + Enter"
+      ],
+      "notes": "skip_mcp_value: no tipear/commit ruta en lab"
+    },
+    {
+      "id": "F-60",
+      "kind": "action",
+      "title": "Cerrar pestaña Ayuda Edge (Ctrl+W)",
+      "description": "Tras invoke Ayuda, focus Edge y Ctrl+W; verify probe en lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 60,
+      "parent_id": "F-15",
+      "window_context": "Microsoft Edge — ayuda Explorador",
+      "success_criteria": "list_windows sin pestaña help; probe ListItem lab visible",
+      "discovered_from": "discover_flows subárbol F-15",
+      "discovery_signals": [
+        "Window: get help with file explorer"
+      ]
+    },
+    {
+      "id": "F-61",
+      "kind": "action",
+      "title": "Cerrar Ayuda con Alt+F4",
+      "description": "Omitido: puede cerrar ventana Explorador lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 61,
+      "parent_id": "F-15",
+      "discovery_signals": [
+        "press_key_combo: alt+f4"
+      ],
+      "notes": "skip_mcp_value: side-effect F-15 execute"
+    },
+    {
+      "id": "F-62",
+      "kind": "action",
+      "title": "Navegar enlaces resultados Bing ayuda",
+      "description": "Omitido: WebView sin UIA links en scope",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 62,
+      "parent_id": "F-15",
+      "discovery_signals": [
+        "Link: Microsoft Support (no UIA)"
+      ],
+      "notes": "skip_mcp_value: Electron/WebView gap"
+    },
+    {
+      "id": "F-63",
+      "kind": "action",
+      "title": "Descargar apps promocionales en página ayuda",
+      "description": "Omitido: instalaciones no lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 63,
+      "parent_id": "F-15",
+      "discovery_signals": [
+        "Button: Descargar Administrador PC",
+        "Bing wallpaper"
+      ],
+      "notes": "skip_mcp_value: política lab"
+    },
+    {
+      "id": "F-64",
+      "kind": "entry",
+      "title": "Ventana Edge Ayuda Explorador",
+      "description": "Contexto externo tras invoke Ayuda; sin subárbol UIA accionable",
+      "source": "discovered",
+      "status": "met",
+      "priority": 64,
+      "parent_id": "F-15",
+      "subtree_discovered": true,
+      "window_context": "Edge — Bing help",
+      "success_criteria": "list_windows detecta título help; screenshot evidencia",
+      "discovered_from": "discover_flows subárbol F-15",
+      "discovery_signals": [
+        "Window: msedge.exe help"
+      ],
+      "evidence_ref": "list_windows: get help with file explorer in windows msedge.exe; Ayuda 1017ms; Ctrl+W; probe 339ms",
+      "notes": "screenshot con pin lab capturó explorer (_49); verify ventana vía list_windows+focus_window"
+    },
+    {
+      "id": "F-65",
+      "kind": "action",
+      "title": "Galería Vistas — Iconos muy grandes",
+      "description": "Seleccionar ListItem Iconos muy grandes y restaurar vista Detalles",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 65,
+      "parent_id": "F-18",
+      "window_context": "Galería Diseño — menú Vistas abierto",
+      "success_criteria": "ListItem seleccionado brevemente; restaurar Detalles; probe visible",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "ListItem: Iconos muy grandes"
+      ]
+    },
+    {
+      "id": "F-66",
+      "kind": "action",
+      "title": "Galería Vistas — Iconos grandes",
+      "description": "Seleccionar ListItem Iconos grandes en galería; restaurar Detalles (alternativa a F-09 barra estado)",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 66,
+      "parent_id": "F-18",
+      "window_context": "Galería Diseño — menú Vistas abierto",
+      "success_criteria": "Vista iconos activa; restaurar Detalles; probe visible",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "ListItem: Iconos grandes"
+      ]
+    },
+    {
+      "id": "F-67",
+      "kind": "action",
+      "title": "Galería Vistas — Iconos medianos",
+      "description": "Seleccionar ListItem Iconos medianos; restaurar Detalles",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 67,
+      "parent_id": "F-18",
+      "window_context": "Galería Diseño",
+      "success_criteria": "Vista cambia; restaurar Detalles; probe visible",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "ListItem: Iconos medianos"
+      ]
+    },
+    {
+      "id": "F-68",
+      "kind": "action",
+      "title": "Galería Vistas — Iconos pequeños",
+      "description": "Seleccionar ListItem Iconos pequeños; restaurar Detalles",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 68,
+      "parent_id": "F-18",
+      "window_context": "Galería Diseño",
+      "success_criteria": "Vista cambia; restaurar Detalles; probe visible",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "ListItem: Iconos pequeños"
+      ]
+    },
+    {
+      "id": "F-69",
+      "kind": "action",
+      "title": "Galería Vistas — Lista",
+      "description": "Seleccionar ListItem Lista; restaurar Detalles",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 69,
+      "parent_id": "F-18",
+      "window_context": "Galería Diseño",
+      "success_criteria": "Vista lista activa; restaurar Detalles; probe visible",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "ListItem: Lista"
+      ]
+    },
+    {
+      "id": "F-70",
+      "kind": "action",
+      "title": "Galería Vistas — Detalles",
+      "description": "Invoke ListItem Detalles en galería (confirmar selección actual)",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 70,
+      "parent_id": "F-18",
+      "window_context": "Galería Diseño",
+      "success_criteria": "Detalles selected en galería y barra estado; probe en tabla",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "ListItem: Detalles"
+      ]
+    },
+    {
+      "id": "F-71",
+      "kind": "entry",
+      "title": "Abrir flyout Ordenar por",
+      "description": "Invoke SplitButton Ordenar por en cinta Vista; cerrar sin cambiar orden",
+      "source": "discovered",
+      "status": "met",
+      "evidence_ref": "awdui_1789085083935_52.png",
+      "priority": 71,
+      "parent_id": "F-18",
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista — galería o ribbon",
+      "window_after": "Menú ordenamiento visible",
+      "success_criteria": "Flyout Ordenar por; Escape cierra; probe intacto",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "SplitButton: Ordenar por"
+      ]
+    },
+    {
+      "id": "F-72",
+      "kind": "entry",
+      "title": "Abrir flyout Agrupar por",
+      "description": "Invoke SplitButton Agrupar por; cerrar sin agrupar",
+      "source": "discovered",
+      "status": "met",
+      "evidence_ref": "awdui_1789085218583_53.png",
+      "priority": 72,
+      "parent_id": "F-18",
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista",
+      "window_after": "Menú agrupación visible",
+      "success_criteria": "Flyout visible; Escape; probe intacto",
+      "discovered_from": "discover_flows subárbol F-18",
+      "discovery_signals": [
+        "SplitButton: Agrupar por"
+      ]
+    },
+    {
+      "id": "F-73",
+      "kind": "action",
+      "title": "Galería Vistas — Subir fila",
+      "description": "Omitido: reordena layouts en galería sin valor MCP incremental",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 73,
+      "parent_id": "F-18",
+      "discovery_signals": [
+        "Button: Subir fila"
+      ],
+      "notes": "skip_mcp_value: UI chrome galería"
+    },
+    {
+      "id": "F-74",
+      "kind": "action",
+      "title": "Galería Vistas — Bajar fila",
+      "description": "Omitido: reordena layouts en galería",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 74,
+      "parent_id": "F-18",
+      "discovery_signals": [
+        "Button: Bajar fila"
+      ],
+      "notes": "skip_mcp_value: UI chrome galería"
+    },
+    {
+      "id": "F-75",
+      "kind": "entry",
+      "title": "Ver detalle entrada ACE",
+      "description": "Invoke Button Ver (ButtonViewAce) con fila ACE seleccionada; cerrar subdiálogo sin cambios",
+      "source": "discovered",
+      "status": "met",
+      "priority": 75,
+      "parent_id": "F-22",
+      "subtree_discovered": false,
+      "window_context": "Modal Seguridad avanzada — permisos",
+      "window_after": "Diálogo detalle permiso visible",
+      "success_criteria": "Submodal o panel detalle; Cancelar/Escape; ACL sin cambios",
+      "discovered_from": "discover_flows subárbol F-22",
+      "discovery_signals": [
+        "Button: Ver id=ButtonViewAce"
+      ],
+      "evidence_ref": "awdui_1789085587402_56.png; invoke ButtonViewAce 209ms; submodal Cerrar 649ms; Cancel modal 224ms; read_element probe OK",
+      "executed_at": "2026-09-10T21:12:00-03:00"
+    },
+    {
+      "id": "F-76",
+      "kind": "entry",
+      "title": "Pestaña Acceso efectivo",
+      "description": "Seleccionar TabItem Acceso efectivo en modal seguridad",
+      "source": "discovered",
+      "status": "met",
+      "priority": 76,
+      "parent_id": "F-22",
+      "subtree_discovered": false,
+      "window_context": "Modal Seguridad avanzada",
+      "window_after": "Panel acceso efectivo visible",
+      "success_criteria": "Tab Acceso efectivo selected; screenshot; sin ejecutar comprobación",
+      "discovered_from": "discover_flows subárbol F-22",
+      "discovery_signals": [
+        "TabItem: Acceso efectivo"
+      ],
+      "evidence_ref": "awdui_1789086007275_60.png; invoke TabItem 512ms; RefreshEffPermResults en snapshot; Cancel 220ms; probe OK",
+      "executed_at": "2026-09-10T21:20:00-03:00",
+      "notes": "titulo modal varia file vs folder; recovery explorer shell tras desvio ayuda"
+    },
+    {
+      "id": "F-77",
+      "kind": "entry",
+      "title": "Pestaña Permisos (modal seguridad)",
+      "description": "Seleccionar TabItem Permisos en modal; cerrar sin editar ACL",
+      "source": "discovered",
+      "status": "met",
+      "priority": 77,
+      "parent_id": "F-22",
+      "subtree_discovered": false,
+      "window_context": "Modal Seguridad avanzada",
+      "window_after": "Lista ACE con botones Editar/Agregar visibles",
+      "success_criteria": "Tab Permisos activo; find por automation_id no fuzzy checkbox",
+      "discovered_from": "discover_flows subárbol F-22",
+      "discovery_signals": [
+        "TabItem: Permisos"
+      ],
+      "notes": "find name Permisos puede confundir ResetAclTreePermission; usar spy o índice tab",
+      "evidence_ref": "awdui_1789086137030_61.png; invoke TabItem Permisos 431ms; find AceListView 106ms; Cancel 218ms; probe OK",
+      "executed_at": "2026-09-10T21:23:00-03:00"
+    },
+    {
+      "id": "F-78",
+      "kind": "action",
+      "title": "Leer campo Propietario",
+      "description": "get_element_properties Edit Propietario (EditOwner) sin modificar",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 78,
+      "parent_id": "F-22",
+      "window_context": "Modal Seguridad avanzada",
+      "success_criteria": "Value/name contiene usuario Windows; sin invoke Cambiar",
+      "discovered_from": "discover_flows subárbol F-22",
+      "discovery_signals": [
+        "Edit: Propietario id=EditOwner"
+      ]
+    },
+    {
+      "id": "F-79",
+      "kind": "action",
+      "title": "Aceptar y guardar ACL",
+      "description": "Omitido: Button OK confirma cambios",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 79,
+      "parent_id": "F-22",
+      "discovery_signals": [
+        "Button: Aceptar id=OK"
+      ],
+      "notes": "skip_mcp_value: política lab sin modificar permisos"
+    },
+    {
+      "id": "F-80",
+      "kind": "action",
+      "title": "Aplicar cambios permisos",
+      "description": "Omitido: Button Aplicar",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 80,
+      "parent_id": "F-22",
+      "discovery_signals": [
+        "Button: Aplicar id=Apply"
+      ],
+      "notes": "skip_mcp_value: modifica ACL"
+    },
+    {
+      "id": "F-81",
+      "kind": "action",
+      "title": "Cambiar propietario",
+      "description": "Omitido: Hyperlink Cambiar (LUAChangeButton)",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 81,
+      "parent_id": "F-22",
+      "discovery_signals": [
+        "Hyperlink: Cambiar id=LUAChangeButton"
+      ],
+      "notes": "skip_mcp_value: cambio de propietario"
+    },
+    {
+      "id": "F-82",
+      "kind": "action",
+      "title": "Reemplazar permisos secundarios",
+      "description": "Omitido: CheckBox ResetAclTreePermission",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 82,
+      "parent_id": "F-22",
+      "discovery_signals": [
+        "CheckBox: ResetAclTreePermission"
+      ],
+      "notes": "skip_mcp_value: destructivo ACL"
+    },
+    {
+      "id": "F-83",
+      "kind": "entry",
+      "title": "Pestaña Auditoría",
+      "description": "Omitido: TabItem Auditoría no encontrado en UIA (find 23s)",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 83,
+      "parent_id": "F-22",
+      "subtree_discovered": true,
+      "discovery_signals": [
+        "TabItem: Auditoría"
+      ],
+      "notes": "skip_mcp_value: NOT FOUND en scan; posible nombre distinto o oculto"
+    },
+    {
+      "id": "F-84",
+      "kind": "action",
+      "title": "Observar fila ACE Control total",
+      "description": "Seleccionar entrada ACE visible (Control total) sin Editar",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 84,
+      "parent_id": "F-22",
+      "window_context": "Modal — lista permisos",
+      "success_criteria": "Fila ACE selected en UIA; sin invoke Ver obligatorio",
+      "discovered_from": "discover_flows subárbol F-22",
+      "discovery_signals": [
+        "Text: Control total",
+        "HeaderItem: Acceso"
+      ]
+    },
+    {
+      "id": "F-85",
+      "kind": "entry",
+      "title": "Abrir backstage Pestaña Archivo",
+      "description": "Invoke Pestaña Archivo; volver a vista carpeta sin cambios",
+      "source": "discovered",
+      "status": "met",
+      "priority": 85,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Panel Archivo / backstage visible",
+      "success_criteria": "UI backstage; Escape o Inicio vuelve a lab; probe intacto",
+      "discovered_from": "discover_flows raíz pass-3",
+      "discovery_signals": [
+        "Button: Pestaña Archivo (574,98)"
+      ],
+      "evidence_ref": "awdui_1789083481285_39.png; Menu backstage; probe 1030ms post-Escape",
+      "notes": "invoke 1059ms; snapshot MenuItem opciones carpeta"
+    },
+    {
+      "id": "F-86",
+      "kind": "entry",
+      "title": "Abrir flyout Ubicaciones anteriores",
+      "description": "Invoke botón Ubicaciones anteriores en barra de dirección; cerrar sin navegar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 86,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Explorador — barra dirección",
+      "window_after": "Lista rutas recientes en barra",
+      "success_criteria": "Flyout visible; Escape; ruta lab sin cambio",
+      "discovered_from": "discover_flows raíz pass-3",
+      "discovery_signals": [
+        "Button: Ubicaciones anteriores (1585,247)"
+      ],
+      "evidence_ref": "awdui_1789086228520_62.png; invoke 1447ms; List Direccion flyout; Escape; Toolbar ruta lab; probe OK",
+      "executed_at": "2026-09-10T21:25:00-03:00"
+    },
+    {
+      "id": "F-87",
+      "kind": "entry",
+      "title": "Minimizar Cinta de opciones",
+      "description": "Toggle Minimizar la Cinta; restaurar ribbon completo al final",
+      "source": "discovered",
+      "status": "met",
+      "priority": 87,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Explorador — ribbon",
+      "window_after": "Cinta minimizada o restaurada",
+      "success_criteria": "Estado ribbon cambia y se restaura; tabs Inicio/Vista accesibles",
+      "discovered_from": "discover_flows raíz pass-3",
+      "discovery_signals": [
+        "Button: Minimizar la Cinta de opciones"
+      ],
+      "evidence_ref": "awdui_1789086375823_63.png; toggle minimize 1074ms Seguridad NOT FOUND; restore 712ms Seguridad OK; invoke Vista 735ms; probe OK",
+      "executed_at": "2026-09-10T21:27:00-03:00"
+    },
+    {
+      "id": "F-88",
+      "kind": "entry",
+      "title": "Actualizar carpeta lab (F5)",
+      "description": "Invoke botón Actualizar en barra dirección; verify probe sigue listado",
+      "source": "discovered",
+      "status": "met",
+      "priority": 88,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Explorador — carpeta lab",
+      "window_after": "Vista refrescada",
+      "success_criteria": "ListItem awdui_probe_readonly.txt visible tras refresh",
+      "discovered_from": "discover_flows raíz pass-3",
+      "discovery_signals": [
+        "Button: Actualizar awdui-lab-escritorio-2026-09-10 (F5)"
+      ],
+      "evidence_ref": "awdui_1789086524087_64.png; invoke Actualizar F5 1543ms; read_element probe antes/despues OK",
+      "executed_at": "2026-09-10T21:29:00-03:00"
+    },
+    {
+      "id": "F-89",
+      "kind": "entry",
+      "title": "Personalizar acceso rápido (QAT)",
+      "description": "Invoke Personalizar Barra de herramientas de acceso rápido; cerrar sin cambios",
+      "source": "discovered",
+      "status": "met",
+      "priority": 89,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Explorador — QAT superior",
+      "window_after": "Menú personalización QAT visible",
+      "success_criteria": "Flyout o menú QAT; Escape; sin agregar/quitar comandos",
+      "discovered_from": "discover_flows raíz pass-4",
+      "discovery_signals": [
+        "Button: Personalizar Barra de herramientas de acceso rápido"
+      ],
+      "evidence_ref": "awdui_1789086582708_65.png; invoke QAT 1231ms; MenuItems Deshacer..Minimizar Cinta; dismiss click probe SLOW; probe OK",
+      "executed_at": "2026-09-10T21:30:00-03:00"
+    },
+    {
+      "id": "F-90",
+      "kind": "entry",
+      "title": "Abrir filtro de columna (Dropdown)",
+      "description": "Invoke Lista desplegable Filtro en cabecera; cerrar sin aplicar filtro",
+      "source": "discovered",
+      "status": "met",
+      "priority": 90,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Vista Detalles — cabecera columna",
+      "window_after": "Menú filtro desplegado",
+      "success_criteria": "Dropdown filtro visible; Escape; probe sigue en lista",
+      "discovered_from": "discover_flows raíz pass-4",
+      "discovery_signals": [
+        "Button: Lista desplegable Filtro id=Dropdown"
+      ]
+    },
+    {
+      "id": "F-91",
+      "kind": "entry",
+      "title": "Abrir con (LaunchApp ribbon)",
+      "description": "Con probe seleccionado, invoke LaunchAppButton; cerrar sin abrir app",
+      "source": "discovered",
+      "status": "met",
+      "priority": 91,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Ribbon contextual — archivo seleccionado",
+      "window_after": "Flyout Abrir con o lista apps",
+      "success_criteria": "UI Abrir con visible; Escape; sin lanzar Notepad",
+      "discovered_from": "discover_flows raíz pass-4",
+      "discovery_signals": [
+        "Button: LaunchAppButton",
+        "Text: Abrir con Bloc de notas"
+      ]
+    },
+    {
+      "id": "F-92",
+      "kind": "entry",
+      "title": "Contexto barra estado modos vista",
+      "description": "Entry para subárbol RadioButton Detalles/Iconos grandes (ViewButtonsGroup)",
+      "source": "discovered",
+      "status": "met",
+      "priority": 92,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Barra estado Explorador",
+      "window_after": "Grupo modos vista accesible",
+      "success_criteria": "ViewButtonsGroup visible; sin cambiar modo permanente",
+      "discovered_from": "discover_flows raíz pass-4",
+      "discovery_signals": [
+        "Group: Modos de vista id=ViewButtonsGroup",
+        "RadioButton: ViewMode_Details",
+        "RadioButton: ViewMode_LargeIcons"
+      ],
+      "evidence_ref": "awdui_1789082988925_33.png; finds 174/169/142ms",
+      "notes": "sin toggle modo; F-09 ya cubre LargeIcons action"
+    },
+    {
+      "id": "F-93",
+      "kind": "entry",
+      "title": "Flyout SharePicker (panel lateral)",
+      "description": "Contexto SharePickerFlyout tras abrir Compartir Enviar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 93,
+      "parent_id": "F-23",
+      "subtree_discovered": false,
+      "window_context": "SharePickerFlyout",
+      "window_after": "Panel compartir lateral",
+      "success_criteria": "SharePickerControl visible; cerrar sin envío",
+      "discovered_from": "discover_flows subárbol F-23",
+      "discovery_signals": [
+        "Pane id=SharePickerFlyout",
+        "Text SharePickerControl"
+      ]
+    },
+    {
+      "id": "F-94",
+      "kind": "entry",
+      "title": "Botón Copiar archivo al portapapeles (flyout)",
+      "description": "Entry CopyFileButton en flyout; no ejecutar envío",
+      "source": "discovered",
+      "status": "met",
+      "priority": 94,
+      "parent_id": "F-23",
+      "subtree_discovered": false,
+      "window_context": "SharePickerFlyout",
+      "success_criteria": "CopyFileButton visible",
+      "discovered_from": "discover_flows subárbol F-23",
+      "discovery_signals": [
+        "Button id=CopyFileButton"
+      ]
+    },
+    {
+      "id": "F-95",
+      "kind": "entry",
+      "title": "Grid contactos sugeridos (flyout)",
+      "description": "Entry SuggestedContactGridView; sin elegir destino",
+      "source": "discovered",
+      "status": "met",
+      "priority": 95,
+      "parent_id": "F-23",
+      "subtree_discovered": false,
+      "window_context": "SharePickerFlyout ShareTargets",
+      "success_criteria": "Lista apps/contactos visible",
+      "discovered_from": "discover_flows subárbol F-23",
+      "discovery_signals": [
+        "List id=SuggestedContactGridView"
+      ]
+    },
+    {
+      "id": "F-96",
+      "kind": "entry",
+      "title": "Enlace Obtener aplicaciones en Store (flyout)",
+      "description": "Entry SharePicker_GetMoreApps / botón Store",
+      "source": "discovered",
+      "status": "met",
+      "priority": 96,
+      "parent_id": "F-23",
+      "subtree_discovered": false,
+      "window_context": "SharePickerFlyout pie",
+      "success_criteria": "Texto o botón Store visible",
+      "discovered_from": "discover_flows subárbol F-23",
+      "discovery_signals": [
+        "Text SharePicker_GetMoreApps",
+        "Button Obtener aplicaciones en Store"
+      ]
+    },
+    {
+      "id": "F-97",
+      "kind": "entry",
+      "title": "Activar uso compartido en proximidad (flyout)",
+      "description": "TapToTurnOnButton — cancelado: activa Bluetooth/Wi-Fi sharing",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 97,
+      "parent_id": "F-23",
+      "subtree_discovered": false,
+      "window_context": "SharePickerFlyout",
+      "success_criteria": "N/A política seguridad",
+      "discovered_from": "discover_flows subárbol F-23",
+      "discovery_signals": [
+        "Button id=TapToTurnOnButton"
+      ]
+    },
+    {
+      "id": "F-98",
+      "kind": "entry",
+      "title": "Desplegar Nuevo elemento (ribbon Inicio)",
+      "description": "Invoke SplitButton Nuevo elemento; cerrar menú sin crear archivos",
+      "source": "discovered",
+      "status": "met",
+      "evidence_ref": "awdui_1789084719000_50.png",
+      "priority": 98,
+      "parent_id": null,
+      "subtree_discovered": true,
+      "window_context": "Cinta Inicio — grupo Nuevo",
+      "window_after": "Menú tipos de archivo nuevo",
+      "success_criteria": "Menú visible; Escape sin crear",
+      "discovered_from": "discover_flows raíz pass-5",
+      "discovery_signals": [
+        "SplitButton: Nuevo elemento"
+      ]
+    },
+    {
+      "id": "F-99",
+      "kind": "entry",
+      "title": "Desplegar Fácil acceso (ribbon Inicio)",
+      "description": "Invoke SplitButton Fácil acceso; cerrar sin anclar rutas",
+      "source": "discovered",
+      "status": "met",
+      "priority": 99,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — grupo Nuevo",
+      "window_after": "Menú fácil acceso",
+      "success_criteria": "Menú visible; Escape",
+      "discovered_from": "discover_flows raíz pass-5",
+      "discovery_signals": [
+        "SplitButton: Fácil acceso"
+      ],
+      "evidence_ref": "awdui_1789085690639_57.png; invoke Inicio 612ms; expand Fácil acceso 838ms; MenuItems visibles; dismiss invoke probe SLOW 3738ms",
+      "executed_at": "2026-09-10T21:14:00-03:00"
+    },
+    {
+      "id": "F-100",
+      "kind": "entry",
+      "title": "Botón Editar (ribbon Abrir)",
+      "description": "Con probe seleccionado invoke Editar; cerrar editor sin guardar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 100,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — grupo Abrir",
+      "window_after": "App editor asociada",
+      "success_criteria": "Editor abre; cerrar sin persistir cambios al probe",
+      "discovered_from": "discover_flows raíz pass-5",
+      "discovery_signals": [
+        "Button: Editar"
+      ],
+      "evidence_ref": "invoke ListItem probe 4458ms WARN verify; invoke Inicio 587ms; invoke Editar 884ms; Notepad alt+f4 clean; awdui_1789085850525_59.png",
+      "executed_at": "2026-09-10T21:17:00-03:00"
+    },
+    {
+      "id": "F-101",
+      "kind": "entry",
+      "title": "Desplegar menú Abrir (split)",
+      "description": "Invoke SplitButton Abrir; cerrar lista sin abrir otra app",
+      "source": "discovered",
+      "status": "met",
+      "priority": 101,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — grupo Abrir",
+      "window_after": "Lista Abrir con",
+      "success_criteria": "Menú Abrir visible; Escape",
+      "discovered_from": "discover_flows raíz pass-5",
+      "discovery_signals": [
+        "SplitButton: Abrir"
+      ]
+    },
+    {
+      "id": "F-102",
+      "kind": "entry",
+      "title": "Expandir Acceso rápido (panel navegación)",
+      "description": "Expand TreeItem Acceso rápido en árbol izquierdo; no navegar fuera del lab",
+      "source": "discovered",
+      "status": "met",
+      "priority": 102,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Panel ProperTreeHost",
+      "window_after": "Hijos Acceso rápido visibles",
+      "success_criteria": "TreeItems anclados visibles; ruta lab intacta",
+      "discovered_from": "discover_flows raíz pass-5",
+      "discovery_signals": [
+        "TreeItem: Acceso rápido",
+        "Tree id=100"
+      ]
+    },
+    {
+      "id": "F-103",
+      "kind": "entry",
+      "title": "Pestaña General (Propiedades)",
+      "description": "Seleccionar TabItem General en diálogo Propiedades; Cancelar sin cambios",
+      "source": "discovered",
+      "status": "met",
+      "priority": 103,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades probe/carpeta lab",
+      "success_criteria": "Campos General visibles; Cancelar",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "TabItem: General"
+      ]
+    },
+    {
+      "id": "F-104",
+      "kind": "entry",
+      "title": "Pestaña Uso compartido (Propiedades)",
+      "description": "Seleccionar TabItem Uso compartido; Cancelar sin cambiar permisos",
+      "source": "discovered",
+      "status": "met",
+      "priority": 104,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades",
+      "success_criteria": "UI compartir en propiedades; Cancelar",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "TabItem: Uso compartido"
+      ]
+    },
+    {
+      "id": "F-105",
+      "kind": "entry",
+      "title": "Pestaña Seguridad (Propiedades)",
+      "description": "Seleccionar TabItem Seguridad en Propiedades; Cancelar (no confundir con F-22)",
+      "source": "discovered",
+      "status": "met",
+      "priority": 105,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades",
+      "success_criteria": "Tab Seguridad visible; Cancelar",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "TabItem: Seguridad"
+      ]
+    },
+    {
+      "id": "F-106",
+      "kind": "entry",
+      "title": "Pestaña Versiones anteriores (Propiedades)",
+      "description": "Seleccionar TabItem Versiones anteriores; Cancelar sin restaurar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 106,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades",
+      "success_criteria": "UI versiones visible; Cancelar",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "TabItem: Versiones anteriores"
+      ]
+    },
+    {
+      "id": "F-107",
+      "kind": "entry",
+      "title": "Pestaña Personalizar (Propiedades carpeta)",
+      "description": "Seleccionar TabItem Personalizar; Cancelar sin aplicar tema",
+      "source": "discovered",
+      "status": "met",
+      "priority": 107,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades carpeta lab",
+      "success_criteria": "Tab Personalizar visible; Cancelar",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "TabItem: Personalizar"
+      ]
+    },
+    {
+      "id": "F-108",
+      "kind": "entry",
+      "title": "Opciones avanzadas atributos (Propiedades)",
+      "description": "Invoke Opciones avanzadas en pestaña General; cerrar sin cambiar atributos",
+      "source": "discovered",
+      "status": "met",
+      "priority": 108,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades General",
+      "success_criteria": "Subdiálogo atributos; Cancelar",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "Button: Opciones avanzadas id=13154"
+      ]
+    },
+    {
+      "id": "F-109",
+      "kind": "entry",
+      "title": "Aplicar cambios Propiedades",
+      "description": "Button Aplicar — cancelado: persiste cambios",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 109,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades",
+      "success_criteria": "N/A política seguridad",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "Button: Aplicar id=12321"
+      ]
+    },
+    {
+      "id": "F-110",
+      "kind": "entry",
+      "title": "Aceptar Propiedades",
+      "description": "Button OK — cancelado: cierra con guardar",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 110,
+      "parent_id": "F-30",
+      "subtree_discovered": false,
+      "window_context": "Modal Propiedades",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows subárbol F-30",
+      "discovery_signals": [
+        "Button OK en modal propiedades"
+      ]
+    },
+    {
+      "id": "F-111",
+      "kind": "action",
+      "title": "Término reciente notepad++",
+      "description": "Invoke MenuItem notepad++ en flyout; revertir sin ejecutar búsqueda global si cambia contexto",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 111,
+      "parent_id": "F-42",
+      "window_context": "Flyout Búsquedas recientes abierto",
+      "success_criteria": "Término aplicado o preview; restaurar vista carpeta lab",
+      "discovered_from": "discover_flows subárbol F-42",
+      "discovery_signals": [
+        "MenuItem: notepad++"
+      ]
+    },
+    {
+      "id": "F-112",
+      "kind": "action",
+      "title": "Término reciente cursor.exe",
+      "description": "Invoke MenuItem cursor.exe; restaurar vista lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 112,
+      "parent_id": "F-42",
+      "window_context": "Flyout Búsquedas recientes abierto",
+      "success_criteria": "Término visible en cuadro; Cerrar búsqueda o volver carpeta",
+      "discovered_from": "discover_flows subárbol F-42",
+      "discovery_signals": [
+        "MenuItem: cursor.exe"
+      ]
+    },
+    {
+      "id": "F-113",
+      "kind": "action",
+      "title": "Término reciente configuracion.xml",
+      "description": "Invoke MenuItem configuracion.xml; restaurar vista lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 113,
+      "parent_id": "F-42",
+      "window_context": "Flyout Búsquedas recientes abierto",
+      "success_criteria": "Cuadro actualizado; sin búsqueda persistente",
+      "discovered_from": "discover_flows subárbol F-42",
+      "discovery_signals": [
+        "MenuItem: configuracion.xml"
+      ]
+    },
+    {
+      "id": "F-114",
+      "kind": "action",
+      "title": "Término reciente *md*",
+      "description": "Invoke MenuItem *md*; restaurar vista lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 114,
+      "parent_id": "F-42",
+      "window_context": "Flyout Búsquedas recientes abierto",
+      "success_criteria": "Patrón en cuadro; cerrar modo búsqueda",
+      "discovered_from": "discover_flows subárbol F-42",
+      "discovery_signals": [
+        "MenuItem: *md*"
+      ]
+    },
+    {
+      "id": "F-115",
+      "kind": "action",
+      "title": "Término reciente skill",
+      "description": "Invoke MenuItem skill; restaurar vista lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 115,
+      "parent_id": "F-42",
+      "window_context": "Flyout Búsquedas recientes abierto",
+      "success_criteria": "Término skill en cuadro; Cerrar búsqueda",
+      "discovered_from": "discover_flows subárbol F-42",
+      "discovery_signals": [
+        "MenuItem: skill"
+      ]
+    },
+    {
+      "id": "F-116",
+      "kind": "action",
+      "title": "Borrar el historial de búsqueda",
+      "description": "Omitido: borra historial del usuario en el equipo",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 116,
+      "parent_id": "F-42",
+      "window_context": "Flyout Búsquedas recientes abierto",
+      "success_criteria": "N/A política lab",
+      "discovered_from": "discover_flows subárbol F-42",
+      "discovery_signals": [
+        "MenuItem: Borrar el historial de búsqueda"
+      ],
+      "notes": "skip_mcp_value: destructivo / datos usuario"
+    },
+    {
+      "id": "F-117",
+      "kind": "action",
+      "title": "Backstage Abrir nueva ventana",
+      "description": "Invoke SplitButton Abrir nueva ventana; cerrar ventana duplicada sin tocar lab",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 117,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "Nueva ventana Explorador; cerrarla; probe intacto en lab",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "SplitButton: Abrir nueva ventana"
+      ]
+    },
+    {
+      "id": "F-118",
+      "kind": "action",
+      "title": "Flyout Abrir nueva ventana (chevron)",
+      "description": "Expand SplitButton W; Escape sin elegir modo",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 118,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "Menú desplegado; Escape",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "SplitButton: W (Abrir nueva ventana)"
+      ]
+    },
+    {
+      "id": "F-119",
+      "kind": "action",
+      "title": "Backstage Abrir Windows PowerShell",
+      "description": "Invoke Abrir Windows PowerShell en carpeta actual; cerrar consola",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 119,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "PS abierto; cerrar; lab foreground",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "SplitButton: Abrir Windows PowerShell"
+      ]
+    },
+    {
+      "id": "F-120",
+      "kind": "action",
+      "title": "Flyout PowerShell (chevron)",
+      "description": "Expand SplitButton S; Escape sin administrador",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 120,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "Flyout visible; Escape",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "SplitButton: S (PowerShell)"
+      ]
+    },
+    {
+      "id": "F-121",
+      "kind": "action",
+      "title": "Cambiar opciones de carpeta y búsqueda",
+      "description": "Invoke MenuItem opciones; Cancelar en diálogo sin cambios",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 121,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "Opciones carpetas visible; Cancelar",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Cambiar opciones de carpeta y búsqueda"
+      ]
+    },
+    {
+      "id": "F-122",
+      "kind": "action",
+      "title": "Backstage Ayuda",
+      "description": "Invoke SplitButton Ayuda; cerrar ayuda sin navegar fuera",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 122,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "Ayuda visible; volver a lab",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "SplitButton: Ayuda"
+      ]
+    },
+    {
+      "id": "F-123",
+      "kind": "action",
+      "title": "Flyout Ayuda (chevron)",
+      "description": "Expand SplitButton L; Escape",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 123,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "Menú ayuda; Escape",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "SplitButton: L (Ayuda)"
+      ]
+    },
+    {
+      "id": "F-124",
+      "kind": "action",
+      "title": "Backstage Cerrar Explorador",
+      "description": "Omitido: cierra la ventana del lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 124,
+      "parent_id": "F-85",
+      "window_context": "Backstage Pestaña Archivo",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Cerrar"
+      ],
+      "notes": "skip_mcp_value: cierra ventana objetivo lab"
+    },
+    {
+      "id": "F-125",
+      "kind": "action",
+      "title": "Frecuente backstage Escritorio",
+      "description": "Omitido: navegación fuera carpeta lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 125,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Escritorio"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-126",
+      "kind": "action",
+      "title": "Frecuente backstage Descargas",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 126,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Descargas"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-127",
+      "kind": "action",
+      "title": "Frecuente backstage Documentos",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 127,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Documentos"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-128",
+      "kind": "action",
+      "title": "Frecuente backstage Imágenes",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 128,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Imágenes"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-129",
+      "kind": "action",
+      "title": "Frecuente backstage Workspaces",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 129,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Workspaces"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-130",
+      "kind": "action",
+      "title": "Frecuente backstage Funcional_Tecnico",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 130,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Funcional_Tecnico"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-131",
+      "kind": "action",
+      "title": "Frecuente backstage handoffs",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 131,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: handoffs"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-132",
+      "kind": "action",
+      "title": "Frecuente backstage Temp",
+      "description": "Omitido: navegación fuera lab (padre de carpeta lab)",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 132,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: Temp"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-133",
+      "kind": "action",
+      "title": "Frecuente backstage peoplehub",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 133,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: peoplehub"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-134",
+      "kind": "action",
+      "title": "Frecuente backstage skills",
+      "description": "Omitido: navegación fuera lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 134,
+      "parent_id": "F-85",
+      "window_context": "Backstage Lugares frecuentes",
+      "discovered_from": "discover_flows subárbol F-85",
+      "discovery_signals": [
+        "MenuItem: skills"
+      ],
+      "notes": "skip_mcp_value: navegación no acotada"
+    },
+    {
+      "id": "F-135",
+      "kind": "entry",
+      "title": "Desplegar Mover a (ribbon Organizar)",
+      "description": "Expand SplitButton Mover a; Escape sin mover probe",
+      "source": "discovered",
+      "status": "met",
+      "priority": 135,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — grupo Organizar",
+      "window_after": "Menú destinos Mover a",
+      "success_criteria": "Flyout visible; Escape; probe en lab",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Mover a"
+      ]
+    },
+    {
+      "id": "F-136",
+      "kind": "entry",
+      "title": "Desplegar Copiar a (ribbon Organizar)",
+      "description": "Expand SplitButton Copiar a; Escape sin copiar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 136,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — grupo Organizar",
+      "window_after": "Menú destinos Copiar a",
+      "success_criteria": "Flyout visible; Escape",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Copiar a"
+      ]
+    },
+    {
+      "id": "F-137",
+      "kind": "entry",
+      "title": "Navegación Atrás (barra)",
+      "description": "Invoke Atrás; si sale del lab, volver con breadcrumb o ruta lab",
+      "source": "discovered",
+      "status": "met",
+      "priority": 137,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Explorador — botones navegación",
+      "window_after": "Ubicación anterior en historial",
+      "success_criteria": "Historial navegado; restaurar carpeta awdui-lab-*",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "Button: Atrás (Alt + Flecha izquierda)"
+      ]
+    },
+    {
+      "id": "F-138",
+      "kind": "entry",
+      "title": "Navegación Adelante (barra)",
+      "description": "Invoke Adelante si habilitado; volver a lab",
+      "source": "discovered",
+      "status": "met",
+      "priority": 138,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Explorador — botones navegación",
+      "window_after": "Ubicación siguiente en historial",
+      "success_criteria": "Adelante o disabled documentado; lab restaurado",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "Button: Adelante (Alt + Flecha derecha)"
+      ]
+    },
+    {
+      "id": "F-139",
+      "kind": "entry",
+      "title": "Editar ruta en barra de dirección",
+      "description": "Focus ToolBar Dirección; Escape sin cambiar ruta",
+      "source": "discovered",
+      "status": "met",
+      "priority": 139,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Barra dirección id=1001",
+      "window_after": "Modo edición ruta",
+      "success_criteria": "Edit activo; Escape; ruta lab intacta",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "ToolBar: Dirección",
+        "automation_id: 1001"
+      ]
+    },
+    {
+      "id": "F-140",
+      "kind": "entry",
+      "title": "Desplegar breadcrumb Disco local (C:)",
+      "description": "Expand SplitButton en breadcrumbs; Escape sin navegar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 140,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Breadcrumbs barra dirección",
+      "window_after": "Menú unidades",
+      "success_criteria": "Flyout; Escape; lab sin cambio",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Disco local (C:)"
+      ],
+      "evidence_ref": "awdui_1789091724504_168.png; ListItem Archivos de programa/Usuarios/Windows; Escape; probe 639ms",
+      "notes": "invoke/click cuerpo navega a C:\\; chevron ~872,258 tras cerrar Peek; overlay Compartir Cerrar cerró Explorer — relanzar lab"
+    },
+    {
+      "id": "F-141",
+      "kind": "entry",
+      "title": "Desplegar breadcrumb Usuarios",
+      "description": "Expand SplitButton Usuarios; Escape",
+      "source": "discovered",
+      "status": "met",
+      "priority": 141,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Breadcrumbs",
+      "success_criteria": "Menú usuarios; Escape",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Usuarios"
+      ],
+      "evidence_ref": "awdui_1789091855160_169.png; ListItem Acceso publico/ariel.ostapow; Escape; probe 655ms",
+      "notes": "chevron x=left+width-8 y~top+13 en 878,247 w83; sin Peek"
+    },
+    {
+      "id": "F-142",
+      "kind": "entry",
+      "title": "Desplegar breadcrumb perfil usuario",
+      "description": "Expand SplitButton ariel.ostapow; Escape",
+      "source": "discovered",
+      "status": "met",
+      "priority": 142,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Breadcrumbs",
+      "success_criteria": "Flyout perfil; Escape",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: ariel.ostapow"
+      ],
+      "evidence_ref": "awdui_1789091972491_170.png; ListItem .cursor/_USUARIOS; Escape; probe 623ms",
+      "notes": "SplitButton 961,247 w116; chevron 1069,260; nombre UIA con LRM"
+    },
+    {
+      "id": "F-143",
+      "kind": "entry",
+      "title": "Desplegar breadcrumb AppData",
+      "description": "Expand SplitButton AppData; Escape",
+      "source": "discovered",
+      "status": "met",
+      "priority": 143,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Breadcrumbs",
+      "success_criteria": "Menú AppData; Escape",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: AppData"
+      ],
+      "evidence_ref": "awdui_1789092372582_171.png; flyout Local/LocalLow/Roaming; Escape; probe 650ms",
+      "notes": "NO expand_element fallback (navega); chevron 591,200 tras list SplitButton 512,187; relanzar explorer si pierde lab"
+    },
+    {
+      "id": "F-144",
+      "kind": "entry",
+      "title": "Desplegar breadcrumb Local",
+      "description": "Expand SplitButton Local; Escape",
+      "source": "discovered",
+      "status": "met",
+      "priority": 144,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Breadcrumbs",
+      "success_criteria": "Menú Local; Escape",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Local"
+      ],
+      "evidence_ref": "awdui_1789092471212_172.png; ListItem FlaUI-MCP/Google; Escape; probe 752ms",
+      "notes": "find Local SplitButton 969ms; chevron 653,200; sin expand_element"
+    },
+    {
+      "id": "F-145",
+      "kind": "entry",
+      "title": "Desplegar breadcrumb Temp",
+      "description": "Expand SplitButton Temp; Escape sin salir de lab",
+      "source": "discovered",
+      "status": "met",
+      "priority": 145,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Breadcrumbs",
+      "success_criteria": "Flyout Temp; Escape; probe visible",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Temp"
+      ],
+      "evidence_ref": "awdui_1789092579903_173.png; ListItem __pycache__/_MEI*; Escape; probe 639ms",
+      "notes": "chevron 717,200; list_elements flyout 14366ms SLOW"
+    },
+    {
+      "id": "F-146",
+      "kind": "entry",
+      "title": "Expandir Este equipo (árbol)",
+      "description": "Expand TreeItem Este equipo en panel izquierdo; colapsar sin navegar",
+      "source": "discovered",
+      "status": "met",
+      "priority": 146,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Panel navegación Tree id=100",
+      "window_after": "Hijos Este equipo visibles",
+      "success_criteria": "Expand OK; colapsar; lab seleccionado",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "TreeItem: Este equipo"
+      ],
+      "evidence_ref": "awdui_1789092701288_174.png; TreeItem Disco local C:; collapse OK; probe 444ms",
+      "notes": "expand_element 3443ms SLOW; expand_collapse collapse sin navegar"
+    },
+    {
+      "id": "F-147",
+      "kind": "entry",
+      "title": "Expandir OneDrive (árbol)",
+      "description": "Expand TreeItem OneDrive; colapsar sin sync ni navegación",
+      "source": "discovered",
+      "status": "met",
+      "priority": 147,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Panel navegación",
+      "window_after": "Subárbol OneDrive visible",
+      "success_criteria": "Expand/colapsar; ruta lab intacta",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "TreeItem: OneDrive - ACCUSYS TECHNOLOGY S R L"
+      ],
+      "evidence_ref": "awdui_1789092871242_175.png; TreeItem Aplicaciones/Documentos; collapse; probe 421ms",
+      "notes": "name_contains expand Invoke 31464ms; nombre completo ExpandCollapse 1816ms"
+    },
+    {
+      "id": "F-148",
+      "kind": "entry",
+      "title": "Expandir Red (árbol)",
+      "description": "Expand TreeItem Red; colapsar sin explorar UNC",
+      "source": "discovered",
+      "status": "met",
+      "priority": 148,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Panel navegación",
+      "window_after": "Nodos de red visibles",
+      "success_criteria": "Expand/colapsar; Escape",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "TreeItem: Red"
+      ],
+      "evidence_ref": "awdui_1789092986679_176.png; expand ExpandCollapse 1685ms; collapse invalid state; Escape; probe 341ms",
+      "notes": "sin hijos UIA visibles en Red; colapsar fallo estado"
+    },
+    {
+      "id": "F-149",
+      "kind": "entry",
+      "title": "Desplegar Eliminar (ribbon)",
+      "description": "Omitido: borra archivos",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 149,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Inicio — Organizar",
+      "success_criteria": "N/A política lab",
+      "discovered_from": "discover_flows raíz pass-6",
+      "discovery_signals": [
+        "SplitButton: Eliminar"
+      ],
+      "notes": "skip_mcp_value: destructivo"
+    },
+    {
+      "id": "F-150",
+      "kind": "entry",
+      "title": "Desplegar Panel de navegación (cinta Vista)",
+      "description": "Expand SplitButton Panel de navegación; restaurar paneles sin ocultar árbol permanentemente",
+      "source": "discovered",
+      "status": "met",
+      "priority": 150,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista — grupo Paneles",
+      "window_after": "Menú opciones panel navegación",
+      "success_criteria": "Flyout visible; Escape; árbol lab visible",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "SplitButton: Panel de navegación"
+      ],
+      "evidence_ref": "awdui_1789093211335_177.png; MenuItem Expandir/Mostrar bibliotecas; Escape; probe+arbol 368ms",
+      "notes": "Tab Vista invoke; chevron 72,88; find SplitButton 7464ms SLOW"
+    },
+    {
+      "id": "F-151",
+      "kind": "entry",
+      "title": "Toggle Elementos ocultos (cinta Vista)",
+      "description": "CheckBox Elementos ocultos on/off; restaurar estado inicial",
+      "source": "discovered",
+      "status": "met",
+      "priority": 151,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista — Mostrar u ocultar",
+      "window_after": "Archivos ocultos visibles o no",
+      "success_criteria": "Toggle verificado; probe sigue visible; estado restaurado",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "CheckBox: Elementos ocultos"
+      ],
+      "evidence_ref": "awdui_1789093366606_178.png; toggle on/off invoke; probe 348ms",
+      "notes": "Tab Vista; click_element CheckBox; find desktop.ini neg 30845ms evitar"
+    },
+    {
+      "id": "F-152",
+      "kind": "entry",
+      "title": "Desplegar Agregar columnas (cinta Vista)",
+      "description": "Expand SplitButton Agregar columnas; Escape sin añadir columnas",
+      "source": "discovered",
+      "status": "met",
+      "priority": 152,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista — Vista actual",
+      "window_after": "Menú columnas disponibles",
+      "success_criteria": "Flyout; Escape; vista Detalles estable",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "SplitButton: Agregar columnas"
+      ],
+      "evidence_ref": "awdui_1789093449685_179.png; MenuItem Tamano 242ms",
+      "notes": "Tab Vista; expand_element SplitButton 828ms; Escape"
+    },
+    {
+      "id": "F-153",
+      "kind": "entry",
+      "title": "Desplegar Opciones (cinta Vista)",
+      "description": "Expand SplitButton Opciones en grupo Opciones; cerrar sin cambiar carpeta",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 153,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista — grupo Opciones",
+      "window_after": "Menú opciones de vista/carpeta",
+      "success_criteria": "Menú visible; Escape",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "SplitButton: Opciones (cinta Vista)"
+      ]
+    },
+    {
+      "id": "F-154",
+      "kind": "entry",
+      "title": "Ocultar elementos seleccionados",
+      "description": "Omitido: oculta archivos en la vista",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 154,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Vista",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "Button: Ocultar elementos seleccionados"
+      ],
+      "notes": "skip_mcp_value: puede ocultar probe en UI"
+    },
+    {
+      "id": "F-155",
+      "kind": "entry",
+      "title": "Grabar en disco (cinta Compartir)",
+      "description": "Omitido: guarda copia del archivo fuera del flujo lab",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 155,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Compartir — Enviar",
+      "success_criteria": "N/A",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "Button: Grabar en disco"
+      ],
+      "notes": "skip_mcp_value: escritura archivo usuario"
+    },
+    {
+      "id": "F-156",
+      "kind": "entry",
+      "title": "Imprimir (cinta Compartir)",
+      "description": "Omitido: abre diálogo de impresión",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 156,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Compartir — Enviar",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "Button: Imprimir"
+      ],
+      "notes": "skip_mcp_value: flujo externo impresión"
+    },
+    {
+      "id": "F-157",
+      "kind": "entry",
+      "title": "Enviar por fax (cinta Compartir)",
+      "description": "Omitido: flujo fax externo",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 157,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Compartir — Enviar",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "Button: Enviar por fax"
+      ],
+      "notes": "skip_mcp_value: sin fax en lab"
+    },
+    {
+      "id": "F-158",
+      "kind": "entry",
+      "title": "Desplegar Dar acceso a (cinta Compartir)",
+      "description": "Expand SplitButton Dar acceso a; Escape sin cambiar permisos",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 158,
+      "parent_id": null,
+      "subtree_discovered": false,
+      "window_context": "Cinta Compartir — Compartir con",
+      "window_after": "Menú dar acceso / lista usuarios",
+      "success_criteria": "Flyout visible; Escape; sin ACL nueva",
+      "discovered_from": "discover_flows raíz pass-7",
+      "discovery_signals": [
+        "SplitButton: Dar acceso a",
+        "List: Dar acceso a"
+      ]
+    },
+    {
+      "id": "F-159",
+      "kind": "action",
+      "title": "Cambiar ubicaciones indizadas (AQS)",
+      "description": "Omitido: abre configuración de indexación del sistema",
+      "source": "discovered",
+      "status": "cancelled",
+      "priority": 159,
+      "parent_id": "F-43",
+      "window_context": "Flyout Opciones avanzadas",
+      "discovered_from": "discover_flows subárbol F-43",
+      "discovery_signals": [
+        "MenuItem: Cambiar ubicaciones indizadas"
+      ],
+      "notes": "skip_mcp_value: configuración sistema fuera lab"
+    },
+    {
+      "id": "F-160",
+      "kind": "action",
+      "title": "Toggle Contenido del archivo (AQS)",
+      "description": "Toggle MenuItem en flyout; restaurar estado inicial sin búsqueda global",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 160,
+      "parent_id": "F-43",
+      "window_context": "Flyout Opciones avanzadas — no indizadas",
+      "success_criteria": "Check cambia y revierte; sin texto en cuadro búsqueda",
+      "discovered_from": "discover_flows subárbol F-43",
+      "discovery_signals": [
+        "MenuItem: Contenido del archivo"
+      ]
+    },
+    {
+      "id": "F-161",
+      "kind": "action",
+      "title": "Toggle Archivos de sistema (AQS)",
+      "description": "Toggle MenuItem Archivos de sistema; restaurar estado previo",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 161,
+      "parent_id": "F-43",
+      "window_context": "Flyout Opciones avanzadas",
+      "success_criteria": "Toggle on/off y revertir; Cerrar búsqueda",
+      "discovered_from": "discover_flows subárbol F-43",
+      "discovery_signals": [
+        "MenuItem: Archivos de sistema"
+      ]
+    },
+    {
+      "id": "F-162",
+      "kind": "action",
+      "title": "Toggle Carpetas comprimidas (AQS)",
+      "description": "Toggle MenuItem Carpetas comprimidas; restaurar",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 162,
+      "parent_id": "F-43",
+      "window_context": "Flyout Opciones avanzadas",
+      "success_criteria": "Toggle y revertir; probe intacto",
+      "discovered_from": "discover_flows subárbol F-43",
+      "discovery_signals": [
+        "MenuItem: Carpetas comprimidas"
+      ]
+    },
+    {
+      "id": "F-163",
+      "kind": "action",
+      "title": "Crear Carpeta (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 163,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Carpeta"
+      ]
+    },
+    {
+      "id": "F-164",
+      "kind": "action",
+      "title": "Crear Acceso directo (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke Acceso directo; cerrar asistente sin guardar; probe intacto",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 164,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Acceso directo"
+      ]
+    },
+    {
+      "id": "F-165",
+      "kind": "action",
+      "title": "Crear Microsoft Access Database (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 165,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Microsoft Access Database"
+      ]
+    },
+    {
+      "id": "F-166",
+      "kind": "action",
+      "title": "Crear Imagen de mapa de bits (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 166,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Imagen de mapa de bits"
+      ]
+    },
+    {
+      "id": "F-167",
+      "kind": "action",
+      "title": "Crear Documento de Microsoft Word (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 167,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Documento de Microsoft Word"
+      ]
+    },
+    {
+      "id": "F-168",
+      "kind": "action",
+      "title": "Crear Microsoft Access Database alt (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 168,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Microsoft Access Database"
+      ]
+    },
+    {
+      "id": "F-169",
+      "kind": "action",
+      "title": "Crear Presentación de Microsoft PowerPoint (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 169,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Presentación de Microsoft PowerPoint"
+      ]
+    },
+    {
+      "id": "F-170",
+      "kind": "action",
+      "title": "Crear Microsoft Publisher Document (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 170,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Microsoft Publisher Document"
+      ]
+    },
+    {
+      "id": "F-171",
+      "kind": "action",
+      "title": "Crear Archivo WinRAR (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 171,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Archivo WinRAR"
+      ]
+    },
+    {
+      "id": "F-172",
+      "kind": "action",
+      "title": "Crear Formato de texto enriquecido (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 172,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Formato de texto enriquecido"
+      ]
+    },
+    {
+      "id": "F-173",
+      "kind": "action",
+      "title": "Crear Documento de texto (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 173,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Documento de texto"
+      ]
+    },
+    {
+      "id": "F-174",
+      "kind": "action",
+      "title": "Crear Hoja de cálculo de Microsoft Excel (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 174,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Hoja de cálculo de Microsoft Excel"
+      ]
+    },
+    {
+      "id": "F-175",
+      "kind": "action",
+      "title": "Crear Archivo WinRAR ZIP (menú Nuevo elemento)",
+      "description": "Reabrir menú F-98; invoke MenuItem; verificar artefacto en carpeta lab; eliminar y dejar probe",
+      "source": "discovered",
+      "status": "pending",
+      "priority": 175,
+      "parent_id": "F-98",
+      "window_context": "Flyout Nuevo elemento — cinta Inicio",
+      "success_criteria": "Artefacto creado verificado en lista; eliminado al final; awdui_probe_readonly.txt intacto",
+      "discovered_from": "discover_flows subárbol F-98",
+      "discovery_signals": [
+        "MenuItem: Archivo WinRAR ZIP"
+      ]
+    }
+  ]
+}

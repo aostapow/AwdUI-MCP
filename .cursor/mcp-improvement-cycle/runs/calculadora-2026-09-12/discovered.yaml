@@ -1,0 +1,22 @@
+# Autodetect — Calculadora (lab reinicio 2026-09-12)
+app_name: Calculadora
+locale: es-AR
+run_id: calculadora-2026-09-12
+
+window:
+  title: Calculadora
+  hwnd: 788710
+  class: ApplicationFrameWindow
+  process: CalculatorApp.exe
+  framework: uwp
+  uia_support: partial
+  focus_policy: minimal
+  launched_pid: 16092
+
+detection_health:
+  recommended_order: [flaui, uia, msaa]
+  backends: { uia: OK, msaa: OK, win32: OK, jab: OK, flaui: OK }
+
+notes:
+  - "ApplicationFrameHost shell; flyouts pueden ser ventanas top-level separadas."
+  - "NavView: discover_control_interaction antes de list_elements amplio."

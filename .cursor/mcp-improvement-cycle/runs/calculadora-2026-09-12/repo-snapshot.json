@@ -1,0 +1,346 @@
+{
+  "app_name": "Calculadora",
+  "repo_app": "CalculatorApp.exe",
+  "app_id": "d0e96df2ae8fb449",
+  "generated_at": "2026-09-13T01:59:38Z",
+  "object_count": 42,
+  "objects_with_hints": 1,
+  "objects": [
+    {
+      "repo_path": "Calculadora/Role_10_0_2",
+      "class": "SwfObject",
+      "automation_id": null,
+      "name": null,
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/num1Button",
+      "class": "SwfButton",
+      "automation_id": "4104",
+      "name": "El ícono de contenido destacado de búsqueda abre la ventana de inicio de búsqueda",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/CalculatorResults",
+      "class": "SwfLabel",
+      "automation_id": null,
+      "name": null,
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/clearButton",
+      "class": "SwfButton",
+      "automation_id": "clearButton",
+      "name": "Borrar",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/num2Button",
+      "class": "SwfButton",
+      "automation_id": "num2Button",
+      "name": "Dos",
+      "agent_hints": "verify_automation_id: CalculatorResults\nverify_name_contains: 2\nnotes: F-01 smoke; no usar verify_name_contains en el botón (nombre es Dos)",
+      "has_hints": true
+    },
+    {
+      "repo_path": "Calculadora/TogglePaneButton",
+      "class": "SwfButton",
+      "automation_id": "TogglePaneButton",
+      "name": "Abrir navegación",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/Scientific",
+      "class": "SwfListItem",
+      "automation_id": "Scientific",
+      "name": "Científica Calculadora",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/Header",
+      "class": "SwfLabel",
+      "automation_id": null,
+      "name": null,
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/Standard",
+      "class": "SwfListItem",
+      "automation_id": "Standard",
+      "name": "Estándar Calculadora",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/hexButton",
+      "class": "SwfRadioButton",
+      "automation_id": "hexButton",
+      "name": "Hexadecimal 1 ",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/MemPlus",
+      "class": "SwfButton",
+      "automation_id": "MemPlus",
+      "name": "Sumar memoria",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/CalculatorExpression",
+      "class": "SwfLabel",
+      "automation_id": null,
+      "name": null,
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/num5Button",
+      "class": "SwfButton",
+      "automation_id": "num5Button",
+      "name": "Cinco",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/num3Button",
+      "class": "SwfButton",
+      "automation_id": "num3Button",
+      "name": "Tres",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/multiplyButton",
+      "class": "SwfButton",
+      "automation_id": "multiplyButton",
+      "name": "Multiplicar por",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/num7Button",
+      "class": "SwfButton",
+      "automation_id": "num7Button",
+      "name": "Siete",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/equalButton",
+      "class": "SwfButton",
+      "automation_id": "equalButton",
+      "name": "Es igual a",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/trigButton",
+      "class": "SwfButton",
+      "automation_id": "trigButton",
+      "name": "Trigonometría",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/funcButton",
+      "class": "SwfButton",
+      "automation_id": "funcButton",
+      "name": "Funciones",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/randButton",
+      "class": "SwfButton",
+      "automation_id": "randButton",
+      "name": "Aleatorio",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/LightDismiss",
+      "class": "SwfButton",
+      "automation_id": "Light Dismiss",
+      "name": "Cerrar",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/DateCalculationOption",
+      "class": "SwfComboBox",
+      "automation_id": "DateCalculationOption",
+      "name": "Modo de cálculo",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/Units1",
+      "class": "SwfComboBox",
+      "automation_id": "Units1",
+      "name": "Unidad de entrada",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/AppThemeExpander",
+      "class": "SwfObject",
+      "automation_id": "AppThemeExpander",
+      "name": "Tema de la aplicación",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/GitHub",
+      "class": "SwfObject",
+      "automation_id": null,
+      "name": "GitHub",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/LightThemeRadioButton",
+      "class": "SwfRadioButton",
+      "automation_id": "LightThemeRadioButton",
+      "name": "Claro",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/AboutExpander",
+      "class": "SwfObject",
+      "automation_id": "AboutExpander",
+      "name": "Calculadora",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/AboutEULA",
+      "class": "SwfObject",
+      "automation_id": "AboutEULA",
+      "name": "Términos de licencia del software de Microsoft",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/invsinButton",
+      "class": "SwfButton",
+      "automation_id": "invsinButton",
+      "name": "Arcoseno",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/sinhButton",
+      "class": "SwfButton",
+      "automation_id": "sinhButton",
+      "name": "Seno hiperbólico",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/NormalAlwaysOnTopButton",
+      "class": "SwfButton",
+      "automation_id": "NormalAlwaysOnTopButton",
+      "name": "Mantener visible",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/ExitAlwaysOnTopButton",
+      "class": "SwfButton",
+      "automation_id": "ExitAlwaysOnTopButton",
+      "name": "Volver a vista completa",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/ClearMemoryButton",
+      "class": "SwfButton",
+      "automation_id": "ClearMemoryButton",
+      "name": "Borrar toda la memoria",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/InequalityFlyout",
+      "class": "SwfObject",
+      "automation_id": "InequalityFlyout",
+      "name": null,
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/EquationButton",
+      "class": "SwfButton",
+      "automation_id": "EquationButton",
+      "name": "Ocultar ecuación 1",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/AppName",
+      "class": "SwfLabel",
+      "automation_id": null,
+      "name": null,
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/clearButtonAudit",
+      "class": "SwfButton",
+      "automation_id": "TogglePaneButton",
+      "name": "Abrir navegación",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/Tema_de_la_aplicación",
+      "class": "SwfObject",
+      "automation_id": "AppThemeExpander",
+      "name": "Tema de la aplicación",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/BackButton",
+      "class": "SwfButton",
+      "automation_id": "BackButton",
+      "name": "Atrás",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/plusButton",
+      "class": "SwfButton",
+      "automation_id": "plusButton",
+      "name": "Más",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/HistoryButton",
+      "class": "SwfButton",
+      "automation_id": "HistoryButton",
+      "name": "Cerrar control flotante de historial",
+      "agent_hints": "",
+      "has_hints": false
+    },
+    {
+      "repo_path": "Calculadora/MemoryButton",
+      "class": "SwfButton",
+      "automation_id": "MemoryButton",
+      "name": "Cerrar control flotante de la memoria",
+      "agent_hints": "",
+      "has_hints": false
+    }
+  ]
+}

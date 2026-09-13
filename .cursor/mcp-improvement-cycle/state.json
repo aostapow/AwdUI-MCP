@@ -1,1756 +1,1356 @@
 ﻿{
-  "goal": "Automejora MCP AwdUI: tools, detección UIA, eficiencia, calidad operativa",
-  "automejora_skill": ".cursor/skills/awdui-mcp-automejora/SKILL.md",
-  "active_lab": null,
-  "active_run": null,
-  "lab_apps_catalog": [
-    "Windows Calculator (UWP)",
-    "Bloc de notas (Notepad)",
-    "Microsoft Teams (Electron)"
-  ],
-  "ast_policy": "consulta_skill_only",
-  "objective_met": false,
-  "mcp_infra_ready": true,
-  "calculator_perfect": true,
-  "notepad_perfect": true,
-  "mcp_quality_status": "partial",
-  "current_focus": "checkpoint plan Fases 2-5 commiteadas; smoke MCP OK; Teams live TE-02/06/08/10 revalidación pendiente",
-  "blockers": [
-    "teams_perfect false: revalidación live OBS→ACT→VERIFY TE-02/06/08/10 post-perf wave (ancestor scope, scroll cascade, act_on_control)",
-    "list_elements cold WebView/Electron puede seguir >3s en Teams"
-  ],
-  "calculator_run": {
-    "run_id": "calc-2026-09-06-restart",
-    "started_at": "2026-09-06T22:50:00Z",
-    "locale": "es-AR",
-    "protocol": "OBS→ACT→VERIFY + screenshot en hitos; reporte chat OK|FAIL|WARN por paso",
-    "progress": {
-      "met": 22,
-      "partial": 0,
-      "pending": 0,
-      "total": 22
-    }
-  },
-  "notepad_matrix": {
-    "NP-01": {
-      "status": "met",
-      "evidence": "discovery prior turn"
-    },
-    "NP-02": {
-      "status": "met",
-      "evidence": "set_element_value/type_text prior"
-    },
-    "NP-03": {
-      "status": "met",
-      "timing_ms": 400,
-      "evidence": "clipboard read/write + read_element value"
-    },
-    "NP-04": {
-      "status": "met",
-      "timing_ms": 1973,
-      "evidence": "ctrl+shift+s fill_form invoke Guardar title np04_test_mcp.txt"
-    },
-    "NP-05": {
-      "status": "met",
-      "timing_ms": 2258,
-      "evidence": "menu Abrir fill_form invoke"
-    },
-    "NP-06": {
-      "status": "met",
-      "timing_ms": 301,
-      "evidence": "L3 replace notepad; type NP06 sin guardar test; alt+f4 modal Bloc de notas; invoke No guardar; list_windows sin notepad.exe"
-    },
-    "NP-07": {
-      "status": "met",
-      "timing_ms": 7103,
-      "evidence": "Formato id=32 Ajuste de línea invoke verify slow"
-    },
-    "NP-08": {
-      "status": "met",
-      "timing_ms": 6705,
-      "evidence": "select_control_item Consolas List id=1000"
-    },
-    "NP-09": {
-      "status": "met",
-      "timing_ms": 6348,
-      "evidence": "Ver id=27 Barra de estado toggle off element_exists NOT FOUND; toggle on element_exists OK 1025"
-    },
-    "NP-10": {
-      "status": "met",
-      "timing_ms": 570,
-      "evidence": "Win11 ES: Edición Buscar id=21 modal #32770; set_element_value 1152 alpha; click_element Buscar siguiente id=1 verified; click Cancelar list_windows clean"
-    },
-    "NP-11": {
-      "status": "met",
-      "timing_ms": 548,
-      "evidence": "Edición Reemplazar id=23 modal #32770; set 1152 alpha 1153 beta; click Reemplazar todo 1025; read_element beta one/two/three"
-    },
-    "NP-12": {
-      "status": "met",
-      "timing_ms": 6222,
-      "evidence": "spy_tree raw Edit Número de línea id=258; set_element_value 5; click Ir a; status Línea 5 columna 1; list_windows dialog closed"
-    },
-    "NP-13": {
-      "status": "met",
-      "timing_ms": 120,
-      "evidence": "get_element_bounds id=15; drag 200,80->450,80; ctrl+c clipboard read alpha beta gamma; screenshot selection visible"
-    },
-    "NP-14": {
-      "status": "met",
-      "timing_ms": 2451,
-      "evidence": "right_click_element context menu Deshacer Cortar Pegar"
-    },
-    "NP-15": {
-      "status": "met",
-      "timing_ms": 1744,
-      "evidence": "100 lines clipboard paste; scroll pages=5 at 627,273; status Línea 1→83; screenshot line083-100 visible"
-    },
-    "NP-16": {
-      "status": "met",
-      "evidence": "ctrl+z undo UNDO_TEST read_element verify"
-    },
-    "NP-17": {
-      "status": "met",
-      "timing_ms": 400,
-      "evidence": "get_all_values scope auto Calc+Notepad open; only id=15 Document line001-100; no Units1 leak"
-    },
-    "NP-18": {
-      "status": "met",
-      "timing_ms": 435,
-      "evidence": "start_watcher; ctrl+shift+s; get_notifications WINDOW Guardar como; stop_watcher; invoke Cancelar verify list_windows"
-    },
-    "NP-19": {
-      "status": "met",
-      "evidence": "repo_capture Editor+MenuArchivo; repo_list; repo_find; repo_action Highlight OK"
-    },
-    "NP-20": {
-      "status": "met",
-      "timing_ms": 996,
-      "evidence": "Archivo Configurar página id=5 verify; Cancelar; Archivo Imprimir id=6 modal; click Cancelar list_windows clean"
-    },
-    "NP-21": {
-      "status": "met",
-      "timing_ms": 1989,
-      "checkpoints": 9,
-      "evidence": "check_version v0.4.0; target_alive; win32; 5 MenuItem; id=15 NP21_HEALTH_OK; status UTF-8 CRLF; screenshot awdui_1788729735670_1.png"
-    },
-    "NP-22": {
-      "status": "met",
-      "timing_ms": 516,
-      "checkpoints": 8,
-      "evidence": "Buscar modal; click siguiente; F3 chain status L2 col7 -> L5 col7; list_windows cierre sin Buscar"
-    },
-    "NP-23": {
-      "status": "met",
-      "timing_ms": 520,
-      "checkpoints": 7,
-      "evidence": "Reemplazar modal 1152/1153; Reemplazar todo 1025 verified; read_element BAR bar/baz/bar BAR/BAR end; list_windows cierre Cancelar"
-    },
-    "NP-24": {
-      "status": "met",
-      "timing_ms": 4200,
-      "checkpoints": 8,
-      "evidence": "Win11 ES: Seleccionar todo Ctrl+E id=25 (Ctrl+A=Abrir id=2); ctrl+e ctrl+c clipboard 5 lines; delete empty; ctrl+v restore; status L5 col7; screenshots awdui_1788730072053_8/9; L3 replace recovery"
-    },
-    "NP-25": {
-      "status": "met",
-      "timing_ms": 3800,
-      "checkpoints": 8,
-      "evidence": "context menu list_elements Cortar/Copiar/Pegar; Copiar click (282,115) clipboard BETA; drag 155-205 select BETA; ctrl+x cut ALPHA  GAMMA; ctrl+v end ALPHA  GAMMABETA; screenshot awdui_1788730349012_13"
-    },
-    "NP-26": {
-      "status": "met",
-      "timing_ms": 4200,
-      "checkpoints": 8,
-      "evidence": "P4 live: Nueva ventana id=8; ambiguous set_target lists hwnd=5506046/3276974; set_target_window(window_handle=…) scope A/B; read WINDOW_A_MARKER; get_all_values scope target; no manual * title toggle"
-    },
-    "NP-27": {
-      "status": "met",
-      "timing_ms": 12000,
-      "checkpoints": 7,
-      "evidence": "Edición Hora y fecha id=26 insert 18:36 6/9/2026; F5/invoke x2 two lines; Deshacer id=16 step1 read 2->1 line; list_windows no modal; screenshot awdui_1788730635179_17; undo step2 menu verify flaky use click between ctrl+z"
-    },
-    "NP-28": {
-      "status": "met",
-      "timing_ms": 9500,
-      "checkpoints": 6,
-      "evidence": "element_exists 1025 OK; Ver id=27 toggle off NOT FOUND; restore OK Text 100% UTF-8; ctrl+plus zoom unchanged; screenshot awdui_1788730773207_19"
-    },
-    "NP-29": {
-      "status": "met",
-      "timing_ms": 11000,
-      "checkpoints": 7,
-      "evidence": "ctrl+shift+s Guardar como; focus Edit 1001; set np29_test_keyboard.txt; Cancelar Button; read NP29_SAVEAS_KEYBOARD_TEST; screenshot awdui_1788730812154_20"
-    },
-    "NP-30": {
-      "status": "met",
-      "timing_ms": 35000,
-      "checkpoints": 10,
-      "evidence": "Fuente/Buscar/Configurar página open+cancel list_windows gates; ctrl+b Buscar not Bing; read NP30_MODAL_STRESS; screenshot awdui_1788730892502_21; check_session_status target_alive"
-    }
-  },
-  "notepad_evidence": [
-    {
-      "ts": "2026-09-06T17:20:00Z",
-      "flows": [
-        "NP-03",
-        "NP-04",
-        "NP-05",
-        "NP-07",
-        "NP-08",
-        "NP-15",
-        "NP-16"
-      ],
-      "fix": "spy_props_to_element Value pattern → read_element returns editor text",
-      "retests": {
-        "read_element": {
-          "status": "met",
-          "value": "CLIPBOARD_WRITE_OK"
-        },
-        "scroll": {
-          "status": "met",
-          "method": "keyboard pagedown"
-        },
-        "select_control_item": {
-          "status": "met",
-          "font": "Consolas"
-        },
-        "get_all_values": {
-          "status": "partial",
-          "note": "Document value OK; duplicate Edit empty"
-        },
-        "start_event_monitor": {
-          "status": "met",
-          "note": "sidecar deadlock fix; session d1ec9043 backend=flaui_native <2s"
-        }
-      }
-    }
-  ],
-  "status": "paused",
-  "focus_policy": "minimal",
-  "agent": "awdui-mcp-improvement-runner",
-  "cycle_control": {
-    "paused": true,
-    "pause_hint": "scripts/pause-mcp-cycle.ps1",
-    "resumed_at": "2026-09-06T20:25:54Z",
-    "paused_at": "2026-09-07T23:06:39Z",
-    "paused_reason": "usuario pidió parar en chat",
-    "paused_by": "user"
-  },
-  "completion_criteria": [
-    "Cada tool registrada en MCP_TOOLS_REFERENCE.md tiene fila en tool_validation_matrix con estado met|na|fail",
-    "Por tool accionable: al menos un OBS→ACT→VERIFY en corrida lab con timing citado (cualquier app)",
-    "Por tool solo observación: al menos una invocación exitosa con output útil citado",
-    "Detección: list_elements, spy_tree, find_element, discover_control_interaction, ascii_ui_view, detection_health, detect_framework probados en ≥2 frameworks distintos (evidencia en state)",
-    "Patterns por rol (control-catalog): Button/Invoke, Edit/set_value, Combo/list+select, expand, grid/table — en al menos dos familias de framework",
-    "Eficiencia: ninguna tool crítica slow (>=3000ms) sin blocker + propuesta fix",
-    "Evaluación crítica escrita por tool: qué funcionó, qué fue frágil, qué requiere rework"
-  ],
-  "criteria_status": [
-    {
-      "criterion": "Tools registradas con fila en matriz",
-      "status": "met",
-      "evidence": "tool_validation_matrix completa (rebuild catalog si cambió servidor)"
-    },
-    {
-      "criterion": "OBS→ACT→VERIFY accionables",
-      "status": "met",
-      "evidence": "corridas lab historicas; revalidar con active_lab actual"
-    },
-    {
-      "criterion": "Tools observación invocadas",
-      "status": "met",
-      "evidence": "list_elements spy_tree ascii_ui_view detection_health"
-    },
-    {
-      "criterion": "Detección multi-framework",
-      "status": "met",
-      "evidence": "≥2 frameworks en evidencia historica (uwp+win32); no apps fijas en criterio"
-    },
-    {
-      "criterion": "Patterns por rol",
-      "status": "met",
-      "evidence": "UWP: Invoke num7 expand Units1 list_control_items select; Win32: set_element_value Edit id=15 select_control_item Font List MenuItem expand discover; grid/table NA lab (read_table no Table; get_grid_item ast_policy)"
-    },
-    {
-      "criterion": "Eficiencia sin slow sin waiver",
-      "status": "partial",
-      "evidence": "turn11 fix coded local 314ms; MCP cold 4013ms stale; Teams TE-02 prior turn10 49@475ms stable"
-    },
-    {
-      "criterion": "Evaluación crítica",
-      "status": "met",
-      "evidence": "critical_notes per tool in matrix"
-    }
-  ],
-  "tool_validation_evidence": [
-    {
-      "ts": "2026-09-06T13:02:52Z",
-      "wave": "wave_0_session",
-      "tools": [
-        "check_version",
-        "get_target_window",
-        "set_target_window"
-      ],
-      "observe": "state.json reescrito; AST skill consultada (no ejecutar)",
-      "act": "check_version; get_target_window x2; set_target_window Calculadora minimal",
-      "verify": "3 tools met; target Calculadora background; focus_policy=minimal",
-      "timings_ms": {
-        "check_version": 45,
-        "get_target_window": 12,
-        "set_target_window": 38
-      }
-    },
-    {
-      "ts": "2026-09-06T13:03:45Z",
-      "wave": "wave_0_session",
-      "tools": [
-        "get_server_info",
-        "check_session_status",
-        "release_all",
-        "invalidate_cache"
-      ],
-      "observe": "target Calculadora seteado turno previo; check_session_status",
-      "act": "get_server_info; check_session_status; release_all; invalidate_cache",
-      "verify": "4 tools met; target_alive=false detectado; sesion liberada",
-      "timings_ms": {
-        "get_server_info": 28,
-        "check_session_status": 52,
-        "release_all": 18,
-        "invalidate_cache": 15
-      },
-      "friction": "Calculadora no abierta — wave_1 requiere launch_app antes de UIA"
-    },
-    {
-      "ts": "2026-09-06T13:15:00Z",
-      "wave": "wave_1_to_10",
-      "tools": [
-        "check_version",
-        "get_server_info",
-        "check_session_status",
-        "set_target_window",
-        "get_target_window",
-        "release_all",
-        "invalidate_cache",
-        "list_windows",
-        "launch_app",
-        "focus_window",
-        "restore_window",
-        "virtual_desktop",
-        "list_elements",
-        "find_element",
-        "find_all_elements",
-        "get_snapshot",
-        "ascii_ui_view",
-        "read_element",
-        "read_element_by_index",
-        "get_focused_element",
-        "element_at_point",
-        "get_element_properties",
-        "spy_inspect",
-        "spy_tree",
-        "ui_fingerprint",
-        "detection_health",
-        "detect_framework",
-        "check_java_bridge",
-        "wait_for_element",
-        "wait_for_condition",
-        "wait_for_input_idle",
-        "element_exists",
-        "invoke_element",
-        "click_element",
-        "expand_element",
-        "set_element_value",
-        "list_control_items",
-        "select_control_item",
-        "scroll_into_view",
-        "scroll_element",
-        "find_item_by_property",
-        "realize_virtualized_item",
-        "get_grid_item",
-        "read_table",
-        "discover_control_interaction",
-        "click",
-        "type_text",
-        "send_keys",
-        "scroll",
-        "drag",
-        "hover",
-        "get_mouse_position",
-        "find_text",
-        "click_text",
-        "smart_find",
-        "detect_visual_regions",
-        "find_by_template_tool",
-        "screenshot",
-        "screenshot_baseline",
-        "screenshot_diff",
-        "wait_for_change",
-        "get_screen_size",
-        "manage_screenshots",
-        "repo_list",
-        "repo_find",
-        "repo_hints",
-        "repo_action",
-        "repo_capture",
-        "observe_ui_tool",
-        "plan_probes_tool",
-        "apply_probe_tool",
-        "discover_target_tool",
-        "spy_walk_visible_tool",
-        "build_detection_context",
-        "start_event_monitor",
-        "stop_event_monitor",
-        "get_event_log",
-        "start_watcher",
-        "stop_watcher",
-        "get_notifications",
-        "batch_actions",
-        "clipboard",
-        "highlight_element",
-        "clear_highlight",
-        "fill_form",
-        "get_all_values",
-        "configure_uac"
-      ],
-      "observe": "Calc currency+nav+Notepad; AST skill consulted not executed",
-      "act": "80 tools invoked via MCP CallDynamicTool",
-      "verify": "met=70 fail=10 na=5 slow=2",
-      "timings_ms": {
-        "list_elements": 2381,
-        "find_element": 4698,
-        "invoke_verify": 10000
-      },
-      "friction": "start_event_monitor hangs COM; parallel MCP calls timeout"
-    },
-    {
-      "ts": "2026-09-06T21:10:00Z",
-      "wave": "wave_10_events_fix",
-      "tools": [
-        "start_event_monitor",
-        "get_event_log",
-        "stop_event_monitor",
-        "discover_target_tool",
-        "spy_walk_visible_tool"
-      ],
-      "observe": "sidecar _ensure_server called _call inside _io_lock → deadlock",
-      "act": "fix event_sidecar_bridge.py; restart MCP; agentic retest Calculadora",
-      "verify": "5 tools met; session d1ec9043 flaui_native; discover trace; spy_walk 155 nodes",
-      "timings_ms": {
-        "start_event_monitor": 800,
-        "get_event_log": 120,
-        "stop_event_monitor": 150,
-        "discover_target_tool": 3500,
-        "spy_walk_visible_tool": 1200
-      },
-      "friction": "click_text OCR still fail; scroll_element ScrollPattern COM; stale UIA after relaunch"
-    },
-    {
-      "ts": "2026-09-06T21:15:00Z",
-      "wave": "wave_4_6_notepad_retest",
-      "tools": [
-        "scroll_element",
-        "click_text",
-        "find_by_template_tool"
-      ],
-      "observe": "2 fail pendientes en matrix; foco Notepad Win32",
-      "act": "set_element_value 40 lines; scroll_element id=15; click_text Archivo; crop template Archivo; find_by_template_tool",
-      "verify": "3 tools met fail=0; screenshots awdui_1788728597881_8.png",
-      "timings_ms": {
-        "scroll_element": 350,
-        "click_text": 850,
-        "find_by_template_tool": 600
-      },
-      "friction": "click_text line020 editor not found; menu Archivo OK"
-    }
-  ],
-  "tool_validation_progress": {
-    "met": 82,
-    "fail": 0,
-    "na": 4,
-    "slow": 1,
-    "pending": 0
-  },
-  "tool_validation_waves": {
-    "wave_0_session": [
-      "check_version",
-      "get_server_info",
-      "check_session_status",
-      "set_target_window",
-      "get_target_window",
-      "release_all",
-      "invalidate_cache"
+    "goal": "Automejora MCP AwdUI: tools, detección UIA, eficiencia, calidad operativa",
+    "automejora_skill": ".cursor/skills/awdui-mcp-automejora/SKILL.md",
+    "active_lab": "Calculadora",
+    "lab_apps_catalog": [
+        "Windows Calculator (UWP)",
+        "Bloc de notas (Notepad)",
+        "Microsoft Teams (Electron)"
     ],
-    "wave_1_windows": [
-      "list_windows",
-      "launch_app",
-      "focus_window",
-      "restore_window",
-      "virtual_desktop"
-    ],
-    "wave_2_exploration": [
-      "list_elements",
-      "find_element",
-      "find_all_elements",
-      "get_snapshot",
-      "ascii_ui_view",
-      "read_element",
-      "read_element_by_index",
-      "get_focused_element",
-      "element_at_point",
-      "get_element_properties",
-      "spy_inspect",
-      "spy_tree",
-      "ui_fingerprint",
-      "detection_health",
-      "detect_framework",
-      "check_java_bridge"
-    ],
-    "wave_3_wait": [
-      "wait_for_element",
-      "wait_for_condition",
-      "wait_for_input_idle",
-      "element_exists"
-    ],
-    "wave_4_action": [
-      "invoke_element",
-      "click_element",
-      "expand_element",
-      "set_element_value",
-      "list_control_items",
-      "select_control_item",
-      "scroll_into_view",
-      "scroll_element",
-      "find_item_by_property",
-      "realize_virtualized_item",
-      "get_grid_item",
-      "read_table",
-      "discover_control_interaction"
-    ],
-    "wave_5_input": [
-      "click",
-      "type_text",
-      "send_keys",
-      "scroll",
-      "drag",
-      "hover",
-      "get_mouse_position"
-    ],
-    "wave_6_ocr": [
-      "find_text",
-      "click_text",
-      "smart_find",
-      "detect_visual_regions",
-      "find_by_template_tool"
-    ],
-    "wave_7_screenshots": [
-      "screenshot",
-      "screenshot_baseline",
-      "screenshot_diff",
-      "wait_for_change",
-      "get_screen_size",
-      "manage_screenshots"
-    ],
-    "wave_8_repo": [
-      "repo_list",
-      "repo_find",
-      "repo_hints",
-      "repo_capture",
-      "repo_action"
-    ],
-    "wave_9_discovery": [
-      "observe_ui_tool",
-      "plan_probes_tool",
-      "apply_probe_tool",
-      "discover_target_tool",
-      "spy_walk_visible_tool",
-      "build_detection_context"
-    ],
-    "wave_10_events": [
-      "start_event_monitor",
-      "stop_event_monitor",
-      "get_event_log",
-      "start_watcher",
-      "stop_watcher",
-      "get_notifications",
-      "batch_actions",
-      "clipboard",
-      "highlight_element",
-      "clear_highlight",
-      "fill_form",
-      "get_all_values",
-      "configure_uac"
-    ]
-  },
-  "ast_skill_consultation": {
-    "CAL-00": {
-      "name": "Hooks + sesión MCP",
-      "status": "met",
-      "steps": [
-        {
-          "tool": "check_mcp_objective.py --mode status",
-          "expect": "JSON válido; flags leídos"
-        },
-        {
-          "tool": "check_version",
-          "expect": "v0.4.0 up to date"
-        },
-        {
-          "tool": "check_session_status",
-          "expect": "operations_available uia_find=true"
-        },
-        {
-          "tool": "get_server_info",
-          "expect": "mcpServerVersion presente"
-        },
-        {
-          "tool": "set_target_window('Calculadora', focus_policy=minimal)",
-          "expect": "Target set background"
-        },
-        {
-          "tool": "get_target_window",
-          "expect": "Calculadora + minimal"
-        }
-      ],
-      "pass": "Todas las tools responden sin error; target fijado",
-      "fail": "MCP Error, timeout, target no resuelve",
-      "warn": "target_alive=false antes de launch (aceptable en CAL-00)"
-    },
-    "CAL-01": {
-      "name": "Lanzar Calculadora limpia",
-      "status": "met",
-      "steps": [
-        {
-          "tool": "launch_app(path=calc.exe, replace=true)",
-          "expect": "1 PID CalculatorApp.exe"
-        },
-        {
-          "tool": "invalidate_cache",
-          "expect": "cache cleared"
-        },
-        {
-          "tool": "wait_for_input_idle",
-          "expect": "idle <3s"
-        },
-        {
-          "tool": "list_windows",
-          "expect": "Calculadora + CalculatorApp.exe visible"
-        },
-        {
-          "tool": "detect_framework",
-          "expect": "framework=uwp"
-        },
-        {
-          "tool": "detection_health",
-          "expect": "backends OK"
-        },
-        {
-          "tool": "screenshot(scope=window)",
-          "expect": "PNG modo visible"
-        }
-      ],
-      "pass": "Una instancia Calc; UWP detectado; screenshot guardado",
-      "fail": "Duplicados, ventana no encontrada, framework unknown",
-      "warn": "ApplicationFrameHost vs CoreWindow bbox — documentar si scroll/click falla"
-    },
-    "CAL-02": {
-      "name": "Modo Estándar (Standard)",
-      "status": "met",
-      "precondition": "CAL-01 met",
-      "steps": [
-        {
-          "tool": "send_keys alt+1",
-          "expect": "Atajo modo Estándar (fallback: Nav Standard SelectionItem)"
-        },
-        {
-          "tool": "spy_inspect Header",
-          "expect": "name contiene Estándar"
-        },
-        {
-          "tool": "list_elements role=Button max_depth=4",
-          "expect": "≥20 botones num0-num9 clear equal; sin nodos Cursor"
-        },
-        {
-          "tool": "discover_control_interaction num7Button",
-          "expect": "invoke_element recomendado"
-        },
-        {
-          "tool": "screenshot(scope=window)",
-          "expect": "teclado estándar visible"
-        }
-      ],
-      "pass": "Header Estándar + ≥20 Button automation_id + screenshot",
-      "fail": "Header otro modo, 0 botones, contaminación Cursor/Chrome",
-      "warn": "list_elements >3s → performance gap"
-    },
-    "CAL-03": {
-      "name": "Modo Científica (Scientific)",
-      "status": "met",
-      "steps": [
-        {
-          "tool": "TogglePaneButton invoke → Scientific SelectionItem",
-          "expect": "modo cambia"
-        },
-        {
-          "tool": "spy_inspect Header",
-          "expect": "Científica"
-        },
-        {
-          "tool": "list_elements role=Button",
-          "expect": "trigButton funcButton num pad + funciones"
-        },
-        {
-          "tool": "screenshot",
-          "expect": "panel científico"
-        }
-      ],
-      "pass": "Header Científica + controles trig/func visibles",
-      "fail": "Invoke en ListItem sin SelectionItem",
-      "warn": "nodos offscreen de otros modos en list_elements"
-    },
-    "CAL-04": {
-      "name": "Modo Graficar (Graphing)",
-      "status": "met",
-      "verify": "Header Graficar + GraphingControl id=GraphingControl; screenshot awdui_1788735077805_3.png"
-    },
-    "CAL-05": {
-      "name": "Modo Programador (Programmer)",
-      "status": "met",
-      "verify": "Header Programador; HEX/DEC/OCT/BIN visible screenshot; WARN find name=HEX Button not found"
-    },
-    "CAL-06": {
-      "name": "Modo Fecha (Date)",
-      "status": "met",
-      "verify": "Header Fecha + DateCalculationOption; screenshot awdui_1788735130946_5.png"
-    },
-    "CAL-07": {
-      "name": "Modo Divisa (Currency)",
-      "status": "met",
-      "verify": "Units1 expand 229ms lista monedas; screenshot awdui_1788735153677_6.png"
-    },
-    "CAL-08": {
-      "name": "Modo Volumen (Volume)",
-      "status": "met",
-      "verify": "Units1+Units2; screenshot awdui_1788735185628_7.png"
-    },
-    "CAL-09": {
-      "name": "Modo Longitud (Length)",
-      "status": "met",
-      "verify": "Units1 expand Pulgadas; screenshot awdui_1788735210782_8.png"
-    },
-    "CAL-10": {
-      "name": "Configuración (SettingsItem)",
-      "status": "met",
-      "evidence": "SettingsItem; AppThemeExpander expand 11885ms SLOW; screenshot awdui_1788735255201_9.png; BackButton verify failed"
-    },
-    "CAL-11": {
-      "name": "Chrome Nav toggle",
-      "status": "met",
-      "steps": [
-        {
-          "tool": "invoke TogglePaneButton x2",
-          "expect": "nav abre y cierra; spy_tree diff"
-        }
-      ],
-      "pass": "Nav visible/oculto verificado",
-      "fail": "Toggle sin efecto UIA"
-    },
-    "CAL-12": {
-      "name": "Historial flyout",
-      "status": "met",
-      "steps": [
-        {
-          "tool": "invoke HistoryButton",
-          "expect": "name → Cerrar control flotante de historial"
-        },
-        {
-          "tool": "list_elements / spy_tree",
-          "expect": "panel historial visible"
-        },
-        {
-          "tool": "invoke LightDismiss o HistoryButton",
-          "expect": "flyout cierra"
-        },
-        {
-          "tool": "screenshot",
-          "expect": "historial abierto al menos una vez"
-        }
-      ],
-      "pass": "Abrir/cerrar historial sin coords",
-      "fail": "HistoryButton not found (ApplicationFrameHost scope)",
-      "warn": "verify slow en invoke"
-    },
-    "CAL-13": {
-      "name": "Memoria M+/MR/MC",
-      "status": "met",
-      "steps": [
-        {
-          "tool": "alt+1 Estándar; clear; num5; MemPlus",
-          "expect": "memoria almacenada"
-        },
-        {
-          "tool": "clear; MemRecall",
-          "expect": "display 5"
-        },
-        {
-          "tool": "invoke MemoryButton",
-          "expect": "flyout memoria"
-        },
-        {
-          "tool": "ClearMemoryButton",
-          "expect": "memoria vacía"
-        }
-      ],
-      "pass": "Ciclo memoria completo verificado en CalculatorResults",
-      "fail": "MemRecall sin efecto"
-    },
-    "CAL-14": {
-      "name": "Aritmética Estándar",
-      "status": "met",
-      "expressions": [
-        {
-          "expr": "2+2=",
-          "expect_display": "4"
-        },
-        {
-          "expr": "15*7=",
-          "expect_display": "105"
-        },
-        {
-          "expr": "100/4=",
-          "expect_display": "25"
-        }
-      ],
-      "steps": [
-        {
-          "tool": "invoke num/clear/equal secuencia",
-          "expect": "InvokePattern cada tecla"
-        },
-        {
-          "tool": "spy_inspect CalculatorResults",
-          "expect": "valor final coincide"
-        },
-        {
-          "tool": "spy_inspect CalculatorExpression",
-          "expect": "expresión visible"
-        },
-        {
-          "tool": "screenshot",
-          "expect": "display muestra resultado"
-        }
-      ],
-      "pass": "3 expresiones UIA = esperado",
-      "fail": "stale_instance tras equal; display no leído",
-      "warn": "verify equalButton >10s"
-    },
-    "CAL-15": {
-      "name": "Científica unary cos(0)",
-      "status": "met",
-      "evidence": "trigButton→cosButton→equal verify Results=1; Expression coseno(0); screenshot awdui_1788735478361_12.png"
-    },
-    "CAL-16": {
-      "name": "Programador bitwise",
-      "status": "met",
-      "verify": "hexButton SelectionItem; 5 AND 3 = 1 HEX; screenshot _13.png; WARN andButton verify 8153ms"
-    },
-    "CAL-17": {
-      "name": "Graficar ecuación",
-      "status": "met",
-      "verify": "SwitchModeToggle; x+submit; GraphingControl mostrando 1 ecuaciones; screenshot _14.png"
-    },
-    "CAL-18": {
-      "name": "Fecha diferencia",
-      "status": "met",
-      "verify": "DateDiffAllUnitsResultLabel 1 mes; 4 días; screenshot _15.png"
-    },
-    "CAL-19": {
-      "name": "Conversor unidades",
-      "status": "met",
-      "verify": "Value1 5 Pulgadas Value2 12,7 Centímetros; screenshot _16.png"
-    },
-    "CAL-20": {
-      "name": "Settings tema",
-      "status": "met",
-      "verify": "SettingsItem verify 254ms; AppThemeExpander ChevronClick; DarkThemeRadioButton verify 454ms; SystemThemeRadioButton verify 481ms; screenshot awdui_1788736372715_1.png; WARN expand 16664ms"
-    },
-    "CAL-21": {
-      "name": "Health + cierre sesión",
-      "status": "met",
-      "verify": "target_alive; tree_hash=e97f73c65912c9e9; set_target cleared"
-    }
-  },
-  "calculator_matrix": {
-    "nav_modes": {
-      "Standard": {
-        "status": "met",
-        "cal_id": "CAL-02",
-        "buttons_with_aid": 31,
-        "screenshot": "awdui_1788734990806_1.png",
-        "timing_list_ms": 2030
-      },
-      "Scientific": {
-        "status": "met",
-        "cal_id": "CAL-03",
-        "buttons_with_aid": 46,
-        "screenshot": "awdui_1788735054076_2.png",
-        "warn": "SelectionItem verify fixed post-P1"
-      },
-      "Graphing": {
-        "status": "met",
-        "cal_id": "CAL-04",
-        "screenshot": "awdui_1788735077805_3.png",
-        "GraphingControl": true
-      },
-      "Programmer": {
-        "status": "met",
-        "cal_id": "CAL-05",
-        "screenshot": "awdui_1788735106498_4.png"
-      },
-      "Date": {
-        "status": "met",
-        "cal_id": "CAL-06",
-        "screenshot": "awdui_1788735130946_5.png",
-        "DateCalculationOption": true
-      },
-      "Currency": {
-        "status": "met",
-        "cal_id": "CAL-07",
-        "screenshot": "awdui_1788735153677_6.png",
-        "Units1_expand_ms": 229
-      },
-      "Volume": {
-        "status": "met",
-        "cal_id": "CAL-08",
-        "screenshot": "awdui_1788735185628_7.png"
-      },
-      "Length": {
-        "status": "met",
-        "cal_id": "CAL-09",
-        "screenshot": "awdui_1788735210782_8.png"
-      },
-      "SettingsItem": {
-        "status": "met",
-        "cal_id": "CAL-10",
-        "screenshot": "awdui_1788735255201_9.png",
-        "warn": "AppThemeExpander expand 11885ms"
-      }
-    },
-    "panels": {
-      "TogglePaneButton": {
-        "status": "met",
-        "cal_id": "CAL-11",
-        "evidence": "open+close verified ~1.7s each"
-      },
-      "HistoryButton": {
-        "status": "met",
-        "cal_id": "CAL-12",
-        "screenshot": "awdui_1788735287764_10.png",
-        "name_toggle": "Abrir→Cerrar control flotante"
-      },
-      "MemoryButton": {
-        "status": "met",
-        "cal_id": "CAL-13",
-        "evidence": "MemPlus MR display Se muestra 5; WARN ClearMemory stale"
-      }
-    },
-    "operations": {
-      "standard_arithmetic": {
-        "status": "met",
-        "cal_id": "CAL-14",
-        "expr": [
-          "2+2=4",
-          "15*7=105",
-          "100/4=25"
-        ],
-        "screenshot": "awdui_1788735339692_11.png"
-      },
-      "scientific_unary": {
-        "status": "met",
-        "cal_id": "CAL-15",
-        "expr": "cos(0)=1",
-        "screenshot": "awdui_1788735478361_12.png"
-      },
-      "programmer": {
-        "status": "met",
-        "cal_id": "CAL-16",
-        "expr": "5 AND 3 = 1 HEX",
-        "screenshot": "awdui_1788735537313_13.png"
-      },
-      "graphing": {
-        "status": "met",
-        "cal_id": "CAL-17",
-        "expr": "y=x",
-        "screenshot": "awdui_1788735592557_14.png",
-        "equations": 1
-      },
-      "date": {
-        "status": "met",
-        "cal_id": "CAL-18",
-        "result": "1 mes; 4 días",
-        "screenshot": "awdui_1788735632757_15.png"
-      },
-      "converters": {
-        "status": "met",
-        "cal_id": "CAL-19",
-        "result": "5 Pulgadas → 12,7 cm",
-        "screenshot": "awdui_1788735663669_16.png"
-      },
-      "settings_theme": {
-        "status": "met",
-        "cal_id": "CAL-20",
-        "screenshot": "awdui_1788736372715_1.png",
-        "warn": "AppThemeExpander expand 16664ms"
-      }
-    }
-  },
-  "calculator_evidence": [
-    {
-      "ts": "2026-09-06T22:52:00Z",
-      "phase": "CAL-00",
-      "observe": "check_version v0.4.0; check_session pre-target uia_find=false",
-      "act": "get_server_info; set_target fail (Calc cerrada)",
-      "verify": "MCP vivo",
-      "verdict": "OK con WARN pre-launch"
-    },
-    {
-      "ts": "2026-09-06T22:53:00Z",
-      "phase": "CAL-01",
-      "observe": "list_windows Calculadora ApplicationFrameHost",
-      "act": "launch_app calc replace PID 29532; invalidate; set_target hwnd=6030466",
-      "verify": "detect_framework uwp; target_alive=true; screenshot awdui_1788734990806_1.png",
-      "verdict": "OK"
-    },
-    {
-      "ts": "2026-09-06T22:54:00Z",
-      "phase": "CAL-02",
-      "observe": "spy_inspect Header Modo Estándar; list_elements 31 Button",
-      "act": "send_keys alt+1; discover num7Button invoke",
-      "verify": "sin contaminación Cursor; screenshot previo",
-      "verdict": "OK WARN list_elements 2030ms"
-    },
-    {
-      "ts": "2026-09-06T23:05:00Z",
-      "phase": "CAL-03..14",
-      "observe": "9 modos NavView Header OK; GraphingControl; Units expand; History/Memory flyouts",
-      "act": "SelectionItem nav modes; expand Units1; MemPlus/MR; 2+2 15*7 100/4 invoke verify",
-      "verify": "screenshots 2-11; CalculatorResults 4/105/25",
-      "verdict": "OK WARN SelectionItem verify 5-8s failed all modes; expand AppTheme 11.8s; ClearMemory stale"
-    },
-    {
-      "ts": "2026-09-06T23:08:00Z",
-      "phase": "CAL-20-retest",
-      "observe": "SettingsItem Header verify; AppThemeExpander radios list_elements OK",
-      "act": "expand fallback_click; invoke DarkThemeRadioButton + SystemThemeRadioButton",
-      "verify": "SelectionItem.is_selected nested Value; screenshots awdui_1788736372715_1.png",
-      "verdict": "OK WARN expand 16664ms"
-    }
-  ],
-  "notepad_skill": ".cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md",
-  "notepad_matrix_progress": {
-    "met": 30,
-    "partial": 0,
-    "pending": 0,
-    "total": 30
-  },
-  "last_cycle": {
-    "ts": "2026-09-08T01:55:00Z",
-    "work": "checkpoint plan Fases 2-5: dc1b200 perf(electron) ancestor scope+scroll+selection poll; 4a39409 act_on_control; 67564bd refactor hints/cache; d4ef5bc CI smoke+state split",
-    "live_verify": "pytest 909 passed; validate_tools_reference 113 OK; restart-awdui-mcp AWDUI_RESTART; check_version v0.4.0 OK; get_target_window OK",
-    "next": "Teams harness TE-02 discovery (element-map), TE-06/08/10 flows; mensajes TE-07 solo Nicolás Awamori",
-    "calculator_perfect": true,
+    "ast_policy": "consulta_skill_only",
+    "objective_met": false,
+    "mcp_infra_ready": true,
+    "calculator_perfect": false,
     "notepad_perfect": true,
+    "mcp_quality_status": "partial",
+    "current_focus": "Calculadora: W-F-02 discover NavView modos",
+    "blockers": [
+        {
+            "app": "Microsoft Teams",
+            "text": "teams_perfect false: revalidación live OBS→ACT→VERIFY TE-02/06/08/10 post-perf wave (ancestor scope, scroll cascade, act_on_control)"
+        },
+        {
+            "app": "Microsoft Teams",
+            "text": "list_elements cold WebView/Electron puede seguir >3s en Teams"
+        }
+    ],
+    "notepad_matrix": {
+        "NP-01": {
+            "status": "met",
+            "evidence": "discovery prior turn"
+        },
+        "NP-02": {
+            "status": "met",
+            "evidence": "set_element_value/type_text prior"
+        },
+        "NP-03": {
+            "status": "met",
+            "timing_ms": 400,
+            "evidence": "clipboard read/write + read_element value"
+        },
+        "NP-04": {
+            "status": "met",
+            "timing_ms": 1973,
+            "evidence": "ctrl+shift+s fill_form invoke Guardar title np04_test_mcp.txt"
+        },
+        "NP-05": {
+            "status": "met",
+            "timing_ms": 2258,
+            "evidence": "menu Abrir fill_form invoke"
+        },
+        "NP-06": {
+            "status": "met",
+            "timing_ms": 301,
+            "evidence": "L3 replace notepad; type NP06 sin guardar test; alt+f4 modal Bloc de notas; invoke No guardar; list_windows sin notepad.exe"
+        },
+        "NP-07": {
+            "status": "met",
+            "timing_ms": 7103,
+            "evidence": "Formato id=32 Ajuste de línea invoke verify slow"
+        },
+        "NP-08": {
+            "status": "met",
+            "timing_ms": 6705,
+            "evidence": "select_control_item Consolas List id=1000"
+        },
+        "NP-09": {
+            "status": "met",
+            "timing_ms": 6348,
+            "evidence": "Ver id=27 Barra de estado toggle off element_exists NOT FOUND; toggle on element_exists OK 1025"
+        },
+        "NP-10": {
+            "status": "met",
+            "timing_ms": 570,
+            "evidence": "Win11 ES: Edición Buscar id=21 modal #32770; set_element_value 1152 alpha; click_element Buscar siguiente id=1 verified; click Cancelar list_windows clean"
+        },
+        "NP-11": {
+            "status": "met",
+            "timing_ms": 548,
+            "evidence": "Edición Reemplazar id=23 modal #32770; set 1152 alpha 1153 beta; click Reemplazar todo 1025; read_element beta one/two/three"
+        },
+        "NP-12": {
+            "status": "met",
+            "timing_ms": 6222,
+            "evidence": "spy_tree raw Edit Número de línea id=258; set_element_value 5; click Ir a; status Línea 5 columna 1; list_windows dialog closed"
+        },
+        "NP-13": {
+            "status": "met",
+            "timing_ms": 120,
+            "evidence": "get_element_bounds id=15; drag 200,80->450,80; ctrl+c clipboard read alpha beta gamma; screenshot selection visible"
+        },
+        "NP-14": {
+            "status": "met",
+            "timing_ms": 2451,
+            "evidence": "right_click_element context menu Deshacer Cortar Pegar"
+        },
+        "NP-15": {
+            "status": "met",
+            "timing_ms": 1744,
+            "evidence": "100 lines clipboard paste; scroll pages=5 at 627,273; status Línea 1→83; screenshot line083-100 visible"
+        },
+        "NP-16": {
+            "status": "met",
+            "evidence": "ctrl+z undo UNDO_TEST read_element verify"
+        },
+        "NP-17": {
+            "status": "met",
+            "timing_ms": 400,
+            "evidence": "get_all_values scope auto Calc+Notepad open; only id=15 Document line001-100; no Units1 leak"
+        },
+        "NP-18": {
+            "status": "met",
+            "timing_ms": 435,
+            "evidence": "start_watcher; ctrl+shift+s; get_notifications WINDOW Guardar como; stop_watcher; invoke Cancelar verify list_windows"
+        },
+        "NP-19": {
+            "status": "met",
+            "evidence": "repo_capture Editor+MenuArchivo; repo_list; repo_find; repo_action Highlight OK"
+        },
+        "NP-20": {
+            "status": "met",
+            "timing_ms": 996,
+            "evidence": "Archivo Configurar página id=5 verify; Cancelar; Archivo Imprimir id=6 modal; click Cancelar list_windows clean"
+        },
+        "NP-21": {
+            "status": "met",
+            "timing_ms": 1989,
+            "checkpoints": 9,
+            "evidence": "check_version v0.4.0; target_alive; win32; 5 MenuItem; id=15 NP21_HEALTH_OK; status UTF-8 CRLF; screenshot awdui_1788729735670_1.png"
+        },
+        "NP-22": {
+            "status": "met",
+            "timing_ms": 516,
+            "checkpoints": 8,
+            "evidence": "Buscar modal; click siguiente; F3 chain status L2 col7 -> L5 col7; list_windows cierre sin Buscar"
+        },
+        "NP-23": {
+            "status": "met",
+            "timing_ms": 520,
+            "checkpoints": 7,
+            "evidence": "Reemplazar modal 1152/1153; Reemplazar todo 1025 verified; read_element BAR bar/baz/bar BAR/BAR end; list_windows cierre Cancelar"
+        },
+        "NP-24": {
+            "status": "met",
+            "timing_ms": 4200,
+            "checkpoints": 8,
+            "evidence": "Win11 ES: Seleccionar todo Ctrl+E id=25 (Ctrl+A=Abrir id=2); ctrl+e ctrl+c clipboard 5 lines; delete empty; ctrl+v restore; status L5 col7; screenshots awdui_1788730072053_8/9; L3 replace recovery"
+        },
+        "NP-25": {
+            "status": "met",
+            "timing_ms": 3800,
+            "checkpoints": 8,
+            "evidence": "context menu list_elements Cortar/Copiar/Pegar; Copiar click (282,115) clipboard BETA; drag 155-205 select BETA; ctrl+x cut ALPHA  GAMMA; ctrl+v end ALPHA  GAMMABETA; screenshot awdui_1788730349012_13"
+        },
+        "NP-26": {
+            "status": "met",
+            "timing_ms": 4200,
+            "checkpoints": 8,
+            "evidence": "P4 live: Nueva ventana id=8; ambiguous set_target lists hwnd=5506046/3276974; set_target_window(window_handle=…) scope A/B; read WINDOW_A_MARKER; get_all_values scope target; no manual * title toggle"
+        },
+        "NP-27": {
+            "status": "met",
+            "timing_ms": 12000,
+            "checkpoints": 7,
+            "evidence": "Edición Hora y fecha id=26 insert 18:36 6/9/2026; F5/invoke x2 two lines; Deshacer id=16 step1 read 2->1 line; list_windows no modal; screenshot awdui_1788730635179_17; undo step2 menu verify flaky use click between ctrl+z"
+        },
+        "NP-28": {
+            "status": "met",
+            "timing_ms": 9500,
+            "checkpoints": 6,
+            "evidence": "element_exists 1025 OK; Ver id=27 toggle off NOT FOUND; restore OK Text 100% UTF-8; ctrl+plus zoom unchanged; screenshot awdui_1788730773207_19"
+        },
+        "NP-29": {
+            "status": "met",
+            "timing_ms": 11000,
+            "checkpoints": 7,
+            "evidence": "ctrl+shift+s Guardar como; focus Edit 1001; set np29_test_keyboard.txt; Cancelar Button; read NP29_SAVEAS_KEYBOARD_TEST; screenshot awdui_1788730812154_20"
+        },
+        "NP-30": {
+            "status": "met",
+            "timing_ms": 35000,
+            "checkpoints": 10,
+            "evidence": "Fuente/Buscar/Configurar página open+cancel list_windows gates; ctrl+b Buscar not Bing; read NP30_MODAL_STRESS; screenshot awdui_1788730892502_21; check_session_status target_alive"
+        }
+    },
+    "notepad_evidence": [
+        {
+            "ts": "2026-09-06T17:20:00Z",
+            "flows": [
+                "NP-03",
+                "NP-04",
+                "NP-05",
+                "NP-07",
+                "NP-08",
+                "NP-15",
+                "NP-16"
+            ],
+            "fix": "spy_props_to_element Value pattern → read_element returns editor text",
+            "retests": {
+                "read_element": {
+                    "status": "met",
+                    "value": "CLIPBOARD_WRITE_OK"
+                },
+                "scroll": {
+                    "status": "met",
+                    "method": "keyboard pagedown"
+                },
+                "select_control_item": {
+                    "status": "met",
+                    "font": "Consolas"
+                },
+                "get_all_values": {
+                    "status": "partial",
+                    "note": "Document value OK; duplicate Edit empty"
+                },
+                "start_event_monitor": {
+                    "status": "met",
+                    "note": "sidecar deadlock fix; session d1ec9043 backend=flaui_native <2s"
+                }
+            }
+        }
+    ],
+    "status": "paused",
+    "focus_policy": "minimal",
+    "agent": "awdui-mcp-improvement-runner",
+    "cycle_control": {
+        "paused": true,
+        "pause_hint": "scripts/pause-mcp-cycle.ps1",
+        "resumed_at": "2026-09-11T21:20:30Z",
+        "resumed_reason": "usuario: evalua mcp con calculadora",
+        "paused_at": "2026-09-13T01:20:07Z",
+        "paused_reason": "Usuario: pausar prueba Calculadora",
+        "paused_by": "user"
+    },
+    "pending_manual_fixes": [],
+    "completion_criteria": [
+        "Cada tool registrada en MCP_TOOLS_REFERENCE.md tiene fila en tool_validation_matrix con estado met|na|fail",
+        "Por tool accionable: al menos un OBS→ACT→VERIFY en corrida lab con timing citado (cualquier app)",
+        "Por tool solo observación: al menos una invocación exitosa con output útil citado",
+        "Detección: list_elements, spy_tree, find_element, discover_control_interaction, ascii_ui_view, detection_health, detect_framework probados en ≥2 frameworks distintos (evidencia en state)",
+        "Patterns por rol (control-catalog): Button/Invoke, Edit/set_value, Combo/list+select, expand, grid/table — en al menos dos familias de framework",
+        "Eficiencia: ninguna tool crítica slow (>=3000ms) sin blocker + propuesta fix",
+        "Evaluación crítica escrita por tool: qué funcionó, qué fue frágil, qué requiere rework"
+    ],
+    "criteria_status": [
+        {
+            "criterion": "Tools registradas con fila en matriz",
+            "status": "met",
+            "evidence": "tool_validation_matrix completa (rebuild catalog si cambió servidor)"
+        },
+        {
+            "criterion": "OBS→ACT→VERIFY accionables",
+            "status": "met",
+            "evidence": "corridas lab historicas; revalidar con active_lab actual"
+        },
+        {
+            "criterion": "Tools observación invocadas",
+            "status": "met",
+            "evidence": "list_elements spy_tree ascii_ui_view detection_health"
+        },
+        {
+            "criterion": "Detección multi-framework",
+            "status": "met",
+            "evidence": "≥2 frameworks en evidencia historica (uwp+win32); no apps fijas en criterio"
+        },
+        {
+            "criterion": "Patterns por rol",
+            "status": "met",
+            "evidence": "UWP: Invoke num7 expand Units1 list_control_items select; Win32: set_element_value Edit id=15 select_control_item Font List MenuItem expand discover; grid/table NA lab (read_table no Table; get_grid_item ast_policy)"
+        },
+        {
+            "criterion": "Eficiencia sin slow sin waiver",
+            "status": "partial",
+            "evidence": "turn11 fix coded local 314ms; MCP cold 4013ms stale; Teams TE-02 prior turn10 49@475ms stable"
+        },
+        {
+            "criterion": "Evaluación crítica",
+            "status": "met",
+            "evidence": "critical_notes per tool in matrix"
+        }
+    ],
+    "tool_validation_evidence": [
+        {
+            "ts": "2026-09-06T13:02:52Z",
+            "wave": "wave_0_session",
+            "tools": [
+                "check_version",
+                "get_target_window",
+                "set_target_window"
+            ],
+            "observe": "state.json reescrito; AST skill consultada (no ejecutar)",
+            "act": "check_version; get_target_window x2; set_target_window Calculadora minimal",
+            "verify": "3 tools met; target Calculadora background; focus_policy=minimal",
+            "timings_ms": {
+                "check_version": 45,
+                "get_target_window": 12,
+                "set_target_window": 38
+            }
+        },
+        {
+            "ts": "2026-09-06T13:03:45Z",
+            "wave": "wave_0_session",
+            "tools": [
+                "get_server_info",
+                "check_session_status",
+                "release_all",
+                "invalidate_cache"
+            ],
+            "observe": "target Calculadora seteado turno previo; check_session_status",
+            "act": "get_server_info; check_session_status; release_all; invalidate_cache",
+            "verify": "4 tools met; target_alive=false detectado; sesion liberada",
+            "timings_ms": {
+                "get_server_info": 28,
+                "check_session_status": 52,
+                "release_all": 18,
+                "invalidate_cache": 15
+            },
+            "friction": "Calculadora no abierta — wave_1 requiere launch_app antes de UIA"
+        },
+        {
+            "ts": "2026-09-06T13:15:00Z",
+            "wave": "wave_1_to_10",
+            "tools": [
+                "check_version",
+                "get_server_info",
+                "check_session_status",
+                "set_target_window",
+                "get_target_window",
+                "release_all",
+                "invalidate_cache",
+                "list_windows",
+                "launch_app",
+                "focus_window",
+                "restore_window",
+                "virtual_desktop",
+                "list_elements",
+                "find_element",
+                "find_all_elements",
+                "get_snapshot",
+                "ascii_ui_view",
+                "read_element",
+                "read_element_by_index",
+                "get_focused_element",
+                "element_at_point",
+                "get_element_properties",
+                "spy_inspect",
+                "spy_tree",
+                "ui_fingerprint",
+                "detection_health",
+                "detect_framework",
+                "check_java_bridge",
+                "wait_for_element",
+                "wait_for_condition",
+                "wait_for_input_idle",
+                "element_exists",
+                "invoke_element",
+                "click_element",
+                "expand_element",
+                "set_element_value",
+                "list_control_items",
+                "select_control_item",
+                "scroll_into_view",
+                "scroll_element",
+                "find_item_by_property",
+                "realize_virtualized_item",
+                "get_grid_item",
+                "read_table",
+                "discover_control_interaction",
+                "click",
+                "type_text",
+                "send_keys",
+                "scroll",
+                "drag",
+                "hover",
+                "get_mouse_position",
+                "find_text",
+                "click_text",
+                "smart_find",
+                "detect_visual_regions",
+                "find_by_template_tool",
+                "screenshot",
+                "screenshot_baseline",
+                "screenshot_diff",
+                "wait_for_change",
+                "get_screen_size",
+                "manage_screenshots",
+                "repo_list",
+                "repo_find",
+                "repo_hints",
+                "repo_action",
+                "repo_capture",
+                "observe_ui_tool",
+                "plan_probes_tool",
+                "apply_probe_tool",
+                "discover_target_tool",
+                "spy_walk_visible_tool",
+                "build_detection_context",
+                "start_event_monitor",
+                "stop_event_monitor",
+                "get_event_log",
+                "start_watcher",
+                "stop_watcher",
+                "get_notifications",
+                "batch_actions",
+                "clipboard",
+                "highlight_element",
+                "clear_highlight",
+                "fill_form",
+                "get_all_values",
+                "configure_uac"
+            ],
+            "observe": "Calc currency+nav+Notepad; AST skill consulted not executed",
+            "act": "80 tools invoked via MCP CallDynamicTool",
+            "verify": "met=70 fail=10 na=5 slow=2",
+            "timings_ms": {
+                "list_elements": 2381,
+                "find_element": 4698,
+                "invoke_verify": 10000
+            },
+            "friction": "start_event_monitor hangs COM; parallel MCP calls timeout"
+        },
+        {
+            "ts": "2026-09-06T21:10:00Z",
+            "wave": "wave_10_events_fix",
+            "tools": [
+                "start_event_monitor",
+                "get_event_log",
+                "stop_event_monitor",
+                "discover_target_tool",
+                "spy_walk_visible_tool"
+            ],
+            "observe": "sidecar _ensure_server called _call inside _io_lock → deadlock",
+            "act": "fix event_sidecar_bridge.py; restart MCP; agentic retest Calculadora",
+            "verify": "5 tools met; session d1ec9043 flaui_native; discover trace; spy_walk 155 nodes",
+            "timings_ms": {
+                "start_event_monitor": 800,
+                "get_event_log": 120,
+                "stop_event_monitor": 150,
+                "discover_target_tool": 3500,
+                "spy_walk_visible_tool": 1200
+            },
+            "friction": "click_text OCR still fail; scroll_element ScrollPattern COM; stale UIA after relaunch"
+        },
+        {
+            "ts": "2026-09-06T21:15:00Z",
+            "wave": "wave_4_6_notepad_retest",
+            "tools": [
+                "scroll_element",
+                "click_text",
+                "find_by_template_tool"
+            ],
+            "observe": "2 fail pendientes en matrix; foco Notepad Win32",
+            "act": "set_element_value 40 lines; scroll_element id=15; click_text Archivo; crop template Archivo; find_by_template_tool",
+            "verify": "3 tools met fail=0; screenshots awdui_1788728597881_8.png",
+            "timings_ms": {
+                "scroll_element": 350,
+                "click_text": 850,
+                "find_by_template_tool": 600
+            },
+            "friction": "click_text line020 editor not found; menu Archivo OK"
+        }
+    ],
+    "tool_validation_progress": {
+        "met": 82,
+        "fail": 0,
+        "na": 4,
+        "slow": 1,
+        "pending": 0
+    },
+    "tool_validation_waves": {
+        "wave_0_session": [
+            "check_version",
+            "get_server_info",
+            "check_session_status",
+            "set_target_window",
+            "get_target_window",
+            "release_all",
+            "invalidate_cache"
+        ],
+        "wave_1_windows": [
+            "list_windows",
+            "launch_app",
+            "focus_window",
+            "restore_window",
+            "virtual_desktop"
+        ],
+        "wave_2_exploration": [
+            "list_elements",
+            "find_element",
+            "find_all_elements",
+            "get_snapshot",
+            "ascii_ui_view",
+            "read_element",
+            "read_element_by_index",
+            "get_focused_element",
+            "element_at_point",
+            "get_element_properties",
+            "spy_inspect",
+            "spy_tree",
+            "ui_fingerprint",
+            "detection_health",
+            "detect_framework",
+            "check_java_bridge"
+        ],
+        "wave_3_wait": [
+            "wait_for_element",
+            "wait_for_condition",
+            "wait_for_input_idle",
+            "element_exists"
+        ],
+        "wave_4_action": [
+            "invoke_element",
+            "click_element",
+            "expand_element",
+            "set_element_value",
+            "list_control_items",
+            "select_control_item",
+            "scroll_into_view",
+            "scroll_element",
+            "find_item_by_property",
+            "realize_virtualized_item",
+            "get_grid_item",
+            "read_table",
+            "discover_control_interaction"
+        ],
+        "wave_5_input": [
+            "click",
+            "type_text",
+            "send_keys",
+            "scroll",
+            "drag",
+            "hover",
+            "get_mouse_position"
+        ],
+        "wave_6_ocr": [
+            "find_text",
+            "click_text",
+            "smart_find",
+            "detect_visual_regions",
+            "find_by_template_tool"
+        ],
+        "wave_7_screenshots": [
+            "screenshot",
+            "screenshot_baseline",
+            "screenshot_diff",
+            "wait_for_change",
+            "get_screen_size",
+            "manage_screenshots"
+        ],
+        "wave_8_repo": [
+            "repo_list",
+            "repo_find",
+            "repo_hints",
+            "repo_capture",
+            "repo_action"
+        ],
+        "wave_9_discovery": [
+            "observe_ui_tool",
+            "plan_probes_tool",
+            "apply_probe_tool",
+            "discover_target_tool",
+            "spy_walk_visible_tool",
+            "build_detection_context"
+        ],
+        "wave_10_events": [
+            "start_event_monitor",
+            "stop_event_monitor",
+            "get_event_log",
+            "start_watcher",
+            "stop_watcher",
+            "get_notifications",
+            "batch_actions",
+            "clipboard",
+            "highlight_element",
+            "clear_highlight",
+            "fill_form",
+            "get_all_values",
+            "configure_uac"
+        ]
+    },
+    "notepad_skill": ".cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md",
+    "notepad_matrix_progress": {
+        "met": 30,
+        "partial": 0,
+        "pending": 0,
+        "total": 30
+    },
+    "last_cycle": {
+        "ts": "2026-09-13T01:09:39.599324+00:00",
+        "mode": "lab_execute",
+        "flow_id": "W-F-01",
+        "focus": "Calculadora: W-F-02 discover NavView modos",
+        "observe": "invoke 2+2 sequence",
+        "act": "W-F-01 done",
+        "verify": "equal verify OK ~576ms",
+        "live_verify": "ok",
+        "friction_logged": false,
+        "fix_gate": {
+            "status": "ok",
+            "outcome": "none"
+        },
+        "next": "W-F-02 discover NavView"
+    },
     "teams_perfect": false,
-    "objective_met": false
-  },
-  "teams_perfect": false,
-  "teams_run": {
-    "run_id": "teams-2026-09-06-start",
-    "started_at": "2026-09-06T23:25:00Z",
-    "locale": "es-AR",
-    "protocol": "OBS→ACT→VERIFY + screenshot hitos; mensajes solo Nicolás Awamori TE-07",
-    "progress": {
-      "met": 21,
-      "partial": 0,
-      "pending": 0,
-      "total": 21
-    }
-  },
-  "teams_matrix_progress": {
-    "met": 21,
-    "partial": 0,
-    "pending": 0,
-    "total": 21
-  },
-  "teams_run_plan": {
-    "TE-00": {
-      "name": "Hooks + sesión MCP",
-      "status": "met",
-      "flow": "TE-00-hooks-session.md"
+    "teams_run": {
+        "run_id": "teams-2026-09-06-start",
+        "started_at": "2026-09-06T23:25:00Z",
+        "locale": "es-AR",
+        "protocol": "OBS→ACT→VERIFY + screenshot hitos; mensajes solo Nicolás Awamori TE-07",
+        "progress": {
+            "met": 21,
+            "partial": 0,
+            "pending": 0,
+            "total": 21
+        }
     },
-    "TE-01": {
-      "name": "Launch Teams limpio",
-      "status": "met",
-      "flow": "TE-01-launch.md"
+    "teams_matrix_progress": {
+        "met": 21,
+        "partial": 0,
+        "pending": 0,
+        "total": 21
     },
-    "TE-02": {
-      "name": "Discovery + mapa UIA",
-      "status": "met",
-      "flow": "TE-02-discovery.md"
+    "teams_run_plan": {
+        "TE-00": {
+            "name": "Hooks + sesión MCP",
+            "status": "met",
+            "flow": "TE-00-hooks-session.md"
+        },
+        "TE-01": {
+            "name": "Launch Teams limpio",
+            "status": "met",
+            "flow": "TE-01-launch.md"
+        },
+        "TE-02": {
+            "name": "Discovery + mapa UIA",
+            "status": "met",
+            "flow": "TE-02-discovery.md"
+        },
+        "TE-03": {
+            "name": "Nav rail",
+            "status": "met",
+            "flow": "TE-03-nav-rail.md"
+        },
+        "TE-04": {
+            "name": "Buscar Nicolás Awamori",
+            "status": "met",
+            "flow": "TE-04-search-awamori.md"
+        },
+        "TE-05": {
+            "name": "Chat 1:1 lectura",
+            "status": "met",
+            "flow": "TE-05-chat-readonly.md"
+        },
+        "TE-06": {
+            "name": "Compose sin enviar",
+            "status": "met",
+            "flow": "TE-06-compose-no-send.md"
+        },
+        "TE-07": {
+            "name": "Enviar a Awamori",
+            "status": "met",
+            "flow": "TE-07-send-awamori.md"
+        },
+        "TE-08": {
+            "name": "Scroll historial",
+            "status": "met",
+            "flow": "TE-08-scroll-history.md"
+        },
+        "TE-09": {
+            "name": "Equipos/canales lectura",
+            "status": "met",
+            "flow": "TE-09-teams-channels.md"
+        },
+        "TE-10": {
+            "name": "Calendario",
+            "status": "met",
+            "flow": "TE-10-calendar.md"
+        },
+        "TE-11": {
+            "name": "Llamadas UI",
+            "status": "met",
+            "flow": "TE-11-calls-ui.md"
+        },
+        "TE-12": {
+            "name": "Configuración",
+            "status": "met",
+            "flow": "TE-12-settings.md"
+        },
+        "TE-13": {
+            "name": "Actividad",
+            "status": "met",
+            "flow": "TE-13-activity.md"
+        },
+        "TE-14": {
+            "name": "Nuevo chat cancel",
+            "status": "met",
+            "flow": "TE-14-new-chat-cancel.md"
+        },
+        "TE-15": {
+            "name": "Adjuntar cancel",
+            "status": "met",
+            "flow": "TE-15-attach-cancel.md"
+        },
+        "TE-16": {
+            "name": "Emoji dismiss",
+            "status": "met",
+            "flow": "TE-16-emoji-dismiss.md"
+        },
+        "TE-17": {
+            "name": "Atajos teclado",
+            "status": "met",
+            "flow": "TE-17-keyboard-shortcuts.md"
+        },
+        "TE-18": {
+            "name": "Recovery stale",
+            "status": "met",
+            "flow": "TE-18-stale-recovery.md"
+        },
+        "TE-19": {
+            "name": "Session health",
+            "status": "met",
+            "flow": "TE-19-session-health.md"
+        },
+        "TE-20": {
+            "name": "Cierre sesión",
+            "status": "met",
+            "flow": "TE-20-session-close.md"
+        }
     },
-    "TE-03": {
-      "name": "Nav rail",
-      "status": "met",
-      "flow": "TE-03-nav-rail.md"
+    "teams_evidence": [
+        {
+            "ts": "2026-09-06T23:26:00Z",
+            "flows": [
+                "TE-00",
+                "TE-01",
+                "TE-02",
+                "TE-03"
+            ],
+            "observe": "Teams ms-teams.exe hwnd=132488; UIA 450 elements; nav UUIDs; compose dynamic id",
+            "act": "launch full path; set_target; list_elements spy_tree discover; invoke Calendario+Chat",
+            "verify": "4/21 met; screenshots awdui_1788737044495_1 _7168857_4; element-map updated",
+            "timings_ms": {
+                "list_elements": 7191,
+                "invoke_calendario": 1369,
+                "invoke_chat": 1322
+            },
+            "friction": "launch ms-teams: fail; framework unknown; list_elements SLOW; ascii_ui_view error"
+        },
+        {
+            "ts": "2026-09-06T23:29:00Z",
+            "flows": [
+                "TE-04",
+                "TE-05",
+                "TE-06"
+            ],
+            "observe": "search ms-searchux-input; Awamori TreeItem menurfp; compose UUID 8145305b CKEditor",
+            "act": "set_element_value search; invoke chat; type_into_element+type_text compose; ctrl+a delete",
+            "verify": "TE-04/05 met; TE-06 partial Value/OCR fail",
+            "timings_ms": {
+                "find_awamori": 8389,
+                "invoke_chat": 3836,
+                "type_compose": 950
+            },
+            "friction": "CKEditor Value stale; SelectionItem verify fail; chat list id rotation"
+        },
+        {
+            "ts": "2026-09-06T23:29:00Z",
+            "flows": [
+                "TE-04",
+                "TE-05",
+                "TE-06"
+            ],
+            "observe": "search ms-searchux-input; Awamori TreeItem menurfp; compose UUID 8145305b CKEditor",
+            "act": "set_element_value search; invoke chat; type_into_element+type_text compose draft",
+            "verify": "TE-04/05 met; TE-06 partial Value/OCR no confirman borrador",
+            "timings_ms": {
+                "find_awamori": 8389,
+                "invoke_chat": 3836,
+                "type_into_element": 950
+            },
+            "friction": "SelectionItem verify fail; CKEditor Value stale; find_element search 8.3s SLOW"
+        },
+        {
+            "ts": "2026-09-06T23:36:00Z",
+            "flows": [
+                "TE-06-upgrade",
+                "TE-07"
+            ],
+            "observe": "Chat Awamori Nicolas hwnd=132488; compose UUID 8145305b",
+            "act": "click compose; type_text canonical; invoke Enviar (Ctrl+Enter)",
+            "verify": "find_text AwdUI-MCP-TE; find_element Text harness; screenshot _16 burbuja 20:36",
+            "timings_ms": {
+                "invoke_send": 2368,
+                "find_historial": 1069
+            },
+            "friction": "ValuePattern compose stale; verify pre-send via screenshot not spy"
+        },
+        {
+            "ts": "2026-09-06T23:41:00Z",
+            "flows": [
+                "TE-08"
+            ],
+            "observe": "message-pane-layout-a11y exists; TE-07 at bottom baseline",
+            "act": "scroll_element fallback; scroll pages 2 up 3 down at 700,350; pageup",
+            "verify": "AwdUI-MCP-TE absent after up; present after down; get_target Awamori OK",
+            "timings_ms": {
+                "click_pane": 1155,
+                "scroll_element": 1155
+            },
+            "friction": "scroll_element ScrollPattern N/A Teams; pixel diff 0% but visual change OK"
+        },
+        {
+            "ts": "2026-09-06T23:44:00Z",
+            "flows": [
+                "TE-09"
+            ],
+            "observe": "Equipos y canales button; teams Testing Accusys/Soluciones AST/AI Champions",
+            "act": "invoke Equipos y canales; invoke General menurhl; nav Chat; scroll_into_view+invoke Awamori",
+            "verify": "General OCR; no compose channel; no Publicar clicked; Awamori+AwdUI-MCP-TE restored",
+            "timings_ms": {
+                "invoke_equipos": 1463,
+                "invoke_general": 1193,
+                "find_equipos": 7529
+            },
+            "friction": "Chat nav no auto-return Awamori; menurfp offscreen scroll_into_view required"
+        },
+        {
+            "ts": "2026-09-06T23:46:00Z",
+            "flows": [
+                "TE-10"
+            ],
+            "observe": "nav Calendario; Calendar|Microsoft Teams title",
+            "act": "invoke ef56c0de; list_elements Button; invoke Chat 3b64df9d; invoke menur1aq",
+            "verify": "find_text Calendario; day grid screenshot; AwdUI-MCP-TE restored",
+            "timings_ms": {
+                "invoke_calendar": 1406,
+                "list_elements": 4637,
+                "find_awamori": 9494
+            },
+            "friction": "TreeItem id menurfp→menur1aq rotation; SelectionItem verify fail pattern"
+        },
+        {
+            "ts": "2026-09-06T23:52:00Z",
+            "flows": [
+                "TE-11"
+            ],
+            "observe": "Llamadas rail; dial ComboBox; historial Awamori/Mosquera",
+            "act": "invoke Calls; click dial; type_text name; escape x2; invoke Chat",
+            "verify": "NO invoke Llamar; Chat restored AwdUI-MCP-TE OCR",
+            "timings_ms": {
+                "invoke_calls": 1457,
+                "list_elements": 6383,
+                "click_dial": 7524
+            },
+            "friction": "Edit Escribe un nombre not found; dial via ComboBox Llamadas"
+        },
+        {
+            "ts": "2026-09-06T23:56:00Z",
+            "flows": [
+                "TE-12"
+            ],
+            "observe": "profile flyout; header more-options Configuración menu",
+            "act": "invoke avatar; invoke more-options; invoke Configuración; invoke Notificaciones TabItem; Volver+Chat nav",
+            "verify": "no toggle changes; Chat Awamori AwdUI-MCP-TE visible",
+            "timings_ms": {
+                "invoke_settings": 2398,
+                "invoke_notif_tab": 8594,
+                "avatar": 9117
+            },
+            "friction": "avatar verify slow 8s; close settings needs Chat nav not solo Volver"
+        },
+        {
+            "ts": "2026-09-07T00:00:30Z",
+            "flows": [
+                "TE-13",
+                "TE-14"
+            ],
+            "observe": "activity feed-header; activity-feed-item-title-*; Nuevos elementos flyout Nuevo mensaje Para",
+            "act": "invoke Activity; list_elements feed; menur7o Volver; menur30a+Nuevo mensaje; Escape; menur31g Awamori",
+            "verify": "15/21 met; content-1788737785148 TE-07 OK; no alternate recipient; screenshots _52-_60",
+            "timings_ms": {
+                "invoke_activity": 1450,
+                "list_elements": 5333,
+                "invoke_new_msg": 2863,
+                "return_awamori": 3597
+            },
+            "friction": "activity feed item click InvokePattern fail; Escape no cancel new chat; SelectionItem verify fail; list_elements SLOW"
+        },
+        {
+            "ts": "2026-09-07T00:05:30Z",
+            "flows": [
+                "TE-15"
+            ],
+            "observe": "Adjuntar archivos flyout cloud; MenuItem Cargar dispositivo; Abrir #32770 Cancel id=2",
+            "act": "invoke Adjuntar; invoke Cargar; invoke/click Cancel SLOW; Escape; Quitar datos adjuntos accidental chip",
+            "verify": "16/21 met; list_windows sin Abrir; compose limpio; TE-07 content OK",
+            "timings_ms": {
+                "invoke_attach": 2386,
+                "invoke_upload": 2292,
+                "cancel_picker": 14339,
+                "quitar_adjunto": 2832
+            },
+            "friction": "Cancel desde target Teams no cierra picker; find Cancel 10s SLOW; doble acción dejó adjunto en compose"
+        },
+        {
+            "ts": "2026-09-07T00:07:30Z",
+            "flows": [
+                "TE-16"
+            ],
+            "observe": "compose Emoji GIF adhesivos button; panel tabs Todo Emoji GIF Adhesivos",
+            "act": "invoke Expand 2334ms; press_key Escape",
+            "verify": "17/21 met; Encuentra algo divertido NOT FOUND; TE-07 OK; compose limpio",
+            "timings_ms": {
+                "invoke_emoji": 2334,
+                "list_elements": 4029
+            },
+            "friction": "list_elements shallow panes SLOW; panel no stable automation_id"
+        },
+        {
+            "ts": "2026-09-07T00:09:30Z",
+            "flows": [
+                "TE-17"
+            ],
+            "observe": "ms-searchux-input; global search overlay tabs Mensajes Archivos Canales",
+            "act": "press_key_combo ctrl+e; press_key Escape",
+            "verify": "18/21 met; focus ComboBox then Document; TE-07 OK; overlay closed screenshot _72",
+            "timings_ms": {
+                "ctrl_e": 400,
+                "escape": 200
+            },
+            "friction": "element_exists Mensajes persiste en árbol post-Escape; verify visual screenshot primario"
+        },
+        {
+            "ts": "2026-09-07T00:11:30Z",
+            "flows": [
+                "TE-18"
+            ],
+            "observe": "pre hwnd=132488; post relaunch hwnd=263750 PID 28660",
+            "act": "invalidate_cache; launch_app replace; set_target; invoke menur20 Awamori",
+            "verify": "19/21 met; Chat|Awamori target; find_text AwdUI-MCP-TE; tree_hash 37bb7ac5609ece91",
+            "timings_ms": {
+                "find_awamori": 10576,
+                "invoke_chat": 3815
+            },
+            "friction": "wait_for_input_idle FAIL pid; find Awamori 10s SLOW; TreeItem id menur31g→menur20; SelectionItem verify fail"
+        },
+        {
+            "ts": "2026-09-07T00:12:30Z",
+            "flows": [
+                "TE-19"
+            ],
+            "observe": "post TE-18 recovery hwnd=263750 Awamori chat",
+            "act": "check_session_status; get_tree_hash; detection_health; check_version",
+            "verify": "20/21 met; tree_hash estable; backends OK; TE-07 OCR OK; screenshot _77",
+            "timings_ms": {
+                "health_checks": 400
+            },
+            "friction": "detection_health -1 elements count; framework unknown TeamsWebView"
+        },
+        {
+            "ts": "2026-09-07T00:13:30Z",
+            "flows": [
+                "TE-20"
+            ],
+            "observe": "pre-close Awamori hwnd=263750 TE-07 visible",
+            "act": "screenshot; set_target_window('')",
+            "verify": "21/21 met harness; target cleared; teams_perfect remains false (workarounds)",
+            "timings_ms": {
+                "close": 200
+            },
+            "friction": "teams_perfect blocked: SelectionItem verify, picker cancel, list_elements SLOW, scroll N/A"
+        },
+        {
+            "ts": "2026-09-07T00:18:30Z",
+            "flows": [
+                "TE-15-regression"
+            ],
+            "observe": "MCP scope_mode auto + WebView2 modal fallback",
+            "act": "click_element Cancel scope_mode=auto verify_modal_dismissed",
+            "verify": "1660ms modal dismissed; list_windows sin Abrir; pytest 6 passed",
+            "timings_ms": {
+                "cancel_scoped": 1660
+            },
+            "friction": "adjunto stale de sesión previa requiere Quitar datos adjuntos"
+        },
+        {
+            "ts": "2026-09-07T00:25:00Z",
+            "flows": [
+                "TE-05-regression",
+                "TE-14-regression"
+            ],
+            "observe": "Canal General menurt3 → Awamori menurq9; compose TE-07 visible",
+            "act": "invoke_element TreeItem SelectionItem verify integrado",
+            "verify": "✓ verified WindowTitle/ChatContext; pytest 11 passed; verify_ms ~12s SLOW (Teams _read_properties)",
+            "timings_ms": {
+                "awamori_invoke": 25190,
+                "canal_general_invoke": 23886
+            },
+            "friction": "list_elements/find 8-19s SLOW; verify poll cost; no screenshot workaround needed"
+        },
+        {
+            "ts": "2026-09-07T00:33:00Z",
+            "flows": [
+                "TE-00",
+                "TE-05-regression"
+            ],
+            "observe": "Testing Argentina menur1oo → Awamori menur1oc; TE-07 visible",
+            "act": "invoke_element TreeItem SelectionItem; title-only verify path",
+            "verify": "✓ verified verify_ms=426 (was ~12s); find_element still 10587ms SLOW",
+            "timings_ms": {
+                "te05_invoke_total": 17386,
+                "te05_verify": 426,
+                "te05_find": 10587
+            },
+            "friction": "find/list SLOW persists; scroll N/A unchanged"
+        },
+        {
+            "ts": "2026-09-07T00:39:00Z",
+            "flows": [
+                "TE-00",
+                "TE-02-regression",
+                "TE-05-regression"
+            ],
+            "observe": "detect_framework electron; find Awamori TreeItem; TE-07 screenshot",
+            "act": "UIA-first find (skip spy sidecar); progressive depth; view_scope param",
+            "verify": "find_element 786ms (was 10s); automation_id 337ms; framework TeamsWebView→electron",
+            "timings_ms": {
+                "find_treeitem": 786,
+                "find_automation_id": 337,
+                "find_testing_argentina": 479
+            },
+            "friction": "list_elements role=TreeItem vacío; scroll N/A; invoke total_ms inflado por timeout wrapper"
+        },
+        {
+            "ts": "2026-09-07T00:42:00Z",
+            "flows": [
+                "TE-02-regression",
+                "TE-08-regression"
+            ],
+            "observe": "Teams hwnd=263750 Awamori chat; TE-07 [AwdUI-MCP-TE] visible",
+            "act": "element_scope allow_renderer_pid; _drop_electron_compact_tree_rows; list_elements view_scope; scroll_element fallback",
+            "verify": "list_elements 23 TreeItems menur1oc OK 5637ms SLOW; scroll_fallback_coords OK; pytest 832 pass",
+            "timings_ms": {
+                "list_treeitem": 5637,
+                "find_menur1oc": 523,
+                "scroll_fallback": 200
+            },
+            "friction": "list_elements still SLOW; ScrollPattern N/A (coords fallback); teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T00:47:00Z",
+            "flows": [
+                "TE-02-regression",
+                "TE-05-regression",
+                "TE-08-regression"
+            ],
+            "observe": "Teams hwnd=263750; TE-07 [AwdUI-MCP-TE] visible",
+            "act": "list_elements perf fix (typed role, skip spy, view_scope bypass); invoke Testing Argentina→Awamori",
+            "verify": "list TreeItem 1182ms OK; find menur1oc 639ms; scroll_fallback OK; invoke verify 408ms; pytest 19 passed",
+            "timings_ms": {
+                "list_treeitem": 1182,
+                "find_menur1oc": 639,
+                "te05_verify": 408
+            },
+            "friction": "invoke total_ms wrapper 19-21s vs components <500ms; ScrollPattern P2; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T00:50:00Z",
+            "flows": [
+                "TE-05-regression",
+                "TE-02-regression",
+                "TE-08-regression"
+            ],
+            "observe": "Teams Awamori chat; TE-07 visible",
+            "act": "skip spy stale probe Electron; ActionTimer operational_ms",
+            "verify": "invoke Argentina 1513ms; Awamori 667ms; list 1213ms; scroll_fallback OK",
+            "timings_ms": {
+                "invoke_argentina": 1513,
+                "invoke_awamori": 667,
+                "list_treeitem": 1213
+            },
+            "friction": "ScrollPattern P2; AppThemeExpander slow; teams_perfect false (2 blockers)"
+        },
+        {
+            "ts": "2026-09-07T00:52:00Z",
+            "flows": [
+                "TE-08-regression",
+                "TE-05-regression",
+                "TE-02-regression"
+            ],
+            "observe": "Teams Awamori; TE-07 visible",
+            "act": "find_scrollable_ancestor; scroll_element Scroll.Scroll; expand perf code",
+            "verify": "Scroll.Scroll nativo (no fallback); invoke 932ms; list 1124ms; pytest 19 passed",
+            "timings_ms": {
+                "scroll_native": 800,
+                "invoke_te05": 932,
+                "list_treeitem": 1124
+            },
+            "friction": "AppThemeExpander pending live Calc; teams_perfect false (1 blocker)"
+        },
+        {
+            "ts": "2026-09-07T01:22:00Z",
+            "flows": [
+                "TE-00",
+                "TE-02-regression",
+                "TE-05-regression"
+            ],
+            "observe": "Teams hwnd=460854 Awamori; TE-07 compose visible; 23 TreeItems menur* sin leak Cursor",
+            "act": "sidebar Tree roots collect + uia_tree_cache; orchestrator cache TTL 20s; invoke Argentina→Awamori",
+            "verify": "list cold 12924ms SLOW cache 0ms; find 633ms; invoke 1642/979ms; find_text AwdUI-MCP-TE OK; pytest 19 passed",
+            "timings_ms": {
+                "list_treeitem_cold": 12924,
+                "list_treeitem_cache": 0,
+                "find_menur1r": 633,
+                "invoke_argentina": 1642,
+                "invoke_awamori": 979
+            },
+            "friction": "cold list_elements WebView UIA ~10-13s; sidebar Tree path no mejora en vivo; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T01:31:00Z",
+            "flows": [
+                "TE-00",
+                "TE-02-regression",
+                "TE-08-regression"
+            ],
+            "observe": "Teams hwnd=460854 Awamori; compose TE-07 draft visible",
+            "act": "comtypes spatial prune + narrow pane collect; prefetch set_target; list cold; scroll up/down",
+            "verify": "list 12058ms SLOW; scroll Scroll.Scroll OK; pytest 31 passed; test_right_click fixed",
+            "timings_ms": {
+                "list_treeitem_cold": 12058,
+                "scroll_up_down": 800
+            },
+            "friction": "cold list still ~12s; cache repeat missed second call; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T01:34:00Z",
+            "flows": [
+                "TE-00",
+                "TE-02-regression",
+                "TE-05-regression"
+            ],
+            "observe": "Teams Awamori hwnd=460854; FindAll path active",
+            "act": "orchestrator cache key title+hwnd; UIA FindAll TreeItem; list cold+warm; invoke Argentina→Awamori",
+            "verify": "list 538ms cold cache 0ms; invoke 1357/956ms; pytest 16 passed orchestrator cache",
+            "timings_ms": {
+                "list_treeitem_cold": 538,
+                "list_treeitem_cache": 0,
+                "find_menur1r": 813,
+                "invoke_argentina": 1357,
+                "invoke_awamori": 956
+            },
+            "friction": "FindAll 16 visible not 23; find_text OCR miss compose; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T01:38:00Z",
+            "flows": [
+                "TE-00",
+                "TE-02-regression",
+                "TE-04-regression",
+                "TE-05-regression"
+            ],
+            "observe": "Teams hwnd=460854 Awamori chat; TE-07 draft compose visible; search overlay from prior TE-04",
+            "act": "check_version; invalidate_cache; list TreeItem cold+warm; type_into_element search; invoke Argentina→Awamori SelectionItem verify",
+            "verify": "list 602ms cold 0ms cache; TE-04 screenshot dropdown; TE-05 header OCR+screenshot; pytest 15 passed",
+            "timings_ms": {
+                "list_treeitem_cold": 602,
+                "list_treeitem_cache": 0,
+                "te04_type_search": 600,
+                "invoke_argentina": 1260,
+                "invoke_awamori": 956,
+                "find_compose_label": 5870
+            },
+            "friction": "FindAll 16 not 23 offscreen; find compose placeholder SLOW; teams_perfect false; objective_met blocked Calc slow matrix"
+        },
+        {
+            "ts": "2026-09-07T01:40:00Z",
+            "flows": [
+                "TE-00",
+                "TE-01",
+                "TE-02-regression",
+                "TE-08-regression"
+            ],
+            "observe": "Teams hwnd=460854 Awamori; draft TE-07 compose visible; sidebar chat list",
+            "act": "check_version+session; detect_framework electron; list TreeItem cold/warm; scroll sidebar PageDown; find Reyes offscreen; scroll_element message pane up/down",
+            "verify": "list 578ms cold 0ms cache 16 items; find menur31 888ms; TE-08 scope OK; pytest 15 passed",
+            "timings_ms": {
+                "list_treeitem_cold": 578,
+                "list_treeitem_post_scroll": 476,
+                "list_treeitem_cache": 0,
+                "find_reyes_offscreen": 888,
+                "scroll_history": 400
+            },
+            "friction": "list_elements no materializa offscreen tras scroll sidebar; find_element workaround obligatorio; find_text OCR miss TE-07; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T01:44:00Z",
+            "flows": [
+                "TE-00",
+                "TE-01",
+                "TE-02-regression",
+                "TE-03-regression"
+            ],
+            "observe": "scroll-merge code fix in uia_backend; Teams hwnd=460854",
+            "act": "invalidate; list TreeItem cold+warm; nav Calendario→Llamadas→Chat; invoke menur1r restore",
+            "verify": "49 TreeItems incl menur31 Reyes; cache 0ms; TE-03 nav verify OK; pytest 16 passed",
+            "timings_ms": {
+                "list_treeitem_cold": 3398,
+                "list_treeitem_cache": 0,
+                "invoke_calendario": 1912,
+                "invoke_calls": 1402,
+                "invoke_chat": 1753,
+                "invoke_awamori_fail": 12783
+            },
+            "friction": "cold list >3s SLOW; first keyboard nudge opened Start menu (fixed ensure_focus); menur1r stale after sidebar scroll; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T01:49:00Z",
+            "flows": [
+                "TE-00",
+                "TE-01",
+                "TE-02-regression",
+                "TE-05-regression"
+            ],
+            "observe": "scroll-merge optimization in uia_backend; Awamori menur1eu id rotation",
+            "act": "multiple MCP restarts; invalidate cold list; scroll prime tests; TE-05 Argentina→Awamori invoke",
+            "verify": "pytest 17 passed; cold 16@458ms (live MCP stale?); TE-05 OK; turn6 proved 49 items when merge active",
+            "timings_ms": {
+                "list_cold_top": 458,
+                "list_post_scroll_prime": 591,
+                "te05_argentina": 1453,
+                "te05_awamori": 1163
+            },
+            "friction": "live MCP may not reload scroll-merge code; cold 16 vs turn6 49; efficiency partial; teams_perfect false"
+        },
+        {
+            "ts": "2026-09-07T01:54:00Z",
+            "flows": [
+                "TE-00",
+                "TE-01",
+                "TE-02",
+                "TE-08"
+            ],
+            "observe": "scoped_out dropped 33 sidebar TreeItems post scroll-merge; root cause element_in_window_scope on y>client",
+            "act": "element_scope include_offscreen sidebar bypass; orchestrator pass flag; invalidate cold list; scroll chat history",
+            "verify": "pytest 28 passed; live cold 49@462ms menur1g4 Reyes; warm 0ms; TE-08 scroll up/down target OK",
+            "timings_ms": {
+                "list_cold": 462,
+                "list_warm": 0,
+                "te08_scroll": 400
+            },
+            "friction": "Calc matrix slow entries remain; historical TE flows still SLOW in matrix; teams_perfect false until efficiency met"
+        },
+        {
+            "ts": "2026-09-07T01:56:00Z",
+            "flows": [
+                "TE-00",
+                "TE-01",
+                "TE-02",
+                "TE-04",
+                "calc-matrix-retest"
+            ],
+            "observe": "TE-02 sidebar 49 stable; Calc was in history view blocking keypad discovery",
+            "act": "TE-04 ctrl+e search Awamori; Calc BackButton then list/find num7Button",
+            "verify": "TE-04 screenshot dropdown OK; list_elements 14btn@2408ms met; find_element 4477ms slow; TE-07 no re-send",
+            "timings_ms": {
+                "list_te02": 475,
+                "te04_search": 600,
+                "calc_list_button": 2408,
+                "calc_find_num7": 4477
+            },
+            "friction": "find_element Calc >=3s blocker; BackButton verify 40s; TE historical SLOW flows pending retest"
+        },
+        {
+            "ts": "2026-09-07T02:02:00Z",
+            "flows": [
+                "find_element-fix",
+                "calc-matrix-retest-partial"
+            ],
+            "observe": "UWP backend order flaui-first caused 4s find; comtypes FindFirst 29ms local",
+            "act": "uia_backend comtypes FindFirst; skip spy for automation_id; orchestrator UIA-first",
+            "verify": "pytest 32 passed; local do_find_element 314ms; MCP cold 4013ms then disconnect after KillOrphans",
+            "timings_ms": {
+                "local_find_cold": 314,
+                "mcp_find_cold": 4013,
+                "mcp_find_warm": 557
+            },
+            "friction": "MCP reconnect required for live verify; do not use -KillOrphans unless orphan crash"
+        }
+    ],
+    "teams_skill": ".cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md",
+    "teams_harness_skill": ".cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md",
+    "teams_matrix_ref": "matrices/teams_matrix.json",
+    "tool_validation_matrix_ref": "matrices/tool_validation_matrix.json",
+    "lab_apps": {
+        "Escritorio de Windows": {
+            "coverage": {
+                "last_report": "runs/escritorio-windows-2026-09-10/coverage.json",
+                "lab_summary": "runs/escritorio-windows-2026-09-10/lab-summary.md",
+                "mcp_tools_pct": 25.7,
+                "mcp_tools_used": 29,
+                "mcp_tools_universe": 113,
+                "uia_controls_seen_pct": 26.8,
+                "uia_controls_interacted": 0,
+                "act_methods_pct": 11.1,
+                "improvements_total": 72,
+                "invocation_count": 611,
+                "updated_at": "2026-09-11T17:18:25.988851+00:00"
+            },
+            "flows_progress": {
+                "total": 175,
+                "entry_total": 74,
+                "action_total": 101,
+                "met": 65,
+                "pending": 58,
+                "exploring": 0,
+                "partial": 0,
+                "blocked": 1,
+                "cancelled": 51,
+                "last_mode": "discover_flows",
+                "updated_at": "2026-09-11T17:18:25Z"
+            },
+            "perfect": false
+        },
+        "Calculadora": {
+            "backlog_ref": ".cursor/mcp-improvement-cycle/apps/calculadora/backlog.json",
+            "active_run": "calculadora-2026-09-12",
+            "app_slug": "calculadora",
+            "backlog_progress": {
+                "total": 4,
+                "pending": 1,
+                "in_progress": 0,
+                "done": 3,
+                "blocked": 0,
+                "na": 0,
+                "cancelled": 0,
+                "complete": false
+            },
+            "coverage": {
+                "last_report": "runs/calculadora-2026-09-12/coverage.json",
+                "lab_summary": "runs/calculadora-2026-09-12/lab-summary.md",
+                "mcp_tools_pct": 0.0,
+                "mcp_tools_used": 0,
+                "mcp_tools_universe": 113,
+                "uia_controls_seen_pct": 0.0,
+                "uia_controls_interacted": 0,
+                "act_methods_pct": 0.0,
+                "improvements_total": 0,
+                "invocation_count": 0,
+                "updated_at": "2026-09-13T01:59:15.696500+00:00"
+            }
+        }
     },
-    "TE-04": {
-      "name": "Buscar Nicolás Awamori",
-      "status": "met",
-      "flow": "TE-04-search-awamori.md"
-    },
-    "TE-05": {
-      "name": "Chat 1:1 lectura",
-      "status": "met",
-      "flow": "TE-05-chat-readonly.md"
-    },
-    "TE-06": {
-      "name": "Compose sin enviar",
-      "status": "met",
-      "flow": "TE-06-compose-no-send.md"
-    },
-    "TE-07": {
-      "name": "Enviar a Awamori",
-      "status": "met",
-      "flow": "TE-07-send-awamori.md"
-    },
-    "TE-08": {
-      "name": "Scroll historial",
-      "status": "met",
-      "flow": "TE-08-scroll-history.md"
-    },
-    "TE-09": {
-      "name": "Equipos/canales lectura",
-      "status": "met",
-      "flow": "TE-09-teams-channels.md"
-    },
-    "TE-10": {
-      "name": "Calendario",
-      "status": "met",
-      "flow": "TE-10-calendar.md"
-    },
-    "TE-11": {
-      "name": "Llamadas UI",
-      "status": "met",
-      "flow": "TE-11-calls-ui.md"
-    },
-    "TE-12": {
-      "name": "Configuración",
-      "status": "met",
-      "flow": "TE-12-settings.md"
-    },
-    "TE-13": {
-      "name": "Actividad",
-      "status": "met",
-      "flow": "TE-13-activity.md"
-    },
-    "TE-14": {
-      "name": "Nuevo chat cancel",
-      "status": "met",
-      "flow": "TE-14-new-chat-cancel.md"
-    },
-    "TE-15": {
-      "name": "Adjuntar cancel",
-      "status": "met",
-      "flow": "TE-15-attach-cancel.md"
-    },
-    "TE-16": {
-      "name": "Emoji dismiss",
-      "status": "met",
-      "flow": "TE-16-emoji-dismiss.md"
-    },
-    "TE-17": {
-      "name": "Atajos teclado",
-      "status": "met",
-      "flow": "TE-17-keyboard-shortcuts.md"
-    },
-    "TE-18": {
-      "name": "Recovery stale",
-      "status": "met",
-      "flow": "TE-18-stale-recovery.md"
-    },
-    "TE-19": {
-      "name": "Session health",
-      "status": "met",
-      "flow": "TE-19-session-health.md"
-    },
-    "TE-20": {
-      "name": "Cierre sesión",
-      "status": "met",
-      "flow": "TE-20-session-close.md"
-    }
-  },
-  "teams_evidence": [
-    {
-      "ts": "2026-09-06T23:26:00Z",
-      "flows": [
-        "TE-00",
-        "TE-01",
-        "TE-02",
-        "TE-03"
-      ],
-      "observe": "Teams ms-teams.exe hwnd=132488; UIA 450 elements; nav UUIDs; compose dynamic id",
-      "act": "launch full path; set_target; list_elements spy_tree discover; invoke Calendario+Chat",
-      "verify": "4/21 met; screenshots awdui_1788737044495_1 _7168857_4; element-map updated",
-      "timings_ms": {
-        "list_elements": 7191,
-        "invoke_calendario": 1369,
-        "invoke_chat": 1322
-      },
-      "friction": "launch ms-teams: fail; framework unknown; list_elements SLOW; ascii_ui_view error"
-    },
-    {
-      "ts": "2026-09-06T23:29:00Z",
-      "flows": [
-        "TE-04",
-        "TE-05",
-        "TE-06"
-      ],
-      "observe": "search ms-searchux-input; Awamori TreeItem menurfp; compose UUID 8145305b CKEditor",
-      "act": "set_element_value search; invoke chat; type_into_element+type_text compose; ctrl+a delete",
-      "verify": "TE-04/05 met; TE-06 partial Value/OCR fail",
-      "timings_ms": {
-        "find_awamori": 8389,
-        "invoke_chat": 3836,
-        "type_compose": 950
-      },
-      "friction": "CKEditor Value stale; SelectionItem verify fail; chat list id rotation"
-    },
-    {
-      "ts": "2026-09-06T23:29:00Z",
-      "flows": [
-        "TE-04",
-        "TE-05",
-        "TE-06"
-      ],
-      "observe": "search ms-searchux-input; Awamori TreeItem menurfp; compose UUID 8145305b CKEditor",
-      "act": "set_element_value search; invoke chat; type_into_element+type_text compose draft",
-      "verify": "TE-04/05 met; TE-06 partial Value/OCR no confirman borrador",
-      "timings_ms": {
-        "find_awamori": 8389,
-        "invoke_chat": 3836,
-        "type_into_element": 950
-      },
-      "friction": "SelectionItem verify fail; CKEditor Value stale; find_element search 8.3s SLOW"
-    },
-    {
-      "ts": "2026-09-06T23:36:00Z",
-      "flows": [
-        "TE-06-upgrade",
-        "TE-07"
-      ],
-      "observe": "Chat Awamori Nicolas hwnd=132488; compose UUID 8145305b",
-      "act": "click compose; type_text canonical; invoke Enviar (Ctrl+Enter)",
-      "verify": "find_text AwdUI-MCP-TE; find_element Text harness; screenshot _16 burbuja 20:36",
-      "timings_ms": {
-        "invoke_send": 2368,
-        "find_historial": 1069
-      },
-      "friction": "ValuePattern compose stale; verify pre-send via screenshot not spy"
-    },
-    {
-      "ts": "2026-09-06T23:41:00Z",
-      "flows": [
-        "TE-08"
-      ],
-      "observe": "message-pane-layout-a11y exists; TE-07 at bottom baseline",
-      "act": "scroll_element fallback; scroll pages 2 up 3 down at 700,350; pageup",
-      "verify": "AwdUI-MCP-TE absent after up; present after down; get_target Awamori OK",
-      "timings_ms": {
-        "click_pane": 1155,
-        "scroll_element": 1155
-      },
-      "friction": "scroll_element ScrollPattern N/A Teams; pixel diff 0% but visual change OK"
-    },
-    {
-      "ts": "2026-09-06T23:44:00Z",
-      "flows": [
-        "TE-09"
-      ],
-      "observe": "Equipos y canales button; teams Testing Accusys/Soluciones AST/AI Champions",
-      "act": "invoke Equipos y canales; invoke General menurhl; nav Chat; scroll_into_view+invoke Awamori",
-      "verify": "General OCR; no compose channel; no Publicar clicked; Awamori+AwdUI-MCP-TE restored",
-      "timings_ms": {
-        "invoke_equipos": 1463,
-        "invoke_general": 1193,
-        "find_equipos": 7529
-      },
-      "friction": "Chat nav no auto-return Awamori; menurfp offscreen scroll_into_view required"
-    },
-    {
-      "ts": "2026-09-06T23:46:00Z",
-      "flows": [
-        "TE-10"
-      ],
-      "observe": "nav Calendario; Calendar|Microsoft Teams title",
-      "act": "invoke ef56c0de; list_elements Button; invoke Chat 3b64df9d; invoke menur1aq",
-      "verify": "find_text Calendario; day grid screenshot; AwdUI-MCP-TE restored",
-      "timings_ms": {
-        "invoke_calendar": 1406,
-        "list_elements": 4637,
-        "find_awamori": 9494
-      },
-      "friction": "TreeItem id menurfp→menur1aq rotation; SelectionItem verify fail pattern"
-    },
-    {
-      "ts": "2026-09-06T23:52:00Z",
-      "flows": [
-        "TE-11"
-      ],
-      "observe": "Llamadas rail; dial ComboBox; historial Awamori/Mosquera",
-      "act": "invoke Calls; click dial; type_text name; escape x2; invoke Chat",
-      "verify": "NO invoke Llamar; Chat restored AwdUI-MCP-TE OCR",
-      "timings_ms": {
-        "invoke_calls": 1457,
-        "list_elements": 6383,
-        "click_dial": 7524
-      },
-      "friction": "Edit Escribe un nombre not found; dial via ComboBox Llamadas"
-    },
-    {
-      "ts": "2026-09-06T23:56:00Z",
-      "flows": [
-        "TE-12"
-      ],
-      "observe": "profile flyout; header more-options Configuración menu",
-      "act": "invoke avatar; invoke more-options; invoke Configuración; invoke Notificaciones TabItem; Volver+Chat nav",
-      "verify": "no toggle changes; Chat Awamori AwdUI-MCP-TE visible",
-      "timings_ms": {
-        "invoke_settings": 2398,
-        "invoke_notif_tab": 8594,
-        "avatar": 9117
-      },
-      "friction": "avatar verify slow 8s; close settings needs Chat nav not solo Volver"
-    },
-    {
-      "ts": "2026-09-07T00:00:30Z",
-      "flows": [
-        "TE-13",
-        "TE-14"
-      ],
-      "observe": "activity feed-header; activity-feed-item-title-*; Nuevos elementos flyout Nuevo mensaje Para",
-      "act": "invoke Activity; list_elements feed; menur7o Volver; menur30a+Nuevo mensaje; Escape; menur31g Awamori",
-      "verify": "15/21 met; content-1788737785148 TE-07 OK; no alternate recipient; screenshots _52-_60",
-      "timings_ms": {
-        "invoke_activity": 1450,
-        "list_elements": 5333,
-        "invoke_new_msg": 2863,
-        "return_awamori": 3597
-      },
-      "friction": "activity feed item click InvokePattern fail; Escape no cancel new chat; SelectionItem verify fail; list_elements SLOW"
-    },
-    {
-      "ts": "2026-09-07T00:05:30Z",
-      "flows": [
-        "TE-15"
-      ],
-      "observe": "Adjuntar archivos flyout cloud; MenuItem Cargar dispositivo; Abrir #32770 Cancel id=2",
-      "act": "invoke Adjuntar; invoke Cargar; invoke/click Cancel SLOW; Escape; Quitar datos adjuntos accidental chip",
-      "verify": "16/21 met; list_windows sin Abrir; compose limpio; TE-07 content OK",
-      "timings_ms": {
-        "invoke_attach": 2386,
-        "invoke_upload": 2292,
-        "cancel_picker": 14339,
-        "quitar_adjunto": 2832
-      },
-      "friction": "Cancel desde target Teams no cierra picker; find Cancel 10s SLOW; doble acción dejó adjunto en compose"
-    },
-    {
-      "ts": "2026-09-07T00:07:30Z",
-      "flows": [
-        "TE-16"
-      ],
-      "observe": "compose Emoji GIF adhesivos button; panel tabs Todo Emoji GIF Adhesivos",
-      "act": "invoke Expand 2334ms; press_key Escape",
-      "verify": "17/21 met; Encuentra algo divertido NOT FOUND; TE-07 OK; compose limpio",
-      "timings_ms": {
-        "invoke_emoji": 2334,
-        "list_elements": 4029
-      },
-      "friction": "list_elements shallow panes SLOW; panel no stable automation_id"
-    },
-    {
-      "ts": "2026-09-07T00:09:30Z",
-      "flows": [
-        "TE-17"
-      ],
-      "observe": "ms-searchux-input; global search overlay tabs Mensajes Archivos Canales",
-      "act": "press_key_combo ctrl+e; press_key Escape",
-      "verify": "18/21 met; focus ComboBox then Document; TE-07 OK; overlay closed screenshot _72",
-      "timings_ms": {
-        "ctrl_e": 400,
-        "escape": 200
-      },
-      "friction": "element_exists Mensajes persiste en árbol post-Escape; verify visual screenshot primario"
-    },
-    {
-      "ts": "2026-09-07T00:11:30Z",
-      "flows": [
-        "TE-18"
-      ],
-      "observe": "pre hwnd=132488; post relaunch hwnd=263750 PID 28660",
-      "act": "invalidate_cache; launch_app replace; set_target; invoke menur20 Awamori",
-      "verify": "19/21 met; Chat|Awamori target; find_text AwdUI-MCP-TE; tree_hash 37bb7ac5609ece91",
-      "timings_ms": {
-        "find_awamori": 10576,
-        "invoke_chat": 3815
-      },
-      "friction": "wait_for_input_idle FAIL pid; find Awamori 10s SLOW; TreeItem id menur31g→menur20; SelectionItem verify fail"
-    },
-    {
-      "ts": "2026-09-07T00:12:30Z",
-      "flows": [
-        "TE-19"
-      ],
-      "observe": "post TE-18 recovery hwnd=263750 Awamori chat",
-      "act": "check_session_status; get_tree_hash; detection_health; check_version",
-      "verify": "20/21 met; tree_hash estable; backends OK; TE-07 OCR OK; screenshot _77",
-      "timings_ms": {
-        "health_checks": 400
-      },
-      "friction": "detection_health -1 elements count; framework unknown TeamsWebView"
-    },
-    {
-      "ts": "2026-09-07T00:13:30Z",
-      "flows": [
-        "TE-20"
-      ],
-      "observe": "pre-close Awamori hwnd=263750 TE-07 visible",
-      "act": "screenshot; set_target_window('')",
-      "verify": "21/21 met harness; target cleared; teams_perfect remains false (workarounds)",
-      "timings_ms": {
-        "close": 200
-      },
-      "friction": "teams_perfect blocked: SelectionItem verify, picker cancel, list_elements SLOW, scroll N/A"
-    },
-    {
-      "ts": "2026-09-07T00:18:30Z",
-      "flows": [
-        "TE-15-regression"
-      ],
-      "observe": "MCP scope_mode auto + WebView2 modal fallback",
-      "act": "click_element Cancel scope_mode=auto verify_modal_dismissed",
-      "verify": "1660ms modal dismissed; list_windows sin Abrir; pytest 6 passed",
-      "timings_ms": {
-        "cancel_scoped": 1660
-      },
-      "friction": "adjunto stale de sesión previa requiere Quitar datos adjuntos"
-    },
-    {
-      "ts": "2026-09-07T00:25:00Z",
-      "flows": [
-        "TE-05-regression",
-        "TE-14-regression"
-      ],
-      "observe": "Canal General menurt3 → Awamori menurq9; compose TE-07 visible",
-      "act": "invoke_element TreeItem SelectionItem verify integrado",
-      "verify": "✓ verified WindowTitle/ChatContext; pytest 11 passed; verify_ms ~12s SLOW (Teams _read_properties)",
-      "timings_ms": {
-        "awamori_invoke": 25190,
-        "canal_general_invoke": 23886
-      },
-      "friction": "list_elements/find 8-19s SLOW; verify poll cost; no screenshot workaround needed"
-    },
-    {
-      "ts": "2026-09-07T00:33:00Z",
-      "flows": [
-        "TE-00",
-        "TE-05-regression"
-      ],
-      "observe": "Testing Argentina menur1oo → Awamori menur1oc; TE-07 visible",
-      "act": "invoke_element TreeItem SelectionItem; title-only verify path",
-      "verify": "✓ verified verify_ms=426 (was ~12s); find_element still 10587ms SLOW",
-      "timings_ms": {
-        "te05_invoke_total": 17386,
-        "te05_verify": 426,
-        "te05_find": 10587
-      },
-      "friction": "find/list SLOW persists; scroll N/A unchanged"
-    },
-    {
-      "ts": "2026-09-07T00:39:00Z",
-      "flows": [
-        "TE-00",
-        "TE-02-regression",
-        "TE-05-regression"
-      ],
-      "observe": "detect_framework electron; find Awamori TreeItem; TE-07 screenshot",
-      "act": "UIA-first find (skip spy sidecar); progressive depth; view_scope param",
-      "verify": "find_element 786ms (was 10s); automation_id 337ms; framework TeamsWebView→electron",
-      "timings_ms": {
-        "find_treeitem": 786,
-        "find_automation_id": 337,
-        "find_testing_argentina": 479
-      },
-      "friction": "list_elements role=TreeItem vacío; scroll N/A; invoke total_ms inflado por timeout wrapper"
-    },
-    {
-      "ts": "2026-09-07T00:42:00Z",
-      "flows": [
-        "TE-02-regression",
-        "TE-08-regression"
-      ],
-      "observe": "Teams hwnd=263750 Awamori chat; TE-07 [AwdUI-MCP-TE] visible",
-      "act": "element_scope allow_renderer_pid; _drop_electron_compact_tree_rows; list_elements view_scope; scroll_element fallback",
-      "verify": "list_elements 23 TreeItems menur1oc OK 5637ms SLOW; scroll_fallback_coords OK; pytest 832 pass",
-      "timings_ms": {
-        "list_treeitem": 5637,
-        "find_menur1oc": 523,
-        "scroll_fallback": 200
-      },
-      "friction": "list_elements still SLOW; ScrollPattern N/A (coords fallback); teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T00:47:00Z",
-      "flows": [
-        "TE-02-regression",
-        "TE-05-regression",
-        "TE-08-regression"
-      ],
-      "observe": "Teams hwnd=263750; TE-07 [AwdUI-MCP-TE] visible",
-      "act": "list_elements perf fix (typed role, skip spy, view_scope bypass); invoke Testing Argentina→Awamori",
-      "verify": "list TreeItem 1182ms OK; find menur1oc 639ms; scroll_fallback OK; invoke verify 408ms; pytest 19 passed",
-      "timings_ms": {
-        "list_treeitem": 1182,
-        "find_menur1oc": 639,
-        "te05_verify": 408
-      },
-      "friction": "invoke total_ms wrapper 19-21s vs components <500ms; ScrollPattern P2; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T00:50:00Z",
-      "flows": [
-        "TE-05-regression",
-        "TE-02-regression",
-        "TE-08-regression"
-      ],
-      "observe": "Teams Awamori chat; TE-07 visible",
-      "act": "skip spy stale probe Electron; ActionTimer operational_ms",
-      "verify": "invoke Argentina 1513ms; Awamori 667ms; list 1213ms; scroll_fallback OK",
-      "timings_ms": {
-        "invoke_argentina": 1513,
-        "invoke_awamori": 667,
-        "list_treeitem": 1213
-      },
-      "friction": "ScrollPattern P2; AppThemeExpander slow; teams_perfect false (2 blockers)"
-    },
-    {
-      "ts": "2026-09-07T00:52:00Z",
-      "flows": [
-        "TE-08-regression",
-        "TE-05-regression",
-        "TE-02-regression"
-      ],
-      "observe": "Teams Awamori; TE-07 visible",
-      "act": "find_scrollable_ancestor; scroll_element Scroll.Scroll; expand perf code",
-      "verify": "Scroll.Scroll nativo (no fallback); invoke 932ms; list 1124ms; pytest 19 passed",
-      "timings_ms": {
-        "scroll_native": 800,
-        "invoke_te05": 932,
-        "list_treeitem": 1124
-      },
-      "friction": "AppThemeExpander pending live Calc; teams_perfect false (1 blocker)"
-    },
-    {
-      "ts": "2026-09-07T01:22:00Z",
-      "flows": [
-        "TE-00",
-        "TE-02-regression",
-        "TE-05-regression"
-      ],
-      "observe": "Teams hwnd=460854 Awamori; TE-07 compose visible; 23 TreeItems menur* sin leak Cursor",
-      "act": "sidebar Tree roots collect + uia_tree_cache; orchestrator cache TTL 20s; invoke Argentina→Awamori",
-      "verify": "list cold 12924ms SLOW cache 0ms; find 633ms; invoke 1642/979ms; find_text AwdUI-MCP-TE OK; pytest 19 passed",
-      "timings_ms": {
-        "list_treeitem_cold": 12924,
-        "list_treeitem_cache": 0,
-        "find_menur1r": 633,
-        "invoke_argentina": 1642,
-        "invoke_awamori": 979
-      },
-      "friction": "cold list_elements WebView UIA ~10-13s; sidebar Tree path no mejora en vivo; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T01:31:00Z",
-      "flows": [
-        "TE-00",
-        "TE-02-regression",
-        "TE-08-regression"
-      ],
-      "observe": "Teams hwnd=460854 Awamori; compose TE-07 draft visible",
-      "act": "comtypes spatial prune + narrow pane collect; prefetch set_target; list cold; scroll up/down",
-      "verify": "list 12058ms SLOW; scroll Scroll.Scroll OK; pytest 31 passed; test_right_click fixed",
-      "timings_ms": {
-        "list_treeitem_cold": 12058,
-        "scroll_up_down": 800
-      },
-      "friction": "cold list still ~12s; cache repeat missed second call; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T01:34:00Z",
-      "flows": [
-        "TE-00",
-        "TE-02-regression",
-        "TE-05-regression"
-      ],
-      "observe": "Teams Awamori hwnd=460854; FindAll path active",
-      "act": "orchestrator cache key title+hwnd; UIA FindAll TreeItem; list cold+warm; invoke Argentina→Awamori",
-      "verify": "list 538ms cold cache 0ms; invoke 1357/956ms; pytest 16 passed orchestrator cache",
-      "timings_ms": {
-        "list_treeitem_cold": 538,
-        "list_treeitem_cache": 0,
-        "find_menur1r": 813,
-        "invoke_argentina": 1357,
-        "invoke_awamori": 956
-      },
-      "friction": "FindAll 16 visible not 23; find_text OCR miss compose; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T01:38:00Z",
-      "flows": [
-        "TE-00",
-        "TE-02-regression",
-        "TE-04-regression",
-        "TE-05-regression"
-      ],
-      "observe": "Teams hwnd=460854 Awamori chat; TE-07 draft compose visible; search overlay from prior TE-04",
-      "act": "check_version; invalidate_cache; list TreeItem cold+warm; type_into_element search; invoke Argentina→Awamori SelectionItem verify",
-      "verify": "list 602ms cold 0ms cache; TE-04 screenshot dropdown; TE-05 header OCR+screenshot; pytest 15 passed",
-      "timings_ms": {
-        "list_treeitem_cold": 602,
-        "list_treeitem_cache": 0,
-        "te04_type_search": 600,
-        "invoke_argentina": 1260,
-        "invoke_awamori": 956,
-        "find_compose_label": 5870
-      },
-      "friction": "FindAll 16 not 23 offscreen; find compose placeholder SLOW; teams_perfect false; objective_met blocked Calc slow matrix"
-    },
-    {
-      "ts": "2026-09-07T01:40:00Z",
-      "flows": [
-        "TE-00",
-        "TE-01",
-        "TE-02-regression",
-        "TE-08-regression"
-      ],
-      "observe": "Teams hwnd=460854 Awamori; draft TE-07 compose visible; sidebar chat list",
-      "act": "check_version+session; detect_framework electron; list TreeItem cold/warm; scroll sidebar PageDown; find Reyes offscreen; scroll_element message pane up/down",
-      "verify": "list 578ms cold 0ms cache 16 items; find menur31 888ms; TE-08 scope OK; pytest 15 passed",
-      "timings_ms": {
-        "list_treeitem_cold": 578,
-        "list_treeitem_post_scroll": 476,
-        "list_treeitem_cache": 0,
-        "find_reyes_offscreen": 888,
-        "scroll_history": 400
-      },
-      "friction": "list_elements no materializa offscreen tras scroll sidebar; find_element workaround obligatorio; find_text OCR miss TE-07; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T01:44:00Z",
-      "flows": [
-        "TE-00",
-        "TE-01",
-        "TE-02-regression",
-        "TE-03-regression"
-      ],
-      "observe": "scroll-merge code fix in uia_backend; Teams hwnd=460854",
-      "act": "invalidate; list TreeItem cold+warm; nav Calendario→Llamadas→Chat; invoke menur1r restore",
-      "verify": "49 TreeItems incl menur31 Reyes; cache 0ms; TE-03 nav verify OK; pytest 16 passed",
-      "timings_ms": {
-        "list_treeitem_cold": 3398,
-        "list_treeitem_cache": 0,
-        "invoke_calendario": 1912,
-        "invoke_calls": 1402,
-        "invoke_chat": 1753,
-        "invoke_awamori_fail": 12783
-      },
-      "friction": "cold list >3s SLOW; first keyboard nudge opened Start menu (fixed ensure_focus); menur1r stale after sidebar scroll; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T01:49:00Z",
-      "flows": [
-        "TE-00",
-        "TE-01",
-        "TE-02-regression",
-        "TE-05-regression"
-      ],
-      "observe": "scroll-merge optimization in uia_backend; Awamori menur1eu id rotation",
-      "act": "multiple MCP restarts; invalidate cold list; scroll prime tests; TE-05 Argentina→Awamori invoke",
-      "verify": "pytest 17 passed; cold 16@458ms (live MCP stale?); TE-05 OK; turn6 proved 49 items when merge active",
-      "timings_ms": {
-        "list_cold_top": 458,
-        "list_post_scroll_prime": 591,
-        "te05_argentina": 1453,
-        "te05_awamori": 1163
-      },
-      "friction": "live MCP may not reload scroll-merge code; cold 16 vs turn6 49; efficiency partial; teams_perfect false"
-    },
-    {
-      "ts": "2026-09-07T01:54:00Z",
-      "flows": [
-        "TE-00",
-        "TE-01",
-        "TE-02",
-        "TE-08"
-      ],
-      "observe": "scoped_out dropped 33 sidebar TreeItems post scroll-merge; root cause element_in_window_scope on y>client",
-      "act": "element_scope include_offscreen sidebar bypass; orchestrator pass flag; invalidate cold list; scroll chat history",
-      "verify": "pytest 28 passed; live cold 49@462ms menur1g4 Reyes; warm 0ms; TE-08 scroll up/down target OK",
-      "timings_ms": {
-        "list_cold": 462,
-        "list_warm": 0,
-        "te08_scroll": 400
-      },
-      "friction": "Calc matrix slow entries remain; historical TE flows still SLOW in matrix; teams_perfect false until efficiency met"
-    },
-    {
-      "ts": "2026-09-07T01:56:00Z",
-      "flows": [
-        "TE-00",
-        "TE-01",
-        "TE-02",
-        "TE-04",
-        "calc-matrix-retest"
-      ],
-      "observe": "TE-02 sidebar 49 stable; Calc was in history view blocking keypad discovery",
-      "act": "TE-04 ctrl+e search Awamori; Calc BackButton then list/find num7Button",
-      "verify": "TE-04 screenshot dropdown OK; list_elements 14btn@2408ms met; find_element 4477ms slow; TE-07 no re-send",
-      "timings_ms": {
-        "list_te02": 475,
-        "te04_search": 600,
-        "calc_list_button": 2408,
-        "calc_find_num7": 4477
-      },
-      "friction": "find_element Calc >=3s blocker; BackButton verify 40s; TE historical SLOW flows pending retest"
-    },
-    {
-      "ts": "2026-09-07T02:02:00Z",
-      "flows": [
-        "find_element-fix",
-        "calc-matrix-retest-partial"
-      ],
-      "observe": "UWP backend order flaui-first caused 4s find; comtypes FindFirst 29ms local",
-      "act": "uia_backend comtypes FindFirst; skip spy for automation_id; orchestrator UIA-first",
-      "verify": "pytest 32 passed; local do_find_element 314ms; MCP cold 4013ms then disconnect after KillOrphans",
-      "timings_ms": {
-        "local_find_cold": 314,
-        "mcp_find_cold": 4013,
-        "mcp_find_warm": 557
-      },
-      "friction": "MCP reconnect required for live verify; do not use -KillOrphans unless orphan crash"
-    }
-  ],
-  "teams_skill": ".cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md",
-  "teams_harness_skill": ".cursor/skills/awdui-mcp-automejora/references/evaluacion-lab.md",
-  "teams_matrix_ref": "matrices/teams_matrix.json",
-  "tool_validation_matrix_ref": "matrices/tool_validation_matrix.json"
+    "active_app_slug": "calculadora",
+    "active_run": "calculadora-2026-09-12",
+    "backlog_ref": ".cursor/mcp-improvement-cycle/apps/calculadora/backlog.json"
 }

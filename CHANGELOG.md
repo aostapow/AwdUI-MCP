@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0
+
+Repo-first lab guidance, property observation history, and identification stats tool.
+
+- **Detection / repo:** SQLite table `property_observations`; auto-record on successful `upsert` with resolution context; `identification_stats_for_repo_path` / `list_property_observations`
+- **Tool:** `repo_identification_stats` — stable vs volatile UIA properties per `repo_path`
+- **Scripts:** `analyze_repo_property_stability.py` (CLI report)
+- **Lab:** `references/patterns/repo-first-lab.md`; hooks/skill/backlog/mcp-value-filter links
+- **Tests:** `test_property_observations.py`
+
 ## 0.4.0
 
 WinApp-style session model and unified tool surface (111 tools).

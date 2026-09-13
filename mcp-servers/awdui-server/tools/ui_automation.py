@@ -14,6 +14,10 @@ from tools.app_session import pick_element_index, resolve_scope
 from tools.element_resolve import find_element_for_action
 from tools.input_tools import do_click
 
+_SELECTION_VERIFY_ROLES = frozenset(
+    {"treeitem", "listitem", "tabitem", "dataitem", "radiobutton"}
+)
+
 
 def _orch():
     from detection.orchestrator import get_orchestrator
@@ -456,6 +460,84 @@ def _resolve_verify_target(
     return aid
 
 
+def _maybe_invalidate_tree_after_act(
+    result: dict,
+    window_title: Optional[str],
+    acted_automation_id: Optional[str] = None,
+    element: Optional[dict] = None,
+) -> None:
+    """Drop list_elements cache only after acts that mutate the tree."""
+    if not result.get("success"):
+        return
+    aid = (acted_automation_id or "").strip().lower()
+    if not aid:
+        aid = str((element or {}).get("automation_id") or "").strip().lower()
+    if not aid:
+        return
+    invalidate_keys = (
+        "clear",
+        "dismiss",
+        "historybutton",
+        "memorybutton",
+        "flyout",
+    )
+    if not any(k in aid for k in invalidate_keys):
+        return
+    try:
+        from detection.orchestrator import invalidate_tree_cache
+
+        invalidate_tree_cache(window_title)
+    except Exception:
+        pass
+
+
+def _spy_element_peek(
+    name: Optional[str],
+    automation_id: Optional[str],
+    window_title: Optional[str],
+) -> dict:
+    """Lightweight role/name peek for UWP invoke paths."""
+    out = {
+        "automation_id": (automation_id or "").strip(),
+        "name": (name or "").strip(),
+        "role": "",
+    }
+    if not (name or automation_id):
+        return out
+    try:
+        from tools.spy_bridge import spy_available, spy_inspect_element, spy_props_to_element
+
+        if not spy_available():
+            return out
+        props = spy_inspect_element(
+            name=name, automation_id=automation_id, window_title=window_title,
+        )
+        if props.get("found"):
+            elem = spy_props_to_element(
+                props.get("properties") or props, window_title=window_title,
+            )
+            if elem:
+                return elem
+    except Exception:
+        pass
+    return out
+
+
+def _persist_act_to_repo(result: dict, window_title: Optional[str]) -> None:
+    """After successful act, upsert element into object repository (target window gate)."""
+    if not result.get("success"):
+        return
+    try:
+        from detection.auto_repo import remember_successful_act
+
+        path = remember_successful_act(result, window_title=window_title)
+        if path:
+            result["repo_path"] = path
+            result["repo_updated"] = True
+    except Exception:
+        pass
+
+
 def _finish_action_with_verify(
     timer,
     result: dict,
@@ -487,16 +569,23 @@ def _finish_action_with_verify(
 
     method = str(result.get("method") or "")
     elem = result.get("element") or {}
+    _maybe_invalidate_tree_after_act(
+        result,
+        window_title,
+        acted_automation_id=acted,
+        element=elem,
+    )
     elem_role = (elem.get("role") or "").strip().lower()
     selection_like_invoke = method in (
         "InvokePattern",
         "Invoke",
         "InvokePattern.Invoke",
-    ) and elem_role in ("treeitem", "listitem", "tabitem", "dataitem")
+    ) and elem_role in _SELECTION_VERIFY_ROLES
     use_selection_verify = (
         not (verify_automation_id or "").strip()
         and not needle
         and verify_target == acted
+        and elem_role in _SELECTION_VERIFY_ROLES
         and ("SelectionItem" in method or selection_like_invoke)
     )
     if use_selection_verify:
@@ -520,6 +609,32 @@ def _finish_action_with_verify(
             result["verify_error"] = v["verify_error"]
         if v.get("verify_name"):
             result["verify_name"] = v["verify_name"]
+        _persist_act_to_repo(result, window_title)
+        return timer.attach(result)
+
+    if needle and elem_role in _SELECTION_VERIFY_ROLES:
+        from tools.action_timing import run_selection_item_verify
+
+        v = run_selection_item_verify(
+            window_title=window_title,
+            acted_automation_id=acted,
+            acted_name=elem.get("name") or "",
+            acted_role=elem.get("role") or "",
+            pre_header_name=result.get("pre_header_name"),
+            pre_window_title=result.get("pre_window_title"),
+            timeout_ms=min(int(verify_timeout_ms or 2500), 2500),
+            poll_ms=verify_poll_ms,
+            extra_needles=[needle],
+        )
+        timer.mark("verify_ms", v.get("verify_ms", 0))
+        result["verified"] = v.get("verified")
+        if v.get("verify_method"):
+            result["verify_method"] = v["verify_method"]
+        if v.get("verify_error"):
+            result["verify_error"] = v["verify_error"]
+        if v.get("verify_name"):
+            result["verify_name"] = v["verify_name"]
+        _persist_act_to_repo(result, window_title)
         return timer.attach(result)
 
     if verify_modal_dismissed:
@@ -541,9 +656,19 @@ def _finish_action_with_verify(
             result["verify_error"] = v["verify_error"]
         if v.get("hint"):
             result["hint"] = v["hint"]
+        _persist_act_to_repo(result, window_title)
         return timer.attach(result)
 
     if verify_target or needle:
+        wants_named_verify = bool(
+            needle
+            or (verify_automation_id or "").strip()
+            or verify_modal_dismissed
+            or (verify_target and verify_target != acted)
+        )
+        if not wants_named_verify:
+            _persist_act_to_repo(result, window_title)
+            return timer.attach(result)
         v = run_post_act_verify(
             window_title=window_title,
             verify_automation_id=verify_target,
@@ -567,6 +692,7 @@ def _finish_action_with_verify(
                     "set verify_automation_id on the acted control via repo agent_hints "
                     "(repo_capture / repo_hints) or pass verify_automation_id explicitly",
                 )
+    _persist_act_to_repo(result, window_title)
     return timer.attach(result)
 
 
@@ -575,10 +701,10 @@ def _should_snapshot_header_for_selection(
     verify_automation_id: Optional[str],
     verify_name_contains: Optional[str],
 ) -> bool:
-    if (verify_automation_id or "").strip() or (verify_name_contains or "").strip():
+    if (verify_automation_id or "").strip():
         return False
     role = ((elem or {}).get("role") or "").lower()
-    return role in ("listitem", "treeitem", "radiobutton", "tabitem", "dataitem")
+    return role in _SELECTION_VERIFY_ROLES
 
 
 def do_invoke_element(
@@ -697,15 +823,17 @@ def do_invoke_element(
         return timer.attach(stale)
 
     try:
-        from tools.framework_detect import do_detect_framework
-        fw = do_detect_framework(window_title).get("framework", "")
-        if fw in ("uwp", "winui"):
+        from detection.frameworks.registry import get_profile_for_window
+
+        profile = get_profile_for_window(window_title)
+        if profile.prefers_spy_invoke:
             from tools.spy_bridge import spy_invoke_element, spy_available
             if spy_available():
+                peek = _spy_element_peek(name, automation_id, window_title)
                 pre_header = ""
                 pre_window_title = ""
                 if _should_snapshot_header_for_selection(
-                    {"role": "ListItem", "automation_id": automation_id or ""},
+                    peek,
                     verify_automation_id,
                     verify_name_contains,
                 ):
@@ -720,11 +848,7 @@ def do_invoke_element(
                 )
                 timer.end()
                 if spy.get("success"):
-                    spy["element"] = {
-                        "automation_id": automation_id or "",
-                        "name": name or "",
-                        "role": "ListItem",
-                    }
+                    spy["element"] = peek
                     if pre_header:
                         spy["pre_header_name"] = pre_header
                     if pre_window_title:
@@ -748,17 +872,19 @@ def do_invoke_element(
         window_title=window_title,
         window_handle=window_handle,
         include_offscreen=True,
-        remember=False,
+        remember=True,
     )
     timer.end()
     if not matches.get("found"):
         from tools.spy_bridge import spy_invoke_element
+        peek = _spy_element_peek(name, automation_id, window_title)
         timer.start("act")
         spy = spy_invoke_element(
             name=name, automation_id=automation_id, window_title=window_title,
         )
         timer.end()
         if spy.get("success"):
+            spy["element"] = peek
             return _finish_action_with_verify(
                 timer,
                 spy,
@@ -822,6 +948,7 @@ def do_invoke_element(
     )
     timer.end()
     if spy.get("success"):
+        spy.setdefault("element", elem0)
         return _finish_action_with_verify(
             timer,
             spy,
@@ -877,10 +1004,10 @@ def _refresh_expander_dims(
     if not aid:
         return None
     try:
-        from tools.framework_detect import do_detect_framework
+        from detection.frameworks.registry import get_profile_for_window
 
-        fw = do_detect_framework(window_title).get("framework", "")
-        if fw in ("uwp", "winui"):
+        profile = get_profile_for_window(window_title)
+        if profile.expander_dims_via_spy:
             from tools.spy_bridge import spy_available, spy_inspect_element, spy_props_to_element
 
             if spy_available():
@@ -922,10 +1049,10 @@ def _quick_resolve_element(
         except Exception:
             pass
     try:
-        from tools.framework_detect import do_detect_framework
+        from detection.frameworks.registry import get_profile_for_window
 
-        fw = do_detect_framework(window_title).get("framework", "")
-        if fw not in ("uwp", "winui"):
+        profile = get_profile_for_window(window_title)
+        if profile.quick_resolve_spy_before_find:
             from tools.spy_bridge import spy_available, spy_inspect_element, spy_props_to_element
 
             if spy_available():
@@ -963,17 +1090,17 @@ def _looks_like_uwp_expander(elem: dict) -> bool:
 def _expander_visible_bbox(
     elem: dict, window_title: Optional[str] = None
 ) -> Optional[tuple[int, int, int, int]]:
-    from tools.highlight import element_screen_bbox
-
-    bbox = element_screen_bbox(elem, window_title=window_title)
-    if bbox and len(bbox) >= 4:
-        return int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
     x = int(elem.get("x", 0) or 0)
     y = int(elem.get("y", 0) or 0)
     w = int(elem.get("width") or elem.get("w") or 0)
     h = int(elem.get("height") or elem.get("h") or 0)
     if w > 0 and h > 0:
         return x, y, w, h
+    from tools.highlight import element_screen_bbox
+
+    bbox = element_screen_bbox(elem, window_title=window_title)
+    if bbox and len(bbox) >= 4:
+        return int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
     return None
 
 
@@ -1167,11 +1294,11 @@ def do_expand_element(
     if sys.platform != "win32":
         return {"success": False, "error": "expand_element is Windows-only", "elapsed_ms": 0}
 
-    from detection.backends.uia_backend import get_uia_backend
-    from detection.element_model import DetectedElement
-
-    def _finish(result: dict) -> dict:
+    def _finish(result: dict, elem: Optional[dict] = None) -> dict:
+        result["elapsed_ms"] = int((time.perf_counter() - t0) * 1000)
         if result.get("success"):
+            if elem and not result.get("element"):
+                result["element"] = elem
             try:
                 from detection.orchestrator import invalidate_tree_cache
 
@@ -1184,7 +1311,7 @@ def do_expand_element(
                 do_wait_for_input_idle(window_title=window_title, timeout_ms=800)
             except Exception:
                 pass
-        result["elapsed_ms"] = int((time.perf_counter() - t0) * 1000)
+            _persist_act_to_repo(result, window_title)
         return result
 
     if fallback_click and (automation_id or name):
@@ -1211,6 +1338,9 @@ def do_expand_element(
                 out["fast_path"] = True
                 return _finish(out)
 
+    from detection.backends.uia_backend import get_uia_backend
+    from detection.element_model import DetectedElement
+
     if element:
         detected = DetectedElement(
             name=element.get("name") or "",
@@ -1224,9 +1354,10 @@ def do_expand_element(
         )
 
     try:
-        from tools.framework_detect import do_detect_framework
-        fw = do_detect_framework(window_title).get("framework", "")
-        if fw in ("uwp", "winui"):
+        from detection.frameworks.registry import get_profile_for_window
+
+        profile = get_profile_for_window(window_title)
+        if profile.prefers_spy_expand_collapse:
             from tools.spy_bridge import spy_available, spy_expand_collapse_element
             if spy_available():
                 spy = spy_expand_collapse_element(
@@ -1258,10 +1389,10 @@ def do_expand_element(
             detected, action=action, window_title=window_title,
         )
         if result.get("success"):
-            return _finish(result)
+            return _finish(result, elem_dict)
         child_result = _try_expand_via_interactive_child(elem_dict, window_title, action)
         if child_result and child_result.get("success"):
-            return _finish(child_result)
+            return _finish(child_result, elem_dict)
 
     from tools.spy_bridge import spy_expand_collapse_element
     spy = spy_expand_collapse_element(
@@ -1929,6 +2060,13 @@ def do_repo_list(window_title: Optional[str] = None) -> dict:
     from detection.object_repository import list_objects, load_repo
     from detection.app_identity import repository_app_name
     from tools.framework_detect import do_detect_framework
+    if not (window_title or "").strip():
+        try:
+            from tools.target_window import get_target
+
+            window_title = get_target() or window_title
+        except Exception:
+            pass
     fw = do_detect_framework(window_title)
     app_name, exe_path = repository_app_name(fw, window_title)
     repo = load_repo(app_name, exe_path)
@@ -3081,6 +3219,35 @@ def register(server) -> int:
         return "\n\n".join(lines)
 
     @server.tool()
+    def repo_identification_stats(
+        repo_path: str = "",
+        window_title: str = "",
+        title: str = "",
+    ) -> str:
+        """Property stability stats for a repository object (multi-run observations).
+
+        Uses append-only property_observations recorded on successful resolve/act.
+        Reports stable vs volatile property keys and suggested mandatory identifiers.
+        """
+        from detection import repo_store
+        from tools.repo_action import _app_repo
+
+        wt = _wt(window_title, title)
+        if not repo_path:
+            return "repo_path is required."
+        app_name, repo = _app_repo(wt)
+        stats = repo_store.identification_stats_for_repo_path(
+            repo_path,
+            app_name,
+            repo.get("exe_path", ""),
+        )
+        if not stats.get("found"):
+            return stats.get("error", "not found")
+        import json
+
+        return json.dumps(stats, indent=2, ensure_ascii=False)
+
+    @server.tool()
     def repo_action(
         repo_path: str,
         method: str,
@@ -4139,4 +4306,4 @@ def register(server) -> int:
             return f"set_value_hwnd: value set on hwnd={window_handle}"
         return result.get("error", "set_value_hwnd failed")
 
-    return 38
+    return 39

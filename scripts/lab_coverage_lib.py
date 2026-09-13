@@ -609,6 +609,15 @@ def incremental_lab_coverage(
         write_repo_snapshot(run_dir)
     except Exception:
         pass
+    try:
+        scripts_dir = Path(__file__).resolve().parent
+        if str(scripts_dir) not in sys.path:
+            sys.path.insert(0, str(scripts_dir))
+        from detection_baseline_lib import discover_run_dirs, merge_runs, write_baseline, DEFAULT_BASELINE_PATH
+
+        write_baseline(DEFAULT_BASELINE_PATH, merge_runs(discover_run_dirs()))
+    except Exception:
+        pass
     return {
         "summary_line": coverage_summary_line(report),
         "report": report,

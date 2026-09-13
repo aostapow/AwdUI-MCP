@@ -53,6 +53,7 @@ class TestRepoStudioLauncher:
         started: list[int] = []
 
         monkeypatch.setattr("repo_studio_launcher._api_healthy", lambda _p: False)
+        monkeypatch.setattr("repo_studio_launcher._http_ok", lambda _u: False)
         monkeypatch.setattr("repo_studio_launcher._ensure_api_deps", lambda _p: None)
         monkeypatch.setattr("repo_studio_launcher._ensure_web_dist", lambda _r: True)
         monkeypatch.setattr(
@@ -60,6 +61,30 @@ class TestRepoStudioLauncher:
             lambda _r, _py, port: started.append(port),
         )
         maybe_start_repo_studio(root, python=sys.executable)
+        assert started == [8765]
+
+    def test_restarts_stale_api_missing_catalog(self, root, monkeypatch):
+        monkeypatch.delenv("AWDUI_REPO_STUDIO", raising=False)
+        killed = {"n": 0}
+        started: list[int] = []
+
+        monkeypatch.setattr("repo_studio_launcher._api_healthy", lambda _p: False)
+        monkeypatch.setattr(
+            "repo_studio_launcher._http_ok",
+            lambda url: url.endswith("/api/health"),
+        )
+        monkeypatch.setattr(
+            "repo_studio_launcher._kill_listener",
+            lambda _p: killed.__setitem__("n", killed["n"] + 1),
+        )
+        monkeypatch.setattr("repo_studio_launcher._ensure_api_deps", lambda _p: None)
+        monkeypatch.setattr("repo_studio_launcher._ensure_web_dist", lambda _r: True)
+        monkeypatch.setattr(
+            "repo_studio_launcher._start_api",
+            lambda _r, _py, port: started.append(port),
+        )
+        maybe_start_repo_studio(root, python=sys.executable)
+        assert killed["n"] == 1
         assert started == [8765]
 
     def test_dev_starts_vite(self, root, monkeypatch):

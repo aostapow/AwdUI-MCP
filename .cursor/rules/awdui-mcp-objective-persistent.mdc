@@ -26,6 +26,12 @@ Mientras `objective_met` sea `false`:
 3. Mensaje vago («continuar», «dale»): `last_cycle.next` o `current_focus` en state.
 4. **Otra tarea del usuario** (fix, diseño skills): atender eso; no declarar objetivo cumplido.
 
+## Arreglo en ciclo (desde 2.2.0)
+
+Al detectar fricción MCP (slow ≥3 s, verify fail con act OK, gap estructural): **no** solo documentar. Aplicar [fix-in-cycle.md](../skills/awdui-mcp-automejora/references/patterns/fix-in-cycle.md): fix → pytest → re-VERIFY; máx. 3 intentos; revertir código y dejar en `pending_manual_fixes` si falla.
+
+**Con `active_lab`:** el hook `stop` **no deja avanzar** si el `flow_id` del turno tiene fricción estructural con `fix_in_cycle: not_attempted` sin resolución (`scripts/fix_in_cycle_gate.py`). Cerrar turno con `last_cycle.fix_gate.status: ok`. Sin lab activo, las propuestas pueden quedar en `_MCP_IMPROVEMENT/` para aplicación manual.
+
 Si `active_lab` es `null`, **no** arrancar evaluación lab ni leer manifests salvo pedido explícito.
 
 ## Pausa

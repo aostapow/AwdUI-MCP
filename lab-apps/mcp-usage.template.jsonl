@@ -3,6 +3,7 @@
   "tool": "click_element",
   "flow_id": "F-03",
   "mode": "execute_flow",
+  "framework": "uwp",
   "uia_role": "Button",
   "uia_control": "Button",
   "uia_pattern": "Invoke",

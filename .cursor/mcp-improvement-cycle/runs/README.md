@@ -8,6 +8,7 @@ runs/{run_id}/
   flows.json
   mcp-usage.jsonl      # cada tool/rol/pattern usado
   improvements.jsonl   # cada mejora MCP en la corrida
+  pending-fixes.jsonl  # fixes revertidos tras 3 intentos (revisión manual)
   coverage.json        # regenerado cada turno (acumulado desde mcp-usage)
   lab-summary.md       # regenerado cada turno
   coverage-diff.json   # opcional — Δ vs corrida anterior misma app

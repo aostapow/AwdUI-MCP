@@ -40,7 +40,7 @@ class TestVersionCompare:
 
 class TestGetLocalVersion:
     def test_reads_version_file(self):
-        assert version_check.get_local_version() == "0.4.0"
+        assert version_check.get_local_version() == "0.5.0"
 
 
 class TestCheckVersion:
@@ -50,13 +50,13 @@ class TestCheckVersion:
         monkeypatch.setattr(
             version_check,
             "fetch_latest_version",
-            lambda: ("0.5.0", "release", "https://github.com/aostapow/AwdUI-MCP/releases"),
+            lambda: ("0.6.0", "release", "https://github.com/aostapow/AwdUI-MCP/releases"),
         )
 
         info = version_check.check_version(force=True)
 
-        assert info.current_version == "0.4.0"
-        assert info.latest_version == "0.5.0"
+        assert info.current_version == "0.5.0"
+        assert info.latest_version == "0.6.0"
         assert info.update_available is True
         assert info.source == "release"
 
@@ -66,8 +66,8 @@ class TestCheckVersion:
         cache_file.write_text(
             json.dumps(
                 {
-                    "current_version": "0.4.0",
-                    "latest_version": "0.5.0",
+                    "current_version": "0.5.0",
+                    "latest_version": "0.6.0",
                     "update_available": True,
                     "release_url": "https://example.com",
                     "source": "release",
@@ -83,7 +83,7 @@ class TestCheckVersion:
         monkeypatch.setattr(version_check, "fetch_latest_version", fail_fetch)
         info = version_check.check_version(force=False)
 
-        assert info.latest_version == "0.5.0"
+        assert info.latest_version == "0.6.0"
         assert info.update_available is True
 
     def test_best_tag_version(self):

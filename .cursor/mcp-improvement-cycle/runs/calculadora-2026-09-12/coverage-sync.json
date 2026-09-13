@@ -1,0 +1,19 @@
+{
+  "active_lab": "Calculadora",
+  "active_run": "calculadora-2026-09-12",
+  "coverage": {
+    "last_report": "runs/calculadora-2026-09-12/coverage.json",
+    "lab_summary": "runs/calculadora-2026-09-12/lab-summary.md",
+    "mcp_tools_pct": 0.0,
+    "mcp_tools_used": 0,
+    "mcp_tools_universe": 113,
+    "uia_controls_seen_pct": 0.0,
+    "uia_controls_interacted": 0,
+    "act_methods_pct": 0.0,
+    "improvements_total": 0,
+    "invocation_count": 0,
+    "updated_at": "2026-09-13T01:59:37.605617+00:00"
+  },
+  "flows_progress": null,
+  "generated_at": "2026-09-13T01:59:37.605617+00:00"
+}

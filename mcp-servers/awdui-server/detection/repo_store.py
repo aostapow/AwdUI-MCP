@@ -95,6 +95,19 @@ CREATE TABLE IF NOT EXISTS agent_hints (
   UNIQUE(scope, scope_id)
 );
 
+CREATE TABLE IF NOT EXISTS property_observations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  object_id INTEGER NOT NULL REFERENCES objects(id) ON DELETE CASCADE,
+  observed_at TEXT NOT NULL,
+  run_id TEXT DEFAULT '',
+  context_hash TEXT DEFAULT '',
+  properties_json TEXT NOT NULL DEFAULT '{}',
+  resolve_method TEXT DEFAULT '',
+  timing_ms INTEGER DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_prop_obs_object ON property_observations(object_id, observed_at);
+
 CREATE INDEX IF NOT EXISTS idx_objects_automation ON objects(automation_id);
 CREATE INDEX IF NOT EXISTS idx_objects_logical ON objects(logical_name);
 CREATE INDEX IF NOT EXISTS idx_objects_window ON objects(window_id);
@@ -145,6 +158,22 @@ def _resolve_lookup_app_id(
         if count > best_count:
             best_count = count
             best_id = aid
+    if best_count <= 0 and (app_name or "").strip():
+        row = conn.execute(
+            """
+            SELECT a.app_id, COUNT(o.id) AS c
+            FROM applications a
+            LEFT JOIN windows w ON w.app_id = a.app_id
+            LEFT JOIN objects o ON o.window_id = w.id
+            WHERE lower(a.app_name) = lower(?)
+            GROUP BY a.app_id
+            ORDER BY c DESC
+            LIMIT 1
+            """,
+            (app_name.strip(),),
+        ).fetchone()
+        if row and int(row["c"] or 0) > 0:
+            return str(row["app_id"])
     return best_id
 
 
@@ -420,7 +449,6 @@ def upsert(
     from detection.winforms_map import build_identification, infer_swf_class
 
     _ensure_migrated(db_path)
-    aid = app_id_value or app_id(app_name, exe_path)
     window_key, chain = parse_repo_path(repo_path)
     object_key = chain[-1]
     if not parent and len(chain) > 1:
@@ -456,6 +484,7 @@ def upsert(
     }
 
     with _connect(db_path) as conn:
+        aid = app_id_value or _resolve_lookup_app_id(app_name, exe_path, conn=conn)
         _ensure_application(conn, aid, app_name, exe_path, framework)
 
         for i, pname in enumerate(chain[:-1]):
@@ -575,8 +604,125 @@ def upsert(
                 (str(oid), agent_hints, now),
             )
 
+        elem_props = element if element else full_properties
+        if elem_props and last_resolution:
+            _record_property_observation(
+                conn,
+                oid,
+                elem_props,
+                app_id=aid,
+                framework=framework,
+                resolve_method=str(last_resolution.get("method") or ""),
+                timing_ms=int(last_resolution.get("timing_ms") or 0),
+            )
+
         row = conn.execute("SELECT * FROM objects WHERE id=?", (oid,)).fetchone()
         return _row_to_object_dict(row, conn)
+
+
+def _record_property_observation(
+    conn: sqlite3.Connection,
+    object_id: int,
+    element: dict,
+    *,
+    app_id: str,
+    framework: str,
+    resolve_method: str = "",
+    timing_ms: int = 0,
+    run_id: str = "",
+) -> None:
+    import os
+
+    from detection.property_observations import (
+        MAX_OBSERVATIONS_PER_OBJECT,
+        compute_context_hash,
+        normalize_properties,
+    )
+
+    props = normalize_properties(element if isinstance(element, dict) else {})
+    if not props:
+        return
+    if not run_id:
+        run_id = os.environ.get("AWDUI_LAB_RUN_ID", "") or ""
+    ctx = compute_context_hash(app_id=app_id, framework=framework)
+    now = _now()
+    conn.execute(
+        "INSERT INTO property_observations "
+        "(object_id, observed_at, run_id, context_hash, properties_json, resolve_method, timing_ms) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            object_id,
+            now,
+            run_id,
+            ctx,
+            _json_dumps(props),
+            resolve_method,
+            timing_ms,
+        ),
+    )
+    row = conn.execute(
+        "SELECT COUNT(*) AS c FROM property_observations WHERE object_id=?",
+        (object_id,),
+    ).fetchone()
+    excess = int(row["c"] or 0) - MAX_OBSERVATIONS_PER_OBJECT
+    if excess > 0:
+        conn.execute(
+            "DELETE FROM property_observations WHERE id IN ("
+            "SELECT id FROM property_observations WHERE object_id=? "
+            "ORDER BY observed_at ASC LIMIT ?)",
+            (object_id, excess),
+        )
+
+
+def list_property_observations(
+    object_id: int,
+    *,
+    limit: int = 200,
+    db_path: Optional[Path] = None,
+) -> list[dict[str, Any]]:
+    _ensure_migrated(db_path)
+    with _connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT observed_at, run_id, context_hash, properties_json, resolve_method, timing_ms "
+            "FROM property_observations WHERE object_id=? ORDER BY observed_at DESC LIMIT ?",
+            (object_id, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def identification_stats_for_repo_path(
+    repo_path: str,
+    app_name: str,
+    exe_path: str = "",
+    *,
+    db_path: Optional[Path] = None,
+) -> dict[str, Any]:
+    from detection.property_observations import analyze_property_stability
+
+    _ensure_migrated(db_path)
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT o.id, o.repo_path, o.automation_id, res.success_count, res.last_success "
+            "FROM objects o "
+            "LEFT JOIN object_resolution res ON res.object_id = o.id "
+            "WHERE o.repo_path=?",
+            (repo_path,),
+        ).fetchone()
+        if not row:
+            return {"found": False, "repo_path": repo_path, "error": "object not in repository"}
+        oid = int(row["id"])
+        obs = list_property_observations(oid, db_path=db_path)
+        stats = analyze_property_stability(obs)
+        return {
+            "found": True,
+            "repo_path": repo_path,
+            "object_id": oid,
+            "automation_id": row["automation_id"],
+            "success_count": row["success_count"] or 0,
+            "last_success": row["last_success"] or "",
+            "observation_count": len(obs),
+            **stats,
+        }
 
 
 def list_objects_for_app(
@@ -803,17 +949,131 @@ def get_app_tree(app_id_value: str, db_path: Optional[Path] = None) -> dict:
         }
 
 
+def _search_snippet(text: str, q: str, radius: int = 48) -> str:
+    if not text:
+        return ""
+    lower = text.lower()
+    idx = lower.find(q.lower())
+    if idx < 0:
+        return text[:96] + ("…" if len(text) > 96 else "")
+    start = max(0, idx - radius)
+    end = min(len(text), idx + len(q) + radius)
+    snippet = text[start:end]
+    if start > 0:
+        snippet = "…" + snippet
+    if end < len(text):
+        snippet = snippet + "…"
+    return snippet
+
+
+def _ident_search_text(ident: dict) -> str:
+    parts: list[str] = []
+    for tier in ("mandatory", "assistive", "smart", "ordinal"):
+        bucket = ident.get(tier) or {}
+        for key, val in bucket.items():
+            parts.append(str(key))
+            parts.append(str(val))
+    return " ".join(parts)
+
+
+def _props_search_text(props: Optional[dict]) -> str:
+    if not props:
+        return ""
+    parts: list[str] = []
+    for key, val in props.items():
+        if str(key).startswith("_"):
+            continue
+        parts.append(str(key))
+        if isinstance(val, (dict, list)):
+            parts.append(json.dumps(val, ensure_ascii=False))
+        else:
+            parts.append(str(val))
+    return " ".join(parts)
+
+
+def _search_match_meta(
+    obj: dict,
+    *,
+    app_name: str,
+    window_key: str,
+    hints_text: str,
+    q: str,
+) -> dict[str, str]:
+    """Best-effort field label + snippet for UI."""
+    needle = q.lower()
+    candidates: list[tuple[str, str]] = [
+        ("repo_path", str(obj.get("repo_path") or "")),
+        ("logical_name", str(obj.get("logical_name") or "")),
+        ("automation_id", str(obj.get("automation_id") or "")),
+        ("class", str(obj.get("class") or "")),
+        ("parent", str(obj.get("parent") or "")),
+        ("app", app_name),
+        ("window", window_key),
+        ("identification", _ident_search_text(obj.get("identification") or {})),
+        ("properties", _props_search_text(obj.get("full_properties"))),
+        ("agent_hints", hints_text or str(obj.get("agent_hints") or "")),
+    ]
+    lr = obj.get("last_resolution") or {}
+    if lr:
+        candidates.append(("resolution", json.dumps(lr, ensure_ascii=False)))
+
+    for label, text in candidates:
+        if text and needle in text.lower():
+            return {"matched_in": label, "snippet": _search_snippet(text, q)}
+    return {"matched_in": "object", "snippet": str(obj.get("repo_path") or "")}
+
+
 def search_objects(q: str, db_path: Optional[Path] = None) -> list[dict]:
+    """Search objects across path, ids, identification, properties, hints, app/window."""
     _ensure_migrated(db_path)
-    like = f"%{q}%"
+    needle = (q or "").strip()
+    if not needle:
+        return []
+    like = f"%{needle}%"
+    # One placeholder per OR branch (must match param count).
+    where = (
+        "o.repo_path LIKE ? OR o.logical_name LIKE ? OR o.automation_id LIKE ? "
+        "OR o.object_key LIKE ? OR o.parent_key LIKE ? OR o.swf_class LIKE ? "
+        "OR w.window_key LIKE ? OR w.display_name LIKE ? OR w.title_pattern LIKE ? "
+        "OR w.agent_hints LIKE ? "
+        "OR a.app_name LIKE ? OR a.exe_path LIKE ? OR a.framework LIKE ? OR a.agent_hints LIKE ? "
+        "OR oi.mandatory LIKE ? OR oi.assistive LIKE ? OR oi.smart LIKE ? OR oi.ordinal LIKE ? "
+        "OR op.full_properties LIKE ? "
+        "OR res.layer LIKE ? OR res.backend LIKE ? OR res.method LIKE ? OR res.bbox LIKE ? "
+        "OR ah.hints LIKE ?"
+    )
+    params = tuple([like] * 24)
     with _connect(db_path) as conn:
         rows = conn.execute(
-            "SELECT o.* FROM objects o "
-            "WHERE o.repo_path LIKE ? OR o.logical_name LIKE ? OR o.automation_id LIKE ? "
+            "SELECT o.*, a.app_name AS _app_name, w.window_key AS _win_key, "
+            "COALESCE(ah.hints, '') AS _hints_text "
+            "FROM objects o "
+            "JOIN windows w ON o.window_id = w.id "
+            "JOIN applications a ON w.app_id = a.app_id "
+            "LEFT JOIN object_identification oi ON oi.object_id = o.id "
+            "LEFT JOIN object_properties op ON op.object_id = o.id "
+            "LEFT JOIN object_resolution res ON res.object_id = o.id "
+            "LEFT JOIN agent_hints ah ON ah.scope = 'object' AND ah.scope_id = CAST(o.id AS TEXT) "
+            f"WHERE ({where}) "
             "ORDER BY o.repo_path LIMIT 100",
-            (like, like, like),
+            params,
         ).fetchall()
-        return [_row_to_object_dict(r, conn) for r in rows]
+        out: list[dict] = []
+        for row in rows:
+            obj = _row_to_object_dict(row, conn)
+            app_name = str(row["_app_name"] or "")
+            win_key = str(row["_win_key"] or obj.get("_window_key") or "")
+            hints_text = str(row["_hints_text"] or "")
+            obj["_app_name"] = app_name
+            obj["_search"] = _search_match_meta(
+                obj,
+                app_name=app_name,
+                window_key=win_key,
+                hints_text=hints_text,
+                q=needle,
+            )
+            out.append(obj)
+        return out
 
 
 def update_object(
